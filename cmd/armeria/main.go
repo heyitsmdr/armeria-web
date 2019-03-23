@@ -1,8 +1,8 @@
 package main
 
 import (
-	"armeria/pkg/armeria"
-	"armeria/pkg/web"
+	"armeria/internal/pkg/armeria"
+	"armeria/internal/pkg/web"
 	"fmt"
 )
 
