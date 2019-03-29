@@ -4,16 +4,28 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"github.com/gorilla/mux"
 )
 
 // Init will initialize the HTTP web server
-func Init() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "This is Armeria.")
+func Init(publicPath string) {
+	log.Printf("[web] Serving client from: %s", publicPath)
+
+	r := mux.NewRouter()
+
+	// Set up routes
+	r.PathPrefix("/js").Handler(http.FileServer(http.Dir(publicPath)))
+	r.PathPrefix("/css").Handler(http.FileServer(http.Dir(publicPath)))
+	r.PathPrefix("/img").Handler(http.FileServer(http.Dir(publicPath)))
+	r.PathPrefix("/favicon.ico").Handler(http.FileServer(http.Dir(publicPath)))
+	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, fmt.Sprintf("%s/index.html", publicPath))
 	})
 
-	err := http.ListenAndServe(":8080", nil)
+	http.Handle("/", r)
+
+	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		log.Fatal("[web] ListenAndServe: ", err)
 	}
 }
