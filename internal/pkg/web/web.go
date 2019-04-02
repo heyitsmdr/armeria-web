@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
-// Init will initialize the HTTP web server
+// Init will initialize the HTTP web server, for serving the web client
 func Init(publicPath string) {
 	log.Printf("[web] Serving client from: %s", publicPath)
 
