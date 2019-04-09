@@ -24,4 +24,5 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Create player instance here, using the upgraded connection (conn)
+
 }
