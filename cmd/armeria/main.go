@@ -1,6 +1,7 @@
 package main
 
 import (
+	"armeria/internal/pkg/sockets"
 	"armeria/internal/pkg/web"
 	"flag"
 )
@@ -10,4 +11,5 @@ func main() {
 	flag.Parse()
 
 	web.Init(*publicPath)
+	sockets.Init()
 }
