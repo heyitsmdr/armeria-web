@@ -1,24 +1,27 @@
 package sockets
 
 import (
-	"github.com/googollee/go-socket.io"
+	"github.com/gorilla/websocket"
 	"log"
+	"net/http"
 )
 
-// Server is the socket.io server instance
-var Server *socketio.Server
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 // Init will initialize the socket.io server
 func Init() {
-	server, err := socketio.NewServer(nil)
+
+}
+
+// ServeWs upgrades the connection to a WebSocket
+func ServeWs(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal("[sockets] socketio.NewServer: ", err)
+		log.Printf("[sockets] ServeWs: %s", err)
 	}
 
-	Server = server
-
-	Server.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		return nil
-	})
+	// TODO: Create player instance here, using the upgraded connection (conn)
 }

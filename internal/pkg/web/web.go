@@ -1,6 +1,7 @@
 package web
 
 import (
+	"armeria/internal/pkg/sockets"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,6 +20,9 @@ func Init(publicPath string) {
 	r.PathPrefix("/css").Handler(http.FileServer(http.Dir(publicPath)))
 	r.PathPrefix("/img").Handler(http.FileServer(http.Dir(publicPath)))
 	r.PathPrefix("/favicon.ico").Handler(http.FileServer(http.Dir(publicPath)))
+	r.PathPrefix("/ws").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sockets.ServeWs(w, r)
+	})
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, fmt.Sprintf("%s/index.html", publicPath))
 	})
