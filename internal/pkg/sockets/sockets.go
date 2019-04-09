@@ -1,6 +1,7 @@
 package sockets
 
 import (
+	"armeria/internal/pkg/players"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[sockets] ServeWs: %s", err)
 	}
 
-	// TODO: Create player instance here, using the upgraded connection (conn)
+	p := players.Manager.NewPlayer(conn)
+	p.SetupPumps()
 
 }
