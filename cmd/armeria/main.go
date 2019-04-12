@@ -11,5 +11,7 @@ func main() {
 	flag.Parse()
 
 	players.Init()
+
+	// Initialize the web server last since it will start accepting player connections
 	web.Init(*publicPath)
 }
