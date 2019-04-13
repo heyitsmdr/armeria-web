@@ -2,11 +2,13 @@
   <div id="app">
     <div class="container-top">
       <div class="container-left">
-        <div class="container-minimap">Minimap</div>
+        <div class="container-minimap" @click="clickMinimap">Minimap</div>
         <div class="container-targets">Room Targets</div>
       </div>
       <div class="container-center">
-        <div class="container-maintext">Main Text Area</div>
+        <div class="container-maintext">
+          <MainText />
+        </div>
         <div class="container-input">
           <InputBox />
         </div>
@@ -18,12 +20,21 @@
 </template>
 
 <script>
+import MainText from '@/components/MainText';
 import InputBox from '@/components/InputBox';
 
 export default {
   name: 'App',
   components: {
-    InputBox
+    InputBox,
+    MainText
+  },
+  methods: {
+    clickMinimap() {
+      this.$store.dispatch('sendSlashCommand', {
+        command: "/say hello"
+      });
+    }
   }
 }
 </script>

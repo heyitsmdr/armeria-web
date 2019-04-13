@@ -6,23 +6,40 @@ import (
 	"time"
 )
 
-type socketDataStructure struct {
-	messageType string
-	messageData string
+type incomingDataStructure struct {
+	Type string      `json:"type"`
+	Payload interface{} `json:"payload"`
+}
+
+type outgoingDataStructure struct {
+	Action   string 	 `json:"action"`
+	Payload  interface{} `json:"data"`
 }
 
 // Player is a connected player with a valid socket connection
 type Player struct {
+	ClientAction	 *clientAction
 	socket           *websocket.Conn
 	pumpsInitialized bool
-	sendData         chan socketDataStructure
+	sendData         chan *outgoingDataStructure
 }
 
 func (p *Player) readPump() {
 	defer Manager.DisconnectPlayer(p)
+
 	p.socket.SetReadLimit(512)
+
 	for {
-		_, message, err := p.socket.ReadJSON(socketDataStructure)
+		messageRead := &incomingDataStructure{}
+		err := p.socket.ReadJSON(messageRead)
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("[players] error reading from socket: %s", err)
+			}
+			break
+		}
+
+		log.Printf("[players] message received: %s", messageRead)
 	}
 }
 
@@ -32,18 +49,14 @@ func (p *Player) writePump() {
 	for {
 		select {
 		case message, channelOpen := <-p.sendData:
-			err := p.socket.SetWriteDeadline(time.Now().Add(10 * time.Second))
-			if err != nil {
-				log.Printf("[players] error setting write deadline: %s", err)
+			// Has the sendData chan been closed?
+			if !channelOpen {
 				return
 			}
 
-			// Has the sendData chan been closed?
-			if !channelOpen {
-				err := p.socket.WriteMessage(websocket.CloseMessage, []byte{})
-				if err != nil {
-					log.Printf("[players] error writing close message to socket: %s", err)
-				}
+			err := p.socket.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err != nil {
+				log.Printf("[players] error setting write deadline: %s", err)
 				return
 			}
 
@@ -65,4 +78,9 @@ func (p *Player) SetupPumps() {
 	go p.readPump()
 	go p.writePump()
 	p.pumpsInitialized = true
+}
+
+// CallClientAction sends a socket event to call a Vuex action on the webapp
+func (p *Player) CallClientAction(actionName string, payload interface{}) {
+	p.sendData <- &outgoingDataStructure{ Action: actionName, Payload: payload }
 }

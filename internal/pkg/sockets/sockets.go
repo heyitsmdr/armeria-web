@@ -15,11 +15,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// Init will initialize the socket.io server
-func Init() {
-
-}
-
 // ServeWs upgrades the connection to a WebSocket
 func ServeWs(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -30,4 +25,6 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	p := players.Manager.NewPlayer(conn)
 	p.SetupPumps()
 
+	p.ClientAction.ShowText("Welcome to Armeria!")
+	p.ClientAction.ShowText("Enjoy your stay.")
 }

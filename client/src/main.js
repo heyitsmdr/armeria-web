@@ -5,7 +5,7 @@ import store from './store'
 
 Vue.config.productionTip = false
 
-Vue.use(VueNativeSock, 'ws://localhost:8081/ws')
+Vue.use(VueNativeSock, 'ws://localhost:8081/ws', { store: store, format: 'json' })
 
 new Vue({
   store,
