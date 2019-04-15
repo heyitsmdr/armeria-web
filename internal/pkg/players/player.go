@@ -1,6 +1,7 @@
 package players
 
 import (
+	"armeria/internal/pkg/game"
 	"github.com/gorilla/websocket"
 	"log"
 	"time"
@@ -25,7 +26,7 @@ type Player struct {
 }
 
 func (p *Player) readPump() {
-	defer Manager.DisconnectPlayer(p)
+	defer game.GameState.PlayerManager.DisconnectPlayer(p)
 
 	p.socket.SetReadLimit(512)
 
@@ -39,12 +40,17 @@ func (p *Player) readPump() {
 			break
 		}
 
-		log.Printf("[players] message received: %s", messageRead)
+		switch messageRead.Type {
+		case "command":
+			//commands.Manager.ProcessCommand(p, messageRead.Payload.(string))
+		default:
+			p.ClientAction.ShowText("Your client sent invalid data.")
+		}
 	}
 }
 
 func (p *Player) writePump() {
-	defer Manager.DisconnectPlayer(p)
+	defer game.GameState.PlayerManager.DisconnectPlayer(p)
 
 	for {
 		select {

@@ -1,8 +1,6 @@
 <template>
     <div class="container">
-        <div class="line" v-for="line in gameText">
-            {{ line }}
-        </div>
+        <div class="line" v-for="line in gameText" v-html="line"></div>
     </div>
 </template>
 

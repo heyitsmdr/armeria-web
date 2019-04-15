@@ -7,22 +7,20 @@ import (
 )
 
 // Manager is the global manager instance for Player objects
-var Manager *manager
-
-type manager struct {
+type Manager struct {
 	players map[*Player]bool
 	mux sync.Mutex
 }
 
 // Init creates a new player Manager instance
-func Init() {
-	Manager = &manager{
+func Init() *Manager {
+	return &Manager{
 		players: make(map[*Player]bool),
 	}
 }
 
 // NewPlayer creates a new Player instance and returns it
-func (m *manager) NewPlayer(conn *websocket.Conn) *Player {
+func (m *Manager) NewPlayer(conn *websocket.Conn) *Player {
 	p := &Player{
 		socket:           conn,
 		pumpsInitialized: false,
@@ -39,7 +37,7 @@ func (m *manager) NewPlayer(conn *websocket.Conn) *Player {
 }
 
 // DisconnectPlayer will gracefully remove the player from the game and terminate the socket connection
-func (m *manager) DisconnectPlayer(p *Player) {
+func (m *Manager) DisconnectPlayer(p *Player) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 

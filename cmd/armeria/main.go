@@ -1,17 +1,14 @@
 package main
 
 import (
-	"armeria/internal/pkg/players"
-	"armeria/internal/pkg/web"
+	"armeria/internal/pkg/game"
 	"flag"
 )
 
 func main() {
 	publicPath := flag.String("public", "", "public directory of client")
+	dataPath := flag.String("data", "", "data directory")
 	flag.Parse()
 
-	players.Init()
-
-	// Initialize the web server last since it will start accepting player connections
-	web.Init(*publicPath)
+	game.Init(*publicPath, *dataPath)
 }

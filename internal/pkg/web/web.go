@@ -11,7 +11,7 @@ import (
 
 // Init will initialize the HTTP web server, for serving the web client
 func Init(publicPath string) {
-	log.Printf("[web] Serving client from: %s", publicPath)
+	log.Printf("[web] serving client from: %s", publicPath)
 
 	r := mux.NewRouter()
 

@@ -1,12 +1,35 @@
 <template>
   <div class="container">
-    <input class="input-box" type="text" />
+    <input class="input-box" type="text" v-model="textToSend" v-on:keyup.enter="handleSendText" />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'InputBox'
+  name: 'InputBox',
+  data: () => {
+    return {
+      textToSend: ''
+    }
+  },
+  methods: {
+    handleSendText() {
+      let slashCommand = this.textToSend;
+
+      // If command doesn't start with /, assume using /say
+      if (slashCommand.substr(0, 1) !== '/') {
+        slashCommand = `/say ${slashCommand}`;
+      }
+
+      if (slashCommand.length > 0) {
+        this.$store.dispatch('sendSlashCommand', {
+          command: slashCommand
+        });
+      }
+
+      this.textToSend = '';
+    }
+  }
 }
 </script>
 

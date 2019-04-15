@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -9,20 +9,26 @@ export default new Vuex.Store({
     gameText: [],
   },
   mutations: {
-    SOCKET_ONOPEN: (state, event) => {
-      console.log('socket connection is open')
+    SOCKET_ONOPEN: (state) => {
+      console.log('socket connection is open');
       state.isConnected = true;
     },
-    SOCKET_ONCLOSE: (state, event) => {
-      console.log('socket connection is now closed')
-      state.isConnected = false;
+    SOCKET_ONCLOSE: (state) => {
+      console.log('socket connection is now closed');
+      if (state.isConnected) {
+        state.isConnected = false;
+        state.gameText.push('Connection to the game server has been closed.');
+      } else {
+        state.gameText.push('A connection to the game server could not be established.');
+      }
     },
-    SOCKET_ONERROR: (state, event) => {
-      console.log('socket connection is now closed due to an error')
-      state.isConnected = false;
+    SOCKET_ONERROR: (state) => {
+      console.log('an error occurred in the socket connection');
     },
     ADD_GAME_TEXT: (state, text) => {
-      state.gameText.push(text);
+      state.gameText.push(
+        text.replace("\n", "<br>")
+      );
     }
   },
   actions: {

@@ -25,6 +25,5 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	p := players.Manager.NewPlayer(conn)
 	p.SetupPumps()
 
-	p.ClientAction.ShowText("Welcome to Armeria!")
-	p.ClientAction.ShowText("Enjoy your stay.")
+	p.ClientAction.ShowIntroText()
 }
