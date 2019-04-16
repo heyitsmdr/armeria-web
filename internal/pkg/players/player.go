@@ -1,14 +1,15 @@
 package players
 
 import (
-	"armeria/internal/pkg/game"
+	"armeria/internal/pkg/game/schema"
+	schema2 "armeria/internal/pkg/players/schema"
 	"github.com/gorilla/websocket"
 	"log"
 	"time"
 )
 
 type incomingDataStructure struct {
-	Type string      `json:"type"`
+	Type string         `json:"type"`
 	Payload interface{} `json:"payload"`
 }
 
@@ -17,16 +18,16 @@ type outgoingDataStructure struct {
 	Payload  interface{} `json:"data"`
 }
 
-// Player is a connected player with a valid socket connection
-type Player struct {
-	ClientAction	 *clientAction
+type player struct {
+	gameState		 schema.IGameState
+	clientAction	 clientAction
 	socket           *websocket.Conn
 	pumpsInitialized bool
 	sendData         chan *outgoingDataStructure
 }
 
-func (p *Player) readPump() {
-	defer game.GameState.PlayerManager.DisconnectPlayer(p)
+func (p *player) readPump() {
+	defer p.gameState.PlayerManager().DisconnectPlayer(p)
 
 	p.socket.SetReadLimit(512)
 
@@ -42,15 +43,15 @@ func (p *Player) readPump() {
 
 		switch messageRead.Type {
 		case "command":
-			//commands.Manager.ProcessCommand(p, messageRead.Payload.(string))
+			p.gameState.CommandManager().ProcessCommand(p, messageRead.Payload.(string))
 		default:
-			p.ClientAction.ShowText("Your client sent invalid data.")
+			p.clientAction.ShowText("Your client sent invalid data.")
 		}
 	}
 }
 
-func (p *Player) writePump() {
-	defer game.GameState.PlayerManager.DisconnectPlayer(p)
+func (p *player) writePump() {
+	defer p.gameState.PlayerManager().DisconnectPlayer(p)
 
 	for {
 		select {
@@ -75,7 +76,7 @@ func (p *Player) writePump() {
 }
 
 // SetupPumps will create two go routines for reading and writing from the socket
-func (p *Player) SetupPumps() {
+func (p *player) SetupPumps() {
 	if p.pumpsInitialized {
 		log.Printf("[players] call to SetupPumps failed (pumps already set up)")
 		return
@@ -87,6 +88,11 @@ func (p *Player) SetupPumps() {
 }
 
 // CallClientAction sends a socket event to call a Vuex action on the webapp
-func (p *Player) CallClientAction(actionName string, payload interface{}) {
+func (p *player) CallClientAction(actionName string, payload interface{}) {
 	p.sendData <- &outgoingDataStructure{ Action: actionName, Payload: payload }
+}
+
+// ClientActions returns the available actions that can be sent to the connected client
+func (p *player) ClientActions() schema2.IClientAction {
+	return p.clientAction
 }

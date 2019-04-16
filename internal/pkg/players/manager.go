@@ -1,33 +1,37 @@
 package players
 
 import (
+	schemaGame "armeria/internal/pkg/game/schema"
+	"armeria/internal/pkg/players/schema"
 	"github.com/gorilla/websocket"
 	"log"
 	"sync"
 )
 
-// Manager is the global manager instance for Player objects
-type Manager struct {
-	players map[*Player]bool
+type manager struct {
+	gameState schemaGame.IGameState
+	players map[*player]bool
 	mux sync.Mutex
 }
 
 // Init creates a new player Manager instance
-func Init() *Manager {
-	return &Manager{
-		players: make(map[*Player]bool),
+func Init(gs schemaGame.IGameState) *manager {
+	return &manager{
+		gameState: gs,
+		players: make(map[*player]bool),
 	}
 }
 
 // NewPlayer creates a new Player instance and returns it
-func (m *Manager) NewPlayer(conn *websocket.Conn) *Player {
-	p := &Player{
+func (m *manager) NewPlayer(conn *websocket.Conn) schema.IPlayer {
+	p := &player{
+		gameState: 		  m.gameState,
 		socket:           conn,
 		pumpsInitialized: false,
 		sendData:         make(chan *outgoingDataStructure, 256),
 	}
 
-	p.ClientAction = newClientAction(p)
+	p.clientAction = newClientAction(p)
 
 	m.players[p] = true
 
@@ -37,9 +41,11 @@ func (m *Manager) NewPlayer(conn *websocket.Conn) *Player {
 }
 
 // DisconnectPlayer will gracefully remove the player from the game and terminate the socket connection
-func (m *Manager) DisconnectPlayer(p *Player) {
+func (m *manager) DisconnectPlayer(pp schema.IPlayer) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
+
+	p := pp.(*player)
 
 	if !m.players[p] {
 		return

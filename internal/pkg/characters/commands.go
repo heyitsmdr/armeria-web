@@ -1,17 +1,17 @@
 package characters
 
 import (
-	"armeria/internal/pkg/commands"
-	"armeria/internal/pkg/players"
+	schemaCommands "armeria/internal/pkg/commands/schema"
+	schemaPlayers "armeria/internal/pkg/players/schema"
 )
 
-func registerCommands() {
-	commands.Manager.RegisterCommand(&commands.Command{
+func (m *manager) registerCommands() {
+	m.gameState.CommandManager().RegisterCommand(schemaCommands.Command{
 		Name: "login",
 		Handler: login,
 	})
 }
 
-func login(p *players.Player) {
-	p.ClientAction.ShowText("Trying to login? Okay!")
+func login(p schemaPlayers.IPlayer) {
+	p.ClientActions().ShowText("Trying to login? Okay!")
 }

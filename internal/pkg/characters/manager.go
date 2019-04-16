@@ -1,33 +1,33 @@
 package characters
 
 import (
+	schemaGame "armeria/internal/pkg/game/schema"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"sync"
 )
 
-// Manager is the global manager instance for Character objects
-type Manager struct {
-	Characters []*Character `json:"characters"`
+type manager struct {
+	gameState schemaGame.IGameState
 	dataFile string
-	mux sync.Mutex
+	Characters []*Character `json:"characters"`
 }
 
 // Init creates a new character Manager instance
-func Init(dataPath string) *Manager {
-	m := &Manager{
+func Init(gs schemaGame.IGameState, dataPath string) *manager {
+	m := &manager{
+		gameState: gs,
 		dataFile: fmt.Sprintf("%s/characters.json", dataPath),
 	}
 
 	m.loadCharacters()
-	registerCommands()
+	m.registerCommands()
 
 	return m
 }
 
-func (m *Manager) loadCharacters() {
+func (m *manager) loadCharacters() {
 	charactersFile, err := os.Open(m.dataFile)
 	defer charactersFile.Close()
 
