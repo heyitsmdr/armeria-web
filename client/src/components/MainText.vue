@@ -17,4 +17,8 @@ export default {
     .container {
         padding: 5px;
     }
+
+    .line {
+        color: #ddd;
+    }
 </style>

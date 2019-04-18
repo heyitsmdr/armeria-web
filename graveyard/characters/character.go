@@ -3,7 +3,7 @@ package characters
 import "log"
 
 type Character struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 

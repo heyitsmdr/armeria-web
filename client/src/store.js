@@ -17,7 +17,7 @@ export default new Vuex.Store({
       console.log('socket connection is now closed');
       if (state.isConnected) {
         state.isConnected = false;
-        state.gameText.push('Connection to the game server has been closed.');
+        state.gameText.push('<br>Connection to the game server has been closed.');
       } else {
         state.gameText.push('A connection to the game server could not be established.');
       }
@@ -27,7 +27,10 @@ export default new Vuex.Store({
     },
     ADD_GAME_TEXT: (state, text) => {
       state.gameText.push(
-        text.replace("\n", "<br>")
+        text
+          .replace(/\n/g, "<br>")
+          .replace(/\[b\]/g, "<strong>")
+          .replace(/\[\/b\]/g, "</strong>")
       );
     }
   },

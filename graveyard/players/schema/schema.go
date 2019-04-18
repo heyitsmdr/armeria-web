@@ -1,6 +1,8 @@
 package schema
 
-import "github.com/gorilla/websocket"
+import (
+	"github.com/gorilla/websocket"
+)
 
 type IPlayerManager interface {
 	NewPlayer(conn *websocket.Conn) IPlayer

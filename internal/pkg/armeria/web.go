@@ -1,8 +1,6 @@
-package web
+package armeria
 
 import (
-	"armeria/internal/pkg/game/schema"
-	"armeria/internal/pkg/sockets"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,7 +9,7 @@ import (
 )
 
 // Init will initialize the HTTP web server, for serving the web client
-func Init(gs schema.IGameState, publicPath string) {
+func InitWeb(state *GameState, publicPath string) {
 	log.Printf("[web] serving client from: %s", publicPath)
 
 	r := mux.NewRouter()
@@ -22,7 +20,7 @@ func Init(gs schema.IGameState, publicPath string) {
 	r.PathPrefix("/img").Handler(http.FileServer(http.Dir(publicPath)))
 	r.PathPrefix("/favicon.ico").Handler(http.FileServer(http.Dir(publicPath)))
 	r.PathPrefix("/ws").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sockets.ServeWs(gs, w, r)
+		ServeWs(state, w, r)
 	})
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, fmt.Sprintf("%s/index.html", publicPath))

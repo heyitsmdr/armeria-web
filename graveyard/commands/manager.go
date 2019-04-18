@@ -12,13 +12,13 @@ import (
 // Manager is the global manager instance for Command objects
 type manager struct {
 	gameState schemaGame.IGameState
-	commands []schema.Command
+	commands  []schema.Command
 }
 
 func Init(gs schemaGame.IGameState) *manager {
 	return &manager{
 		gameState: gs,
-		commands: []schema.Command{},
+		commands:  []schema.Command{},
 	}
 }
 
@@ -38,7 +38,11 @@ func (m *manager) ProcessCommand(p schemaPlayers.IPlayer, cmd string) {
 
 	for _, c := range m.commands {
 		if c.Name == commandName {
-			c.Handler(p)
+			c.Handler(&schema.CommandRequest{
+				Command: &c,
+				Player:  p,
+				Args:    sections[1:],
+			})
 			return
 		}
 	}

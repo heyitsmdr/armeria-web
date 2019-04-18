@@ -1,7 +1,7 @@
 package main
 
 import (
-	"armeria/internal/pkg/game"
+	"armeria/internal/pkg/armeria"
 	"flag"
 )
 
@@ -10,5 +10,5 @@ func main() {
 	dataPath := flag.String("data", "", "data directory")
 	flag.Parse()
 
-	game.Init(*publicPath, *dataPath)
+	armeria.Init(*publicPath, *dataPath)
 }

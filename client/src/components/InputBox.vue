@@ -1,6 +1,14 @@
 <template>
   <div class="container">
-    <input class="input-box" type="text" v-model="textToSend" v-on:keyup.enter="handleSendText" />
+    <input
+      class="input-box"
+      type="text"
+      v-model="textToSend"
+      v-on:keyup.enter="handleSendText"
+      @focus="handleFocus"
+      @blur="handleBlur"
+      v-bind:class="{ active: isFocused }"
+    />
   </div>
 </template>
 
@@ -9,7 +17,8 @@ export default {
   name: 'InputBox',
   data: () => {
     return {
-      textToSend: ''
+      textToSend: '',
+      isFocused: false,
     }
   },
   methods: {
@@ -28,6 +37,14 @@ export default {
       }
 
       this.textToSend = '';
+    },
+
+    handleFocus() {
+      this.isFocused = true;
+    },
+
+    handleBlur() {
+      this.isFocused = false;
     }
   }
 }
@@ -35,11 +52,11 @@ export default {
 
 <style lang="scss" scoped>
 .container {
-  padding-left: 5px;
+
 }
 
 .input-box {
-  background-color: #000;
+  background-color: #0c0c0c;
   border: 0;
   height: 35px;
   width: 100%;
@@ -47,6 +64,11 @@ export default {
   font-family: 'Montserrat', sans-serif;
   font-weight: 500;
   font-size: 13px;
+  padding-left: 5px;
+
+  &.active {
+    background-color: #000;
+  }
 
   &:focus{
     outline: none;

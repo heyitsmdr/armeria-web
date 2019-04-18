@@ -9,8 +9,8 @@ import (
 )
 
 type manager struct {
-	gameState schemaGame.IGameState
-	dataFile string
+	gameState  schemaGame.IGameState
+	dataFile   string
 	Characters []*Character `json:"characters"`
 }
 
@@ -18,7 +18,7 @@ type manager struct {
 func Init(gs schemaGame.IGameState, dataPath string) *manager {
 	m := &manager{
 		gameState: gs,
-		dataFile: fmt.Sprintf("%s/characters.json", dataPath),
+		dataFile:  fmt.Sprintf("%s/characters.json", dataPath),
 	}
 
 	m.loadCharacters()
@@ -43,4 +43,14 @@ func (m *manager) loadCharacters() {
 	}
 
 	log.Printf("[characters] loaded %d characters from file", len(m.Characters))
+}
+
+func (m *manager) GetCharacterByName(name string) *Character {
+	for _, c := range m.Characters {
+		if c.Name == name {
+			return c
+		}
+	}
+
+	return nil
 }
