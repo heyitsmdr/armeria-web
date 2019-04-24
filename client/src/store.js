@@ -7,14 +7,13 @@ export default new Vuex.Store({
   state: {
     isConnected: false,
     gameText: [],
+    allowGlobalHotkeys: true,
   },
   mutations: {
     SOCKET_ONOPEN: (state) => {
-      console.log('socket connection is open');
       state.isConnected = true;
     },
     SOCKET_ONCLOSE: (state) => {
-      console.log('socket connection is now closed');
       if (state.isConnected) {
         state.isConnected = false;
         state.gameText.push('<br>Connection to the game server has been closed.');
@@ -22,7 +21,7 @@ export default new Vuex.Store({
         state.gameText.push('A connection to the game server could not be established.');
       }
     },
-    SOCKET_ONERROR: (state) => {
+    SOCKET_ONERROR: () => {
       console.log('an error occurred in the socket connection');
     },
     ADD_GAME_TEXT: (state, text) => {
@@ -32,6 +31,9 @@ export default new Vuex.Store({
           .replace(/\[b\]/g, "<strong>")
           .replace(/\[\/b\]/g, "</strong>")
       );
+    },
+    SET_ALLOW_GLOBAL_HOTKEYS: (state, allow) => {
+      state.allowGlobalHotkeys = allow;
     }
   },
   actions: {
@@ -48,6 +50,10 @@ export default new Vuex.Store({
 
     showText: ({ commit }, payload) => {
       commit('ADD_GAME_TEXT', payload.data);
+    },
+
+    setAllowGlobalHotkeys: ({ commit }, payload) => {
+      commit('SET_ALLOW_GLOBAL_HOTKEYS', payload);
     }
   }
 })

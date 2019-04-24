@@ -13,15 +13,23 @@ type CommandManager struct {
 }
 
 type Command struct {
-	Name       string
-	SyntaxHelp string
-	Handler    func(r *CommandRequest)
+	Name         string
+	Permissions  *CommandPermissions
+	SyntaxHelp   string
+	AllowedRoles []int
+	Handler      func(r *CommandContext)
 }
 
-type CommandRequest struct {
-	Command *Command
-	Player  *Player
-	Args    []string
+type CommandPermissions struct {
+	RequireNoCharacter bool
+	RequireCharacter   bool
+}
+
+type CommandContext struct {
+	GameState *GameState
+	Command   *Command
+	Player    *Player
+	Args      []string
 }
 
 func NewCommandManager(state *GameState) *CommandManager {
@@ -45,16 +53,43 @@ func (m *CommandManager) ProcessCommand(p *Player, cmd string) {
 	// Get command name and trim the first character
 	commandName := sections[0][1:]
 
-	for _, c := range m.commands {
-		if c.Name == commandName {
-			c.Handler(&CommandRequest{
-				Command: c,
-				Player:  p,
-				Args:    sections[1:],
+	for _, cmd := range m.commands {
+		if strings.ToLower(cmd.Name) == strings.ToLower(commandName) {
+			// Handle permissions
+			if !cmd.CheckPermissions(p) {
+				p.clientActions.ShowText("You cannot use that command right now.")
+				return
+			}
+
+			cmd.Handler(&CommandContext{
+				GameState: m.gameState,
+				Command:   cmd,
+				Player:    p,
+				Args:      sections[1:],
 			})
 			return
 		}
 	}
 
 	p.clientActions.ShowText("That's an invalid command.")
+}
+
+func (cmd *Command) CheckPermissions(p *Player) bool {
+	if cmd.Permissions == nil {
+		return true
+	}
+
+	if cmd.Permissions.RequireNoCharacter {
+		if p.GetCharacter() != nil {
+			return false
+		}
+	}
+
+	if cmd.Permissions.RequireCharacter {
+		if p.GetCharacter() == nil {
+			return false
+		}
+	}
+
+	return true
 }

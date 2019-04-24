@@ -2,9 +2,11 @@
   <div class="container">
     <input
       class="input-box"
+      ref="inputBox"
       type="text"
       v-model="textToSend"
       v-on:keyup.enter="handleSendText"
+      v-on:keyup.escape="handleRemoveFocus"
       @focus="handleFocus"
       @blur="handleBlur"
       v-bind:class="{ active: isFocused }"
@@ -21,16 +23,23 @@ export default {
       isFocused: false,
     }
   },
+  mounted() {
+    this.$refs['inputBox'].focus();
+  },
   methods: {
     handleSendText() {
       let slashCommand = this.textToSend;
 
-      // If command doesn't start with /, assume using /say
-      if (slashCommand.substr(0, 1) !== '/') {
-        slashCommand = `/say ${slashCommand}`;
+      if (slashCommand.length === 0) {
+        this.$store.dispatch('sendSlashCommand', {
+          command: '/look'
+        });
       }
-
-      if (slashCommand.length > 0) {
+      else if (slashCommand.substr(0, 1) !== '/') {
+        this.$store.dispatch('sendSlashCommand', {
+          command: `/say ${slashCommand}`
+        });
+      } else {
         this.$store.dispatch('sendSlashCommand', {
           command: slashCommand
         });
@@ -39,12 +48,18 @@ export default {
       this.textToSend = '';
     },
 
+    handleRemoveFocus(event) {
+      event.target.blur()
+    },
+
     handleFocus() {
       this.isFocused = true;
+      this.$store.dispatch('setAllowGlobalHotkeys', false);
     },
 
     handleBlur() {
       this.isFocused = false;
+      this.$store.dispatch('setAllowGlobalHotkeys', true);
     }
   }
 }

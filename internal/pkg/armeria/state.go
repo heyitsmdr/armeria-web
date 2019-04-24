@@ -4,6 +4,7 @@ type GameState struct {
 	playerManager    *PlayerManager
 	commandManager   *CommandManager
 	characterManager *CharacterManager
+	worldManager     *WorldManager
 }
 
 func Init(publicPath string, dataPath string) {
@@ -12,7 +13,9 @@ func Init(publicPath string, dataPath string) {
 	state.playerManager = NewPlayerManager(state)
 	state.commandManager = NewCommandManager(state)
 	state.characterManager = NewCharacterManager(state, dataPath)
+	state.worldManager = NewWorldManager(state, dataPath)
 
+	RegisterGameCommands(state)
 	InitWeb(state, publicPath)
 }
 

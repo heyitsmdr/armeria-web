@@ -2,12 +2,12 @@
   <div id="app">
     <div class="container-top">
       <div class="container-left">
-        <div class="container-minimap" @click="clickMinimap">Minimap</div>
+        <div class="container-minimap">Minimap</div>
         <div class="container-targets">Room Targets</div>
       </div>
       <div class="container-center">
         <div class="container-maintext">
-          <MainText />
+          <MainText :windowHeight="windowHeight" />
         </div>
         <div class="container-input">
           <InputBox />
@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import MainText from '@/components/MainText';
 import InputBox from '@/components/InputBox';
 
@@ -29,12 +30,69 @@ export default {
     InputBox,
     MainText
   },
-  methods: {
-    clickMinimap() {
-      this.$store.dispatch('sendSlashCommand', {
-        command: "/say hello"
-      });
+  data: () => {
+    return {
+      windowHeight: 0,
     }
+  },
+  computed: mapState(['allowGlobalHotkeys']),
+  methods: {
+    onWindowResize() {
+      this.windowHeight = window.innerHeight;
+    },
+    onKeyUp(event) {
+      if (!this.allowGlobalHotkeys) {
+        return;
+      }
+
+      let sendCommand = '';
+
+      switch(event.key) {
+        case 'w':
+          sendCommand = "/move north";
+          break;
+        case 'a':
+          sendCommand = "/move west";
+          break;
+        case 's':
+          sendCommand = "/move south";
+          break;
+        case 'd':
+          sendCommand = "/move east";
+          break;
+        case 'q':
+          sendCommand = "/move down";
+          break;
+        case 'e':
+          sendCommand = "/move up";
+          break;
+      }
+
+      if (sendCommand.length > 0) {
+        this.$store.dispatch('sendSlashCommand', {
+          command: sendCommand
+        });
+      }
+    }
+  },
+  mounted() {
+    this.onWindowResize()
+
+    window.addEventListener(
+      'resize',
+      this.onWindowResize
+    );
+
+    window.addEventListener(
+      'keyup',
+      this.onKeyUp
+    );
+  },
+  destroyed() {
+    window.removeEventListener(
+      'resize',
+      this.onWindowResize
+    );
   }
 }
 </script>
@@ -43,7 +101,7 @@ export default {
 @import url('https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
 $backgroundNormal: #111;
 $backgroundLight: #1b1b1b;
-$sidebarWidth: 300px;
+$sidebarWidth: 250px;
 
 html, body {
   padding: 0;
@@ -51,6 +109,14 @@ html, body {
   height: 100%;
   background-color: $backgroundNormal;
 }
+
+::-webkit-scrollbar { width: 8px; height: 3px; }
+::-webkit-scrollbar-button {  background-color: #666; }
+::-webkit-scrollbar-track {  background-color: #646464; }
+::-webkit-scrollbar-track-piece { background-color: #000; }
+::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 3px; }
+::-webkit-scrollbar-corner { background-color: #646464; }
+::-webkit-resizer { background-color: #666; }
 
 #app {
   font-family: 'Montserrat', sans-serif;

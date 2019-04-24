@@ -2,9 +2,7 @@ package armeria
 
 import (
 	"log"
-	"strings"
 	"sync"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -13,24 +11,6 @@ type PlayerManager struct {
 	gameState *GameState
 	players   map[*Player]bool
 	mux       sync.Mutex
-}
-
-type Player struct {
-	gameState        *GameState
-	clientActions    *ClientActions
-	socket           *websocket.Conn
-	pumpsInitialized bool
-	sendData         chan *OutgoingDataStructure
-}
-
-type IncomingDataStructure struct {
-	Type    string      `json:"type"`
-	Payload interface{} `json:"payload"`
-}
-
-type OutgoingDataStructure struct {
-	Action  string      `json:"action"`
-	Payload interface{} `json:"data"`
 }
 
 // Init creates a new player Manager instance
@@ -68,6 +48,22 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 		return
 	}
 
+	if p.character != nil {
+		// Notify character of logout
+		p.character.LoggedOut(m.gameState)
+		// Unset player from character
+		p.character.SetPlayer(nil)
+		// Log
+		log.Printf("[players] character logged out: %s", p.character.GetName())
+		// Unset character from player
+		p.AttachCharacter(nil)
+	}
+
+	// Fatal if data should of been sent but wasn't
+	if len(p.sendData) > 0 {
+		log.Fatal("[players] player disconnected with unsent data")
+	}
+
 	// Close the socket connection
 	err := p.socket.Close()
 	if err != nil {
@@ -81,80 +77,4 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 	delete(m.players, p)
 
 	log.Printf("[players] player disconnected (%d total players)", len(m.players))
-}
-
-func (p *Player) readPump() {
-	defer p.gameState.playerManager.DisconnectPlayer(p)
-
-	p.socket.SetReadLimit(512)
-
-	for {
-		messageRead := &IncomingDataStructure{}
-		err := p.socket.ReadJSON(messageRead)
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("[players] error reading from socket: %s", err)
-			}
-			break
-		}
-
-		switch messageRead.Type {
-		case "command":
-			p.gameState.commandManager.ProcessCommand(p, messageRead.Payload.(string))
-		default:
-			p.clientActions.ShowText("Your client sent invalid data.")
-		}
-	}
-}
-
-func (p *Player) writePump() {
-	defer p.gameState.playerManager.DisconnectPlayer(p)
-
-	for {
-		select {
-		case message, channelOpen := <-p.sendData:
-			// Has the sendData chan been closed?
-			if !channelOpen {
-				return
-			}
-
-			err := p.socket.SetWriteDeadline(time.Now().Add(10 * time.Second))
-			if err != nil {
-				log.Printf("[players] error setting write deadline: %s", err)
-				return
-			}
-
-			if err := p.socket.WriteJSON(message); err != nil {
-				log.Printf("[players] error writing to socket: %s", err)
-				return
-			}
-		}
-	}
-}
-
-// SetupPumps will create two go routines for reading and writing from the socket
-func (p *Player) SetupPumps() {
-	if p.pumpsInitialized {
-		log.Printf("[players] call to SetupPumps failed (pumps already set up)")
-		return
-	}
-
-	go p.readPump()
-	go p.writePump()
-	p.pumpsInitialized = true
-}
-
-// CallClientAction sends a socket event to call a Vuex action on the webapp
-func (p *Player) CallClientAction(actionName string, payload interface{}) {
-	p.sendData <- &OutgoingDataStructure{Action: actionName, Payload: payload}
-}
-
-func (p *Player) ShowConnectionText() {
-	lines := []string{
-		"Welcome to the world of Armeria!\n",
-		"[ARMERIA ASCII ART HERE]\n",
-		"If you have a character, you can <b>/login</b>. Otherwise, use <b>/create</b>.",
-	}
-
-	p.clientActions.ShowText(strings.Join(lines, "<br>"))
 }
