@@ -28,7 +28,6 @@ type Coords struct {
 type Location struct {
 	AreaName string  `json:"area"`
 	Coords   *Coords `json:"coords"`
-	mux      sync.Mutex
 }
 
 func (a *Area) GetName() string {

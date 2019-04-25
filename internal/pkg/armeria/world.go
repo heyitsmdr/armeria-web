@@ -43,9 +43,6 @@ func (m *WorldManager) loadWorld() {
 }
 
 func (m *WorldManager) GetAreaFromLocation(l *Location) *Area {
-	l.mux.Lock()
-	defer l.mux.Unlock()
-
 	for _, a := range m.World {
 		if a.GetName() == l.AreaName {
 			return a

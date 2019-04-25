@@ -16,9 +16,11 @@ type Character struct {
 	mux       sync.Mutex
 }
 
-const COLOR_ROOM_TITLE int = 0
-const COLOR_SAY int = 1
-const COLOR_MOVEMENT int = 2
+const (
+	COLOR_ROOM_TITLE int = 0
+	COLOR_SAY        int = 1
+	COLOR_MOVEMENT   int = 2
+)
 
 const ROLE_ADMIN int = 0
 
@@ -63,14 +65,14 @@ func (c *Character) SetPlayer(p *Player) {
 }
 
 func (c *Character) GetLocation() *Location {
-	c.Location.mux.Lock()
-	defer c.Location.mux.Unlock()
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	return c.Location
 }
 
 func (c *Character) SetLocation(l *Location) {
-	l.mux.Lock()
-	defer l.mux.Unlock()
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	c.Location = l
 }
 
