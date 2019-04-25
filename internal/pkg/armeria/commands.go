@@ -29,6 +29,7 @@ type CommandContext struct {
 	GameState *GameState
 	Command   *Command
 	Player    *Player
+	Character *Character
 	Args      []string
 }
 
@@ -61,12 +62,18 @@ func (m *CommandManager) ProcessCommand(p *Player, cmd string) {
 				return
 			}
 
-			cmd.Handler(&CommandContext{
+			ctx := &CommandContext{
 				GameState: m.gameState,
 				Command:   cmd,
 				Player:    p,
 				Args:      sections[1:],
-			})
+			}
+
+			if p.GetCharacter() != nil {
+				ctx.Character = p.GetCharacter()
+			}
+
+			cmd.Handler(ctx)
 			return
 		}
 	}

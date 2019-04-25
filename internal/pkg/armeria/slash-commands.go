@@ -77,7 +77,7 @@ func handleLoginCommand(r *CommandContext) {
 
 	r.Player.clientActions.ShowText(fmt.Sprintf("You've successfully logged in to %s!", c.GetName()))
 
-	c.LoggedIn(r.GameState)
+	c.LoggedIn()
 
 	log.Printf("[characters] character logged in: %s", c.GetName())
 }
@@ -85,10 +85,23 @@ func handleLoginCommand(r *CommandContext) {
 func handleLookCommand(r *CommandContext) {
 	room := r.GameState.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
 
+	var objNames []string
+	for _, o := range room.GetObjects() {
+		if o.GetType() != OBJECT_TYPE_CHARACTER || o.GetName() != r.Character.GetName() {
+			objNames = append(objNames, o.GetFName())
+		}
+	}
+
+	withYou := ""
+	if len(objNames) > 0 {
+		withYou = fmt.Sprintf("\nHere with you: %s.", strings.Join(objNames, ", "))
+	}
+
 	r.Player.clientActions.ShowText(
-		"\nYou take a look around..\n" +
+		"\n" +
 			r.Player.GetCharacter().Colorize(room.GetTitle(), COLOR_ROOM_TITLE) + "\n" +
-			room.GetDescription(),
+			room.GetDescription() +
+			withYou,
 	)
 }
 
@@ -109,7 +122,7 @@ func handleSayCommand(r *CommandContext) {
 	for _, c := range otherChars {
 		c.GetPlayer().clientActions.ShowText(
 			c.GetPlayer().GetCharacter().Colorize(
-				fmt.Sprintf("%s says, \"%s\".", r.Player.GetCharacter().GetName(), sayText),
+				fmt.Sprintf("%s says, \"%s\".", r.Player.GetCharacter().GetFName(), sayText),
 				COLOR_SAY,
 			),
 		)
@@ -122,27 +135,40 @@ func handleMoveCommand(r *CommandContext) {
 		return
 	}
 
-	loc := r.Player.GetCharacter().GetLocation()
-	area := r.GameState.worldManager.GetAreaFromLocation(loc)
+	loc := r.Character.GetLocation()
 
 	x := loc.Coords.X
 	y := loc.Coords.Y
 	z := loc.Coords.Z
 
 	moveDir := r.Args[0]
+	walkDir := ""
+	arriveDir := ""
 	switch strings.ToLower(moveDir) {
 	case "north", "n":
 		y = y + 1
+		walkDir = "the north"
+		arriveDir = "the south"
 	case "south", "s":
 		y = y - 1
+		walkDir = "the south"
+		arriveDir = "the north"
 	case "east", "e":
 		x = x + 1
+		walkDir = "the east"
+		arriveDir = "the west"
 	case "west", "w":
 		x = x - 1
+		walkDir = "west"
+		arriveDir = "the east"
 	case "up", "u":
 		z = z + 1
+		walkDir = "up"
+		arriveDir = "below"
 	case "down", "d":
 		z = z - 1
+		walkDir = "down"
+		arriveDir = "above"
 	default:
 		r.Player.clientActions.ShowText("That's not a valid direction to move in.")
 		return
@@ -158,10 +184,18 @@ func handleMoveCommand(r *CommandContext) {
 		},
 	}
 
-	moveAllowed, moveError := r.Player.GetCharacter().MoveAllowed(r.GameState, newLocation)
+	moveAllowed, moveError := r.Character.MoveAllowed(newLocation)
 	if !moveAllowed {
 		r.Player.clientActions.ShowText(moveError)
 		return
 	}
 
+	r.Character.Move(
+		newLocation,
+		r.Character.Colorize(fmt.Sprintf("\nYou walk to %s.", walkDir), COLOR_MOVEMENT),
+		r.Character.Colorize(fmt.Sprintf("%s walks to %s.", r.Character.GetFName(), walkDir), COLOR_MOVEMENT),
+		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.GetFName(), arriveDir), COLOR_MOVEMENT),
+	)
+
+	r.GameState.commandManager.ProcessCommand(r.Player, "/look")
 }

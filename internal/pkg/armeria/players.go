@@ -50,7 +50,7 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 
 	if p.character != nil {
 		// Notify character of logout
-		p.character.LoggedOut(m.gameState)
+		p.character.LoggedOut()
 		// Unset player from character
 		p.character.SetPlayer(nil)
 		// Log

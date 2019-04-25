@@ -28,8 +28,8 @@ export default new Vuex.Store({
       state.gameText.push(
         text
           .replace(/\n/g, "<br>")
-          .replace(/\[b\]/g, "<strong>")
-          .replace(/\[\/b\]/g, "</strong>")
+          .replace(/\[b\]/g, "<span style='font-weight:600'>")
+          .replace(/\[\/b\]/g, "</span>")
       );
     },
     SET_ALLOW_GLOBAL_HOTKEYS: (state, allow) => {

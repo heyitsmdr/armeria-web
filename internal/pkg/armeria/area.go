@@ -1,6 +1,8 @@
 package armeria
 
-import "sync"
+import (
+	"sync"
+)
 
 type Area struct {
 	Name  string  `json:"name"`

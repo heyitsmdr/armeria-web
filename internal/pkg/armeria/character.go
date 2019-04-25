@@ -7,27 +7,41 @@ import (
 )
 
 type Character struct {
-	Name     string    `json:"name"`
-	Password string    `json:"password"`
-	Location *Location `json:"location"`
-	Role     int       `json:"role"`
-	player   *Player
-	mux      sync.Mutex
+	gameState *GameState
+	Name      string    `json:"name"`
+	Password  string    `json:"password"`
+	Location  *Location `json:"location"`
+	Role      int       `json:"role"`
+	player    *Player
+	mux       sync.Mutex
 }
 
 const COLOR_ROOM_TITLE int = 0
 const COLOR_SAY int = 1
+const COLOR_MOVEMENT int = 2
 
 const ROLE_ADMIN int = 0
+
+func (c *Character) Init(state *GameState) {
+	c.gameState = state
+}
 
 func (c *Character) GetType() int {
 	return OBJECT_TYPE_CHARACTER
 }
 
+// GetName returns the raw character name
 func (c *Character) GetName() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Name
+}
+
+// GetFName returns the formatted character name
+func (c *Character) GetFName() string {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	return fmt.Sprintf("[b]%s[/b]", c.Name)
 }
 
 func (c *Character) GetPassword() string {
@@ -49,15 +63,19 @@ func (c *Character) SetPlayer(p *Player) {
 }
 
 func (c *Character) GetLocation() *Location {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.Location.mux.Lock()
+	defer c.Location.mux.Unlock()
 	return c.Location
 }
 
 func (c *Character) SetLocation(l *Location) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	l.mux.Lock()
+	defer l.mux.Unlock()
 	c.Location = l
+}
+
+func (c *Character) GetRoom() *Room {
+	return c.gameState.worldManager.GetRoomFromLocation(c.Location)
 }
 
 func (c *Character) GetRole() int {
@@ -74,21 +92,23 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#6e94ff;font-weight:600'>%s</span>", text)
 	case COLOR_SAY:
 		return fmt.Sprintf("<span style='color:#ffeb3b'>%s</span>", text)
+	case COLOR_MOVEMENT:
+		return fmt.Sprintf("<span style='color:#00bcd4'>%s</span>", text)
 	default:
 		return text
 	}
 }
 
-func (c *Character) LoggedIn(state *GameState) {
+func (c *Character) LoggedIn() {
 	// Add character to room
-	room := state.worldManager.GetRoomFromLocation(c.Location)
+	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
 	if room == nil {
 		log.Fatalf("[character] character %s logged in to an invalid room", c.GetName())
 	}
 	room.AddObjectToRoom(c)
 
 	// Use command: /look
-	state.commandManager.ProcessCommand(c.GetPlayer(), "/look")
+	c.gameState.commandManager.ProcessCommand(c.GetPlayer(), "/look")
 
 	// Show message to others in the same room
 	roomChars := room.GetCharacters(c)
@@ -100,9 +120,9 @@ func (c *Character) LoggedIn(state *GameState) {
 	}
 }
 
-func (c *Character) LoggedOut(state *GameState) {
+func (c *Character) LoggedOut() {
 	// Remove character from room
-	room := state.worldManager.GetRoomFromLocation(c.Location)
+	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
 	if room == nil {
 		log.Fatalf("[character] character %s logged out in an invalid room", c.GetName())
 	}
@@ -118,8 +138,8 @@ func (c *Character) LoggedOut(state *GameState) {
 	}
 }
 
-func (c *Character) MoveAllowed(state *GameState, to *Location) (bool, string) {
-	newRoom := state.worldManager.GetRoomFromLocation(to)
+func (c *Character) MoveAllowed(to *Location) (bool, string) {
+	newRoom := c.gameState.worldManager.GetRoomFromLocation(to)
 	if newRoom == nil {
 		return false, "You cannot move that way."
 	}
@@ -127,13 +147,22 @@ func (c *Character) MoveAllowed(state *GameState, to *Location) (bool, string) {
 	return true, ""
 }
 
-func (c *Character) Move(to *Location, msgToOld string, msgToNew string) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
+	oldRoom := c.GetRoom()
+	newRoom := c.gameState.worldManager.GetRoomFromLocation(to)
 
-	if msgToOld != "" {
+	oldRoom.RemoveObjectFromRoom(c)
+	newRoom.AddObjectToRoom(c)
 
+	for _, char := range oldRoom.GetCharacters(nil) {
+		char.GetPlayer().clientActions.ShowText(msgToOld)
 	}
 
-	c.Location = to
+	for _, char := range newRoom.GetCharacters(c) {
+		char.GetPlayer().clientActions.ShowText(msgToNew)
+	}
+
+	c.GetPlayer().clientActions.ShowText(msgToChar)
+
+	c.SetLocation(to)
 }
