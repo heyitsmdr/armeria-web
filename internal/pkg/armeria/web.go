@@ -10,7 +10,7 @@ import (
 
 // Init will initialize the HTTP web server, for serving the web client
 func InitWeb(state *GameState, publicPath string) {
-	log.Printf("[web] serving client from: %s", publicPath)
+	log.Printf("[web] serving client (%s) from :8081", publicPath)
 
 	r := mux.NewRouter()
 
