@@ -22,7 +22,7 @@ type Coords struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 	Z int `json:"z"`
-	I int
+	I int `json:"-"`
 }
 
 type Location struct {
@@ -54,6 +54,12 @@ func (r *Room) GetCoords() *Coords {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	return r.Coords
+}
+
+func (r *Room) SetTitle(title string) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	r.Title = title
 }
 
 func (r *Room) GetTitle() string {

@@ -110,7 +110,7 @@ func (c *Character) LoggedIn() {
 	room.AddObjectToRoom(c)
 
 	// Use command: /look
-	c.gameState.commandManager.ProcessCommand(c.GetPlayer(), "/look")
+	c.gameState.commandManager.ProcessCommand(c.GetPlayer(), "look")
 
 	// Show message to others in the same room
 	roomChars := room.GetCharacters(c)

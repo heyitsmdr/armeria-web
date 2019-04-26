@@ -36,10 +36,29 @@ func (m *WorldManager) loadWorld() {
 
 	err = jsonParser.Decode(m)
 	if err != nil {
-		log.Fatalf("[world] failed to decode file: %s", err)
+		log.Fatalf("[world] failed to decode world file: %s", err)
 	}
 
-	log.Printf("[world] loaded %d areas from file", len(m.World))
+	log.Printf("[world] loaded %d areas from world file", len(m.World))
+}
+
+func (m *WorldManager) SaveWorld() {
+	worldFile, err := os.Create(m.dataFile)
+	defer worldFile.Close()
+
+	raw, err := json.Marshal(m)
+	if err != nil {
+		log.Fatalf("[world] failed to marshal world: %s", err)
+	}
+
+	bytes, err := worldFile.Write(raw)
+	if err != nil {
+		log.Fatalf("[world] failed to write to world file: %s", err)
+	}
+
+	worldFile.Sync()
+
+	log.Printf("[world] wrote %d bytes to world file", bytes)
 }
 
 func (m *WorldManager) GetAreaFromLocation(l *Location) *Area {

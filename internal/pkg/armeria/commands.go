@@ -14,10 +14,18 @@ type CommandManager struct {
 
 type Command struct {
 	Name         string
+	Alias        string
 	Permissions  *CommandPermissions
-	SyntaxHelp   string
 	AllowedRoles []int
+	Arguments    []*CommandArgument
+	Subcommands  []*Command
 	Handler      func(r *CommandContext)
+}
+
+type CommandArgument struct {
+	Position         int
+	Name             string
+	IncludeRemaining bool
 }
 
 type CommandPermissions struct {
@@ -30,7 +38,7 @@ type CommandContext struct {
 	Command   *Command
 	Player    *Player
 	Character *Character
-	Args      []string
+	Args      map[string]string
 }
 
 func NewCommandManager(state *GameState) *CommandManager {
@@ -45,40 +53,78 @@ func (m *CommandManager) RegisterCommand(c *Command) {
 	log.Printf("[commands] command registered: %s", fmt.Sprintf("/%s", c.Name))
 }
 
-func (m *CommandManager) ProcessCommand(p *Player, cmd string) {
+// login ethryx xyrhte89
+func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd string) (*Command, map[string]string, string) {
 	sections := strings.Fields(cmd)
+	cmdName := sections[0]
+
+	for _, cmd := range searchWithin {
+		if strings.ToLower(cmd.Name) == strings.ToLower(cmdName) {
+			// Handle permissions
+			if !cmd.CheckPermissions(p) {
+				return nil, nil, "You cannot use that command right now."
+			}
+
+			// Handle sub-commands
+			if cmd.Subcommands != nil {
+				if len(sections) == 1 {
+					return nil, nil, "You must specify a sub-command to that command."
+				}
+				return m.FindCommand(p, cmd.Subcommands, strings.Join(sections[1:], " "))
+			}
+
+			// Go through arguments
+			commandArgs := make(map[string]string)
+			if cmd.Arguments != nil {
+				for _, arg := range cmd.Arguments {
+					if len(sections) < (arg.Position + 2) {
+						return nil, nil, "Incorrect number of arguments provided to command."
+					}
+					if arg.IncludeRemaining {
+						commandArgs[arg.Name] = strings.Join(sections[arg.Position+1:], " ")
+					} else {
+						commandArgs[arg.Name] = sections[arg.Position+1]
+					}
+				}
+			}
+
+			return cmd, commandArgs, ""
+		}
+	}
+
+	return nil, nil, "That's an invalid command."
+}
+
+func (m *CommandManager) ProcessCommand(p *Player, command string) {
+	sections := strings.Fields(command)
 	if len(sections) == 0 {
 		return
 	}
 
-	// Get command name and trim the first character
-	commandName := sections[0][1:]
+	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "))
 
-	for _, cmd := range m.commands {
-		if strings.ToLower(cmd.Name) == strings.ToLower(commandName) {
-			// Handle permissions
-			if !cmd.CheckPermissions(p) {
-				p.clientActions.ShowText("You cannot use that command right now.")
-				return
-			}
-
-			ctx := &CommandContext{
-				GameState: m.gameState,
-				Command:   cmd,
-				Player:    p,
-				Args:      sections[1:],
-			}
-
-			if p.GetCharacter() != nil {
-				ctx.Character = p.GetCharacter()
-			}
-
-			cmd.Handler(ctx)
-			return
-		}
+	if cmd == nil {
+		p.clientActions.ShowText(errorMsg)
+		return
 	}
 
-	p.clientActions.ShowText("That's an invalid command.")
+	ctx := &CommandContext{
+		GameState: m.gameState,
+		Command:   cmd,
+		Player:    p,
+		Args:      cmdArgs,
+	}
+
+	if p.GetCharacter() != nil {
+		ctx.Character = p.GetCharacter()
+	}
+
+	if len(cmd.Alias) > 0 {
+		m.ProcessCommand(p, cmd.Alias)
+		return
+	}
+
+	cmd.Handler(ctx)
 }
 
 func (cmd *Command) CheckPermissions(p *Player) bool {

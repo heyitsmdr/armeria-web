@@ -9,36 +9,91 @@ import (
 func RegisterGameCommands(state *GameState) {
 	commands := []*Command{
 		{
-			Name:       "login",
-			SyntaxHelp: "/login [character] [password]",
+			Name: "login",
 			Permissions: &CommandPermissions{
 				RequireNoCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Position: 0,
+					Name:     "character",
+				},
+				{
+					Position: 1,
+					Name:     "password",
+				},
 			},
 			Handler: handleLoginCommand,
 		},
 		{
-			Name:       "look",
-			SyntaxHelp: "/look",
+			Name: "look",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
 			Handler: handleLookCommand,
 		},
 		{
-			Name:       "say",
-			SyntaxHelp: "/say [text]",
+			Name: "say",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Position:         0,
+					Name:             "text",
+					IncludeRemaining: true,
+				},
 			},
 			Handler: handleSayCommand,
 		},
 		{
-			Name:       "move",
-			SyntaxHelp: "/move [dir]",
+			Name: "move",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
+			Arguments: []*CommandArgument{
+				{
+					Position: 0,
+					Name:     "direction",
+				},
+			},
 			Handler: handleMoveCommand,
+		},
+		{Name: "north", Alias: "move north"},
+		{Name: "south", Alias: "move south"},
+		{Name: "east", Alias: "move east"},
+		{Name: "west", Alias: "move west"},
+		{Name: "up", Alias: "move up"},
+		{Name: "down", Alias: "move down"},
+		{
+			Name: "room",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Subcommands: []*Command{
+				{
+					Name: "set",
+					Arguments: []*CommandArgument{
+						{
+							Position: 0,
+							Name:     "property",
+						},
+						{
+							Position:         1,
+							Name:             "value",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleRoomSetCommand,
+				},
+			},
+		},
+		{
+			Name: "save",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleSaveCommand,
 		},
 	}
 
@@ -49,20 +104,16 @@ func RegisterGameCommands(state *GameState) {
 
 func handleLoginCommand(r *CommandContext) {
 	if len(r.Args) != 2 {
-		r.Player.clientActions.ShowText(fmt.Sprintf("[b]Syntax:[/b] %s", r.Command.SyntaxHelp))
 		return
 	}
 
-	character := r.Args[0]
-	password := r.Args[1]
-
-	c, err := r.GameState.characterManager.GetCharacterByName(character)
+	c, err := r.GameState.characterManager.GetCharacterByName(r.Args["character"])
 	if err != nil {
 		r.Player.clientActions.ShowText("Character not found.")
 		return
 	}
 
-	if c.GetPassword() != password {
+	if c.GetPassword() != r.Args["password"] {
 		r.Player.clientActions.ShowText("Password incorrect for that character.")
 		return
 	}
@@ -111,10 +162,16 @@ func handleSayCommand(r *CommandContext) {
 		return
 	}
 
-	sayText := strings.Join(r.Args, " ")
+	var moveOverride = []string{"n", "s", "e", "w", "u", "d"}
+	for _, mo := range moveOverride {
+		if r.Args["text"] == mo {
+			r.GameState.commandManager.ProcessCommand(r.Player, "move "+mo)
+			return
+		}
+	}
 
 	r.Player.clientActions.ShowText(
-		r.Player.GetCharacter().Colorize(fmt.Sprintf("You say, \"%s\".", sayText), COLOR_SAY),
+		r.Player.GetCharacter().Colorize(fmt.Sprintf("You say, \"%s\".", r.Args["text"]), COLOR_SAY),
 	)
 
 	room := r.GameState.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
@@ -122,7 +179,7 @@ func handleSayCommand(r *CommandContext) {
 	for _, c := range otherChars {
 		c.GetPlayer().clientActions.ShowText(
 			c.GetPlayer().GetCharacter().Colorize(
-				fmt.Sprintf("%s says, \"%s\".", r.Player.GetCharacter().GetFName(), sayText),
+				fmt.Sprintf("%s says, \"%s\".", r.Player.GetCharacter().GetFName(), r.Args["text"]),
 				COLOR_SAY,
 			),
 		)
@@ -131,7 +188,6 @@ func handleSayCommand(r *CommandContext) {
 
 func handleMoveCommand(r *CommandContext) {
 	if len(r.Args) != 1 {
-		r.Player.clientActions.ShowText(fmt.Sprintf("[b]Syntax:[/b] %s", r.Command.SyntaxHelp))
 		return
 	}
 
@@ -141,10 +197,9 @@ func handleMoveCommand(r *CommandContext) {
 	y := loc.Coords.Y
 	z := loc.Coords.Z
 
-	moveDir := r.Args[0]
 	walkDir := ""
 	arriveDir := ""
-	switch strings.ToLower(moveDir) {
+	switch strings.ToLower(r.Args["direction"]) {
 	case "north", "n":
 		y = y + 1
 		walkDir = "the north"
@@ -197,5 +252,30 @@ func handleMoveCommand(r *CommandContext) {
 		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.GetFName(), arriveDir), COLOR_MOVEMENT),
 	)
 
-	r.GameState.commandManager.ProcessCommand(r.Player, "/look")
+	r.GameState.commandManager.ProcessCommand(r.Player, "look")
+}
+
+func handleRoomSetCommand(r *CommandContext) {
+	switch strings.ToLower(r.Args["property"]) {
+	case "title":
+		r.Character.GetRoom().SetTitle(r.Args["value"])
+
+	default:
+		r.Player.clientActions.ShowText("Invalid room property.")
+		return
+	}
+
+	for _, c := range r.Character.GetRoom().GetCharacters(r.Character) {
+		c.GetPlayer().clientActions.ShowText(
+			fmt.Sprintf("%s modified the room.", r.Character.GetFName()),
+		)
+	}
+
+	r.Player.clientActions.ShowText("You modified the room.")
+}
+
+func handleSaveCommand(r *CommandContext) {
+	r.GameState.characterManager.SaveCharacters()
+	r.GameState.worldManager.SaveWorld()
+	r.Player.clientActions.ShowText("The game data has been saved to disk.")
 }

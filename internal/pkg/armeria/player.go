@@ -46,7 +46,8 @@ func (p *Player) readPump() {
 
 		switch messageRead.Type {
 		case "command":
-			p.gameState.commandManager.ProcessCommand(p, messageRead.Payload.(string))
+			cmd := messageRead.Payload.(string)
+			p.gameState.commandManager.ProcessCommand(p, cmd[1:])
 		default:
 			p.clientActions.ShowText("Your client sent invalid data.")
 		}
