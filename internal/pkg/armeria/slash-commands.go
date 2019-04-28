@@ -138,7 +138,7 @@ func handleLookCommand(r *CommandContext) {
 
 	var objNames []string
 	for _, o := range room.GetObjects() {
-		if o.GetType() != OBJECT_TYPE_CHARACTER || o.GetName() != r.Character.GetName() {
+		if o.GetType() != ObjectTypeCharacter || o.GetName() != r.Character.GetName() {
 			objNames = append(objNames, o.GetFName())
 		}
 	}
@@ -150,7 +150,7 @@ func handleLookCommand(r *CommandContext) {
 
 	r.Player.clientActions.ShowText(
 		"\n" +
-			r.Player.GetCharacter().Colorize(room.GetTitle(), COLOR_ROOM_TITLE) + "\n" +
+			r.Player.GetCharacter().Colorize(room.GetTitle(), ColorRoomTitle) + "\n" +
 			room.GetDescription() +
 			withYou,
 	)
@@ -171,7 +171,7 @@ func handleSayCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowText(
-		r.Player.GetCharacter().Colorize(fmt.Sprintf("You say, \"%s\".", r.Args["text"]), COLOR_SAY),
+		r.Player.GetCharacter().Colorize(fmt.Sprintf("You say, \"%s\".", r.Args["text"]), ColorSay),
 	)
 
 	room := r.GameState.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
@@ -180,7 +180,7 @@ func handleSayCommand(r *CommandContext) {
 		c.GetPlayer().clientActions.ShowText(
 			c.GetPlayer().GetCharacter().Colorize(
 				fmt.Sprintf("%s says, \"%s\".", r.Player.GetCharacter().GetFName(), r.Args["text"]),
-				COLOR_SAY,
+				ColorSay,
 			),
 		)
 	}
@@ -247,9 +247,9 @@ func handleMoveCommand(r *CommandContext) {
 
 	r.Character.Move(
 		newLocation,
-		r.Character.Colorize(fmt.Sprintf("\nYou walk to %s.", walkDir), COLOR_MOVEMENT),
-		r.Character.Colorize(fmt.Sprintf("%s walks to %s.", r.Character.GetFName(), walkDir), COLOR_MOVEMENT),
-		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.GetFName(), arriveDir), COLOR_MOVEMENT),
+		r.Character.Colorize(fmt.Sprintf("\nYou walk to %s.", walkDir), ColorMovement),
+		r.Character.Colorize(fmt.Sprintf("%s walks to %s.", r.Character.GetFName(), walkDir), ColorMovement),
+		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.GetFName(), arriveDir), ColorMovement),
 	)
 
 	r.GameState.commandManager.ProcessCommand(r.Player, "look")

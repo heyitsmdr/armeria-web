@@ -87,7 +87,7 @@ func (r *Room) GetCharacters(except *Character) []*Character {
 	var returnChars []*Character
 
 	for _, o := range r.objects {
-		if o.GetType() == OBJECT_TYPE_CHARACTER {
+		if o.GetType() == ObjectTypeCharacter {
 			if except == nil || o.GetName() != except.GetName() {
 				returnChars = append(returnChars, o.(*Character))
 			}

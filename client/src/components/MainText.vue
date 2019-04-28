@@ -25,15 +25,6 @@ export default {
             div.scrollTop = 9999999;
         });
     },
-    methods: {
-
-    },
-    mounted: function() {
-
-    },
-    destroyed: function() {
-
-    }
 }
 </script>
 
@@ -41,9 +32,11 @@ export default {
     .container {
         padding: 5px;
         overflow-y: scroll;
+        box-shadow: inset 0px 0px 4px 0px #000;
     }
 
     .line {
         color: #cacaca;
+        user-select: all;
     }
 </style>

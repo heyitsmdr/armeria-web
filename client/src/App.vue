@@ -2,7 +2,9 @@
   <div id="app">
     <div class="container-top">
       <div class="container-left">
-        <div class="container-minimap">Minimap</div>
+        <div class="container-minimap">
+          <Minimap />
+        </div>
         <div class="container-targets">Room Targets</div>
       </div>
       <div class="container-center">
@@ -23,12 +25,14 @@
 import { mapState } from 'vuex';
 import MainText from '@/components/MainText';
 import InputBox from '@/components/InputBox';
+import Minimap from '@/components/Minimap';
 
 export default {
   name: 'App',
   components: {
     InputBox,
-    MainText
+    MainText,
+    Minimap
   },
   data: () => {
     return {
@@ -108,6 +112,7 @@ html, body {
   margin: 0;
   height: 100%;
   background-color: $backgroundNormal;
+  user-select: none;
 }
 
 ::-webkit-scrollbar { width: 8px; height: 3px; }

@@ -17,19 +17,21 @@ type Character struct {
 }
 
 const (
-	COLOR_ROOM_TITLE int = 0
-	COLOR_SAY        int = 1
-	COLOR_MOVEMENT   int = 2
+	ColorRoomTitle int = 0
+	ColorSay       int = 1
+	ColorMovement  int = 2
 )
 
-const ROLE_ADMIN int = 0
+const RoleAdmin int = 0
 
+// Init initializes the character when loaded from disk
 func (c *Character) Init(state *GameState) {
 	c.gameState = state
 }
 
+// GetType returns the object type, since Character uses the Object interface
 func (c *Character) GetType() int {
-	return OBJECT_TYPE_CHARACTER
+	return ObjectTypeCharacter
 }
 
 // GetName returns the raw character name
@@ -46,61 +48,70 @@ func (c *Character) GetFName() string {
 	return fmt.Sprintf("[b]%s[/b]", c.Name)
 }
 
+// GetPassword returns the character's password
 func (c *Character) GetPassword() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Password
 }
 
+// GetPlayer returns the player that is playing the character
 func (c *Character) GetPlayer() *Player {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.player
 }
 
+// SetPlayer sets the player that is playing the character
 func (c *Character) SetPlayer(p *Player) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.player = p
 }
 
+// GetLocation returns the character's location
 func (c *Character) GetLocation() *Location {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Location
 }
 
+// SetLocation sets the character's location
 func (c *Character) SetLocation(l *Location) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.Location = l
 }
 
+// GetRoom returns the room that the character is in
 func (c *Character) GetRoom() *Room {
 	return c.gameState.worldManager.GetRoomFromLocation(c.Location)
 }
 
+// GetRole returns the character's permission role
 func (c *Character) GetRole() int {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Role
 }
 
+// Colorize will color text according to the character's color settings
 func (c *Character) Colorize(text string, color int) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	switch color {
-	case COLOR_ROOM_TITLE:
+	case ColorRoomTitle:
 		return fmt.Sprintf("<span style='color:#6e94ff;font-weight:600'>%s</span>", text)
-	case COLOR_SAY:
+	case ColorSay:
 		return fmt.Sprintf("<span style='color:#ffeb3b'>%s</span>", text)
-	case COLOR_MOVEMENT:
+	case ColorMovement:
 		return fmt.Sprintf("<span style='color:#00bcd4'>%s</span>", text)
 	default:
 		return text
 	}
 }
 
+// LoggedIn handles everything that needs to happen when a character enters the game
 func (c *Character) LoggedIn() {
 	// Add character to room
 	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
@@ -122,6 +133,7 @@ func (c *Character) LoggedIn() {
 	}
 }
 
+// LoggedOut handles everything that needs to happen when a character leaves the game
 func (c *Character) LoggedOut() {
 	// Remove character from room
 	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
@@ -140,6 +152,7 @@ func (c *Character) LoggedOut() {
 	}
 }
 
+// MoveAllowed will check if moving to a particular location is valid/allowed
 func (c *Character) MoveAllowed(to *Location) (bool, string) {
 	newRoom := c.gameState.worldManager.GetRoomFromLocation(to)
 	if newRoom == nil {
@@ -149,6 +162,7 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 	return true, ""
 }
 
+// Move will move the character to a new location (no move checks are performed)
 func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.GetRoom()
 	newRoom := c.gameState.worldManager.GetRoomFromLocation(to)

@@ -19,12 +19,12 @@ func NewWorldManager(state *GameState, dataPath string) *WorldManager {
 		dataFile:  fmt.Sprintf("%s/world.json", dataPath),
 	}
 
-	m.loadWorld()
+	m.LoadWorld()
 
 	return m
 }
 
-func (m *WorldManager) loadWorld() {
+func (m *WorldManager) LoadWorld() {
 	worldFile, err := os.Open(m.dataFile)
 	defer worldFile.Close()
 

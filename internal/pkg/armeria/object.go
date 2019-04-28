@@ -6,4 +6,4 @@ type Object interface {
 	GetFName() string
 }
 
-const OBJECT_TYPE_CHARACTER int = 0
+const ObjectTypeCharacter int = 0
