@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
@@ -76,6 +77,19 @@ func (c *Character) GetLocation() *Location {
 	return c.Location
 }
 
+// GetLocationData returns the character's location as a JSON-dump
+func (c *Character) GetLocationData() string {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	locationJson, err := json.Marshal(c.Location.Coords)
+	if err != nil {
+		log.Fatalf("[character] failed to marshal location data: %s", err)
+	}
+
+	return string(locationJson)
+}
+
 // SetLocation sets the character's location
 func (c *Character) SetLocation(l *Location) {
 	c.mux.Lock()
@@ -113,8 +127,10 @@ func (c *Character) Colorize(text string, color int) string {
 
 // LoggedIn handles everything that needs to happen when a character enters the game
 func (c *Character) LoggedIn() {
-	// Add character to room
 	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
+	area := c.gameState.worldManager.GetAreaFromLocation(c.Location)
+
+	// Add character to room
 	if room == nil {
 		log.Fatalf("[character] character %s logged in to an invalid room", c.GetName())
 	}
@@ -128,15 +144,20 @@ func (c *Character) LoggedIn() {
 	for _, char := range roomChars {
 		pc := char.GetPlayer()
 		pc.clientActions.ShowText(
-			fmt.Sprintf("%s connected to the game, and is now here with you.", c.GetName()),
+			fmt.Sprintf("%s connected and appeared here with you.", c.GetName()),
 		)
 	}
+
+	area.OnCharacterEntered(c, true)
+	room.OnCharacterEntered(c, true)
 }
 
 // LoggedOut handles everything that needs to happen when a character leaves the game
 func (c *Character) LoggedOut() {
-	// Remove character from room
 	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
+	area := c.gameState.worldManager.GetAreaFromLocation(c.Location)
+
+	// Remove character from room
 	if room == nil {
 		log.Fatalf("[character] character %s logged out in an invalid room", c.GetName())
 	}
@@ -147,9 +168,12 @@ func (c *Character) LoggedOut() {
 	for _, char := range roomChars {
 		pc := char.GetPlayer()
 		pc.clientActions.ShowText(
-			fmt.Sprintf("%s disconnected, and is no longer here with you.", c.GetName()),
+			fmt.Sprintf("%s disconnected and is no longer here with you.", c.GetName()),
 		)
 	}
+
+	area.OnCharacterLeft(c, true)
+	room.OnCharacterLeft(c, true)
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed
@@ -181,4 +205,8 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 	c.GetPlayer().clientActions.ShowText(msgToChar)
 
 	c.SetLocation(to)
+
+	// Trigger character entered / left events on the new and old rooms, respectively
+	newRoom.OnCharacterEntered(c, false)
+	oldRoom.OnCharacterLeft(c, false)
 }

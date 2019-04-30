@@ -50,6 +50,21 @@ func (a *Area) GetRoom(c *Coords) *Room {
 	return nil
 }
 
+// GetMap returns
+func (a *Area) GetMap() {
+
+}
+
+// OnCharacterEntered is called when the character is moved into the area (or logged in)
+func (a *Area) OnCharacterEntered(c *Character, causedByLogin bool) {
+	c.GetPlayer().clientActions.RenderMap(a.GetMinimap())
+}
+
+// OnCharacterLeft is called when the character left the area (or logged out)
+func (a *Area) OnCharacterLeft(c *Character, causedByLogout bool) {
+
+}
+
 func (r *Room) GetCoords() *Coords {
 	r.mux.Lock()
 	defer r.mux.Unlock()
@@ -116,4 +131,14 @@ func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 	}
 
 	return false
+}
+
+// OnCharacterEntered is called when the character is moved to the room (or logged in)
+func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
+	c.GetPlayer().clientActions.SetLocation(c.GetLocationData())
+}
+
+// OnCharacterLeft is called when the character left the room (or logged out)
+func (r *Room) OnCharacterLeft(c *Character, causedByLogout bool) {
+
 }

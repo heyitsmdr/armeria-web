@@ -8,6 +8,8 @@ export default new Vuex.Store({
     isConnected: false,
     gameText: [],
     allowGlobalHotkeys: true,
+    minimapData: {},
+    characterLocation: { x: 0, y: 0, z: 0 },
   },
   mutations: {
     SOCKET_ONOPEN: (state) => {
@@ -34,6 +36,12 @@ export default new Vuex.Store({
     },
     SET_ALLOW_GLOBAL_HOTKEYS: (state, allow) => {
       state.allowGlobalHotkeys = allow;
+    },
+    SET_MINIMAP_DATA: (state, minimapData) => {
+      state.minimapData = minimapData;
+    },
+    SET_CHARACTER_LOCATION: (state, loc) => {
+      state.characterLocation = loc;
     }
   },
   actions: {
@@ -48,12 +56,24 @@ export default new Vuex.Store({
       });
     },
 
+    setAllowGlobalHotkeys: ({ commit }, payload) => {
+      commit('SET_ALLOW_GLOBAL_HOTKEYS', payload);
+    },
+
+    //
+    // Server-triggered actions below
+    //
+
     showText: ({ commit }, payload) => {
       commit('ADD_GAME_TEXT', payload.data);
     },
 
-    setAllowGlobalHotkeys: ({ commit }, payload) => {
-      commit('SET_ALLOW_GLOBAL_HOTKEYS', payload);
-    }
+    setMapData: ({ commit }, payload) => {
+      commit('SET_MINIMAP_DATA', JSON.parse(payload.data));
+    },
+
+    setCharacterLocation: ({ commit }, payload) => {
+      commit('SET_CHARACTER_LOCATION', JSON.parse(payload.data));
+    },
   }
 })

@@ -38,5 +38,6 @@ export default {
     .line {
         color: #cacaca;
         user-select: all;
+        white-space: pre;
     }
 </style>

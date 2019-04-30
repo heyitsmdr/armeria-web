@@ -73,6 +73,7 @@ func RegisterGameCommands(state *GameState) {
 			Subcommands: []*Command{
 				{
 					Name: "set",
+					Help: "allows you to set a room attribute",
 					Arguments: []*CommandArgument{
 						{
 							Position: 0,

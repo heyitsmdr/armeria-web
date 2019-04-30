@@ -14,3 +14,13 @@ func NewClientActions(p *Player) *ClientActions {
 func (ca *ClientActions) ShowText(text string) {
 	ca.player.CallClientAction("showText", text)
 }
+
+// RenderMap displays the current area on the minimap
+func (ca *ClientActions) RenderMap(minimapData string) {
+	ca.player.CallClientAction("setMapData", minimapData)
+}
+
+// SetLocation moves the character on the minimap
+func (ca *ClientActions) SetLocation(locationData string) {
+	ca.player.CallClientAction("setCharacterLocation", locationData)
+}

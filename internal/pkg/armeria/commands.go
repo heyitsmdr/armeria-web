@@ -12,35 +12,6 @@ type CommandManager struct {
 	commands  []*Command
 }
 
-type Command struct {
-	Name         string
-	Alias        string
-	Permissions  *CommandPermissions
-	AllowedRoles []int
-	Arguments    []*CommandArgument
-	Subcommands  []*Command
-	Handler      func(r *CommandContext)
-}
-
-type CommandArgument struct {
-	Position         int
-	Name             string
-	IncludeRemaining bool
-}
-
-type CommandPermissions struct {
-	RequireNoCharacter bool
-	RequireCharacter   bool
-}
-
-type CommandContext struct {
-	GameState *GameState
-	Command   *Command
-	Player    *Player
-	Character *Character
-	Args      map[string]string
-}
-
 func NewCommandManager(state *GameState) *CommandManager {
 	return &CommandManager{
 		gameState: state,
@@ -68,7 +39,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 			// Handle sub-commands
 			if cmd.Subcommands != nil {
 				if len(sections) == 1 {
-					return nil, nil, "You must specify a sub-command to that command."
+					return nil, nil, fmt.Sprintf("You must specify a valid sub-command:\n%s", cmd.GetSubcommands(p))
 				}
 				return m.FindCommand(p, cmd.Subcommands, strings.Join(sections[1:], " "))
 			}
@@ -104,7 +75,7 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "))
 
 	if cmd == nil {
-		p.clientActions.ShowText(errorMsg)
+		p.clientActions.ShowText("\n" + errorMsg)
 		return
 	}
 
@@ -125,24 +96,4 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 	}
 
 	cmd.Handler(ctx)
-}
-
-func (cmd *Command) CheckPermissions(p *Player) bool {
-	if cmd.Permissions == nil {
-		return true
-	}
-
-	if cmd.Permissions.RequireNoCharacter {
-		if p.GetCharacter() != nil {
-			return false
-		}
-	}
-
-	if cmd.Permissions.RequireCharacter {
-		if p.GetCharacter() == nil {
-			return false
-		}
-	}
-
-	return true
 }
