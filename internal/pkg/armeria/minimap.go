@@ -17,7 +17,7 @@ type MinimapRoom struct {
 	Z     int    `json:"z"`
 }
 
-// GetMinimap returns the JSON used for minimap rendering for a particular area
+// GetMinimap returns the JSON used for minimap rendering of a particular area
 func (a *Area) GetMinimap() string {
 	a.mux.Lock()
 	defer a.mux.Unlock()
