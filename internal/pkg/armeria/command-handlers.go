@@ -6,98 +6,6 @@ import (
 	"strings"
 )
 
-func RegisterGameCommands(state *GameState) {
-	commands := []*Command{
-		{
-			Name: "login",
-			Permissions: &CommandPermissions{
-				RequireNoCharacter: true,
-			},
-			Arguments: []*CommandArgument{
-				{
-					Name: "character",
-				},
-				{
-					Name: "password",
-				},
-			},
-			Handler: handleLoginCommand,
-		},
-		{
-			Name: "look",
-			Permissions: &CommandPermissions{
-				RequireCharacter: true,
-			},
-			Handler: handleLookCommand,
-		},
-		{
-			Name: "say",
-			Permissions: &CommandPermissions{
-				RequireCharacter: true,
-			},
-			Arguments: []*CommandArgument{
-				{
-					Name:             "text",
-					IncludeRemaining: true,
-				},
-			},
-			Handler: handleSayCommand,
-		},
-		{
-			Name: "move",
-			Permissions: &CommandPermissions{
-				RequireCharacter: true,
-			},
-			Arguments: []*CommandArgument{
-				{
-					Name: "direction",
-				},
-			},
-			Handler: handleMoveCommand,
-		},
-		{Name: "north", Alias: "move north"},
-		{Name: "south", Alias: "move south"},
-		{Name: "east", Alias: "move east"},
-		{Name: "west", Alias: "move west"},
-		{Name: "up", Alias: "move up"},
-		{Name: "down", Alias: "move down"},
-		{
-			Name: "room",
-			Help: "Allows you to manage rooms.",
-			Permissions: &CommandPermissions{
-				RequireCharacter: true,
-			},
-			Subcommands: []*Command{
-				{
-					Name: "set",
-					Help: "Allows you to set a room attribute.",
-					Arguments: []*CommandArgument{
-						{
-							Name: "property",
-						},
-						{
-							Name:             "value",
-							IncludeRemaining: true,
-						},
-					},
-					Handler: handleRoomSetCommand,
-				},
-			},
-		},
-		{
-			Name: "save",
-			Permissions: &CommandPermissions{
-				RequireCharacter: true,
-			},
-			Handler: handleSaveCommand,
-		},
-	}
-
-	for _, cmd := range commands {
-		state.commandManager.RegisterCommand(cmd)
-	}
-}
-
 func handleLoginCommand(r *CommandContext) {
 	if len(r.Args) != 2 {
 		return
@@ -242,7 +150,7 @@ func handleMoveCommand(r *CommandContext) {
 
 	r.Character.Move(
 		newLocation,
-		r.Character.Colorize(fmt.Sprintf("\nYou walk to %s.", walkDir), ColorMovement),
+		r.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
 		r.Character.Colorize(fmt.Sprintf("%s walks to %s.", r.Character.GetFName(), walkDir), ColorMovement),
 		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.GetFName(), arriveDir), ColorMovement),
 	)

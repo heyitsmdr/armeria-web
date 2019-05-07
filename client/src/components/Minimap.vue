@@ -24,7 +24,7 @@ export default {
             gridPadding: 8,
             mapHeight: 0,
             mapWidth: 0,
-            areaTitle: '? ? ?',
+            areaTitle: '-',
         }
     },
     watch: {
@@ -64,13 +64,11 @@ export default {
                 div.setAttribute('x', room.x);
                 div.setAttribute('y', room.y);
                 div.setAttribute('z', room.z);
-
+                div.addEventListener('mouseover', this.onRoomHover);
                 div.className = 'room';
 
                 this.$refs['floor'].appendChild(div)
             })
-
-            this.mapRendered = true;
         },
         centerMapOnLocation(location, oldLocation) {
             const floor = this.$refs['floor'];
@@ -90,6 +88,11 @@ export default {
                 newLocDiv.classList.add('current-location');
             }
             this.location = location;
+        },
+        onRoomHover(event) {
+            if (!event.target.classList.contains('current-location')) {
+                this.$playSound('bloop.wav');
+            }
         }
     },
     mounted() {
@@ -105,6 +108,22 @@ export default {
 </script>
 
 <style lang="scss">
+.map .floor .room {
+    transition: all .1s ease-in-out;
+
+    &:hover {
+         cursor: pointer;
+         transform: scale(1.1);
+     }
+
+    &.current-location {
+         border-color: #ff0 !important;
+         transform: scale(1.2);
+    }
+}
+</style>
+
+<style lang="scss" scoped>
 .container {
     height: 100%;
     display: flex;
@@ -117,11 +136,13 @@ export default {
     background-color: #1b1b1b;
     border-bottom: 1px solid #313131;
     font-weight: 600;
+    font-size: 16px;
     color: #fff;
 }
 
 .map {
-    background-color: #131313;
+    background-color: #0c0c0c;
+    border-bottom: 1px solid #313131;
     flex-grow: 1;
     position: relative;
     overflow: hidden;
@@ -139,20 +160,6 @@ export default {
         top: 0px;
         left: 0px;
         transition: all .1s ease-in-out;
-
-        .room {
-            transition: all .1s ease-in-out;
-
-            &:hover {
-                 cursor: pointer;
-                 transform: scale(1.1)
-            }
-
-            &.current-location {
-                border-color: #ff0 !important;
-                transform: scale(1.2)
-            }
-        }
     }
 }
 </style>

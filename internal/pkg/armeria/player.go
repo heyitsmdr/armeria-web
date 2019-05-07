@@ -112,7 +112,7 @@ func (p *Player) ShowConnectionText() {
 		"If you have a character, you can <b>/login</b>. Otherwise, use <b>/create</b>.",
 	}
 
-	p.clientActions.ShowText(strings.Join(lines, "<br>"))
+	p.clientActions.ShowRawText(strings.Join(lines, "\n"))
 }
 
 func (p *Player) AttachCharacter(c *Character) {

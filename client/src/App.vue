@@ -5,7 +5,9 @@
         <div class="container-minimap">
           <Minimap />
         </div>
-        <div class="container-targets">Room Targets</div>
+        <div class="container-targets">
+          <RoomTargets />
+        </div>
       </div>
       <div class="container-center">
         <div class="container-maintext">
@@ -26,13 +28,15 @@ import { mapState } from 'vuex';
 import MainText from '@/components/MainText';
 import InputBox from '@/components/InputBox';
 import Minimap from '@/components/Minimap';
+import RoomTargets from '@/components/RoomTargets';
 
 export default {
   name: 'App',
   components: {
     InputBox,
     MainText,
-    Minimap
+    Minimap,
+    RoomTargets
   },
   data: () => {
     return {
@@ -147,6 +151,10 @@ html, body {
 
       .container-minimap {
         flex-basis: 250px;
+      }
+
+      .container-targets {
+        flex-grow: 1;
       }
     }
 

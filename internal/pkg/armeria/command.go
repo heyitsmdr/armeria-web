@@ -104,7 +104,6 @@ func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string
 			strings.Join(commandsEntered, " "),
 			strings.Join(argumentStrings, " "),
 		),
-		"[b]Arguments:[/b]",
 	}
 
 	return strings.Join(output, "\n")
