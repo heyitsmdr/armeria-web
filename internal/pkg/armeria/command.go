@@ -2,7 +2,6 @@ package armeria
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -18,7 +17,6 @@ type Command struct {
 }
 
 type CommandArgument struct {
-	Position         int
 	Name             string
 	IncludeRemaining bool
 }
@@ -57,10 +55,17 @@ func (cmd *Command) CheckPermissions(p *Player) bool {
 	return true
 }
 
-// GetSubcommands returns the list of sub-commands that the player has access to as a string
-func (cmd *Command) GetSubcommands(p *Player) string {
+// ShowSubcommandHelp returns the list of sub-commands that the player has access to as a string
+func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) string {
 	if len(cmd.Subcommands) == 0 {
-		return ""
+		return "There are no sub-commands available."
+	}
+
+	output := []string{
+		"[b]Help:[/b]",
+		"  " + cmd.Help,
+		fmt.Sprintf("  [b]Syntax:[/b] /%s &lt;sub-command&gt;\n", strings.Join(commandsEntered, " ")),
+		"[b]Sub-commands:[/b]",
 	}
 
 	var allowedSubCommands []*Command
@@ -74,14 +79,32 @@ func (cmd *Command) GetSubcommands(p *Player) string {
 		}
 	}
 
-	// NOTE: the "7" is being added to the padding to compensate for [b] and [/b]
-	var output []string
 	for _, scmd := range allowedSubCommands {
-		output = append(output, fmt.Sprintf(
-			"  %-"+strconv.Itoa(longestCommandSize+7+1)+"v %s",
-			"[b]"+scmd.Name+"[/b]",
-			scmd.Help,
-		))
+		output = append(output, fmt.Sprintf("  %-10v %s", scmd.Name, scmd.Help))
+	}
+
+	return strings.Join(output, "\n")
+}
+
+func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string {
+	if len(cmd.Arguments) == 0 {
+		return "There are no command arguments."
+	}
+
+	var argumentStrings []string
+	for _, arg := range cmd.Arguments {
+		argumentStrings = append(argumentStrings, fmt.Sprintf("&lt;%s&gt;", arg.Name))
+	}
+
+	output := []string{
+		"[b]Help:[/b]",
+		"  " + cmd.Help,
+		fmt.Sprintf(
+			"  [b]Syntax:[/b] /%s %s\n",
+			strings.Join(commandsEntered, " "),
+			strings.Join(argumentStrings, " "),
+		),
+		"[b]Arguments:[/b]",
 	}
 
 	return strings.Join(output, "\n")

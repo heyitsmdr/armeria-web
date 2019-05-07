@@ -15,12 +15,10 @@ func RegisterGameCommands(state *GameState) {
 			},
 			Arguments: []*CommandArgument{
 				{
-					Position: 0,
-					Name:     "character",
+					Name: "character",
 				},
 				{
-					Position: 1,
-					Name:     "password",
+					Name: "password",
 				},
 			},
 			Handler: handleLoginCommand,
@@ -39,7 +37,6 @@ func RegisterGameCommands(state *GameState) {
 			},
 			Arguments: []*CommandArgument{
 				{
-					Position:         0,
 					Name:             "text",
 					IncludeRemaining: true,
 				},
@@ -53,8 +50,7 @@ func RegisterGameCommands(state *GameState) {
 			},
 			Arguments: []*CommandArgument{
 				{
-					Position: 0,
-					Name:     "direction",
+					Name: "direction",
 				},
 			},
 			Handler: handleMoveCommand,
@@ -67,20 +63,19 @@ func RegisterGameCommands(state *GameState) {
 		{Name: "down", Alias: "move down"},
 		{
 			Name: "room",
+			Help: "Allows you to manage rooms.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
 			Subcommands: []*Command{
 				{
 					Name: "set",
-					Help: "allows you to set a room attribute",
+					Help: "Allows you to set a room attribute.",
 					Arguments: []*CommandArgument{
 						{
-							Position: 0,
-							Name:     "property",
+							Name: "property",
 						},
 						{
-							Position:         1,
 							Name:             "value",
 							IncludeRemaining: true,
 						},
@@ -150,8 +145,7 @@ func handleLookCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowText(
-		"\n" +
-			r.Player.GetCharacter().Colorize(room.GetTitle(), ColorRoomTitle) + "\n" +
+		r.Player.GetCharacter().Colorize(room.GetTitle(), ColorRoomTitle) + "\n" +
 			room.GetDescription() +
 			withYou,
 	)

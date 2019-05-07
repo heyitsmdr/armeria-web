@@ -12,7 +12,7 @@ func NewClientActions(p *Player) *ClientActions {
 
 // ShowText displays raw text on the player's main text window
 func (ca *ClientActions) ShowText(text string) {
-	ca.player.CallClientAction("showText", text)
+	ca.player.CallClientAction("showText", "\n"+text)
 }
 
 // RenderMap displays the current area on the minimap

@@ -25,7 +25,7 @@ func (m *CommandManager) RegisterCommand(c *Command) {
 }
 
 // login ethryx xyrhte89
-func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd string) (*Command, map[string]string, string) {
+func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd string, alreadyProcessed []string) (*Command, map[string]string, string) {
 	sections := strings.Fields(cmd)
 	cmdName := sections[0]
 
@@ -38,23 +38,25 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 
 			// Handle sub-commands
 			if cmd.Subcommands != nil {
+				processedCommands := append(alreadyProcessed, cmdName)
 				if len(sections) == 1 {
-					return nil, nil, fmt.Sprintf("You must specify a valid sub-command:\n%s", cmd.GetSubcommands(p))
+					return nil, nil, cmd.ShowSubcommandHelp(p, processedCommands)
+
 				}
-				return m.FindCommand(p, cmd.Subcommands, strings.Join(sections[1:], " "))
+				return m.FindCommand(p, cmd.Subcommands, strings.Join(sections[1:], " "), processedCommands)
 			}
 
 			// Go through arguments
 			commandArgs := make(map[string]string)
 			if cmd.Arguments != nil {
-				for _, arg := range cmd.Arguments {
-					if len(sections) < (arg.Position + 2) {
-						return nil, nil, "Incorrect number of arguments provided to command."
+				for pos, arg := range cmd.Arguments {
+					if len(sections) < (pos + 2) {
+						return nil, nil, cmd.ShowArgumentHelp(p, append(alreadyProcessed, cmdName))
 					}
 					if arg.IncludeRemaining {
-						commandArgs[arg.Name] = strings.Join(sections[arg.Position+1:], " ")
+						commandArgs[arg.Name] = strings.Join(sections[pos+1:], " ")
 					} else {
-						commandArgs[arg.Name] = sections[arg.Position+1]
+						commandArgs[arg.Name] = sections[pos+1]
 					}
 				}
 			}
@@ -72,10 +74,10 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 		return
 	}
 
-	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "))
+	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
-		p.clientActions.ShowText("\n" + errorMsg)
+		p.clientActions.ShowText(errorMsg)
 		return
 	}
 
