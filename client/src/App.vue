@@ -162,6 +162,8 @@ html, body {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+      box-shadow: 0px 0px 12px 1px #080808;
+      position: relative;
 
       .container-maintext {
         flex-grow: 1;

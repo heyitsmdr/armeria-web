@@ -9,6 +9,11 @@ import { mapState } from 'vuex'
 
 export default {
     name: 'MainText',
+    data: function() {
+        return {
+            lineNumber: 0
+        }
+    },
     props: {
         windowHeight: Number,
     },
