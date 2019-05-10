@@ -21,11 +21,24 @@ func (ca *ClientActions) ShowRawText(text string) {
 }
 
 // RenderMap displays the current area on the minimap
-func (ca *ClientActions) RenderMap(minimapData string) {
-	ca.player.CallClientAction("setMapData", minimapData)
+func (ca *ClientActions) RenderMap() {
+	minimap := ca.player.GetCharacter().GetArea().GetMinimapData()
+	ca.player.CallClientAction("setMapData", minimap)
 }
 
-// SetLocation moves the character on the minimap
-func (ca *ClientActions) SetLocation(locationData string) {
-	ca.player.CallClientAction("setCharacterLocation", locationData)
+// SyncMapLocation sets the character location on the minimap
+func (ca *ClientActions) SyncMapLocation() {
+	loc := ca.player.GetCharacter().GetLocationData()
+	ca.player.CallClientAction("setCharacterLocation", loc)
+}
+
+// SyncRoomObjects sets the current room objects on the client
+func (ca *ClientActions) SyncRoomObjects() {
+	obj := ca.player.GetCharacter().GetRoom().GetObjectData()
+	ca.player.CallClientAction("setRoomObjects", obj)
+}
+
+// Disconnect requests that the client disconnects from the server
+func (ca *ClientActions) Disconnect() {
+	ca.player.CallClientAction("disconnect", nil)
 }

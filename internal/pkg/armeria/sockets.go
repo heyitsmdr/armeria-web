@@ -22,7 +22,7 @@ func ServeWs(state *GameState, w http.ResponseWriter, r *http.Request) {
 		log.Printf("[sockets] ServeWs: %s", err)
 	}
 
-	p := state.PlayerManager().NewPlayer(conn)
+	p := state.playerManager.NewPlayer(conn)
 	p.SetupPumps()
 	p.ShowConnectionText()
 }

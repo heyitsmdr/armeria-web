@@ -13,10 +13,10 @@ type WorldManager struct {
 	World     []*Area `json:"world"`
 }
 
-func NewWorldManager(state *GameState, dataPath string) *WorldManager {
+func NewWorldManager(state *GameState) *WorldManager {
 	m := &WorldManager{
 		gameState: state,
-		dataFile:  fmt.Sprintf("%s/world.json", dataPath),
+		dataFile:  fmt.Sprintf("%s/world.json", state.dataPath),
 	}
 
 	m.LoadWorld()

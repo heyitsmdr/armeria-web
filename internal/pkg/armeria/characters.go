@@ -15,10 +15,10 @@ type CharacterManager struct {
 	Characters []*Character `json:"characters"`
 }
 
-func NewCharacterManager(state *GameState, dataPath string) *CharacterManager {
+func NewCharacterManager(state *GameState) *CharacterManager {
 	m := &CharacterManager{
 		gameState: state,
-		dataFile:  fmt.Sprintf("%s/characters.json", dataPath),
+		dataFile:  fmt.Sprintf("%s/characters.json", state.dataPath),
 	}
 
 	m.loadCharacters()
@@ -75,4 +75,14 @@ func (m *CharacterManager) GetCharacterByName(name string) (*Character, error) {
 	}
 
 	return nil, errors.New("character not found")
+}
+
+func (m *CharacterManager) GetCharacters() []*Character {
+	var chars []*Character
+	for _, c := range m.Characters {
+		if c.GetPlayer() != nil {
+			chars = append(chars, c)
+		}
+	}
+	return chars
 }

@@ -10,11 +10,13 @@ export default new Vuex.Store({
     allowGlobalHotkeys: true,
     minimapData: {},
     characterLocation: { x: 0, y: 0, z: 0 },
+    roomObjects: [],
   },
   mutations: {
     SOCKET_ONOPEN: (state) => {
       state.isConnected = true;
     },
+
     SOCKET_ONCLOSE: (state) => {
       if (state.isConnected) {
         state.isConnected = false;
@@ -23,9 +25,11 @@ export default new Vuex.Store({
         state.gameText.push('A connection to the game server could not be established.');
       }
     },
+
     SOCKET_ONERROR: () => {
       console.log('an error occurred in the socket connection');
     },
+
     ADD_GAME_TEXT: (state, text) => {
       state.gameText.push(
         text
@@ -34,14 +38,21 @@ export default new Vuex.Store({
           .replace(/\[\/b\]/g, "</span>")
       );
     },
+
     SET_ALLOW_GLOBAL_HOTKEYS: (state, allow) => {
       state.allowGlobalHotkeys = allow;
     },
+
     SET_MINIMAP_DATA: (state, minimapData) => {
       state.minimapData = minimapData;
     },
+
     SET_CHARACTER_LOCATION: (state, loc) => {
       state.characterLocation = loc;
+    },
+
+    SET_ROOM_OBJECTS: (state, objects) => {
+      state.roomObjects = objects;
     }
   },
   actions: {
@@ -75,5 +86,12 @@ export default new Vuex.Store({
     setCharacterLocation: ({ commit }, payload) => {
       commit('SET_CHARACTER_LOCATION', JSON.parse(payload.data));
     },
+
+    setRoomObjects: ({ commit }, payload) => {
+      commit('SET_ROOM_OBJECTS', JSON.parse(payload.data));
+    },
+    disconnect: () => {
+      Vue.prototype.$socket.close();
+    }
   }
 })

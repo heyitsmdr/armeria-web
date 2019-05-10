@@ -1,20 +1,21 @@
 <template>
     <div class="root">
         <div class="container">
-            <Target name="Ethryx" />
-            <Target name="OtherDude" />
+            <Target v-for="obj in roomObjects" :name="obj.name" />
         </div>
     </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import Target from '@/components/Target';
 
 export default {
     name: 'RoomTargets',
     components: {
         Target
-    }
+    },
+    computed: mapState(['roomObjects'])
 }
 </script>
 

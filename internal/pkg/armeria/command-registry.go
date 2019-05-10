@@ -90,6 +90,14 @@ func RegisterGameCommands(state *GameState) {
 			},
 			Handler: handleSaveCommand,
 		},
+		{
+			Name: "reload",
+			Help: "Flushes the game data to disk; updates and reloads the server.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleReloadCommand,
+		},
 	}
 
 	for _, cmd := range commands {

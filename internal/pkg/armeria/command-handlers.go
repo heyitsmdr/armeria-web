@@ -73,8 +73,16 @@ func handleSayCommand(r *CommandContext) {
 		}
 	}
 
+	verbs := []string{"say", "says"}
+	lastChar := r.Args["text"][len(r.Args["text"])-1:]
+	if lastChar == "?" {
+		verbs = []string{"ask", "asks"}
+	} else if lastChar == "!" {
+		verbs = []string{"exclaim", "exclaims"}
+	}
+
 	r.Player.clientActions.ShowText(
-		r.Player.GetCharacter().Colorize(fmt.Sprintf("You say, \"%s\".", r.Args["text"]), ColorSay),
+		r.Player.GetCharacter().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], r.Args["text"]), ColorSay),
 	)
 
 	room := r.GameState.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
@@ -82,7 +90,7 @@ func handleSayCommand(r *CommandContext) {
 	for _, c := range otherChars {
 		c.GetPlayer().clientActions.ShowText(
 			c.GetPlayer().GetCharacter().Colorize(
-				fmt.Sprintf("%s says, \"%s\".", r.Player.GetCharacter().GetFName(), r.Args["text"]),
+				fmt.Sprintf("%s %s, \"%s\".", r.Player.GetCharacter().GetFName(), verbs[1], r.Args["text"]),
 				ColorSay,
 			),
 		)
@@ -178,7 +186,10 @@ func handleRoomSetCommand(r *CommandContext) {
 }
 
 func handleSaveCommand(r *CommandContext) {
-	r.GameState.characterManager.SaveCharacters()
-	r.GameState.worldManager.SaveWorld()
+	r.GameState.Save()
 	r.Player.clientActions.ShowText("The game data has been saved to disk.")
+}
+
+func handleReloadCommand(r *CommandContext) {
+	r.GameState.Reload(r.Player)
 }

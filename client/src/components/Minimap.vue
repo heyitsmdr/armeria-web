@@ -60,7 +60,6 @@ export default {
                 div.style.left = ((room.x * gridSizeFull) + (this.gridPadding * room.x)) + 'px';
                 div.style.backgroundColor = 'rgba(255,255,255,0.6)';
                 div.style.border = `${this.gridBorderSize}px solid rgba(255,255,255,1)`;
-                div.style.borderRadius = '5px';
                 div.setAttribute('x', room.x);
                 div.setAttribute('y', room.y);
                 div.setAttribute('z', room.z);

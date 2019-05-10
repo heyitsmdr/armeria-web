@@ -1,6 +1,12 @@
 <template>
     <div>
-        <div class="container" ref="container" @mousedown="onMouseDown" @mouseup="onMouseUp">
+        <div
+                class="container"
+                ref="container"
+                @mousedown="onMouseDown"
+                @mouseup="onMouseUp"
+                @contextmenu.stop.prevent="onContextMenu"
+        >
             <div class="picture">
                 <div class="picture-container"
                      @dragenter.stop.prevent="onPictureDragEnter"
@@ -55,6 +61,10 @@ export default {
                     console.log(btoa(reader.result));
                 }
             });
+        },
+        onContextMenu: function(event) {
+            // TODO: Add a custom right-click menu
+            // https://dev.to/iamafro/how-to-create-a-custom-context-menu--5d7p
         }
     },
     mounted: function() {
@@ -67,7 +77,7 @@ export default {
 .container {
     background-color: #0c0c0c;
     border: 1px solid #353535;
-    margin: 0 15px 10px 10px;
+    margin: 0 10px 10px 10px;
     transition: all .1s ease-in-out;
     display: flex;
 

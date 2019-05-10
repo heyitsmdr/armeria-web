@@ -102,6 +102,11 @@ func (c *Character) GetRoom() *Room {
 	return c.gameState.worldManager.GetRoomFromLocation(c.Location)
 }
 
+// GetArea returns the area that the character is in
+func (c *Character) GetArea() *Area {
+	return c.gameState.worldManager.GetAreaFromLocation(c.Location)
+}
+
 // GetRole returns the character's permission role
 func (c *Character) GetRole() int {
 	c.mux.Lock()

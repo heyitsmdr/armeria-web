@@ -1,6 +1,8 @@
 package armeria
 
 import (
+	"encoding/json"
+	"log"
 	"sync"
 )
 
@@ -50,14 +52,38 @@ func (a *Area) GetRoom(c *Coords) *Room {
 	return nil
 }
 
-// GetMap returns
-func (a *Area) GetMap() {
+// GetMinimapData returns the JSON used for minimap rendering on the client
+func (a *Area) GetMinimapData() string {
+	a.mux.Lock()
+	defer a.mux.Unlock()
+
+	var rooms []map[string]interface{}
+	for _, r := range a.Rooms {
+		rooms = append(rooms, map[string]interface{}{
+			"title": r.GetTitle(),
+			"x":     r.GetCoords().X,
+			"y":     r.GetCoords().Y,
+			"z":     r.GetCoords().Z,
+		})
+	}
+
+	minimap := map[string]interface{}{
+		"name":  a.Name,
+		"rooms": rooms,
+	}
+
+	mapJson, err := json.Marshal(minimap)
+	if err != nil {
+		log.Fatalf("[area] failed to marshal minimap data: %s", err)
+	}
+
+	return string(mapJson)
 
 }
 
 // OnCharacterEntered is called when the character is moved into the area (or logged in)
 func (a *Area) OnCharacterEntered(c *Character, causedByLogin bool) {
-	c.GetPlayer().clientActions.RenderMap(a.GetMinimap())
+	c.GetPlayer().clientActions.RenderMap()
 }
 
 // OnCharacterLeft is called when the character left the area (or logged out)
@@ -95,6 +121,7 @@ func (r *Room) GetObjects() []Object {
 	return r.objects
 }
 
+// GetCharacters returns online characters within the room
 func (r *Room) GetCharacters(except *Character) []*Character {
 	r.mux.Lock()
 	defer r.mux.Unlock()
@@ -104,7 +131,10 @@ func (r *Room) GetCharacters(except *Character) []*Character {
 	for _, o := range r.objects {
 		if o.GetType() == ObjectTypeCharacter {
 			if except == nil || o.GetName() != except.GetName() {
-				returnChars = append(returnChars, o.(*Character))
+				char := o.(*Character)
+				if char.GetPlayer() != nil {
+					returnChars = append(returnChars, char)
+				}
 			}
 		}
 	}
@@ -133,12 +163,40 @@ func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 	return false
 }
 
+// GetObjectData returns the JSON used for rendering the room objects on the client
+func (r *Room) GetObjectData() string {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	var roomObjects []map[string]interface{}
+
+	for _, o := range r.objects {
+		roomObjects = append(roomObjects, map[string]interface{}{
+			"name": o.GetName(),
+			"type": o.GetType(),
+		})
+	}
+
+	roomObjectJson, err := json.Marshal(roomObjects)
+	if err != nil {
+		log.Fatalf("[area] failed to marshal room object data: %s", err)
+	}
+
+	return string(roomObjectJson)
+}
+
 // OnCharacterEntered is called when the character is moved to the room (or logged in)
 func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
-	c.GetPlayer().clientActions.SetLocation(c.GetLocationData())
+	c.GetPlayer().clientActions.SyncMapLocation()
+
+	for _, char := range r.GetCharacters(nil) {
+		char.GetPlayer().clientActions.SyncRoomObjects()
+	}
 }
 
 // OnCharacterLeft is called when the character left the room (or logged out)
 func (r *Room) OnCharacterLeft(c *Character, causedByLogout bool) {
-
+	for _, char := range r.GetCharacters(nil) {
+		char.GetPlayer().clientActions.SyncRoomObjects()
+	}
 }
