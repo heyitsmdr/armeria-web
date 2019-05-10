@@ -6,7 +6,7 @@ import Howler from './plugins/Howler'
 
 Vue.config.productionTip = false
 
-Vue.use(VueNativeSock, 'ws://localhost:8081/ws', { store: store, format: 'json' })
+Vue.use(VueNativeSock, `ws://${window.location.hostname}:8081/ws`, { store: store, format: 'json' })
 Vue.use(Howler)
 
 new Vue({
