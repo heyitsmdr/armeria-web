@@ -10,7 +10,7 @@ let websocketHostname = window.location.hostname;
 if (websocketHostname === "localhost") {
   websocketHostname += ":8081";
 }
-console.log(`ws://${websocketHostname}/ws`)
+
 Vue.use(VueNativeSock, `ws://${websocketHostname}/ws`, { store: store, format: 'json' })
 Vue.use(Howler)
 
