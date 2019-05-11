@@ -6,7 +6,12 @@ import Howler from './plugins/Howler'
 
 Vue.config.productionTip = false
 
-Vue.use(VueNativeSock, `ws://${window.location.hostname}:8081/ws`, { store: store, format: 'json' })
+let websocketHostname = window.location.hostname;
+if (websocketHostname === "localhost") {
+  websocketHostname += ":8081";
+}
+console.log(`ws://${websocketHostname}/ws`)
+Vue.use(VueNativeSock, `ws://${websocketHostname}/ws`, { store: store, format: 'json' })
 Vue.use(Howler)
 
 new Vue({
