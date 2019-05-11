@@ -191,5 +191,10 @@ func handleSaveCommand(r *CommandContext) {
 }
 
 func handleReloadCommand(r *CommandContext) {
+	if r.Args["component"] != "server" && r.Args["component"] != "client" && r.Args["component"] != "both" {
+		r.Player.clientActions.ShowText("You can reload the following components: server, client, or both.")
+		return
+	}
+
 	r.GameState.Reload(r.Player, r.Args["component"])
 }
