@@ -17,7 +17,7 @@ type GameState struct {
 	scriptsPath      string
 }
 
-func Init(publicPath string, dataPath string, scriptsPath string) {
+func Init(publicPath string, dataPath string, scriptsPath string, httpPort int) {
 	state := &GameState{}
 
 	state.publicPath = publicPath
@@ -30,7 +30,7 @@ func Init(publicPath string, dataPath string, scriptsPath string) {
 	state.worldManager = NewWorldManager(state)
 
 	RegisterGameCommands(state)
-	InitWeb(state)
+	InitWeb(state, httpPort)
 }
 
 func (gs *GameState) Save() {

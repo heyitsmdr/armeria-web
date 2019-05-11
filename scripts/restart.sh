@@ -8,4 +8,5 @@ cd /opt/armeria
     -data=/opt/armeria/data \
     -public=/opt/armeria/client/dist \
     -scripts=/opt/armeria/scripts \
+    -port=80 \
     >> /var/log/armeria.log 2>&1 &

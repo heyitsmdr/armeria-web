@@ -6,11 +6,12 @@ import (
 )
 
 func main() {
-	publicPath := flag.String("public", "", "public directory of client")
-	dataPath := flag.String("data", "", "data directory")
-	scriptsPath := flag.String("scripts", "", "scripts directory")
+	publicPath := flag.String("public", "./client/dist", "public directory of client")
+	dataPath := flag.String("data", "./data", "data directory")
+	scriptsPath := flag.String("scripts", "./scripts", "scripts directory")
+	httpPort := flag.Int("port", 8081, "http listen port")
 
 	flag.Parse()
 
-	armeria.Init(*publicPath, *dataPath, *scriptsPath)
+	armeria.Init(*publicPath, *dataPath, *scriptsPath, *httpPort)
 }
