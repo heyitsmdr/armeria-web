@@ -191,5 +191,5 @@ func handleSaveCommand(r *CommandContext) {
 }
 
 func handleReloadCommand(r *CommandContext) {
-	r.GameState.Reload(r.Player)
+	r.GameState.Reload(r.Player, r.Args["component"])
 }

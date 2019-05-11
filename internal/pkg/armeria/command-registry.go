@@ -93,6 +93,11 @@ func RegisterGameCommands(state *GameState) {
 		{
 			Name: "reload",
 			Help: "Flushes the game data to disk; updates and reloads the server.",
+			Arguments: []*CommandArgument{
+				{
+					Name: "component",
+				},
+			},
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},

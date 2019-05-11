@@ -36,7 +36,7 @@ func (gs *GameState) Save() {
 	gs.worldManager.SaveWorld()
 }
 
-func (gs *GameState) Reload(callingPlayer *Player) {
+func (gs *GameState) Reload(callingPlayer *Player, component string) {
 	steps := make(chan string, 2)
 
 	steps <- "send_warning"
@@ -52,7 +52,7 @@ func (gs *GameState) Reload(callingPlayer *Player) {
 				gs.Save()
 				steps <- "start_update_script"
 			} else if stepName == "start_update_script" {
-				output, err := exec.Command(gs.scriptsPath + "/update.sh").CombinedOutput()
+				output, err := exec.Command(gs.scriptsPath+"/update.sh", component).CombinedOutput()
 				if err != nil {
 					callingPlayer.clientActions.ShowText(
 						"An error occurred when attempting to update. Check the logs for more info.",
