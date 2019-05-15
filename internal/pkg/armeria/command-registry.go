@@ -67,6 +67,11 @@ func RegisterGameCommands(state *GameState) {
 			},
 			Subcommands: []*Command{
 				{
+					Name:    "edit",
+					Help:    "Opens the editor panel for the current room.",
+					Handler: handleRoomEditCommand,
+				},
+				{
 					Name: "set",
 					Help: "Allows you to set a room attribute.",
 					Arguments: []*CommandArgument{

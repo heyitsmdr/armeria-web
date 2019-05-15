@@ -11,8 +11,14 @@ export default new Vuex.Store({
     minimapData: {},
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
+    objectTarget: '',
+    objectEditorOpen: false,
   },
   mutations: {
+    DEBUG_ALTER_STATE: (state, key, val) => {
+      state[key] = val;
+    },
+
     SOCKET_ONOPEN: (state) => {
       state.isConnected = true;
     },
@@ -53,6 +59,14 @@ export default new Vuex.Store({
 
     SET_ROOM_OBJECTS: (state, objects) => {
       state.roomObjects = objects;
+    },
+
+    SET_OBJECT_TARGET: (state, target) => {
+      state.objectTarget = target;
+    },
+
+    SET_OBJECT_EDITOR_OPEN: (state, open) => {
+      state.objectEditorOpen = open;
     }
   },
   actions: {
@@ -69,6 +83,18 @@ export default new Vuex.Store({
 
     setAllowGlobalHotkeys: ({ commit }, payload) => {
       commit('SET_ALLOW_GLOBAL_HOTKEYS', payload);
+    },
+
+    setObjectTarget: ({ commit }, payload) => {
+      commit('SET_OBJECT_TARGET', payload.target);
+    },
+
+    debugAlterState: ({ commit }, payload) => {
+      commit('DEBUG_ALTER_STATE', payload.key, payload.value);
+    },
+
+    setObjectEditorOpen: ({ commit }, payload) => {
+      commit('SET_OBJECT_EDITOR_OPEN', payload);
     },
 
     //
@@ -90,6 +116,7 @@ export default new Vuex.Store({
     setRoomObjects: ({ commit }, payload) => {
       commit('SET_ROOM_OBJECTS', JSON.parse(payload.data));
     },
+
     disconnect: () => {
       Vue.prototype.$socket.close();
     }

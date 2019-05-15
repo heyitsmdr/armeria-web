@@ -55,7 +55,7 @@ export default {
 
       let sendCommand = '';
 
-      switch(event.key) {
+      switch(event.key.toLowerCase()) {
         case 'w':
           sendCommand = "/move north";
           break;
@@ -73,6 +73,9 @@ export default {
           break;
         case 'e':
           sendCommand = "/move up";
+          break;
+        case 'escape':
+          this.$store.dispatch('setObjectTarget', { target: '' });
           break;
       }
 

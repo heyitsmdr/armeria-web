@@ -166,6 +166,10 @@ func handleMoveCommand(r *CommandContext) {
 	r.GameState.commandManager.ProcessCommand(r.Player, "look")
 }
 
+func handleRoomEditCommand(r *CommandContext) {
+	r.Player.clientActions.ShowText("You viewed the room.")
+}
+
 func handleRoomSetCommand(r *CommandContext) {
 	switch strings.ToLower(r.Args["property"]) {
 	case "title":

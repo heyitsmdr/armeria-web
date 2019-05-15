@@ -2,6 +2,7 @@
     <div>
         <div
                 class="container"
+                :class="{'selected': this.objectTarget == this.name}"
                 ref="container"
                 @mousedown="onMouseDown"
                 @mouseup="onMouseUp"
@@ -27,6 +28,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
     name: 'Target',
     props: ['name'],
@@ -37,6 +40,9 @@ export default {
 
         onMouseUp: function() {
             this.$refs['container'].classList.remove('mouse-down');
+            this.$store.dispatch('setObjectTarget', {
+                target: this.name
+            });
         },
         onPictureDragEnter: function(event) {
             // TODO: add class to make it obvious you can drop something here
@@ -67,9 +73,7 @@ export default {
             // https://dev.to/iamafro/how-to-create-a-custom-context-menu--5d7p
         }
     },
-    mounted: function() {
-
-    }
+    computed: mapState(['objectTarget'])
 }
 </script>
 
@@ -81,6 +85,10 @@ export default {
     transition: all .1s ease-in-out;
     display: flex;
 
+    &.selected {
+         border: 1px solid #ffeb3b;
+    }
+
     &.mouse-down {
         transform: scale(1.01) !important;
     }
@@ -90,24 +98,24 @@ export default {
         transform: scale(1.05);
     }
 
-     .picture {
-         flex-basis: 50px;
+    .picture {
+        flex-basis: 50px;
 
-         .picture-container {
+        .picture-container {
              height: 50px;
              box-shadow: inset 0px 0px 15px #000;
-         }
-     }
+        }
+    }
 
-     .name {
-         flex-grow: 1;
-         display: flex;
-         align-items: center;
-         margin-left: 10px;
+    .name {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        margin-left: 10px;
 
-         .name-container {
+        .name-container {
             font-weight: 600;
-         }
-     }
+        }
+    }
 }
 </style>
