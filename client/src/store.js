@@ -13,6 +13,7 @@ export default new Vuex.Store({
     roomObjects: [],
     objectTarget: '',
     objectEditorOpen: false,
+    objectEditorData: {},
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -67,6 +68,9 @@ export default new Vuex.Store({
 
     SET_OBJECT_EDITOR_OPEN: (state, open) => {
       state.objectEditorOpen = open;
+    },
+    SET_OBJECT_EDITOR_DATA: (state, data) => {
+      state.objectEditorData = data;
     }
   },
   actions: {
@@ -115,6 +119,11 @@ export default new Vuex.Store({
 
     setRoomObjects: ({ commit }, payload) => {
       commit('SET_ROOM_OBJECTS', JSON.parse(payload.data));
+    },
+
+    setObjectEditorData: ({ commit }, payload) => {
+      commit('SET_OBJECT_EDITOR_DATA', JSON.parse(payload.data));
+      commit('SET_OBJECT_EDITOR_OPEN', true);
     },
 
     disconnect: () => {

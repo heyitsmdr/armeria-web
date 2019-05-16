@@ -167,7 +167,7 @@ func handleMoveCommand(r *CommandContext) {
 }
 
 func handleRoomEditCommand(r *CommandContext) {
-	r.Player.clientActions.ShowText("You viewed the room.")
+	r.Player.clientActions.ShowObjectEditor(r.Character.GetRoom().GetEditorData())
 }
 
 func handleRoomSetCommand(r *CommandContext) {

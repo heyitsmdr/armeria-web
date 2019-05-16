@@ -185,6 +185,31 @@ func (r *Room) GetObjectData() string {
 	return string(roomObjectJson)
 }
 
+// GetEditorData returns the JSON used for the object editor
+func (r *Room) GetEditorData() *ObjectEditorData {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	editorData := &ObjectEditorData{
+		Name:       r.Title,
+		ObjectType: "room",
+		Properties: []*ObjectEditorDataProperty{
+			{
+				PropType: "editable",
+				Name:     "title",
+				Value:    r.Title,
+			},
+			{
+				PropType: "editable",
+				Name:     "description",
+				Value:    r.Description,
+			},
+		},
+	}
+
+	return editorData
+}
+
 // OnCharacterEntered is called when the character is moved to the room (or logged in)
 func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
 	c.GetPlayer().clientActions.SyncMapLocation()

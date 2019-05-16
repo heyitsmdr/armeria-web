@@ -1,7 +1,24 @@
 package armeria
 
+import (
+	"encoding/json"
+	"log"
+)
+
 type ClientActions struct {
 	player *Player
+}
+
+type ObjectEditorData struct {
+	Name       string                      `json:"name"`
+	ObjectType string                      `json:"objectType"`
+	Properties []*ObjectEditorDataProperty `json:"properties"`
+}
+
+type ObjectEditorDataProperty struct {
+	Name     string `json:"name"`
+	Value    string `json:"value"`
+	PropType string `json:"propType"`
 }
 
 func NewClientActions(p *Player) *ClientActions {
@@ -36,6 +53,16 @@ func (ca *ClientActions) SyncMapLocation() {
 func (ca *ClientActions) SyncRoomObjects() {
 	obj := ca.player.GetCharacter().GetRoom().GetObjectData()
 	ca.player.CallClientAction("setRoomObjects", obj)
+}
+
+// ShowObjectEditor displays the object editor on the client
+func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
+	j, err := json.Marshal(editorData)
+	if err != nil {
+		log.Fatalf("[client-actions] failed to marshal object editor data: %s", err)
+	}
+
+	ca.player.CallClientAction("setObjectEditorData", string(j))
 }
 
 // Disconnect requests that the client disconnects from the server
