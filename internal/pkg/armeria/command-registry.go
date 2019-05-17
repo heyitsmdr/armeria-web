@@ -73,7 +73,7 @@ func RegisterGameCommands(state *GameState) {
 				},
 				{
 					Name: "set",
-					Help: "Allows you to set a room attribute.",
+					Help: "Allows you to set a room attribute. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "property",
@@ -81,9 +81,20 @@ func RegisterGameCommands(state *GameState) {
 						{
 							Name:             "value",
 							IncludeRemaining: true,
+							Optional:         true,
 						},
 					},
 					Handler: handleRoomSetCommand,
+				},
+				{
+					Name: "create",
+					Help: "Creates a new room in a particular direction.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "direction",
+						},
+					},
+					Handler: handleRoomCreateCommand,
 				},
 			},
 		},
@@ -97,7 +108,7 @@ func RegisterGameCommands(state *GameState) {
 		},
 		{
 			Name: "reload",
-			Help: "Flushes the game data to disk; updates and reloads the server.",
+			Help: "Updates, builds and reloads the server, client, or both.",
 			Arguments: []*CommandArgument{
 				{
 					Name: "component",
@@ -107,6 +118,14 @@ func RegisterGameCommands(state *GameState) {
 				RequireCharacter: true,
 			},
 			Handler: handleReloadCommand,
+		},
+		{
+			Name: "map",
+			Help: "Asks the server to re-render the minimap for the area.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleMapCommand,
 		},
 	}
 

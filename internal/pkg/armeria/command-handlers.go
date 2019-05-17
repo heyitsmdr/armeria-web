@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"fmt"
 	"log"
 	"strings"
@@ -53,8 +54,8 @@ func handleLookCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowText(
-		r.Player.GetCharacter().Colorize(room.GetTitle(), ColorRoomTitle) + "\n" +
-			room.GetDescription() +
+		r.Player.GetCharacter().Colorize(room.GetAttribute("title"), ColorRoomTitle) + "\n" +
+			room.GetAttribute("description") +
 			withYou,
 	)
 }
@@ -98,10 +99,6 @@ func handleSayCommand(r *CommandContext) {
 }
 
 func handleMoveCommand(r *CommandContext) {
-	if len(r.Args) != 1 {
-		return
-	}
-
 	loc := r.Character.GetLocation()
 
 	x := loc.Coords.X
@@ -171,17 +168,14 @@ func handleRoomEditCommand(r *CommandContext) {
 }
 
 func handleRoomSetCommand(r *CommandContext) {
-	switch strings.ToLower(r.Args["property"]) {
-	case "title":
-		r.Character.GetRoom().SetTitle(r.Args["value"])
+	attr := strings.ToLower(r.Args["property"])
 
-	case "description":
-		r.Character.GetRoom().SetDescription(r.Args["value"])
-
-	default:
-		r.Player.clientActions.ShowText("Invalid room property.")
+	if !misc.Contains(GetValidRoomAttributes(), attr) {
+		r.Player.clientActions.ShowText(r.Character.Colorize("That's not a valid room attribute.", ColorError))
 		return
 	}
+
+	r.Character.GetRoom().SetAttribute(attr, r.Args["value"])
 
 	for _, c := range r.Character.GetRoom().GetCharacters(r.Character) {
 		c.GetPlayer().clientActions.ShowText(
@@ -197,6 +191,57 @@ func handleRoomSetCommand(r *CommandContext) {
 	}
 }
 
+func handleRoomCreateCommand(r *CommandContext) {
+	loc := r.Character.GetLocation()
+
+	x := loc.Coords.X
+	y := loc.Coords.Y
+	z := loc.Coords.Z
+
+	switch strings.ToLower(r.Args["direction"]) {
+	case "north", "n":
+		y = y + 1
+	case "south", "s":
+		y = y - 1
+	case "east", "e":
+		x = x + 1
+	case "west", "w":
+		x = x - 1
+	case "up", "u":
+		z = z + 1
+	case "down", "d":
+		z = z - 1
+	default:
+		r.Player.clientActions.ShowText(r.Character.Colorize("That's not a valid direction to create a room.", ColorError))
+		return
+	}
+
+	newLoc := &Location{
+		AreaName: loc.AreaName,
+		Coords: &Coords{
+			X: x,
+			Y: y,
+			Z: z,
+		},
+	}
+
+	if r.GameState.worldManager.GetRoomFromLocation(newLoc) != nil {
+		r.Player.clientActions.ShowText(r.Character.Colorize("There's already a room in that direction.", ColorError))
+		return
+	}
+
+	r.Character.GetArea().AddRoom(&Room{
+		Coords: newLoc.Coords,
+	})
+
+	for _, c := range r.Character.GetArea().GetCharacters(nil) {
+		c.GetPlayer().clientActions.RenderMap()
+		c.GetPlayer().clientActions.SyncMapLocation()
+	}
+
+	r.Player.clientActions.ShowText("A new room has been created.")
+}
+
 func handleSaveCommand(r *CommandContext) {
 	r.GameState.Save()
 	r.Player.clientActions.ShowText("The game data has been saved to disk.")
@@ -209,4 +254,9 @@ func handleReloadCommand(r *CommandContext) {
 	}
 
 	r.GameState.Reload(r.Player, r.Args["component"])
+}
+
+func handleMapCommand(r *CommandContext) {
+	r.Player.clientActions.RenderMap()
+	r.Player.clientActions.SyncMapLocation()
 }

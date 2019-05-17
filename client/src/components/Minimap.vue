@@ -58,8 +58,8 @@ export default {
                 div.style.position = 'absolute';
                 div.style.top = -((room.y * gridSizeFull) + (this.gridPadding * room.y)) + 'px';
                 div.style.left = ((room.x * gridSizeFull) + (this.gridPadding * room.x)) + 'px';
-                div.style.backgroundColor = 'rgba(255,255,255,0.6)';
-                div.style.border = `${this.gridBorderSize}px solid rgba(255,255,255,1)`;
+                div.style.backgroundColor = `rgba(${room.color},0.6)`;
+                div.style.border = `${this.gridBorderSize}px solid rgba(${room.color},0.8)`;
                 div.setAttribute('x', room.x);
                 div.setAttribute('y', room.y);
                 div.setAttribute('z', room.z);

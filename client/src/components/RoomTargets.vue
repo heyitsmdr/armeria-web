@@ -1,6 +1,6 @@
 <template>
     <div class="root">
-        <div class="container">
+        <div class="container" @click="handleClick">
             <Target v-for="obj in roomObjects" :name="obj.name" />
         </div>
     </div>
@@ -15,7 +15,12 @@ export default {
     components: {
         Target
     },
-    computed: mapState(['roomObjects'])
+    computed: mapState(['roomObjects']),
+    methods: {
+        handleClick: function() {
+            //this.$store.dispatch('setObjectTarget', '');
+        }
+    }
 }
 </script>
 

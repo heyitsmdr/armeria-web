@@ -43,7 +43,7 @@ export default {
       windowHeight: 0,
     }
   },
-  computed: mapState(['allowGlobalHotkeys']),
+  computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen']),
   methods: {
     onWindowResize() {
       this.windowHeight = window.innerHeight;
@@ -75,8 +75,15 @@ export default {
           sendCommand = "/move up";
           break;
         case 'escape':
-          this.$store.dispatch('setObjectTarget', { target: '' });
+          this.$store.dispatch('setObjectTarget', '');
+          this.$store.dispatch('setObjectEditorOpen', false);
           break;
+        case '/':
+          this.$store.dispatch('setForceInputFocus', true);
+          break;
+        default:
+           console.log('Unhandled global key:', event.key.toLowerCase());
+
       }
 
       if (sendCommand.length > 0) {
@@ -87,7 +94,7 @@ export default {
     }
   },
   mounted() {
-    this.onWindowResize()
+    this.onWindowResize();
 
     window.addEventListener(
       'resize',

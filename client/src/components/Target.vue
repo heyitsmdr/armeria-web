@@ -40,9 +40,7 @@ export default {
 
         onMouseUp: function() {
             this.$refs['container'].classList.remove('mouse-down');
-            this.$store.dispatch('setObjectTarget', {
-                target: this.name
-            });
+            this.$store.dispatch('setObjectTarget', this.name);
         },
         onPictureDragEnter: function(event) {
             // TODO: add class to make it obvious you can drop something here
@@ -83,6 +81,7 @@ export default {
     border: 1px solid #353535;
     margin: 0 10px 10px 10px;
     transition: all .1s ease-in-out;
+    transform: scale(1);
     display: flex;
 
     &.selected {

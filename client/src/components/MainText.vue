@@ -1,8 +1,10 @@
 <template>
-    <div class="container" ref="mainTextContainer" :style="{ height: containerHeight }">
+    <div class="main-text-container" :style="{ height: containerHeight }">
         <ObjectEditor :style="{ height: containerHeight }"></ObjectEditor>
-        <div class="lines">
-            <div class="line" v-for="line in gameText" v-html="line"></div>
+        <div class="scrollable-container" ref="mainTextContainer">
+            <div class="lines">
+                <div class="line" v-for="line in gameText" v-html="line"></div>
+            </div>
         </div>
     </div>
 </template>
@@ -39,14 +41,13 @@
 </script>
 
 <style scoped>
-    .container {
-        padding: 5px;
-        overflow-y: scroll;
-        box-shadow: inset 0px 0px 4px 0px #000;
+    .main-text-container {
         display: flex;
     }
 
-    .lines {
+    .scrollable-container {
+        padding: 5px;
+        overflow-y: scroll;
         flex-grow: 1;
     }
 

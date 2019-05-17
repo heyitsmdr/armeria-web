@@ -19,6 +19,7 @@ type Command struct {
 type CommandArgument struct {
 	Name             string
 	IncludeRemaining bool
+	Optional         bool
 }
 
 type CommandPermissions struct {
@@ -93,7 +94,12 @@ func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string
 
 	var argumentStrings []string
 	for _, arg := range cmd.Arguments {
-		argumentStrings = append(argumentStrings, fmt.Sprintf("&lt;%s&gt;", arg.Name))
+		if arg.Optional {
+			argumentStrings = append(argumentStrings, fmt.Sprintf("[%s]", arg.Name))
+		} else {
+			argumentStrings = append(argumentStrings, fmt.Sprintf("&lt;%s&gt;", arg.Name))
+		}
+
 	}
 
 	output := []string{

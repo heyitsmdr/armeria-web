@@ -5,9 +5,11 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    environment: process.env.NODE_ENV || 'development',
     isConnected: false,
     gameText: [],
     allowGlobalHotkeys: true,
+    forceInputFocus: false,
     minimapData: {},
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
@@ -71,6 +73,9 @@ export default new Vuex.Store({
     },
     SET_OBJECT_EDITOR_DATA: (state, data) => {
       state.objectEditorData = data;
+    },
+    SET_FORCE_INPUT_FOCUS: (state, force) => {
+      state.forceInputFocus = force;
     }
   },
   actions: {
@@ -90,7 +95,7 @@ export default new Vuex.Store({
     },
 
     setObjectTarget: ({ commit }, payload) => {
-      commit('SET_OBJECT_TARGET', payload.target);
+      commit('SET_OBJECT_TARGET', payload);
     },
 
     debugAlterState: ({ commit }, payload) => {
@@ -99,6 +104,10 @@ export default new Vuex.Store({
 
     setObjectEditorOpen: ({ commit }, payload) => {
       commit('SET_OBJECT_EDITOR_OPEN', payload);
+    },
+
+    setForceInputFocus: ({ commit }, payload) => {
+      commit('SET_FORCE_INPUT_FOCUS', payload);
     },
 
     //

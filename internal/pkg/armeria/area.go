@@ -12,24 +12,8 @@ type Area struct {
 	mux   sync.Mutex
 }
 
-type Room struct {
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Coords      *Coords `json:"coords"`
-	objects     []Object
-	mux         sync.Mutex
-}
-
-type Coords struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-	Z int `json:"z"`
-	I int `json:"-"`
-}
-
-type Location struct {
-	AreaName string  `json:"area"`
-	Coords   *Coords `json:"coords"`
+func GetValiAreaAttributes() []string {
+	return []string{}
 }
 
 func (a *Area) GetName() string {
@@ -60,7 +44,8 @@ func (a *Area) GetMinimapData() string {
 	var rooms []map[string]interface{}
 	for _, r := range a.Rooms {
 		rooms = append(rooms, map[string]interface{}{
-			"title": r.GetTitle(),
+			"title": r.GetAttribute("title"),
+			"color": r.GetAttribute("color"),
 			"x":     r.GetCoords().X,
 			"y":     r.GetCoords().Y,
 			"z":     r.GetCoords().Z,
@@ -91,143 +76,31 @@ func (a *Area) OnCharacterLeft(c *Character, causedByLogout bool) {
 
 }
 
-func (r *Room) GetCoords() *Coords {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	return r.Coords
+func (a *Area) AddRoom(r *Room) {
+	a.mux.Lock()
+	defer a.mux.Unlock()
+	a.Rooms = append(a.Rooms, r)
 }
 
-func (r *Room) SetTitle(title string) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	r.Title = title
-}
-
-func (r *Room) GetTitle() string {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	return r.Title
-}
-
-func (r *Room) SetDescription(description string) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	r.Description = description
-}
-
-func (r *Room) GetDescription() string {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	return r.Description
-}
-
-func (r *Room) GetObjects() []Object {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	return r.objects
-}
-
-// GetCharacters returns online characters within the room
-func (r *Room) GetCharacters(except *Character) []*Character {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+// GetCharacters returns online characters within the area
+func (a *Area) GetCharacters(except *Character) []*Character {
+	a.mux.Lock()
+	defer a.mux.Unlock()
 
 	var returnChars []*Character
 
-	for _, o := range r.objects {
-		if o.GetType() == ObjectTypeCharacter {
-			if except == nil || o.GetName() != except.GetName() {
-				char := o.(*Character)
-				if char.GetPlayer() != nil {
-					returnChars = append(returnChars, char)
+	for _, r := range a.Rooms {
+		for _, o := range r.objects {
+			if o.GetType() == ObjectTypeCharacter {
+				if except == nil || o.GetName() != except.GetName() {
+					char := o.(*Character)
+					if char.GetPlayer() != nil {
+						returnChars = append(returnChars, char)
+					}
 				}
 			}
 		}
 	}
 
 	return returnChars
-}
-
-func (r *Room) AddObjectToRoom(obj Object) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	r.objects = append(r.objects, obj)
-}
-
-func (r *Room) RemoveObjectFromRoom(obj Object) bool {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-
-	for i, o := range r.objects {
-		if o.GetType() == obj.GetType() && o.GetName() == obj.GetName() {
-			r.objects[i] = r.objects[len(r.objects)-1]
-			r.objects = r.objects[:len(r.objects)-1]
-			return true
-		}
-	}
-
-	return false
-}
-
-// GetObjectData returns the JSON used for rendering the room objects on the client
-func (r *Room) GetObjectData() string {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-
-	var roomObjects []map[string]interface{}
-
-	for _, o := range r.objects {
-		roomObjects = append(roomObjects, map[string]interface{}{
-			"name": o.GetName(),
-			"type": o.GetType(),
-		})
-	}
-
-	roomObjectJson, err := json.Marshal(roomObjects)
-	if err != nil {
-		log.Fatalf("[area] failed to marshal room object data: %s", err)
-	}
-
-	return string(roomObjectJson)
-}
-
-// GetEditorData returns the JSON used for the object editor
-func (r *Room) GetEditorData() *ObjectEditorData {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-
-	editorData := &ObjectEditorData{
-		Name:       r.Title,
-		ObjectType: "room",
-		Properties: []*ObjectEditorDataProperty{
-			{
-				PropType: "editable",
-				Name:     "title",
-				Value:    r.Title,
-			},
-			{
-				PropType: "editable",
-				Name:     "description",
-				Value:    r.Description,
-			},
-		},
-	}
-
-	return editorData
-}
-
-// OnCharacterEntered is called when the character is moved to the room (or logged in)
-func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
-	c.GetPlayer().clientActions.SyncMapLocation()
-
-	for _, char := range r.GetCharacters(nil) {
-		char.GetPlayer().clientActions.SyncRoomObjects()
-	}
-}
-
-// OnCharacterLeft is called when the character left the room (or logged out)
-func (r *Room) OnCharacterLeft(c *Character, causedByLogout bool) {
-	for _, char := range r.GetCharacters(nil) {
-		char.GetPlayer().clientActions.SyncRoomObjects()
-	}
 }

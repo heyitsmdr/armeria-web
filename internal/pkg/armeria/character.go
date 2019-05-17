@@ -22,6 +22,7 @@ const (
 	ColorRoomTitle int = 0
 	ColorSay       int = 1
 	ColorMovement  int = 2
+	ColorError     int = 3
 )
 
 const RoleAdmin int = 0
@@ -127,6 +128,8 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#ffeb3b'>%s</span>", text)
 	case ColorMovement:
 		return fmt.Sprintf("<span style='color:#00bcd4'>%s</span>", text)
+	case ColorError:
+		return fmt.Sprintf("<span style='color:#e91e63'>%s</span>", text)
 	default:
 		return text
 	}
@@ -187,17 +190,17 @@ func (c *Character) LoggedOut() {
 }
 
 // GetTempAttribute retrieves a previously-saved temp attribute
-func (c *Character) GetTempAttribute(attrName string) interface{} {
+func (c *Character) GetTempAttribute(name string) interface{} {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return c.TempAttributes[attrName]
+	return c.TempAttributes[name]
 }
 
 // SetTempAttribute stores a temp attribute, which is cleared on log out
-func (c *Character) SetTempAttribute(attrName string, attrValue interface{}) {
+func (c *Character) SetTempAttribute(name string, value interface{}) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	c.TempAttributes[attrName] = attrValue
+	c.TempAttributes[name] = value
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed

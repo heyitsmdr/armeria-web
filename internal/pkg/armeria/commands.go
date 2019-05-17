@@ -50,7 +50,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 			commandArgs := make(map[string]string)
 			if cmd.Arguments != nil {
 				for pos, arg := range cmd.Arguments {
-					if len(sections) < (pos + 2) {
+					if !arg.Optional && len(sections) < (pos+2) {
 						return nil, nil, cmd.ShowArgumentHelp(p, append(alreadyProcessed, cmdName))
 					}
 					if arg.IncludeRemaining {

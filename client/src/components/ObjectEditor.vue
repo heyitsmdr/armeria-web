@@ -42,8 +42,9 @@
 
             handleEditablePropClick: function(prop) {
                 const newValue = prompt(`Set object property "${prop.name}" to what?`, prop.value);
-                if (newValue) {
+                if (newValue != null) {
                     this.setProperty(prop.name, newValue);
+                    this.$store.dispatch('setForceInputFocus', true);
                 }
             },
 

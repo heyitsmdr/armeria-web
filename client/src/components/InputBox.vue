@@ -24,9 +24,17 @@
         isFocused: false,
       }
     },
-    computed: mapState(['objectEditorOpen']),
+    computed: mapState(['objectEditorOpen', 'forceInputFocus']),
     mounted() {
       this.$refs['inputBox'].focus();
+    },
+    watch: {
+        forceInputFocus: function(force) {
+            if (force) {
+                this.$refs['inputBox'].focus();
+                this.$store.dispatch('setForceInputFocus', false);
+            }
+        }
     },
     methods: {
       checkDebugCommands(cmd) {
@@ -67,7 +75,7 @@
 
       handleRemoveFocus(event) {
         if (this.objectEditorOpen) {
-          this.$store.dispatch('');
+          this.$store.dispatch('setObjectEditorOpen', false);
           return;
         }
 

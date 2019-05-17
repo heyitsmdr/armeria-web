@@ -1,1 +1,1 @@
-{"characters":[{"name":"Alexa","password":"alexa","location":{"area":"Test Area","coords":{"x":1,"y":0,"z":0}},"role":0},{"name":"Siri","password":"siri","location":{"area":"Test Area","coords":{"x":0,"y":0,"z":0}},"role":0}]}
+{"characters":[{"name":"Alexa","password":"alexa","location":{"area":"Test Area","coords":{"x":4,"y":0,"z":0}},"role":0,"TempAttributes":{"editorOpen":true}},{"name":"Siri","password":"siri","location":{"area":"Test Area","coords":{"x":0,"y":0,"z":0}},"role":0,"TempAttributes":{}}]}
