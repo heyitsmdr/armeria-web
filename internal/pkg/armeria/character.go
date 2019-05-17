@@ -8,13 +8,14 @@ import (
 )
 
 type Character struct {
-	gameState *GameState
-	Name      string    `json:"name"`
-	Password  string    `json:"password"`
-	Location  *Location `json:"location"`
-	Role      int       `json:"role"`
-	player    *Player
-	mux       sync.Mutex
+	gameState      *GameState
+	Name           string    `json:"name"`
+	Password       string    `json:"password"`
+	Location       *Location `json:"location"`
+	Role           int       `json:"role"`
+	TempAttributes map[string]interface{}
+	player         *Player
+	mux            sync.Mutex
 }
 
 const (
@@ -28,6 +29,7 @@ const RoleAdmin int = 0
 // Init initializes the character when loaded from disk
 func (c *Character) Init(state *GameState) {
 	c.gameState = state
+	c.TempAttributes = make(map[string]interface{})
 }
 
 // GetType returns the object type, since Character uses the Object interface
@@ -179,6 +181,23 @@ func (c *Character) LoggedOut() {
 
 	area.OnCharacterLeft(c, true)
 	room.OnCharacterLeft(c, true)
+
+	// Clear temp attributes
+	c.TempAttributes = make(map[string]interface{})
+}
+
+// GetTempAttribute retrieves a previously-saved temp attribute
+func (c *Character) GetTempAttribute(attrName string) interface{} {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	return c.TempAttributes[attrName]
+}
+
+// SetTempAttribute stores a temp attribute, which is cleared on log out
+func (c *Character) SetTempAttribute(attrName string, attrValue interface{}) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	c.TempAttributes[attrName] = attrValue
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed

@@ -48,6 +48,8 @@ func (p *Player) readPump() {
 		case "command":
 			cmd := messageRead.Payload.(string)
 			p.gameState.commandManager.ProcessCommand(p, cmd[1:])
+		case "objectEditorOpen":
+			p.GetCharacter().SetTempAttribute("editorOpen", messageRead.Payload.(bool))
 		default:
 			p.clientActions.ShowText("Your client sent invalid data.")
 		}

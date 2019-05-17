@@ -109,6 +109,12 @@ func (r *Room) GetTitle() string {
 	return r.Title
 }
 
+func (r *Room) SetDescription(description string) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	r.Description = description
+}
+
 func (r *Room) GetDescription() string {
 	r.mux.Lock()
 	defer r.mux.Unlock()

@@ -27,6 +27,14 @@
     export default {
         name: 'ObjectEditor',
         computed: mapState(['objectEditorOpen', 'objectEditorData']),
+        watch: {
+            objectEditorOpen: function(newVal) {
+                this.$socket.sendObj({
+                    type: "objectEditorOpen",
+                    payload: newVal
+                })
+            }
+        },
         methods: {
             handleClose: function() {
                 this.$store.dispatch('setObjectEditorOpen', false);
@@ -42,8 +50,11 @@
             setProperty(propName, propValue) {
                 switch(this.objectEditorData.objectType) {
                     case 'room':
-                        console.log(`/room set ${propName} ${propValue}`);
-                        return;
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/room set ${propName} ${propValue}`
+                        });
+                        break;
                 }
             }
         }

@@ -175,6 +175,9 @@ func handleRoomSetCommand(r *CommandContext) {
 	case "title":
 		r.Character.GetRoom().SetTitle(r.Args["value"])
 
+	case "description":
+		r.Character.GetRoom().SetDescription(r.Args["value"])
+
 	default:
 		r.Player.clientActions.ShowText("Invalid room property.")
 		return
@@ -187,6 +190,11 @@ func handleRoomSetCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowText("You modified the room.")
+
+	editorOpen := r.Character.GetTempAttribute("editorOpen")
+	if editorOpen != nil && editorOpen.(bool) {
+		r.Player.clientActions.ShowObjectEditor(r.Character.GetRoom().GetEditorData())
+	}
 }
 
 func handleSaveCommand(r *CommandContext) {
