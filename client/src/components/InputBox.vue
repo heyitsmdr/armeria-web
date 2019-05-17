@@ -14,6 +14,8 @@
 </template>
 
 <script>
+  import { mapState} from 'vuex';
+
   export default {
     name: 'InputBox',
     data: () => {
@@ -22,6 +24,7 @@
         isFocused: false,
       }
     },
+    computed: mapState(['objectEditorOpen']),
     mounted() {
       this.$refs['inputBox'].focus();
     },
@@ -58,10 +61,16 @@
           });
         }
 
+
         this.textToSend = '';
       },
 
       handleRemoveFocus(event) {
+        if (this.objectEditorOpen) {
+          this.$store.dispatch('');
+          return;
+        }
+
         event.target.blur()
       },
 
