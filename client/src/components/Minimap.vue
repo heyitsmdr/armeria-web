@@ -29,10 +29,14 @@ export default {
     },
     watch: {
         minimapData: function(newMinimapData) {
-            this.renderMap(newMinimapData.rooms, 0);
             this.areaTitle = newMinimapData.name;
+            this.renderMap(newMinimapData.rooms, this.characterLocation.z);
+            this.centerMapOnLocation(this.characterLocation, this.characterLocation);
         },
         characterLocation: function(newLocation, oldLocation) {
+            if (newLocation.z !== oldLocation.z) {
+                this.renderMap(this.minimapData.rooms, newLocation.z);
+            }
             this.centerMapOnLocation(newLocation, oldLocation);
         }
     },
@@ -44,6 +48,7 @@ export default {
                 map.firstChild.remove();
             }
         },
+
         renderMap(rooms, zIndex) {
             const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
 
@@ -69,6 +74,7 @@ export default {
                 this.$refs['floor'].appendChild(div)
             })
         },
+
         centerMapOnLocation(location, oldLocation) {
             const floor = this.$refs['floor'];
             const halfMapWidth = this.mapWidth / 2;
@@ -82,12 +88,15 @@ export default {
             if  (oldLocDiv) {
                 oldLocDiv.classList.remove('current-location');
             }
+
             const newLocDiv = document.querySelector(`.room[x="${location.x}"][y="${location.y}"]`)
             if (newLocDiv) {
                 newLocDiv.classList.add('current-location');
             }
+
             this.location = location;
         },
+
         onRoomHover(event) {
             if (!event.target.classList.contains('current-location')) {
                 this.$playSound('bloop.wav');

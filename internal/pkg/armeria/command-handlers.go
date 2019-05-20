@@ -236,7 +236,6 @@ func handleRoomCreateCommand(r *CommandContext) {
 
 	for _, c := range r.Character.GetArea().GetCharacters(nil) {
 		c.GetPlayer().clientActions.RenderMap()
-		c.GetPlayer().clientActions.SyncMapLocation()
 	}
 
 	r.Player.clientActions.ShowText("A new room has been created.")
@@ -258,5 +257,4 @@ func handleReloadCommand(r *CommandContext) {
 
 func handleMapCommand(r *CommandContext) {
 	r.Player.clientActions.RenderMap()
-	r.Player.clientActions.SyncMapLocation()
 }
