@@ -12,7 +12,25 @@ type Area struct {
 	mux   sync.Mutex
 }
 
-func GetValiAreaAttributes() []string {
+type AdjacentRooms struct {
+	North *Room
+	South *Room
+	East  *Room
+	West  *Room
+	Up    *Room
+	Down  *Room
+}
+
+const (
+	NorthDirection = "north"
+	SouthDirection = "south"
+	EastDirection  = "east"
+	WestDirection  = "west"
+	UpDirection    = "up"
+	DownDirection  = "down"
+)
+
+func GetValidAreaAttributes() []string {
 	return []string{}
 }
 
@@ -66,12 +84,12 @@ func (a *Area) GetMinimapData() string {
 
 }
 
-// OnCharacterEntered is called when the character is moved into the area (or logged in)
+// OnCharacterEntered is called when the character is moved into the area (or logged in).
 func (a *Area) OnCharacterEntered(c *Character, causedByLogin bool) {
 	c.GetPlayer().clientActions.RenderMap()
 }
 
-// OnCharacterLeft is called when the character left the area (or logged out)
+// OnCharacterLeft is called when the character left the area (or logged out).
 func (a *Area) OnCharacterLeft(c *Character, causedByLogout bool) {
 
 }
@@ -82,7 +100,11 @@ func (a *Area) AddRoom(r *Room) {
 	a.Rooms = append(a.Rooms, r)
 }
 
-// GetCharacters returns online characters within the area
+func (a *Area) RemoveRoom(r *Room) {
+
+}
+
+// GetCharacters returns online characters within the area.
 func (a *Area) GetCharacters(except *Character) []*Character {
 	a.mux.Lock()
 	defer a.mux.Unlock()
@@ -103,4 +125,16 @@ func (a *Area) GetCharacters(except *Character) []*Character {
 	}
 
 	return returnChars
+}
+
+// GetAdjacentRooms returns the Room objects that are adjacent to the current room.
+func (a *Area) GetAdjacentRooms(r *Room) *AdjacentRooms {
+	return &AdjacentRooms{
+		North: Armeria.worldManager.GetRoomInDirection(a, r, NorthDirection),
+		South: Armeria.worldManager.GetRoomInDirection(a, r, SouthDirection),
+		East:  Armeria.worldManager.GetRoomInDirection(a, r, EastDirection),
+		West:  Armeria.worldManager.GetRoomInDirection(a, r, WestDirection),
+		Up:    Armeria.worldManager.GetRoomInDirection(a, r, UpDirection),
+		Down:  Armeria.worldManager.GetRoomInDirection(a, r, DownDirection),
+	}
 }

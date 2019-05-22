@@ -41,7 +41,7 @@ func GetRoomAttributeDefault(name string) string {
 	case "description":
 		return "You are in a newly created empty room. Make it a good one!"
 	case "color":
-		return "255,255,255"
+		return "190,190,190"
 	}
 
 	return ""

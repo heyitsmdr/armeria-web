@@ -7,6 +7,7 @@ import (
 
 type Command struct {
 	Name         string
+	AltNames     []string
 	Help         string
 	Alias        string
 	Permissions  *CommandPermissions

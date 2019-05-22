@@ -2,7 +2,6 @@ package armeria
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -67,16 +66,18 @@ func (m *CharacterManager) SaveCharacters() {
 	log.Printf("[world] wrote %d bytes to characters file", bytes)
 }
 
-func (m *CharacterManager) GetCharacterByName(name string) (*Character, error) {
+// GetCharacterByName returns the matching Character.
+func (m *CharacterManager) GetCharacterByName(name string) *Character {
 	for _, c := range m.Characters {
 		if strings.ToLower(c.GetName()) == strings.ToLower(name) {
-			return c, nil
+			return c
 		}
 	}
 
-	return nil, errors.New("character not found")
+	return nil
 }
 
+// GetCharacters returns the characters logged in to the game.
 func (m *CharacterManager) GetCharacters() []*Character {
 	var chars []*Character
 	for _, c := range m.Characters {

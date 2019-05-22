@@ -27,35 +27,46 @@ func NewClientActions(p *Player) *ClientActions {
 	}
 }
 
-// ShowText displays text on the player's main text window
+// ShowColorizedText displays color-formatted text if there is a character attached to
+// the player instance.
+func (ca *ClientActions) ShowColorizedText(text string, color int) {
+	c := ca.player.GetCharacter()
+	if c != nil {
+		ca.ShowText(c.Colorize(text, color))
+		return
+	}
+	ca.ShowText(text)
+}
+
+// ShowText displays text on the player's main text window.
 func (ca *ClientActions) ShowText(text string) {
 	ca.player.CallClientAction("showText", "\n"+text)
 }
 
-// ShowRawText displays raw text on the player's main text window
+// ShowRawText displays raw text on the player's main text window.
 func (ca *ClientActions) ShowRawText(text string) {
 	ca.player.CallClientAction("showText", text)
 }
 
-// RenderMap displays the current area on the minimap
+// RenderMap displays the current area on the minimap.
 func (ca *ClientActions) RenderMap() {
 	minimap := ca.player.GetCharacter().GetArea().GetMinimapData()
 	ca.player.CallClientAction("setMapData", minimap)
 }
 
-// SyncMapLocation sets the character location on the minimap
+// SyncMapLocation sets the character location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
 	loc := ca.player.GetCharacter().GetLocationData()
 	ca.player.CallClientAction("setCharacterLocation", loc)
 }
 
-// SyncRoomObjects sets the current room objects on the client
+// SyncRoomObjects sets the current room objects on the client.
 func (ca *ClientActions) SyncRoomObjects() {
 	obj := ca.player.GetCharacter().GetRoom().GetObjectData()
 	ca.player.CallClientAction("setRoomObjects", obj)
 }
 
-// ShowObjectEditor displays the object editor on the client
+// ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	j, err := json.Marshal(editorData)
 	if err != nil {
@@ -65,7 +76,7 @@ func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	ca.player.CallClientAction("setObjectEditorData", string(j))
 }
 
-// Disconnect requests that the client disconnects from the server
+// Disconnect requests that the client disconnects from the server.
 func (ca *ClientActions) Disconnect() {
 	ca.player.CallClientAction("disconnect", nil)
 }

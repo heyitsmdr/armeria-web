@@ -96,6 +96,16 @@ func RegisterGameCommands(state *GameState) {
 					},
 					Handler: handleRoomCreateCommand,
 				},
+				{
+					Name: "destroy",
+					Help: "Destroys a room in a particular direction.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "direction",
+						},
+					},
+					Handler: handleRoomDestroyCommand,
+				},
 			},
 		},
 		{
@@ -126,6 +136,32 @@ func RegisterGameCommands(state *GameState) {
 				RequireCharacter: true,
 			},
 			Handler: handleMapCommand,
+		},
+		{
+			Name:     "whisper",
+			AltNames: []string{"w"},
+			Help:     "Sends a private message to another online character.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "target",
+				},
+				{
+					Name:             "message",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleWhisperCommand,
+		},
+		{
+			Name: "who",
+			Help: "Displays the characters currently playing.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleWhoCommand,
 		},
 	}
 

@@ -17,6 +17,10 @@ type GameState struct {
 	scriptsPath      string
 }
 
+var (
+	Armeria *GameState
+)
+
 func Init(publicPath string, dataPath string, scriptsPath string, httpPort int) {
 	state := &GameState{}
 
@@ -28,6 +32,8 @@ func Init(publicPath string, dataPath string, scriptsPath string, httpPort int) 
 	state.commandManager = NewCommandManager(state)
 	state.characterManager = NewCharacterManager(state)
 	state.worldManager = NewWorldManager(state)
+
+	Armeria = state
 
 	RegisterGameCommands(state)
 	InitWeb(state, httpPort)

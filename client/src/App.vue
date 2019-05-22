@@ -155,6 +155,7 @@ html, body {
 
     .container-left {
       flex-basis: $sidebarWidth;
+      min-width: $sidebarWidth;
       background-color: $backgroundLight;
       display: flex;
       flex-direction: column;
@@ -187,6 +188,7 @@ html, body {
 
     .container-right {
       flex-basis: $sidebarWidth;
+      min-width: $sidebarWidth;
       background-color: $backgroundLight;
     }
   }

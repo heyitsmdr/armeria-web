@@ -23,6 +23,9 @@ const (
 	ColorSay       int = 1
 	ColorMovement  int = 2
 	ColorError     int = 3
+	ColorRoomDirs  int = 4
+	ColorWhisper   int = 5
+	ColorSuccess   int = 6
 )
 
 const RoleAdmin int = 0
@@ -121,6 +124,7 @@ func (c *Character) GetRole() int {
 func (c *Character) Colorize(text string, color int) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
+
 	switch color {
 	case ColorRoomTitle:
 		return fmt.Sprintf("<span style='color:#6e94ff;font-weight:600'>%s</span>", text)
@@ -130,6 +134,12 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#00bcd4'>%s</span>", text)
 	case ColorError:
 		return fmt.Sprintf("<span style='color:#e91e63'>%s</span>", text)
+	case ColorRoomDirs:
+		return fmt.Sprintf("<span style='color:#4c9af3'>%s</span>", text)
+	case ColorWhisper:
+		return fmt.Sprintf("<span style='color:#b730f7'>%s</span>", text)
+	case ColorSuccess:
+		return fmt.Sprintf("<span style='color:#8ee22b'>%s</span>", text)
 	default:
 		return text
 	}

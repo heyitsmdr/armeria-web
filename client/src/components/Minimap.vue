@@ -94,6 +94,16 @@ export default {
                 newLocDiv.classList.add('current-location');
             }
 
+            for(let i = 0; i < this.minimapData.rooms.length; i++) {
+                const x = this.minimapData.rooms[i].x;
+                const y = this.minimapData.rooms[i].y;
+                const z = this.minimapData.rooms[i].z;
+                if (x === location.x && y === location.y && z === location.z) {
+                    this.$refs['map'].style.backgroundColor = `rgba(${this.minimapData.rooms[i].color},0.05)`;
+                    break;
+                }
+            }
+
             this.location = location;
         },
 
@@ -126,7 +136,7 @@ export default {
 
     &.current-location {
          border-color: #ff0 !important;
-         transform: scale(1.2);
+         transform: scale(1.3);
     }
 }
 </style>
@@ -154,6 +164,7 @@ export default {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
+    transition: all .3s ease-in-out;
 
     .position {
         position: absolute;

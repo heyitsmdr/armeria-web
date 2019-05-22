@@ -12,26 +12,31 @@ func handleLoginCommand(r *CommandContext) {
 		return
 	}
 
-	c, err := r.GameState.characterManager.GetCharacterByName(r.Args["character"])
-	if err != nil {
+	c := r.GameState.characterManager.GetCharacterByName(r.Args["character"])
+	if c == nil {
 		r.Player.clientActions.ShowText("Character not found.")
 		return
 	}
 
 	if c.GetPassword() != r.Args["password"] {
-		r.Player.clientActions.ShowText("Password incorrect for that character.")
+		r.Player.clientActions.ShowColorizedText("Password incorrect for that character.", ColorError)
 		return
 	}
 
 	if c.GetPlayer() != nil {
-		r.Player.clientActions.ShowText("That character is already logged in.")
+		r.Player.clientActions.ShowColorizedText("This character is already logged in.", ColorError)
+		return
+	}
+
+	if c.GetRoom() == nil {
+		r.Player.clientActions.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
 		return
 	}
 
 	r.Player.AttachCharacter(c)
 	c.SetPlayer(r.Player)
 
-	r.Player.clientActions.ShowText(fmt.Sprintf("You've successfully logged in to %s!", c.GetName()))
+	r.Player.clientActions.ShowColorizedText(fmt.Sprintf("You've entered Armeria as %s!", c.GetFName()), ColorSuccess)
 
 	c.LoggedIn()
 
@@ -39,23 +44,58 @@ func handleLoginCommand(r *CommandContext) {
 }
 
 func handleLookCommand(r *CommandContext) {
-	room := r.GameState.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
+	rm := r.GameState.worldManager.GetRoomFromLocation(r.Character.GetLocation())
 
 	var objNames []string
-	for _, o := range room.GetObjects() {
+	for _, o := range rm.GetObjects() {
 		if o.GetType() != ObjectTypeCharacter || o.GetName() != r.Character.GetName() {
 			objNames = append(objNames, o.GetFName())
 		}
 	}
 
-	withYou := ""
+	var withYou string
 	if len(objNames) > 0 {
 		withYou = fmt.Sprintf("\nHere with you: %s.", strings.Join(objNames, ", "))
 	}
 
+	ar := r.Character.GetArea().GetAdjacentRooms(rm)
+	var validDirs []string
+	if ar.North != nil {
+		validDirs = append(validDirs, "[b]north[/b]")
+	}
+	if ar.South != nil {
+		validDirs = append(validDirs, "[b]south[/b]")
+	}
+	if ar.East != nil {
+		validDirs = append(validDirs, "[b]east[/b]")
+	}
+	if ar.West != nil {
+		validDirs = append(validDirs, "[b]west[/b]")
+	}
+	if ar.Up != nil {
+		validDirs = append(validDirs, "[b]up[/b]")
+	}
+	if ar.Down != nil {
+		validDirs = append(validDirs, "[b]down[/b]")
+	}
+	var validDirString string
+	for i, d := range validDirs {
+		if i == 0 {
+			validDirString = fmt.Sprintf("\nYou can walk %s", d)
+			if i == len(validDirs)-1 {
+				validDirString = validDirString + "."
+			}
+		} else if i == len(validDirs)-1 {
+			validDirString = fmt.Sprintf("%s and %s.", validDirString, d)
+		} else {
+			validDirString = fmt.Sprintf("%s, %s", validDirString, d)
+		}
+	}
+
 	r.Player.clientActions.ShowText(
-		r.Player.GetCharacter().Colorize(room.GetAttribute("title"), ColorRoomTitle) + "\n" +
-			room.GetAttribute("description") +
+		r.Character.Colorize(rm.GetAttribute("title"), ColorRoomTitle) + "\n" +
+			rm.GetAttribute("description") +
+			r.Character.Colorize(validDirString, ColorRoomDirs) +
 			withYou,
 	)
 }
@@ -100,42 +140,44 @@ func handleSayCommand(r *CommandContext) {
 
 func handleMoveCommand(r *CommandContext) {
 	loc := r.Character.GetLocation()
-
-	x := loc.Coords.X
-	y := loc.Coords.Y
-	z := loc.Coords.Z
+	d := r.Args["direction"]
 
 	walkDir := ""
 	arriveDir := ""
-	switch strings.ToLower(r.Args["direction"]) {
+	switch strings.ToLower(d) {
 	case "north", "n":
-		y = y + 1
+		d = "north"
 		walkDir = "the north"
 		arriveDir = "the south"
 	case "south", "s":
-		y = y - 1
+		d = "south"
 		walkDir = "the south"
 		arriveDir = "the north"
 	case "east", "e":
-		x = x + 1
+		d = "east"
 		walkDir = "the east"
 		arriveDir = "the west"
 	case "west", "w":
-		x = x - 1
+		d = "west"
 		walkDir = "west"
 		arriveDir = "the east"
 	case "up", "u":
-		z = z + 1
+		d = "up"
 		walkDir = "up"
 		arriveDir = "below"
 	case "down", "d":
-		z = z - 1
+		d = "down"
 		walkDir = "down"
 		arriveDir = "above"
 	default:
 		r.Player.clientActions.ShowText("That's not a valid direction to move in.")
 		return
 	}
+
+	o := misc.DirectionOffsets(d)
+	x := loc.Coords.X + o["x"]
+	y := loc.Coords.Y + o["y"]
+	z := loc.Coords.Z + o["z"]
 
 	newLocation := &Location{
 		AreaName: loc.AreaName,
@@ -183,7 +225,7 @@ func handleRoomSetCommand(r *CommandContext) {
 		)
 	}
 
-	r.Player.clientActions.ShowText("You modified the room.")
+	r.Player.clientActions.ShowColorizedText("You modified the room.", ColorSuccess)
 
 	editorOpen := r.Character.GetTempAttribute("editorOpen")
 	if editorOpen != nil && editorOpen.(bool) {
@@ -192,29 +234,18 @@ func handleRoomSetCommand(r *CommandContext) {
 }
 
 func handleRoomCreateCommand(r *CommandContext) {
-	loc := r.Character.GetLocation()
+	d := r.Args["direction"]
 
-	x := loc.Coords.X
-	y := loc.Coords.Y
-	z := loc.Coords.Z
-
-	switch strings.ToLower(r.Args["direction"]) {
-	case "north", "n":
-		y = y + 1
-	case "south", "s":
-		y = y - 1
-	case "east", "e":
-		x = x + 1
-	case "west", "w":
-		x = x - 1
-	case "up", "u":
-		z = z + 1
-	case "down", "d":
-		z = z - 1
-	default:
-		r.Player.clientActions.ShowText(r.Character.Colorize("That's not a valid direction to create a room.", ColorError))
+	o := misc.DirectionOffsets(d)
+	if o == nil {
+		r.Player.clientActions.ShowColorizedText("That's not a valid direction to create a room in.", ColorError)
 		return
 	}
+
+	loc := r.Character.GetLocation()
+	x := loc.Coords.X + o["x"]
+	y := loc.Coords.Y + o["y"]
+	z := loc.Coords.Z + o["z"]
 
 	newLoc := &Location{
 		AreaName: loc.AreaName,
@@ -226,7 +257,7 @@ func handleRoomCreateCommand(r *CommandContext) {
 	}
 
 	if r.GameState.worldManager.GetRoomFromLocation(newLoc) != nil {
-		r.Player.clientActions.ShowText(r.Character.Colorize("There's already a room in that direction.", ColorError))
+		r.Player.clientActions.ShowColorizedText("There's already a room in that direction.", ColorError)
 		return
 	}
 
@@ -239,6 +270,43 @@ func handleRoomCreateCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowText("A new room has been created.")
+}
+
+func handleRoomDestroyCommand(r *CommandContext) {
+	d := r.Args["direction"]
+
+	o := misc.DirectionOffsets(d)
+	if o == nil {
+		r.Player.clientActions.ShowColorizedText("That's not a valid direction to destroy a room in.", ColorError)
+		return
+	}
+
+	loc := r.Character.GetLocation()
+	x := loc.Coords.X + o["x"]
+	y := loc.Coords.Y + o["y"]
+	z := loc.Coords.Z + o["z"]
+
+	l := &Location{
+		AreaName: loc.AreaName,
+		Coords: &Coords{
+			X: x,
+			Y: y,
+			Z: z,
+		},
+	}
+
+	rm := r.GameState.worldManager.GetRoomFromLocation(l)
+	if rm == nil {
+		r.Player.clientActions.ShowColorizedText("There's no room in that direction.", ColorError)
+		return
+	}
+
+	if len(rm.GetCharacters(nil)) > 0 {
+		r.Player.clientActions.ShowColorizedText("There are characters in the room you're attempting to destroy.", ColorError)
+		return
+	}
+
+	r.Player.clientActions.ShowText("Success.")
 }
 
 func handleSaveCommand(r *CommandContext) {
@@ -257,4 +325,61 @@ func handleReloadCommand(r *CommandContext) {
 
 func handleMapCommand(r *CommandContext) {
 	r.Player.clientActions.RenderMap()
+	r.Player.clientActions.ShowText("The map has been re-rendered.")
+}
+
+func handleWhisperCommand(r *CommandContext) {
+	t := r.Args["target"]
+	m := r.Args["message"]
+
+	c := Armeria.characterManager.GetCharacterByName(t)
+	if c == nil {
+		r.Player.clientActions.ShowColorizedText("That's not a valid character name.", ColorError)
+		return
+	} else if c.GetPlayer() == nil {
+		r.Player.clientActions.ShowColorizedText("That character is not online.", ColorError)
+		return
+	}
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("You whisper to %s, \"%s\".", c.GetFName(), m),
+		ColorWhisper,
+	)
+
+	c.GetPlayer().clientActions.ShowColorizedText(
+		fmt.Sprintf("%s whispers to you, \"%s\".", r.Character.GetFName(), m),
+		ColorWhisper,
+	)
+}
+
+func handleWhoCommand(r *CommandContext) {
+	chars := Armeria.characterManager.GetCharacters()
+
+	noun := "characters"
+	verb := "are"
+	if len(chars) < 2 {
+		noun = "character"
+		verb = "is"
+	}
+
+	var names string
+	for i, c := range chars {
+		if i == 0 && len(chars) == 1 {
+			names = fmt.Sprintf("%s.", c.GetFName())
+		} else if i == len(chars)-1 {
+			names = fmt.Sprintf("%s.", c.GetFName())
+		} else {
+			names = fmt.Sprintf("%s, ", c.GetFName())
+		}
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf(
+			"There %s %d %s playing right now:\n%s",
+			verb,
+			len(chars),
+			noun,
+			names,
+		),
+	)
 }

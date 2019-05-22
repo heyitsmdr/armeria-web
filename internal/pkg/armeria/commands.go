@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"fmt"
 	"log"
 	"strings"
@@ -27,10 +28,10 @@ func (m *CommandManager) RegisterCommand(c *Command) {
 // login ethryx xyrhte89
 func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd string, alreadyProcessed []string) (*Command, map[string]string, string) {
 	sections := strings.Fields(cmd)
-	cmdName := sections[0]
+	cmdName := strings.ToLower(sections[0])
 
 	for _, cmd := range searchWithin {
-		if strings.ToLower(cmd.Name) == strings.ToLower(cmdName) {
+		if strings.ToLower(cmd.Name) == cmdName || misc.Contains(cmd.AltNames, cmdName) {
 			// Handle permissions
 			if !cmd.CheckPermissions(p) {
 				return nil, nil, "You cannot use that command right now."
@@ -77,7 +78,7 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
-		p.clientActions.ShowText(errorMsg)
+		p.clientActions.ShowColorizedText(errorMsg, ColorError)
 		return
 	}
 

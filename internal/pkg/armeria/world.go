@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -78,4 +79,22 @@ func (m *WorldManager) GetRoomFromLocation(l *Location) *Room {
 	}
 
 	return a.GetRoom(l.Coords)
+}
+
+func (m *WorldManager) GetRoomInDirection(a *Area, r *Room, direction string) *Room {
+	o := misc.DirectionOffsets(direction)
+	if o == nil {
+		log.Fatal("[room] invalid direction")
+	}
+
+	loc := &Location{
+		AreaName: a.Name,
+		Coords: &Coords{
+			X: r.Coords.X + o["x"],
+			Y: r.Coords.Y + o["y"],
+			Z: r.Coords.Z + o["z"],
+		},
+	}
+
+	return m.GetRoomFromLocation(loc)
 }
