@@ -149,7 +149,7 @@ func (r *Room) GetObjectData() string {
 	return string(roomObjectJson)
 }
 
-// GetEditorData returns the JSON used for the object editor
+// GetEditorData returns the JSON used for the object editor.
 func (r *Room) GetEditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range GetValidRoomAttributes() {
@@ -167,7 +167,7 @@ func (r *Room) GetEditorData() *ObjectEditorData {
 	}
 }
 
-// OnCharacterEntered is called when the character is moved to the room (or logged in)
+// OnCharacterEntered is called when the character is moved to the room (or logged in).
 func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
 	c.GetPlayer().clientActions.SyncMapLocation()
 
@@ -176,7 +176,7 @@ func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
 	}
 }
 
-// OnCharacterLeft is called when the character left the room (or logged out)
+// OnCharacterLeft is called when the character left the room (or logged out).
 func (r *Room) OnCharacterLeft(c *Character, causedByLogout bool) {
 	for _, char := range r.GetCharacters(nil) {
 		char.GetPlayer().clientActions.SyncRoomObjects()

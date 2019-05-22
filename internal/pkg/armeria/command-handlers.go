@@ -383,3 +383,15 @@ func handleWhoCommand(r *CommandContext) {
 		),
 	)
 }
+
+func handleCharacterEditCommand(r *CommandContext) {
+	char := r.Args["character"]
+	var c *Character
+	if len(char) == 0 {
+		c = r.Character
+	} else {
+		// TODO: Search for the specified character
+	}
+
+	r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+}

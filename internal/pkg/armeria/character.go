@@ -30,60 +30,60 @@ const (
 
 const RoleAdmin int = 0
 
-// Init initializes the character when loaded from disk
+// Init initializes the character when loaded from disk.
 func (c *Character) Init(state *GameState) {
 	c.gameState = state
 	c.TempAttributes = make(map[string]interface{})
 }
 
-// GetType returns the object type, since Character uses the Object interface
+// GetType returns the object type, since Character uses the Object interface.
 func (c *Character) GetType() int {
 	return ObjectTypeCharacter
 }
 
-// GetName returns the raw character name
+// GetName returns the raw character name.
 func (c *Character) GetName() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Name
 }
 
-// GetFName returns the formatted character name
+// GetFName returns the formatted character name.
 func (c *Character) GetFName() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return fmt.Sprintf("[b]%s[/b]", c.Name)
 }
 
-// GetPassword returns the character's password
+// GetPassword returns the character's password.
 func (c *Character) GetPassword() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Password
 }
 
-// GetPlayer returns the player that is playing the character
+// GetPlayer returns the player that is playing the character.
 func (c *Character) GetPlayer() *Player {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.player
 }
 
-// SetPlayer sets the player that is playing the character
+// SetPlayer sets the player that is playing the character.
 func (c *Character) SetPlayer(p *Player) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.player = p
 }
 
-// GetLocation returns the character's location
+// GetLocation returns the character's location.
 func (c *Character) GetLocation() *Location {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Location
 }
 
-// GetLocationData returns the character's location as a JSON-dump
+// GetLocationData returns the character's location as a JSON-dump.
 func (c *Character) GetLocationData() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
@@ -96,31 +96,31 @@ func (c *Character) GetLocationData() string {
 	return string(locationJson)
 }
 
-// SetLocation sets the character's location
+// SetLocation sets the character's location.
 func (c *Character) SetLocation(l *Location) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.Location = l
 }
 
-// GetRoom returns the room that the character is in
+// GetRoom returns the room that the character is in.
 func (c *Character) GetRoom() *Room {
 	return c.gameState.worldManager.GetRoomFromLocation(c.Location)
 }
 
-// GetArea returns the area that the character is in
+// GetArea returns the area that the character is in.
 func (c *Character) GetArea() *Area {
 	return c.gameState.worldManager.GetAreaFromLocation(c.Location)
 }
 
-// GetRole returns the character's permission role
+// GetRole returns the character's permission role.
 func (c *Character) GetRole() int {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Role
 }
 
-// Colorize will color text according to the character's color settings
+// Colorize will color text according to the character's color settings.
 func (c *Character) Colorize(text string, color int) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
@@ -145,7 +145,7 @@ func (c *Character) Colorize(text string, color int) string {
 	}
 }
 
-// LoggedIn handles everything that needs to happen when a character enters the game
+// LoggedIn handles everything that needs to happen when a character enters the game.
 func (c *Character) LoggedIn() {
 	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
 	area := c.gameState.worldManager.GetAreaFromLocation(c.Location)
@@ -172,7 +172,7 @@ func (c *Character) LoggedIn() {
 	room.OnCharacterEntered(c, true)
 }
 
-// LoggedOut handles everything that needs to happen when a character leaves the game
+// LoggedOut handles everything that needs to happen when a character leaves the game.
 func (c *Character) LoggedOut() {
 	room := c.gameState.worldManager.GetRoomFromLocation(c.Location)
 	area := c.gameState.worldManager.GetAreaFromLocation(c.Location)
@@ -199,21 +199,21 @@ func (c *Character) LoggedOut() {
 	c.TempAttributes = make(map[string]interface{})
 }
 
-// GetTempAttribute retrieves a previously-saved temp attribute
+// GetTempAttribute retrieves a previously-saved temp attribute.
 func (c *Character) GetTempAttribute(name string) interface{} {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.TempAttributes[name]
 }
 
-// SetTempAttribute stores a temp attribute, which is cleared on log out
+// SetTempAttribute stores a temp attribute, which is cleared on log out.
 func (c *Character) SetTempAttribute(name string, value interface{}) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.TempAttributes[name] = value
 }
 
-// MoveAllowed will check if moving to a particular location is valid/allowed
+// MoveAllowed will check if moving to a particular location is valid/allowed.
 func (c *Character) MoveAllowed(to *Location) (bool, string) {
 	newRoom := c.gameState.worldManager.GetRoomFromLocation(to)
 	if newRoom == nil {
@@ -223,7 +223,7 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 	return true, ""
 }
 
-// Move will move the character to a new location (no move checks are performed)
+// Move will move the character to a new location (no move checks are performed).
 func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.GetRoom()
 	newRoom := c.gameState.worldManager.GetRoomFromLocation(to)
@@ -246,4 +246,12 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 	// Trigger character entered / left events on the new and old rooms, respectively
 	newRoom.OnCharacterEntered(c, false)
 	oldRoom.OnCharacterLeft(c, false)
+}
+
+// GetEditorData returns the JSON used for the object editor.
+func (c *Character) GetEditorData() *ObjectEditorData {
+	return &ObjectEditorData{
+		Name:       c.GetName(),
+		ObjectType: "room",
+	}
 }
