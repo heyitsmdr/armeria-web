@@ -29,7 +29,6 @@ type CommandPermissions struct {
 }
 
 type CommandContext struct {
-	GameState *GameState
 	Command   *Command
 	Player    *Player
 	Character *Character

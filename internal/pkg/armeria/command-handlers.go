@@ -12,7 +12,7 @@ func handleLoginCommand(r *CommandContext) {
 		return
 	}
 
-	c := r.GameState.characterManager.GetCharacterByName(r.Args["character"])
+	c := Armeria.characterManager.GetCharacterByName(r.Args["character"])
 	if c == nil {
 		r.Player.clientActions.ShowText("Character not found.")
 		return
@@ -44,7 +44,7 @@ func handleLoginCommand(r *CommandContext) {
 }
 
 func handleLookCommand(r *CommandContext) {
-	rm := r.GameState.worldManager.GetRoomFromLocation(r.Character.GetLocation())
+	rm := Armeria.worldManager.GetRoomFromLocation(r.Character.GetLocation())
 
 	var objNames []string
 	for _, o := range rm.GetObjects() {
@@ -109,7 +109,7 @@ func handleSayCommand(r *CommandContext) {
 	var moveOverride = []string{"n", "s", "e", "w", "u", "d"}
 	for _, mo := range moveOverride {
 		if r.Args["text"] == mo {
-			r.GameState.commandManager.ProcessCommand(r.Player, "move "+mo)
+			Armeria.commandManager.ProcessCommand(r.Player, "move "+mo)
 			return
 		}
 	}
@@ -126,7 +126,7 @@ func handleSayCommand(r *CommandContext) {
 		r.Player.GetCharacter().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], r.Args["text"]), ColorSay),
 	)
 
-	room := r.GameState.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
+	room := Armeria.worldManager.GetRoomFromLocation(r.Player.GetCharacter().GetLocation())
 	otherChars := room.GetCharacters(r.Player.GetCharacter())
 	for _, c := range otherChars {
 		c.GetPlayer().clientActions.ShowText(
@@ -202,7 +202,7 @@ func handleMoveCommand(r *CommandContext) {
 		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.GetFName(), arriveDir), ColorMovement),
 	)
 
-	r.GameState.commandManager.ProcessCommand(r.Player, "look")
+	Armeria.commandManager.ProcessCommand(r.Player, "look")
 }
 
 func handleRoomEditCommand(r *CommandContext) {
@@ -213,7 +213,7 @@ func handleRoomSetCommand(r *CommandContext) {
 	attr := strings.ToLower(r.Args["property"])
 
 	if !misc.Contains(GetValidRoomAttributes(), attr) {
-		r.Player.clientActions.ShowText(r.Character.Colorize("That's not a valid room attribute.", ColorError))
+		r.Player.clientActions.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
 	}
 
@@ -225,10 +225,13 @@ func handleRoomSetCommand(r *CommandContext) {
 		)
 	}
 
-	r.Player.clientActions.ShowColorizedText("You modified the room.", ColorSuccess)
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("You modified the [b]%s[/b] property of the room.", attr),
+		ColorSuccess,
+	)
 
 	editorOpen := r.Character.GetTempAttribute("editorOpen")
-	if editorOpen != nil && editorOpen.(bool) {
+	if editorOpen == "true" {
 		r.Player.clientActions.ShowObjectEditor(r.Character.GetRoom().GetEditorData())
 	}
 }
@@ -256,7 +259,7 @@ func handleRoomCreateCommand(r *CommandContext) {
 		},
 	}
 
-	if r.GameState.worldManager.GetRoomFromLocation(newLoc) != nil {
+	if Armeria.worldManager.GetRoomFromLocation(newLoc) != nil {
 		r.Player.clientActions.ShowColorizedText("There's already a room in that direction.", ColorError)
 		return
 	}
@@ -295,7 +298,7 @@ func handleRoomDestroyCommand(r *CommandContext) {
 		},
 	}
 
-	rm := r.GameState.worldManager.GetRoomFromLocation(l)
+	rm := Armeria.worldManager.GetRoomFromLocation(l)
 	if rm == nil {
 		r.Player.clientActions.ShowColorizedText("There's no room in that direction.", ColorError)
 		return
@@ -310,7 +313,7 @@ func handleRoomDestroyCommand(r *CommandContext) {
 }
 
 func handleSaveCommand(r *CommandContext) {
-	r.GameState.Save()
+	Armeria.Save()
 	r.Player.clientActions.ShowText("The game data has been saved to disk.")
 }
 
@@ -320,7 +323,12 @@ func handleReloadCommand(r *CommandContext) {
 		return
 	}
 
-	r.GameState.Reload(r.Player, r.Args["component"])
+	if !Armeria.production {
+		r.Player.clientActions.ShowColorizedText("You can only reload in production!", ColorError)
+		return
+	}
+
+	Armeria.Reload(r.Player, r.Args["component"])
 }
 
 func handleMapCommand(r *CommandContext) {
@@ -390,8 +398,48 @@ func handleCharacterEditCommand(r *CommandContext) {
 	if len(char) == 0 {
 		c = r.Character
 	} else {
-		// TODO: Search for the specified character
+		c = Armeria.characterManager.GetCharacterByName(strings.ToLower(char))
+		if c == nil {
+			r.Player.clientActions.ShowColorizedText("That character doesn't exist.", ColorError)
+			return
+		}
 	}
 
 	r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+}
+
+func handleCharacterSetCommand(r *CommandContext) {
+	char := strings.ToLower(r.Args["character"])
+	attr := strings.ToLower(r.Args["property"])
+	val := r.Args["value"]
+
+	c := Armeria.characterManager.GetCharacterByName(char)
+	if c == nil {
+		r.Player.clientActions.ShowColorizedText("That character doesn't exist.", ColorError)
+		return
+	}
+
+	if !misc.Contains(GetValidCharacterAttributes(), attr) {
+		r.Player.clientActions.ShowColorizedText("That's not a valid character attribute.", ColorError)
+		return
+	}
+
+	c.SetAttribute(attr, val)
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("You modified the [b]%s[/b] property of the character %s.", attr, c.GetFName()),
+		ColorSuccess,
+	)
+
+	if c.GetName() != r.Character.GetName() && c.GetPlayer() != nil {
+		c.GetPlayer().clientActions.ShowText(
+			fmt.Sprintf("Your character was modified by %s.", r.Character.GetFName()),
+		)
+
+	}
+
+	editorOpen := r.Character.GetTempAttribute("editorOpen")
+	if editorOpen == "true" {
+		r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+	}
 }

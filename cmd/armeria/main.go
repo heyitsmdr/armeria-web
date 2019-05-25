@@ -10,8 +10,9 @@ func main() {
 	dataPath := flag.String("data", "./data", "data directory")
 	scriptsPath := flag.String("scripts", "./scripts", "scripts directory")
 	httpPort := flag.Int("port", 8081, "http listen port")
+	prodFlag := flag.Bool("prod", false, "sets production flag")
 
 	flag.Parse()
 
-	armeria.Init(*publicPath, *dataPath, *scriptsPath, *httpPort)
+	armeria.Init(*prodFlag, *publicPath, *dataPath, *scriptsPath, *httpPort)
 }

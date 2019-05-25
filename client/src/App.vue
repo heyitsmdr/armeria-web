@@ -81,9 +81,6 @@ export default {
         case '/':
           this.$store.dispatch('setForceInputFocus', true);
           break;
-        default:
-           console.log('Unhandled global key:', event.key.toLowerCase());
-
       }
 
       if (sendCommand.length > 0) {

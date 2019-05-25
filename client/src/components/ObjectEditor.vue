@@ -1,7 +1,10 @@
 <template>
     <div class="object-editor" :class="{ 'visible': objectEditorOpen }">
         <div class="header">
-            <div class="name">{{ objectEditorData.name }}</div>
+            <div class="name">
+                <span class="type">{{ objectEditorData.objectType }}</span>
+                {{ objectEditorData.name }}
+            </div>
             <div class="close" @click="handleClose">X</div>
         </div>
         <div class="properties">
@@ -13,7 +16,7 @@
                         v-if="prop.propType == 'editable'"
                         @click="handleEditablePropClick(prop)"
                     >
-                        {{ prop.value }}
+                        {{ prop.value || "&nbsp;" }}
                     </div>
                 </div>
             </div>
@@ -56,6 +59,12 @@
                             payload: `/room set ${propName} ${propValue}`
                         });
                         break;
+                    case 'character':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/character set ${this.objectEditorData.name} ${propName} ${propValue}`
+                        });
+                        break;
                 }
             }
         }
@@ -89,6 +98,16 @@
         flex-grow: 1;
     }
 
+    .header .name .type {
+        font-weight: 400;
+        font-size: 12px;
+        text-transform: uppercase;
+        background-color: #333;
+        padding: 4px 7px;
+        border-radius: 10px;
+        margin-right: 5px;
+    }
+
     .header .close {
         flex-shrink: 1;
         color: #ccc;
@@ -104,6 +123,8 @@
     .prop-container {
         display: flex;
         border-bottom: 1px solid #313131;
+        border-right: 1px solid #313131;
+        border-left: 1px solid #313131;
         font-size: 12px;
     }
 
@@ -124,7 +145,7 @@
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
-        max-width: 183px;
+        max-width: 165px;
     }
 
     .prop-value .editable:hover {

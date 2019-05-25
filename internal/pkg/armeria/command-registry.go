@@ -109,6 +109,44 @@ func RegisterGameCommands(state *GameState) {
 			},
 		},
 		{
+			Name: "character",
+			Help: "Allows you to manage characters.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Subcommands: []*Command{
+				{
+					Name: "set",
+					Help: "Allows you to set a character attribute. Leave value empty to revert to default.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "character",
+						},
+						{
+							Name: "property",
+						},
+						{
+							Name:             "value",
+							IncludeRemaining: true,
+							Optional:         true,
+						},
+					},
+					Handler: handleCharacterSetCommand,
+				},
+				{
+					Name: "edit",
+					Help: "Opens the editor panel for a character.",
+					Arguments: []*CommandArgument{
+						{
+							Name:     "character",
+							Optional: true,
+						},
+					},
+					Handler: handleCharacterEditCommand,
+				},
+			},
+		},
+		{
 			Name: "save",
 			Help: "Writes the in-memory game data to disk.",
 			Permissions: &CommandPermissions{

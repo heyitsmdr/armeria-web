@@ -8,6 +8,7 @@ import (
 )
 
 type GameState struct {
+	production       bool
 	playerManager    *PlayerManager
 	commandManager   *CommandManager
 	characterManager *CharacterManager
@@ -21,22 +22,21 @@ var (
 	Armeria *GameState
 )
 
-func Init(publicPath string, dataPath string, scriptsPath string, httpPort int) {
-	state := &GameState{}
+func Init(production bool, publicPath string, dataPath string, scriptsPath string, httpPort int) {
+	Armeria = &GameState{
+		production:  production,
+		publicPath:  publicPath,
+		dataPath:    dataPath,
+		scriptsPath: scriptsPath,
+	}
 
-	state.publicPath = publicPath
-	state.dataPath = dataPath
-	state.scriptsPath = scriptsPath
+	Armeria.playerManager = NewPlayerManager(Armeria)
+	Armeria.commandManager = NewCommandManager(Armeria)
+	Armeria.characterManager = NewCharacterManager(Armeria)
+	Armeria.worldManager = NewWorldManager(Armeria)
 
-	state.playerManager = NewPlayerManager(state)
-	state.commandManager = NewCommandManager(state)
-	state.characterManager = NewCharacterManager(state)
-	state.worldManager = NewWorldManager(state)
-
-	Armeria = state
-
-	RegisterGameCommands(state)
-	InitWeb(state, httpPort)
+	RegisterGameCommands(Armeria)
+	InitWeb(Armeria, httpPort)
 }
 
 func (gs *GameState) Save() {

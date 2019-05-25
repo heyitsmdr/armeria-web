@@ -5,6 +5,7 @@ sleep 2
 cd /opt/armeria
 
 ./build/armeria \
+    -prod \
     -data=/opt/armeria/data \
     -public=/opt/armeria/client/dist \
     -scripts=/opt/armeria/scripts \

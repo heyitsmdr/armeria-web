@@ -40,10 +40,6 @@ func (m *CharacterManager) loadCharacters() {
 		log.Fatalf("[characters] failed to decode file: %s", err)
 	}
 
-	for _, c := range m.Characters {
-		c.Init(m.gameState)
-	}
-
 	log.Printf("[characters] loaded %d characters from file", len(m.Characters))
 }
 
