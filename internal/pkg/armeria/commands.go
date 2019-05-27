@@ -3,21 +3,20 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
-	"log"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 // Manager is the global manager instance for Command objects
 type CommandManager struct {
-	gameState *GameState
-	commands  []*Command
+	commands []*Command
 }
 
 // NewCommandManager will return a new instance of the command manager.
-func NewCommandManager(state *GameState) *CommandManager {
+func NewCommandManager() *CommandManager {
 	return &CommandManager{
-		gameState: state,
-		commands:  []*Command{},
+		commands: []*Command{},
 	}
 }
 
@@ -25,7 +24,9 @@ func NewCommandManager(state *GameState) *CommandManager {
 // parsed out.
 func (m *CommandManager) RegisterCommand(c *Command) {
 	m.commands = append(m.commands, c)
-	log.Printf("[commands] command registered: %s", fmt.Sprintf("/%s", c.Name))
+	Armeria.log.Debug("command registered",
+		zap.String("command", fmt.Sprintf("/%s", c.Name)),
+	)
 }
 
 // FindCommand will return a matched registered Command.

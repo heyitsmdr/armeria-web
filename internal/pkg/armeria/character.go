@@ -31,6 +31,7 @@ const (
 // GetValidCharacterAttributes returns an array of valid attributes that can be permanently set.
 func GetValidCharacterAttributes() []string {
 	return []string{
+		"picture",
 		"role",
 	}
 }
@@ -38,8 +39,7 @@ func GetValidCharacterAttributes() []string {
 // GetCharacterAttributeDefault returns the default value for a particular attribute.
 func GetCharacterAttributeDefault(name string) string {
 	switch name {
-	case "role":
-		return ""
+
 	}
 
 	return ""
@@ -289,8 +289,13 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 func (c *Character) GetEditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range GetValidCharacterAttributes() {
+		propType := "editable"
+		if attrName == "picture" {
+			propType = "picture"
+		}
+
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: "editable",
+			PropType: propType,
 			Name:     attrName,
 			Value:    c.GetAttribute(attrName),
 		})

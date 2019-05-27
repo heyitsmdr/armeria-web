@@ -3,21 +3,20 @@ package armeria
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 type CharacterManager struct {
-	gameState  *GameState
 	dataFile   string
 	Characters []*Character `json:"characters"`
 }
 
-func NewCharacterManager(state *GameState) *CharacterManager {
+func NewCharacterManager() *CharacterManager {
 	m := &CharacterManager{
-		gameState: state,
-		dataFile:  fmt.Sprintf("%s/characters.json", state.dataPath),
+		dataFile: fmt.Sprintf("%s/characters.json", Armeria.dataPath),
 	}
 
 	m.loadCharacters()
@@ -30,17 +29,25 @@ func (m *CharacterManager) loadCharacters() {
 	defer charactersFile.Close()
 
 	if err != nil {
-		log.Fatalf("[characters] failed to load from %s: %s", m.dataFile, err)
+		Armeria.log.Fatal("failed to load data file",
+			zap.String("file", m.dataFile),
+			zap.Error(err),
+		)
 	}
 
 	jsonParser := json.NewDecoder(charactersFile)
 
 	err = jsonParser.Decode(m)
 	if err != nil {
-		log.Fatalf("[characters] failed to decode file: %s", err)
+		Armeria.log.Fatal("failed to decode data file",
+			zap.String("file", m.dataFile),
+			zap.Error(err),
+		)
 	}
 
-	log.Printf("[characters] loaded %d characters from file", len(m.Characters))
+	Armeria.log.Info("characters loaded",
+		zap.Int("count", len(m.Characters)),
+	)
 }
 
 func (m *CharacterManager) SaveCharacters() {
@@ -49,17 +56,25 @@ func (m *CharacterManager) SaveCharacters() {
 
 	raw, err := json.Marshal(m)
 	if err != nil {
-		log.Fatalf("[world] failed to marshal characters: %s", err)
+		Armeria.log.Fatal("failed to marshal data",
+			zap.Error(err),
+		)
 	}
 
 	bytes, err := charactersFile.Write(raw)
 	if err != nil {
-		log.Fatalf("[world] failed to write to characters file: %s", err)
+		Armeria.log.Fatal("failed to write data file",
+			zap.String("file", m.dataFile),
+			zap.Error(err),
+		)
 	}
 
 	charactersFile.Sync()
 
-	log.Printf("[world] wrote %d bytes to characters file", bytes)
+	Armeria.log.Info("wrote data to file",
+		zap.String("file", m.dataFile),
+		zap.Int("bytes", bytes),
+	)
 }
 
 // GetCharacterByName returns the matching Character.

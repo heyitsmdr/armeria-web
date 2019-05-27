@@ -1,30 +1,28 @@
 package armeria
 
 import (
-	"log"
 	"sync"
+
+	"go.uber.org/zap"
 
 	"github.com/gorilla/websocket"
 )
 
 type PlayerManager struct {
-	gameState *GameState
-	players   map[*Player]bool
-	mux       sync.Mutex
+	players map[*Player]bool
+	mux     sync.Mutex
 }
 
 // Init creates a new player Manager instance
-func NewPlayerManager(state *GameState) *PlayerManager {
+func NewPlayerManager() *PlayerManager {
 	return &PlayerManager{
-		gameState: state,
-		players:   make(map[*Player]bool),
+		players: make(map[*Player]bool),
 	}
 }
 
 // NewPlayer creates a new Player instance and returns it
 func (m *PlayerManager) NewPlayer(conn *websocket.Conn) *Player {
 	p := &Player{
-		gameState:        m.gameState,
 		socket:           conn,
 		pumpsInitialized: false,
 		sendData:         make(chan *OutgoingDataStructure, 256),
@@ -34,7 +32,10 @@ func (m *PlayerManager) NewPlayer(conn *websocket.Conn) *Player {
 
 	m.players[p] = true
 
-	log.Printf("[players] new player connected from %s (%d total players)", conn.RemoteAddr().String(), len(m.players))
+	Armeria.log.Info("player connected",
+		zap.String("ip", conn.RemoteAddr().String()),
+		zap.Int("players", len(m.players)),
+	)
 
 	return p
 }
@@ -54,20 +55,26 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 		// Unset player from character
 		p.character.SetPlayer(nil)
 		// Log
-		log.Printf("[players] character logged out: %s", p.character.GetName())
+		Armeria.log.Info("character left the game",
+			zap.String("character", p.character.GetName()),
+		)
 		// Unset character from player
 		p.AttachCharacter(nil)
 	}
 
 	// Fatal if data should of been sent but wasn't
 	if len(p.sendData) > 0 {
-		log.Fatal("[players] player disconnected with unsent data")
+		Armeria.log.Error("player disconnected with unsent data",
+			zap.Int("dataSize", len(p.sendData)),
+		)
 	}
 
 	// Close the socket connection
 	err := p.socket.Close()
 	if err != nil {
-		log.Printf("[players] error closing socket in DisconnectPlayer: %s", err)
+		Armeria.log.Error("error closing socket",
+			zap.Error(err),
+		)
 	}
 
 	// Close the player's write channel
@@ -76,5 +83,7 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 	// Remove the player from the manager
 	delete(m.players, p)
 
-	log.Printf("[players] player disconnected (%d total players)", len(m.players))
+	Armeria.log.Info("player disconnected",
+		zap.Int("players", len(m.players)),
+	)
 }

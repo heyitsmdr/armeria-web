@@ -11,12 +11,24 @@
             <div class="prop-container" v-for="prop in objectEditorData.properties" :key="prop.name">
                 <div class="prop-name">{{ prop.name }}</div>
                 <div class="prop-value">
+                    <!-- editable type -->
                     <div
                         class="editable"
                         v-if="prop.propType == 'editable'"
                         @click="handleEditablePropClick(prop)"
                     >
                         {{ prop.value || "&nbsp;" }}
+                    </div>
+                    <!-- picture type -->
+                    <div
+                            class="picture"
+                            v-if="prop.propType == 'picture'"
+                            @dragenter.stop.prevent="handlePictureDragEnter"
+                            @drop.stop.prevent="handlePictureDragDrop"
+                            @dragleave.stop.prevent
+                            @dragover.stop.prevent
+                    >
+
                     </div>
                 </div>
             </div>
@@ -51,7 +63,7 @@
                 }
             },
 
-            setProperty(propName, propValue) {
+            setProperty: function(propName, propValue) {
                 switch(this.objectEditorData.objectType) {
                     case 'room':
                         this.$socket.sendObj({
@@ -65,6 +77,45 @@
                             payload: `/character set ${this.objectEditorData.name} ${propName} ${propValue}`
                         });
                         break;
+                }
+            },
+
+            handlePictureDragEnter: function(event) {
+
+            },
+
+            handlePictureDragDrop: function(event) {
+                const files = event.dataTransfer.files;
+
+                if (files.length > 1) {
+                    this.$store.dispatch('showText', { data: '\nYou can only upload a single picture to this object.' });
+                    return;
+                }
+
+                const file = files[0];
+                const validTypes = ['image/jpeg', 'image/png'];
+
+                if (validTypes.indexOf(file.type) === -1) {
+                    this.$store.dispatch('showText', { data: '\nYou can only upload an image to this object.' });
+                    return;
+                }
+
+                if (file.size > 512000) {
+                    this.$store.dispatch('showText', { data: '\nYou cannot upload images that exceed 512KB.' });
+                    return;
+                }
+
+                const reader = new FileReader()
+                reader.readAsBinaryString(file)
+                reader.onload = () => {
+                    this.$socket.sendObj({
+                        type: 'objectPictureUpload',
+                        payload: {
+                            objectType: this.objectEditorData.objectType,
+                            name: this.objectEditorData.name,
+                            pictureData: btoa(reader.result)
+                        }
+                    });
                 }
             }
         }
@@ -151,5 +202,11 @@
     .prop-value .editable:hover {
         cursor: pointer;
         color: #fff;
+    }
+
+    .prop-value .picture {
+        width: 75px;
+        height: 75px;
+        box-shadow: inset 0px 0px 5px 0px #3a3a3a;
     }
 </style>

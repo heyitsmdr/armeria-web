@@ -5,9 +5,12 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type GameState struct {
+	log              *zap.Logger
 	production       bool
 	playerManager    *PlayerManager
 	commandManager   *CommandManager
@@ -30,13 +33,19 @@ func Init(production bool, publicPath string, dataPath string, scriptsPath strin
 		scriptsPath: scriptsPath,
 	}
 
-	Armeria.playerManager = NewPlayerManager(Armeria)
-	Armeria.commandManager = NewCommandManager(Armeria)
-	Armeria.characterManager = NewCharacterManager(Armeria)
-	Armeria.worldManager = NewWorldManager(Armeria)
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatalf("error initializing zap logger: %s", err)
+	}
+	Armeria.log = logger
 
-	RegisterGameCommands(Armeria)
-	InitWeb(Armeria, httpPort)
+	Armeria.playerManager = NewPlayerManager()
+	Armeria.commandManager = NewCommandManager()
+	Armeria.characterManager = NewCharacterManager()
+	Armeria.worldManager = NewWorldManager()
+
+	RegisterGameCommands()
+	InitWeb(httpPort)
 }
 
 func (gs *GameState) Save() {

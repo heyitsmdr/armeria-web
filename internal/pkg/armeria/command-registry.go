@@ -1,6 +1,6 @@
 package armeria
 
-func RegisterGameCommands(state *GameState) {
+func RegisterGameCommands() {
 	commands := []*Command{
 		{
 			Name: "login",
@@ -204,6 +204,6 @@ func RegisterGameCommands(state *GameState) {
 	}
 
 	for _, cmd := range commands {
-		state.commandManager.RegisterCommand(cmd)
+		Armeria.commandManager.RegisterCommand(cmd)
 	}
 }

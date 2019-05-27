@@ -1,16 +1,16 @@
 package armeria
 
 import (
-	"log"
 	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/gorilla/websocket"
 )
 
 type Player struct {
-	gameState        *GameState
 	clientActions    *ClientActions
 	socket           *websocket.Conn
 	pumpsInitialized bool
@@ -30,26 +30,29 @@ type OutgoingDataStructure struct {
 }
 
 func (p *Player) readPump() {
-	defer p.gameState.playerManager.DisconnectPlayer(p)
+	defer Armeria.playerManager.DisconnectPlayer(p)
 
-	p.socket.SetReadLimit(512)
+	// Set max size of a single message to 512KB
+	p.socket.SetReadLimit(512000)
 
 	for {
 		messageRead := &IncomingDataStructure{}
 		err := p.socket.ReadJSON(messageRead)
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("[players] error reading from socket: %s", err)
-			}
+			Armeria.log.Debug("socket read error",
+				zap.Error(err),
+			)
 			break
 		}
 
 		switch messageRead.Type {
 		case "command":
 			cmd := messageRead.Payload.(string)
-			p.gameState.commandManager.ProcessCommand(p, cmd[1:])
+			Armeria.commandManager.ProcessCommand(p, cmd[1:])
 		case "objectEditorOpen":
 			p.GetCharacter().SetTempAttribute("editorOpen", "true")
+		case "objectPictureUpload":
+			//log.Print(messageRead.Payload)
 		default:
 			p.clientActions.ShowText("Your client sent invalid data.")
 		}
@@ -57,7 +60,7 @@ func (p *Player) readPump() {
 }
 
 func (p *Player) writePump() {
-	defer p.gameState.playerManager.DisconnectPlayer(p)
+	defer Armeria.playerManager.DisconnectPlayer(p)
 
 	for {
 		select {
@@ -69,12 +72,16 @@ func (p *Player) writePump() {
 
 			err := p.socket.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err != nil {
-				log.Printf("[players] error setting write deadline: %s", err)
+				Armeria.log.Error("error setting write deadline",
+					zap.Error(err),
+				)
 				return
 			}
 
 			if err := p.socket.WriteJSON(message); err != nil {
-				log.Printf("[players] error writing to socket: %s", err)
+				Armeria.log.Error("error writing to socket",
+					zap.Error(err),
+				)
 				return
 			}
 		}
@@ -86,7 +93,9 @@ func (p *Player) FlushWrites() {
 		data := <-p.sendData
 		err := p.socket.WriteJSON(data)
 		if err != nil {
-			log.Printf("[player] error flushing writes: %s", err)
+			Armeria.log.Error("error flushing writes",
+				zap.Error(err),
+			)
 		}
 	}
 }
@@ -94,7 +103,6 @@ func (p *Player) FlushWrites() {
 // SetupPumps will create two go routines for reading and writing from the socket
 func (p *Player) SetupPumps() {
 	if p.pumpsInitialized {
-		log.Printf("[players] call to SetupPumps failed (pumps already set up)")
 		return
 	}
 

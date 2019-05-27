@@ -4,20 +4,19 @@ import (
 	"armeria/internal/pkg/misc"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 type WorldManager struct {
-	gameState *GameState
-	dataFile  string
-	World     []*Area `json:"world"`
+	dataFile string
+	World    []*Area `json:"world"`
 }
 
-func NewWorldManager(state *GameState) *WorldManager {
+func NewWorldManager() *WorldManager {
 	m := &WorldManager{
-		gameState: state,
-		dataFile:  fmt.Sprintf("%s/world.json", state.dataPath),
+		dataFile: fmt.Sprintf("%s/world.json", Armeria.dataPath),
 	}
 
 	m.LoadWorld()
@@ -30,17 +29,25 @@ func (m *WorldManager) LoadWorld() {
 	defer worldFile.Close()
 
 	if err != nil {
-		log.Fatalf("[world] failed to load from %s: %s", m.dataFile, err)
+		Armeria.log.Fatal("failed to load data file",
+			zap.String("file", m.dataFile),
+			zap.Error(err),
+		)
 	}
 
 	jsonParser := json.NewDecoder(worldFile)
 
 	err = jsonParser.Decode(m)
 	if err != nil {
-		log.Fatalf("[world] failed to decode world file: %s", err)
+		Armeria.log.Fatal("failed to decode data file",
+			zap.String("file", m.dataFile),
+			zap.Error(err),
+		)
 	}
 
-	log.Printf("[world] loaded %d areas from world file", len(m.World))
+	Armeria.log.Info("areas loaded",
+		zap.Int("count", len(m.World)),
+	)
 }
 
 func (m *WorldManager) SaveWorld() {
@@ -49,17 +56,25 @@ func (m *WorldManager) SaveWorld() {
 
 	raw, err := json.Marshal(m)
 	if err != nil {
-		log.Fatalf("[world] failed to marshal world: %s", err)
+		Armeria.log.Fatal("failed to marshal data",
+			zap.Error(err),
+		)
 	}
 
 	bytes, err := worldFile.Write(raw)
 	if err != nil {
-		log.Fatalf("[world] failed to write to world file: %s", err)
+		Armeria.log.Fatal("failed to write data file",
+			zap.String("file", m.dataFile),
+			zap.Error(err),
+		)
 	}
 
 	worldFile.Sync()
 
-	log.Printf("[world] wrote %d bytes to world file", bytes)
+	Armeria.log.Info("wrote data to file",
+		zap.String("file", m.dataFile),
+		zap.Int("bytes", bytes),
+	)
 }
 
 func (m *WorldManager) GetAreaFromLocation(l *Location) *Area {
@@ -84,7 +99,9 @@ func (m *WorldManager) GetRoomFromLocation(l *Location) *Room {
 func (m *WorldManager) GetRoomInDirection(a *Area, r *Room, direction string) *Room {
 	o := misc.DirectionOffsets(direction)
 	if o == nil {
-		log.Fatal("[room] invalid direction")
+		Armeria.log.Fatal("invalid direction provided",
+			zap.String("direction", direction),
+		)
 	}
 
 	loc := &Location{
