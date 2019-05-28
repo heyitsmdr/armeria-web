@@ -127,7 +127,7 @@ func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 	return false
 }
 
-// GetObjectData returns the JSON used for rendering the room objects on the client
+// GetObjectData returns the JSON used for rendering the room objects on the client.
 func (r *Room) GetObjectData() string {
 	r.mux.Lock()
 	defer r.mux.Unlock()
@@ -136,8 +136,9 @@ func (r *Room) GetObjectData() string {
 
 	for _, o := range r.objects {
 		roomObjects = append(roomObjects, map[string]interface{}{
-			"name": o.GetName(),
-			"type": o.GetType(),
+			"name":    o.GetName(),
+			"type":    o.GetType(),
+			"picture": o.GetAttribute("picture"),
 		})
 	}
 

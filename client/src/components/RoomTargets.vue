@@ -1,7 +1,7 @@
 <template>
     <div class="root">
         <div class="container" @click="handleClick">
-            <Target v-for="obj in roomObjects" :name="obj.name" />
+            <Target v-for="obj in roomObjects" :name="obj.name" :pictureKey="obj.picture" />
         </div>
     </div>
 </template>

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 type Character struct {
@@ -172,6 +174,10 @@ func (c *Character) LoggedIn() {
 
 	area.OnCharacterEntered(c, true)
 	room.OnCharacterEntered(c, true)
+
+	Armeria.log.Info("character entered the game",
+		zap.String("character", c.GetName()),
+	)
 }
 
 // LoggedOut handles everything that needs to happen when a character leaves the game.
@@ -201,6 +207,10 @@ func (c *Character) LoggedOut() {
 	for key, _ := range c.TempAttributes {
 		delete(c.TempAttributes, key)
 	}
+
+	Armeria.log.Info("character left the game",
+		zap.String("character", c.GetName()),
+	)
 }
 
 // GetTempAttribute retrieves a previously-saved temp attribute.

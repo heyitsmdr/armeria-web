@@ -10,6 +10,7 @@
         >
             <div class="picture">
                 <div class="picture-container"
+                     :style="{ backgroundImage: getBackgroundUrl() }"
                      @dragenter.stop.prevent="onPictureDragEnter"
                      @drop.stop.prevent="onPictureDragDrop"
                      @dragleave.stop.prevent
@@ -32,8 +33,16 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'Target',
-    props: ['name'],
+    props: ['name', 'pictureKey'],
     methods: {
+        getBackgroundUrl() {
+            if (this.environment !== 'production') {
+                return `url(http://localhost:8081/oi/${this.pictureKey})`;
+            }
+
+            return `url(/oi/${this.pictureKey})`;
+        },
+
         onMouseDown: function() {
             this.$refs['container'].classList.add('mouse-down');
         },
@@ -102,7 +111,8 @@ export default {
 
         .picture-container {
              height: 50px;
-             box-shadow: inset 0px 0px 15px #000;
+            box-shadow: inset 0px 0px 5px 0px #3a3a3a;
+             background-size: contain;
         }
     }
 

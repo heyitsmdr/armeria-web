@@ -22,13 +22,15 @@
                     <!-- picture type -->
                     <div
                             class="picture"
+                            ref="picture"
+                            :style="{ backgroundImage: getBackgroundUrl(prop.value) }"
                             v-if="prop.propType == 'picture'"
                             @dragenter.stop.prevent="handlePictureDragEnter"
                             @drop.stop.prevent="handlePictureDragDrop"
-                            @dragleave.stop.prevent
+                            @dragleave.stop.prevent="handlePictureDragLeave"
                             @dragover.stop.prevent
                     >
-
+                        &nbsp;
                     </div>
                 </div>
             </div>
@@ -41,7 +43,7 @@
 
     export default {
         name: 'ObjectEditor',
-        computed: mapState(['objectEditorOpen', 'objectEditorData']),
+        computed: mapState(['environment', 'objectEditorOpen', 'objectEditorData']),
         watch: {
             objectEditorOpen: function(newVal) {
                 this.$socket.sendObj({
@@ -51,6 +53,14 @@
             }
         },
         methods: {
+            getBackgroundUrl(objectKey) {
+                if (this.environment !== 'production') {
+                    return `url(http://localhost:8081/oi/${objectKey})`;
+                }
+
+                return `url(/oi/${objectKey})`;
+            },
+
             handleClose: function() {
                 this.$store.dispatch('setObjectEditorOpen', false);
             },
@@ -80,11 +90,17 @@
                 }
             },
 
-            handlePictureDragEnter: function(event) {
-
+            handlePictureDragEnter: function(e) {
+                e.target.classList.add("candrop");
             },
 
-            handlePictureDragDrop: function(event) {
+            handlePictureDragLeave: function(e) {
+                e.target.classList.remove("candrop");
+            },
+
+            handlePictureDragDrop: function(e) {
+                e.target.classList.remove("candrop");
+
                 const files = event.dataTransfer.files;
 
                 if (files.length > 1) {
@@ -113,6 +129,7 @@
                         payload: {
                             objectType: this.objectEditorData.objectType,
                             name: this.objectEditorData.name,
+                            pictureType: file.type,
                             pictureData: btoa(reader.result)
                         }
                     });
@@ -208,5 +225,10 @@
         width: 75px;
         height: 75px;
         box-shadow: inset 0px 0px 5px 0px #3a3a3a;
+        background-size: contain;
+    }
+
+    .prop-value .picture.candrop {
+        box-shadow: inset 0px 0px 5px 0px #ffe500;
     }
 </style>

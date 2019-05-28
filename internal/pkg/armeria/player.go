@@ -52,7 +52,7 @@ func (p *Player) readPump() {
 		case "objectEditorOpen":
 			p.GetCharacter().SetTempAttribute("editorOpen", "true")
 		case "objectPictureUpload":
-			//log.Print(messageRead.Payload)
+			StoreObjectPicture(p, messageRead.Payload.(map[string]interface{}))
 		default:
 			p.clientActions.ShowText("Your client sent invalid data.")
 		}

@@ -54,10 +54,6 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 		p.character.LoggedOut()
 		// Unset player from character
 		p.character.SetPlayer(nil)
-		// Log
-		Armeria.log.Info("character left the game",
-			zap.String("character", p.character.GetName()),
-		)
 		// Unset character from player
 		p.AttachCharacter(nil)
 	}

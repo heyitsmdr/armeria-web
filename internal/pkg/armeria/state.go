@@ -18,6 +18,7 @@ type GameState struct {
 	worldManager     *WorldManager
 	publicPath       string
 	dataPath         string
+	objectImagesPath string
 	scriptsPath      string
 }
 
@@ -27,10 +28,11 @@ var (
 
 func Init(production bool, publicPath string, dataPath string, scriptsPath string, httpPort int) {
 	Armeria = &GameState{
-		production:  production,
-		publicPath:  publicPath,
-		dataPath:    dataPath,
-		scriptsPath: scriptsPath,
+		production:       production,
+		publicPath:       publicPath,
+		dataPath:         dataPath,
+		objectImagesPath: dataPath + "/object-images",
+		scriptsPath:      scriptsPath,
 	}
 
 	logger, err := zap.NewDevelopment()

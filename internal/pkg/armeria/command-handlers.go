@@ -3,7 +3,6 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -39,8 +38,6 @@ func handleLoginCommand(r *CommandContext) {
 	r.Player.clientActions.ShowColorizedText(fmt.Sprintf("You've entered Armeria as %s!", c.GetFName()), ColorSuccess)
 
 	c.LoggedIn()
-
-	log.Printf("[characters] character logged in: %s", c.GetName())
 }
 
 func handleLookCommand(r *CommandContext) {
