@@ -9,4 +9,7 @@ type Object interface {
 	SetAttribute(name string, value string)
 }
 
-const ObjectTypeCharacter int = 0
+const (
+	ObjectTypeCharacter int = 0
+	ObjectTypeMob       int = 1
+)

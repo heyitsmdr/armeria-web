@@ -30,8 +30,15 @@
                             @dragleave.stop.prevent="handlePictureDragLeave"
                             @dragover.stop.prevent
                     >
-                        &nbsp;
                     </div>
+                    <!-- script type -->
+                    <span
+                            class="script"
+                            v-if="prop.propType == 'script'"
+                            @click="handleScriptEditClick"
+                    >
+                        Edit Script
+                    </span>
                 </div>
             </div>
         </div>
@@ -134,6 +141,14 @@
                         }
                     });
                 }
+            },
+
+            handleScriptEditClick: function() {
+                window.open(
+                    `/scripteditor.html?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}`,
+                    'scripteditor',
+                    'width=800,height=600'
+                );
             }
         }
     }
@@ -230,5 +245,16 @@
 
     .prop-value .picture.candrop {
         box-shadow: inset 0px 0px 5px 0px #ffe500;
+    }
+
+    .prop-value .script {
+        background-color: #404040;
+        padding: 3px;
+        border: 1px solid #797777;
+    }
+
+    .prop-value .script:hover {
+        cursor: pointer;
+        border: 1px solid #d2d2d2;
     }
 </style>

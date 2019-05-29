@@ -32,12 +32,21 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		c.SetAttribute("picture", k)
 		editorData = c.GetEditorData()
 		p.clientActions.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for %s.", c.GetFName()),
+			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.GetFName()),
 			ColorSuccess,
 		)
 		for _, chars := range p.GetCharacter().GetRoom().GetCharacters(nil) {
 			chars.GetPlayer().clientActions.SyncRoomObjects()
 		}
+	case "mob":
+		m := Armeria.mobManager.GetMobByName(name)
+		oldKey = m.GetAttribute("picture")
+		m.SetAttribute("picture", k)
+		editorData = m.GetEditorData()
+		p.clientActions.ShowColorizedText(
+			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.Name),
+			ColorSuccess,
+		)
 	default:
 		p.clientActions.ShowColorizedText("The picture was uploaded as an invalid type.", ColorError)
 		DeleteObjectPictureFromDisk(k)

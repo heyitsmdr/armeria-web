@@ -328,9 +328,10 @@ func handleReloadCommand(r *CommandContext) {
 	Armeria.Reload(r.Player, r.Args["component"])
 }
 
-func handleMapCommand(r *CommandContext) {
+func handleRefreshCommand(r *CommandContext) {
 	r.Player.clientActions.RenderMap()
-	r.Player.clientActions.ShowText("The map has been re-rendered.")
+	r.Player.clientActions.SyncRoomObjects()
+	r.Player.clientActions.ShowText("Client data has been refreshed.")
 }
 
 func handleWhisperCommand(r *CommandContext) {
@@ -367,15 +368,9 @@ func handleWhoCommand(r *CommandContext) {
 		verb = "is"
 	}
 
-	var names string
-	for i, c := range chars {
-		if i == 0 && len(chars) == 1 {
-			names = fmt.Sprintf("%s.", c.GetFName())
-		} else if i == len(chars)-1 {
-			names = fmt.Sprintf("%s.", c.GetFName())
-		} else {
-			names = fmt.Sprintf("%s, ", c.GetFName())
-		}
+	var fn []string
+	for _, c := range chars {
+		fn = append(fn, c.GetFNameWithTitle())
 	}
 
 	r.Player.clientActions.ShowText(
@@ -384,7 +379,7 @@ func handleWhoCommand(r *CommandContext) {
 			verb,
 			len(chars),
 			noun,
-			names,
+			strings.Join(fn, ", ")+".",
 		),
 	)
 }
@@ -438,5 +433,97 @@ func handleCharacterSetCommand(r *CommandContext) {
 	editorOpen := r.Character.GetTempAttribute("editorOpen")
 	if editorOpen == "true" {
 		r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+	}
+}
+
+func handleMobCreateCommand(r *CommandContext) {
+	n := r.Args["name"]
+
+	if Armeria.mobManager.GetMobByName(n) != nil {
+		r.Player.clientActions.ShowColorizedText("A mob already exists with that name.", ColorError)
+		return
+	}
+
+	m := &Mob{
+		Name: n,
+	}
+
+	Armeria.mobManager.CreateMob(m)
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("A mob named [b]%s[/b] has been created.", n),
+		ColorSuccess,
+	)
+}
+
+func handleMobEditCommand(r *CommandContext) {
+	mname := r.Args["mob"]
+
+	m := Armeria.mobManager.GetMobByName(mname)
+	if m == nil {
+		r.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		return
+	}
+
+	r.Player.clientActions.ShowObjectEditor(m.GetEditorData())
+}
+
+func handleMobSetCommand(r *CommandContext) {
+	mob := strings.ToLower(r.Args["mob"])
+	attr := strings.ToLower(r.Args["property"])
+	val := strings.ToLower(r.Args["value"])
+
+	m := Armeria.mobManager.GetMobByName(mob)
+	if m == nil {
+		r.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		return
+	}
+
+	if !misc.Contains(GetValidMobAttributes(), attr) {
+		r.Player.clientActions.ShowColorizedText("That's not a valid mob attribute.", ColorError)
+		return
+	}
+
+	m.SetAttribute(attr, val)
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("You modified the [b]%s[/b] property of the mob [b]%s[/b].", attr, m.Name),
+		ColorSuccess,
+	)
+
+	editorOpen := r.Character.GetTempAttribute("editorOpen")
+	if editorOpen == "true" {
+		r.Player.clientActions.ShowObjectEditor(m.GetEditorData())
+	}
+}
+
+func handleMobSpawnCommand(r *CommandContext) {
+	mob := strings.ToLower(r.Args["mob"])
+
+	m := Armeria.mobManager.GetMobByName(mob)
+	if m == nil {
+		r.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		return
+	}
+
+	l := r.Character.GetLocation()
+	loc := &Location{
+		AreaName: l.AreaName,
+		Coords: &Coords{
+			X: l.Coords.X,
+			Y: l.Coords.Y,
+			Z: l.Coords.Z,
+			I: l.Coords.I,
+		},
+	}
+
+	mi := m.CreateInstance(loc)
+	r.Character.GetRoom().AddObjectToRoom(mi)
+
+	for _, c := range r.Character.GetRoom().GetCharacters(nil) {
+		c.GetPlayer().clientActions.ShowText(
+			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mi.GetFName()),
+		)
+		c.GetPlayer().clientActions.SyncRoomObjects()
 	}
 }

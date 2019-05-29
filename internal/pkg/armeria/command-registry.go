@@ -168,12 +168,12 @@ func RegisterGameCommands() {
 			Handler: handleReloadCommand,
 		},
 		{
-			Name: "map",
-			Help: "Asks the server to re-render the minimap for the area.",
+			Name: "refresh",
+			Help: "Asks the server to re-render the data on the client.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
-			Handler: handleMapCommand,
+			Handler: handleRefreshCommand,
 		},
 		{
 			Name:     "whisper",
@@ -200,6 +200,63 @@ func RegisterGameCommands() {
 				RequireCharacter: true,
 			},
 			Handler: handleWhoCommand,
+		},
+		{
+			Name: "mob",
+			Help: "Allows you to manage mobiles (npcs/monsters).",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Subcommands: []*Command{
+				{
+					Name: "create",
+					Help: "Creates a new mob in the game.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "name",
+						},
+					},
+					Handler: handleMobCreateCommand,
+				},
+				{
+					Name: "edit",
+					Help: "Opens the editor panel for a mob.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "mob",
+						},
+					},
+					Handler: handleMobEditCommand,
+				},
+				{
+					Name: "set",
+					Help: "Allows you to set a mob attribute. Leave value empty to revert to default.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "mob",
+						},
+						{
+							Name: "property",
+						},
+						{
+							Name:             "value",
+							IncludeRemaining: true,
+							Optional:         true,
+						},
+					},
+					Handler: handleMobSetCommand,
+				},
+				{
+					Name: "spawn",
+					Help: "Spawns a mob at this location.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "mob",
+						},
+					},
+					Handler: handleMobSpawnCommand,
+				},
+			},
 		},
 	}
 

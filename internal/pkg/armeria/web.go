@@ -23,16 +23,33 @@ func InitWeb(port int) {
 
 	// Set up routes
 	r := mux.NewRouter()
-	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir(Armeria.publicPath)))
-	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir(Armeria.publicPath)))
-	r.PathPrefix("/img/").Handler(http.FileServer(http.Dir(Armeria.publicPath)))
+	publicRoutes := []string{
+		"/js/",
+		"/css/",
+		"/img/",
+		"/vendor/",
+		"/favicon.ico",
+		"/scripteditor.html",
+	}
+	for _, route := range publicRoutes {
+		r.PathPrefix(route).Handler(http.FileServer(http.Dir(Armeria.publicPath)))
+	}
 	r.PathPrefix("/oi/").Handler(http.StripPrefix("/oi/", http.FileServer(http.Dir(Armeria.objectImagesPath))))
+	r.HandleFunc("/script/{objectType}/{objectName}/{accessName}/{accessKey}", func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		w.WriteHeader(http.StatusForbidden)
+		_, err := w.Write([]byte("got " + vars["objectType"]))
+		if err != nil {
+			Armeria.log.Fatal("error writing to http for script",
+				zap.Error(err),
+			)
+		}
+	})
 	r.PathPrefix("/ws").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(w, r)
 	})
-	r.PathPrefix("/favicon.ico").Handler(http.FileServer(http.Dir(Armeria.publicPath)))
-	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, fmt.Sprintf("%s/index.html", Armeria.publicPath))
+	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		http.ServeFile(w, req, fmt.Sprintf("%s/index.html", Armeria.publicPath))
 	})
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)

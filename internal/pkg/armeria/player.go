@@ -50,7 +50,12 @@ func (p *Player) readPump() {
 			cmd := messageRead.Payload.(string)
 			Armeria.commandManager.ProcessCommand(p, cmd[1:])
 		case "objectEditorOpen":
-			p.GetCharacter().SetTempAttribute("editorOpen", "true")
+			open := messageRead.Payload.(bool)
+			if open {
+				p.GetCharacter().SetTempAttribute("editorOpen", "true")
+			} else {
+				p.GetCharacter().SetTempAttribute("editorOpen", "false")
+			}
 		case "objectPictureUpload":
 			StoreObjectPicture(p, messageRead.Payload.(map[string]interface{}))
 		default:

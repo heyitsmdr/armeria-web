@@ -2,10 +2,10 @@
     <div>
         <div
                 class="container"
-                :class="{'selected': this.objectTarget == this.name}"
+                :class="{'selected': objectTarget == name, 'is-character': objectType == 0,  'is-mob': objectType == 1 }"
                 ref="container"
-                @mousedown="onMouseDown"
-                @mouseup="onMouseUp"
+                @mousedown="handleMouseDown"
+                @mouseup="handleMouseUp"
                 @contextmenu.stop.prevent="onContextMenu"
         >
             <div class="picture">
@@ -33,7 +33,7 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'Target',
-    props: ['name', 'pictureKey'],
+    props: ['name', 'objectType', 'pictureKey'],
     methods: {
         getBackgroundUrl() {
             if (this.environment !== 'production') {
@@ -43,13 +43,21 @@ export default {
             return `url(/oi/${this.pictureKey})`;
         },
 
-        onMouseDown: function() {
+        handleMouseDown: function() {
             this.$refs['container'].classList.add('mouse-down');
         },
 
-        onMouseUp: function() {
+        handleMouseUp: function(e) {
             this.$refs['container'].classList.remove('mouse-down');
-            this.$store.dispatch('setObjectTarget', this.name);
+            if (e.shiftKey) {
+                if (this.objectType == 0) {
+                    this.$socket.sendObj({type: 'command', payload: '/character edit ' + this.name});
+                } else if (this.objectType == 1) {
+                    this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
+                }
+            } else {
+                this.$store.dispatch('setObjectTarget', this.name);
+            }
         },
         onPictureDragEnter: function(event) {
             // TODO: add class to make it obvious you can drop something here
@@ -87,18 +95,29 @@ export default {
 <style lang="scss" scoped>
 .container {
     background-color: #0c0c0c;
-    border: 1px solid #353535;
     margin: 0 10px 10px 10px;
     transition: all .1s ease-in-out;
     transform: scale(1);
     display: flex;
 
     &.selected {
-         border: 1px solid #ffeb3b;
+         border: 1px solid #ffeb3b !important;
     }
 
     &.mouse-down {
         transform: scale(1.01) !important;
+    }
+
+    &.is-character {
+         border: 1px solid #353535;
+    }
+
+    &.is-mob {
+        border: 1px solid #673604;
+
+        .name {
+            color: #d48a3e;
+        }
     }
 
     &:hover {

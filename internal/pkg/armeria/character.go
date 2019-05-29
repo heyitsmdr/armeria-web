@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -35,6 +36,7 @@ func GetValidCharacterAttributes() []string {
 	return []string{
 		"picture",
 		"role",
+		"title",
 	}
 }
 
@@ -47,7 +49,7 @@ func GetCharacterAttributeDefault(name string) string {
 	return ""
 }
 
-// GetType returns the object type, since Character uses the Object interface.
+// GetType returns the object type, since Character implements the Object interface.
 func (c *Character) GetType() int {
 	return ObjectTypeCharacter
 }
@@ -66,11 +68,30 @@ func (c *Character) GetFName() string {
 	return fmt.Sprintf("[b]%s[/b]", c.Name)
 }
 
+// GetFNameWithTitle returns the formatted character name including the character's title (if set).
+func (c *Character) GetFNameWithTitle() string {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	title := c.Attributes["title"]
+	if title != "" {
+		return fmt.Sprintf("[b]%s[/b] (%s)", c.Name, title)
+	}
+	return fmt.Sprintf("[b]%s[/b]", c.Name)
+}
+
 // GetPassword returns the character's password.
 func (c *Character) GetPassword() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.Password
+}
+
+// GetSaltedPasswordHash returns the character's salted password as an md5 hash.
+func (c *Character) GetSaltedPasswordHash(salt string) string {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	b := []byte(c.Password + salt)
+	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
 // GetPlayer returns the player that is playing the character.
@@ -233,7 +254,7 @@ func (c *Character) SetTempAttribute(name string, value string) {
 	c.TempAttributes[name] = value
 }
 
-// SetAttribute sets a permanent character attribute and only valid attributes can be set.
+// SetAttribute sets a permanent attribute and only valid attributes can be set.
 func (c *Character) SetAttribute(name string, value string) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
@@ -243,12 +264,16 @@ func (c *Character) SetAttribute(name string, value string) {
 	}
 
 	if !misc.Contains(GetValidCharacterAttributes(), name) {
-		log.Fatalf("[character] attempted set-attribute on a character using an invalid attribute: %s", name)
+		Armeria.log.Fatal("attempted to set invalid attribute",
+			zap.String("attribute", name),
+			zap.String("value", value),
+		)
 	}
 
 	c.Attributes[name] = value
 }
 
+// GetAttribute returns a permanent attribute.
 func (c *Character) GetAttribute(name string) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()

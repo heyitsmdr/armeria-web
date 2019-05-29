@@ -2,7 +2,8 @@ package armeria
 
 import (
 	"encoding/json"
-	"log"
+
+	"go.uber.org/zap"
 )
 
 type ClientActions struct {
@@ -13,6 +14,7 @@ type ObjectEditorData struct {
 	Name       string                      `json:"name"`
 	ObjectType string                      `json:"objectType"`
 	Properties []*ObjectEditorDataProperty `json:"properties"`
+	AccessKey  string                      `json:"accessKey"`
 }
 
 type ObjectEditorDataProperty struct {
@@ -68,9 +70,14 @@ func (ca *ClientActions) SyncRoomObjects() {
 
 // ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
+	// add access key
+	c := ca.player.GetCharacter()
+	editorData.AccessKey = c.GetName() + "/" + c.GetSaltedPasswordHash("ARM0bj3ct3d1t0rERIA")
 	j, err := json.Marshal(editorData)
 	if err != nil {
-		log.Fatalf("[client-actions] failed to marshal object editor data: %s", err)
+		Armeria.log.Fatal("failed to marshal data",
+			zap.Error(err),
+		)
 	}
 
 	ca.player.CallClientAction("setObjectEditorData", string(j))
