@@ -31,11 +31,29 @@
         #overlay.hidden {
             visibility: hidden;
         }
+
+        #save {
+            font-family: 'Montserrat', sans-serif;
+            position: absolute;
+            z-index: 1000;
+            bottom: 20px;
+            right: 20px;
+            background-color: #585858;
+            color: #fff;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        #save:hover {
+            cursor: pointer;
+            background-color: #3c3a3a;
+        }
     </style>
 </head>
 <body>
     <div id="overlay" class="hidden"></div>
     <div id="editor">Loading...</div>
+    <div id="save">Save Script</div>
     <script src="vendor/jquery-3.3.1/jquery.min.js"></script>
     <script src="vendor/ace-1.4.4/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.4/theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
@@ -65,7 +83,7 @@
         const type = urlParams.get('type');
         const accessKey = urlParams.get('accessKey');
 
-        $.get(`/script/${type}/${name}/${accessKey}`, (data, status) => {
+        $.get(`/script/${type}/${name}/${accessKey}`, (data) => {
             editor.session.setValue(data);
             editor.gotoLine(1);
         }).fail(() => {
@@ -75,6 +93,12 @@
 
         window.addEventListener('resize', resizeEditor);
         resizeEditor()
+
+        document.getElementById('save').addEventListener('click', () => {
+            $.post(`/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
+                console.log(data, status);
+            })
+        });
     </script>
 </body>
 </html>

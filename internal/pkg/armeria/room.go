@@ -170,10 +170,18 @@ func (r *Room) GetEditorData() *ObjectEditorData {
 
 // OnCharacterEntered is called when the character is moved to the room (or logged in).
 func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
-	c.GetPlayer().clientActions.SyncMapLocation()
+	ca := c.GetPlayer().clientActions
+	ca.SyncMapLocation()
+	ca.SyncRoomTitle()
 
 	for _, char := range r.GetCharacters(nil) {
 		char.GetPlayer().clientActions.SyncRoomObjects()
+	}
+
+	for _, o := range r.GetObjects() {
+		if o.GetType() == ObjectTypeMob {
+			go CallMobFunc(c, o.(*MobInstance), "character_entered")
+		}
 	}
 }
 

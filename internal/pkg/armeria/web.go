@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -9,9 +10,86 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func ConfigureStaticRoute(r *mux.Router, pathPrefix string, dir string) {
-	s := http.StripPrefix(pathPrefix, http.FileServer(http.Dir(dir+"/")))
-	r.PathPrefix(pathPrefix).Handler(s)
+func HandleScriptRead(w http.ResponseWriter, r *http.Request) {
+	v := mux.Vars(r)
+	ot := v["objectType"]
+	on := v["objectName"]
+	an := v["accessName"]
+	ak := v["accessKey"]
+
+	c := Armeria.characterManager.GetCharacterByName(an)
+	if c == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if c.GetSaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if ot != "mob" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	m := Armeria.mobManager.GetMobByName(on)
+	if m == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	s := ReadMobScript(m)
+
+	_, _ = w.Write([]byte(s))
+}
+
+func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
+	v := mux.Vars(r)
+	ot := v["objectType"]
+	on := v["objectName"]
+	an := v["accessName"]
+	ak := v["accessKey"]
+
+	c := Armeria.characterManager.GetCharacterByName(an)
+	if c == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if c.GetSaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if ot != "mob" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	m := Armeria.mobManager.GetMobByName(on)
+	if m == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	script, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	WriteMobScript(m, string(script))
+
+	cp := c.GetPlayer()
+	if cp != nil {
+		cp.clientActions.ShowColorizedText(
+			fmt.Sprintf("The script has been saved to [b]%s[/b].", m.Name),
+			ColorSuccess,
+		)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 // Init will initialize the HTTP web server, for serving the web client
@@ -35,16 +113,8 @@ func InitWeb(port int) {
 		r.PathPrefix(route).Handler(http.FileServer(http.Dir(Armeria.publicPath)))
 	}
 	r.PathPrefix("/oi/").Handler(http.StripPrefix("/oi/", http.FileServer(http.Dir(Armeria.objectImagesPath))))
-	r.HandleFunc("/script/{objectType}/{objectName}/{accessName}/{accessKey}", func(w http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
-		w.WriteHeader(http.StatusForbidden)
-		_, err := w.Write([]byte("got " + vars["objectType"]))
-		if err != nil {
-			Armeria.log.Fatal("error writing to http for script",
-				zap.Error(err),
-			)
-		}
-	})
+	r.HandleFunc("/script/{objectType}/{objectName}/{accessName}/{accessKey}", HandleScriptRead).Methods("GET")
+	r.HandleFunc("/script/{objectType}/{objectName}/{accessName}/{accessKey}", HandleScriptWrite).Methods("POST")
 	r.PathPrefix("/ws").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(w, r)
 	})

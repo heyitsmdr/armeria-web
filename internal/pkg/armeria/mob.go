@@ -2,7 +2,10 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"fmt"
+	"strconv"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -29,6 +32,17 @@ func GetMobAttributeDefault(name string) string {
 	}
 
 	return ""
+}
+
+// ValidateMobAttribute returns a bool indicating whether a particular value is allowed
+// for a particular attribute.
+func ValidateMobAttribute(name string, value string) (bool, string) {
+	switch name {
+	case "script":
+		return false, "script cannot be set explicitly"
+	}
+
+	return true, ""
 }
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
@@ -92,6 +106,7 @@ func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 	defer m.mux.Unlock()
 
 	mi := &MobInstance{
+		Id:       strconv.FormatInt(time.Now().UnixNano(), 10),
 		Parent:   m.Name,
 		Location: loc,
 	}
@@ -99,4 +114,21 @@ func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 	m.Instances = append(m.Instances, mi)
 
 	return mi
+}
+
+func (m *Mob) GetInstanceById(id string) *MobInstance {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
+	for _, mi := range m.Instances {
+		if mi.Id == id {
+			return mi
+		}
+	}
+
+	return nil
+}
+
+func (m *Mob) GetScriptFile() string {
+	return fmt.Sprintf("%s/scripts/mob-%s.lua", Armeria.dataPath, m.Name)
 }

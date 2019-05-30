@@ -9,6 +9,7 @@ import (
 )
 
 type MobInstance struct {
+	Id         string            `json:"id"`
 	Parent     string            `json:"parent"`
 	Location   *Location         `json:"location"`
 	Attributes map[string]string `json:"attributes"`
@@ -25,6 +26,11 @@ func (mi *MobInstance) GetLocation() *Location {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
 	return mi.Location
+}
+
+// GetRoom returns the Room of the mob.
+func (mi *MobInstance) GetRoom() *Room {
+	return Armeria.worldManager.GetRoomFromLocation(mi.GetLocation())
 }
 
 // GetType returns the object type, since Mob implements the Object interface.

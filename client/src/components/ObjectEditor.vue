@@ -50,7 +50,7 @@
 
     export default {
         name: 'ObjectEditor',
-        computed: mapState(['environment', 'objectEditorOpen', 'objectEditorData']),
+        computed: mapState(['computed: mapState([\'isProduction\', \'objectTarget\'])', 'objectEditorOpen', 'objectEditorData']),
         watch: {
             objectEditorOpen: function(newVal) {
                 this.$socket.sendObj({
@@ -61,7 +61,7 @@
         },
         methods: {
             getBackgroundUrl(objectKey) {
-                if (this.environment !== 'production') {
+                if (!this.isProduction) {
                     return `url(http://localhost:8081/oi/${objectKey})`;
                 }
 
@@ -144,8 +144,14 @@
             },
 
             handleScriptEditClick: function() {
+                let baseUrl = '/scripteditor.html';
+
+                if (!this.isProduction) {
+                    baseUrl = 'http://localhost:8081/scripteditor.html';
+                }
+
                 window.open(
-                    `/scripteditor.html?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}`,
+                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}`,
                     'scripteditor',
                     'width=800,height=600'
                 );

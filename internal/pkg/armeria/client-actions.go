@@ -68,6 +68,12 @@ func (ca *ClientActions) SyncRoomObjects() {
 	ca.player.CallClientAction("setRoomObjects", obj)
 }
 
+// SyncRoomTitle sets the current room title on the client.
+func (ca *ClientActions) SyncRoomTitle() {
+	r := ca.player.GetCharacter().GetRoom()
+	ca.player.CallClientAction("setRoomTitle", r.GetAttribute("title"))
+}
+
 // ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	// add access key

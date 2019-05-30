@@ -34,9 +34,10 @@ import { mapState } from 'vuex';
 export default {
     name: 'Target',
     props: ['name', 'objectType', 'pictureKey'],
+    computed: mapState(['isProduction', 'objectTarget']),
     methods: {
         getBackgroundUrl() {
-            if (this.environment !== 'production') {
+            if (!this.isProduction) {
                 return `url(http://localhost:8081/oi/${this.pictureKey})`;
             }
 
@@ -87,8 +88,7 @@ export default {
             // TODO: Add a custom right-click menu
             // https://dev.to/iamafro/how-to-create-a-custom-context-menu--5d7p
         }
-    },
-    computed: mapState(['objectTarget'])
+    }
 }
 </script>
 

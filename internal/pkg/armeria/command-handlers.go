@@ -331,6 +331,7 @@ func handleReloadCommand(r *CommandContext) {
 func handleRefreshCommand(r *CommandContext) {
 	r.Player.clientActions.RenderMap()
 	r.Player.clientActions.SyncRoomObjects()
+	r.Player.clientActions.SyncRoomTitle()
 	r.Player.clientActions.ShowText("Client data has been refreshed.")
 }
 
@@ -481,6 +482,12 @@ func handleMobSetCommand(r *CommandContext) {
 
 	if !misc.Contains(GetValidMobAttributes(), attr) {
 		r.Player.clientActions.ShowColorizedText("That's not a valid mob attribute.", ColorError)
+		return
+	}
+
+	valid, why := ValidateMobAttribute(attr, val)
+	if !valid {
+		r.Player.clientActions.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
 		return
 	}
 

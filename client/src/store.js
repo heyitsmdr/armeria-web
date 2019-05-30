@@ -5,7 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    environment: process.env.NODE_ENV || 'development',
+    isProduction: process.env.NODE_ENV === "production",
     isConnected: false,
     gameText: [],
     allowGlobalHotkeys: true,
@@ -13,6 +13,7 @@ export default new Vuex.Store({
     minimapData: {},
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
+    roomTitle: '',
     objectTarget: '',
     objectEditorOpen: false,
     objectEditorData: {},
@@ -64,6 +65,10 @@ export default new Vuex.Store({
       state.roomObjects = objects;
     },
 
+    SET_ROOM_TITLE: (state, title) => {
+      state.roomTitle = title;
+    },
+
     SET_OBJECT_TARGET: (state, target) => {
       state.objectTarget = target;
     },
@@ -71,9 +76,11 @@ export default new Vuex.Store({
     SET_OBJECT_EDITOR_OPEN: (state, open) => {
       state.objectEditorOpen = open;
     },
+
     SET_OBJECT_EDITOR_DATA: (state, data) => {
       state.objectEditorData = data;
     },
+
     SET_FORCE_INPUT_FOCUS: (state, force) => {
       state.forceInputFocus = force;
     }
@@ -128,6 +135,10 @@ export default new Vuex.Store({
 
     setRoomObjects: ({ commit }, payload) => {
       commit('SET_ROOM_OBJECTS', JSON.parse(payload.data));
+    },
+
+    setRoomTitle: ({ commit }, payload) => {
+      commit('SET_ROOM_TITLE', payload.data);
     },
 
     setObjectEditorData: ({ commit }, payload) => {

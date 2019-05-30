@@ -1,7 +1,8 @@
 <template>
     <div class="container">
         <div class="area-title">
-            {{ areaTitle }}
+            <div class="map-name">{{ areaTitle }}</div>
+            <div class="room-name">{{ roomTitle }}</div>
         </div>
         <div class="map" ref="map">
             <div class="floor" ref="floor">
@@ -40,7 +41,7 @@ export default {
             this.centerMapOnLocation(newLocation, oldLocation);
         }
     },
-    computed: mapState(['minimapData', 'characterLocation']),
+    computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
     methods: {
         clearMap() {
             const map = this.$refs['floor'];
@@ -153,9 +154,16 @@ export default {
     padding: 5px;
     background-color: #1b1b1b;
     border-bottom: 1px solid #313131;
-    font-weight: 600;
-    font-size: 16px;
     color: #fff;
+
+    .map-name {
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .room-name {
+        font-size: 12px;
+    }
 }
 
 .map {
