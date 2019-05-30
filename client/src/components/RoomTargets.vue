@@ -3,6 +3,7 @@
         <div class="container" @click="handleClick">
             <Target
                 v-for="obj in roomObjects"
+                :key="obj.type + '-' + obj.name"
                 :name="obj.name"
                 :pictureKey="obj.picture"
                 :objectType="obj.type"
