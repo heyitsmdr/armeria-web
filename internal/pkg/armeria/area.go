@@ -30,10 +30,6 @@ const (
 	DownDirection  = "down"
 )
 
-func GetValidAreaAttributes() []string {
-	return []string{}
-}
-
 func (a *Area) GetName() string {
 	a.mux.Lock()
 	defer a.mux.Unlock()
