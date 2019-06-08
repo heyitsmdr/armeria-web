@@ -10,8 +10,8 @@ import (
 )
 
 type CharacterManager struct {
-	dataFile   string
-	Characters []*Character `json:"characters"`
+	dataFile         string
+	UnsafeCharacters []*Character `json:"characters"`
 }
 
 func NewCharacterManager() *CharacterManager {
@@ -19,12 +19,12 @@ func NewCharacterManager() *CharacterManager {
 		dataFile: fmt.Sprintf("%s/characters.json", Armeria.dataPath),
 	}
 
-	m.loadCharacters()
+	m.LoadCharacters()
 
 	return m
 }
 
-func (m *CharacterManager) loadCharacters() {
+func (m *CharacterManager) LoadCharacters() {
 	charactersFile, err := os.Open(m.dataFile)
 	defer charactersFile.Close()
 
@@ -46,7 +46,7 @@ func (m *CharacterManager) loadCharacters() {
 	}
 
 	Armeria.log.Info("characters loaded",
-		zap.Int("count", len(m.Characters)),
+		zap.Int("count", len(m.UnsafeCharacters)),
 	)
 }
 
@@ -77,10 +77,10 @@ func (m *CharacterManager) SaveCharacters() {
 	)
 }
 
-// GetCharacterByName returns the matching Character.
-func (m *CharacterManager) GetCharacterByName(name string) *Character {
-	for _, c := range m.Characters {
-		if strings.ToLower(c.GetName()) == strings.ToLower(name) {
+// CharacterByName returns the matching Character.
+func (m *CharacterManager) CharacterByName(name string) *Character {
+	for _, c := range m.UnsafeCharacters {
+		if strings.ToLower(c.Name()) == strings.ToLower(name) {
 			return c
 		}
 	}
@@ -88,11 +88,11 @@ func (m *CharacterManager) GetCharacterByName(name string) *Character {
 	return nil
 }
 
-// GetCharacters returns the characters logged in to the game.
-func (m *CharacterManager) GetCharacters() []*Character {
+// UnsafeCharacters returns the characters logged in to the game.
+func (m *CharacterManager) Characters() []*Character {
 	var chars []*Character
-	for _, c := range m.Characters {
-		if c.GetPlayer() != nil {
+	for _, c := range m.UnsafeCharacters {
+		if c.Player() != nil {
 			chars = append(chars, c)
 		}
 	}

@@ -1,11 +1,13 @@
 package armeria
 
-// Object is the interface that describes an in-game object
+// Object is the interface that describes an in-game object, which is
+// implemented by Character and MobInstance.
+
 type Object interface {
-	GetType() int
-	GetName() string
-	GetFName() string
-	GetAttribute(name string) string
+	Type() int
+	Name() string
+	FormattedName() string
+	Attribute(name string) string
 	SetAttribute(name string, value string)
 }
 

@@ -17,13 +17,13 @@ func HandleScriptRead(w http.ResponseWriter, r *http.Request) {
 	an := v["accessName"]
 	ak := v["accessKey"]
 
-	c := Armeria.characterManager.GetCharacterByName(an)
+	c := Armeria.characterManager.CharacterByName(an)
 	if c == nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	if c.GetSaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
+	if c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -33,7 +33,7 @@ func HandleScriptRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m := Armeria.mobManager.GetMobByName(on)
+	m := Armeria.mobManager.MobByName(on)
 	if m == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -51,13 +51,13 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 	an := v["accessName"]
 	ak := v["accessKey"]
 
-	c := Armeria.characterManager.GetCharacterByName(an)
+	c := Armeria.characterManager.CharacterByName(an)
 	if c == nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	if c.GetSaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
+	if c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -67,7 +67,7 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m := Armeria.mobManager.GetMobByName(on)
+	m := Armeria.mobManager.MobByName(on)
 	if m == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -81,10 +81,10 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 
 	WriteMobScript(m, string(script))
 
-	cp := c.GetPlayer()
+	cp := c.Player()
 	if cp != nil {
 		cp.clientActions.ShowColorizedText(
-			fmt.Sprintf("The script has been saved to [b]%s[/b].", m.Name),
+			fmt.Sprintf("The script has been saved to [b]%s[/b].", m.UnsafeName),
 			ColorSuccess,
 		)
 	}

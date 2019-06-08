@@ -9,47 +9,47 @@ import (
 )
 
 type MobInstance struct {
-	Id         string            `json:"id"`
-	Parent     string            `json:"parent"`
-	Location   *Location         `json:"location"`
-	Attributes map[string]string `json:"attributes"`
-	mux        sync.Mutex
+	UnsafeId         string            `json:"id"`
+	UnsafeParent     string            `json:"parent"`
+	UnsafeLocation   *Location         `json:"location"`
+	UnsafeAttributes map[string]string `json:"attributes"`
+	mux              sync.Mutex
 }
 
-// GetParent returns the Mob parent.
-func (mi *MobInstance) GetParent() *Mob {
-	return Armeria.mobManager.GetMobByName(mi.Parent)
+// Parent returns the Mob parent.
+func (mi *MobInstance) Parent() *Mob {
+	return Armeria.mobManager.MobByName(mi.UnsafeParent)
 }
 
-// GetLocation returns the location of the mob.
-func (mi *MobInstance) GetLocation() *Location {
+// Location returns the location of the mob.
+func (mi *MobInstance) Location() *Location {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
-	return mi.Location
+	return mi.UnsafeLocation
 }
 
-// GetRoom returns the Room of the mob.
-func (mi *MobInstance) GetRoom() *Room {
-	return Armeria.worldManager.GetRoomFromLocation(mi.GetLocation())
+// Room returns the Room of the mob.
+func (mi *MobInstance) Room() *Room {
+	return Armeria.worldManager.RoomFromLocation(mi.Location())
 }
 
-// GetType returns the object type, since Mob implements the Object interface.
-func (mi *MobInstance) GetType() int {
+// Type returns the object type, since Mob implements the Object interface.
+func (mi *MobInstance) Type() int {
 	return ObjectTypeMob
 }
 
-// GetName returns the raw mob name.
-func (mi *MobInstance) GetName() string {
+// UnsafeName returns the raw mob name.
+func (mi *MobInstance) Name() string {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
-	return mi.Parent
+	return mi.UnsafeParent
 }
 
-// GetFName returns the formatted mob name.
-func (mi *MobInstance) GetFName() string {
+// FormattedName returns the formatted mob name.
+func (mi *MobInstance) FormattedName() string {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
-	return fmt.Sprintf("[b]%s[/b]", mi.Parent)
+	return fmt.Sprintf("[b]%s[/b]", mi.UnsafeParent)
 }
 
 // SetAttribute sets a permanent attribute on the mob instance.
@@ -57,28 +57,28 @@ func (mi *MobInstance) SetAttribute(name string, value string) {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
 
-	if mi.Attributes == nil {
-		mi.Attributes = make(map[string]string)
+	if mi.UnsafeAttributes == nil {
+		mi.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(GetValidMobAttributes(), name) {
+	if !misc.Contains(ValidMobAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
 			zap.String("attribute", name),
 			zap.String("value", value),
 		)
 	}
 
-	mi.Attributes[name] = value
+	mi.UnsafeAttributes[name] = value
 }
 
-// GetAttribute returns an attribute on the mob instance, and falls back to the parent Mob.
-func (mi *MobInstance) GetAttribute(name string) string {
+// Attribute returns an attribute on the mob instance, and falls back to the parent Mob.
+func (mi *MobInstance) Attribute(name string) string {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
 
-	if len(mi.Attributes[name]) == 0 {
-		return mi.GetParent().GetAttribute(name)
+	if len(mi.UnsafeAttributes[name]) == 0 {
+		return mi.Parent().Attribute(name)
 	}
 
-	return mi.Attributes[name]
+	return mi.UnsafeAttributes[name]
 }

@@ -52,9 +52,9 @@ func (p *Player) readPump() {
 		case "objectEditorOpen":
 			open := messageRead.Payload.(bool)
 			if open {
-				p.GetCharacter().SetTempAttribute("editorOpen", "true")
+				p.GetCharacter().TempAttribute("editorOpen", "true")
 			} else {
-				p.GetCharacter().SetTempAttribute("editorOpen", "false")
+				p.GetCharacter().TempAttribute("editorOpen", "false")
 			}
 		case "objectPictureUpload":
 			StoreObjectPicture(p, messageRead.Payload.(map[string]interface{}))

@@ -11,9 +11,9 @@ import (
 )
 
 type MobManager struct {
-	dataFile string
-	Mobs     []*Mob `json:"mobs"`
-	mux      sync.Mutex
+	dataFile   string
+	UnsafeMobs []*Mob `json:"mobs"`
+	mux        sync.Mutex
 }
 
 func NewMobManager() *MobManager {
@@ -50,7 +50,7 @@ func (m *MobManager) LoadMobs() {
 	}
 
 	Armeria.log.Info("mobs loaded",
-		zap.Int("count", len(m.Mobs)),
+		zap.Int("count", len(m.UnsafeMobs)),
 	)
 }
 
@@ -86,13 +86,13 @@ func (m *MobManager) AddMobInstancesToRooms() {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
-	for _, m := range m.Mobs {
-		for _, mi := range m.Instances {
-			r := Armeria.worldManager.GetRoomFromLocation(mi.GetLocation())
+	for _, m := range m.UnsafeMobs {
+		for _, mi := range m.UnsafeInstances {
+			r := Armeria.worldManager.RoomFromLocation(mi.Location())
 			if r == nil {
 				Armeria.log.Fatal("mob instance in invalid room",
-					zap.String("mob", mi.GetName()),
-					zap.String("location", fmt.Sprintf("%v", mi.GetLocation())),
+					zap.String("mob", mi.Name()),
+					zap.String("location", fmt.Sprintf("%v", mi.Location())),
 				)
 				return
 			}
@@ -101,13 +101,13 @@ func (m *MobManager) AddMobInstancesToRooms() {
 	}
 }
 
-// GetMobByName returns the matching Mob.
-func (m *MobManager) GetMobByName(name string) *Mob {
+// MobByName returns the matching Mob.
+func (m *MobManager) MobByName(name string) *Mob {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
-	for _, m := range m.Mobs {
-		if strings.ToLower(m.Name) == strings.ToLower(name) {
+	for _, m := range m.UnsafeMobs {
+		if strings.ToLower(m.UnsafeName) == strings.ToLower(name) {
 			return m
 		}
 	}
@@ -119,5 +119,5 @@ func (m *MobManager) CreateMob(mob *Mob) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
-	m.Mobs = append(m.Mobs, mob)
+	m.UnsafeMobs = append(m.UnsafeMobs, mob)
 }

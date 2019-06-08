@@ -12,13 +12,13 @@ import (
 )
 
 type Character struct {
-	Name           string            `json:"name"`
-	Password       string            `json:"password"`
-	Location       *Location         `json:"location"`
-	Attributes     map[string]string `json:"attributes"`
-	TempAttributes map[string]string
-	player         *Player
-	mux            sync.Mutex
+	UnsafeName           string            `json:"name"`
+	UnsafePassword       string            `json:"password"`
+	UnsafeLocation       *Location         `json:"location"`
+	UnsafeAttributes     map[string]string `json:"attributes"`
+	UnsafeTempAttributes map[string]string
+	player               *Player
+	mux                  sync.Mutex
 }
 
 const (
@@ -31,8 +31,8 @@ const (
 	ColorSuccess   int = 6
 )
 
-// GetValidCharacterAttributes returns an array of valid attributes that can be permanently set.
-func GetValidCharacterAttributes() []string {
+// ValidCharacterAttributes returns an array of valid attributes that can be permanently set.
+func ValidCharacterAttributes() []string {
 	return []string{
 		"picture",
 		"role",
@@ -40,8 +40,8 @@ func GetValidCharacterAttributes() []string {
 	}
 }
 
-// GetCharacterAttributeDefault returns the default value for a particular attribute.
-func GetCharacterAttributeDefault(name string) string {
+// CharacterAttributeDefault returns the default value for a particular attribute.
+func CharacterAttributeDefault(name string) string {
 	switch name {
 
 	}
@@ -49,53 +49,53 @@ func GetCharacterAttributeDefault(name string) string {
 	return ""
 }
 
-// GetType returns the object type, since Character implements the Object interface.
-func (c *Character) GetType() int {
+// Type returns the object type, since Character implements the Object interface.
+func (c *Character) Type() int {
 	return ObjectTypeCharacter
 }
 
-// GetName returns the raw character name.
-func (c *Character) GetName() string {
+// UnsafeName returns the raw character name.
+func (c *Character) Name() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return c.Name
+	return c.UnsafeName
 }
 
-// GetFName returns the formatted character name.
-func (c *Character) GetFName() string {
+// FormattedName returns the formatted character name.
+func (c *Character) FormattedName() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return fmt.Sprintf("[b]%s[/b]", c.Name)
+	return fmt.Sprintf("[b]%s[/b]", c.UnsafeName)
 }
 
-// GetFNameWithTitle returns the formatted character name including the character's title (if set).
-func (c *Character) GetFNameWithTitle() string {
+// FormattedNameWithTitle returns the formatted character name including the character's title (if set).
+func (c *Character) FormattedNameWithTitle() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	title := c.Attributes["title"]
+	title := c.UnsafeAttributes["title"]
 	if title != "" {
-		return fmt.Sprintf("[b]%s[/b] (%s)", c.Name, title)
+		return fmt.Sprintf("[b]%s[/b] (%s)", c.UnsafeName, title)
 	}
-	return fmt.Sprintf("[b]%s[/b]", c.Name)
+	return fmt.Sprintf("[b]%s[/b]", c.UnsafeName)
 }
 
-// GetPassword returns the character's password.
-func (c *Character) GetPassword() string {
+// Password returns the character's password.
+func (c *Character) Password() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return c.Password
+	return c.UnsafePassword
 }
 
-// GetSaltedPasswordHash returns the character's salted password as an md5 hash.
-func (c *Character) GetSaltedPasswordHash(salt string) string {
+// SaltedPasswordHash returns the character's salted password as an md5 hash.
+func (c *Character) SaltedPasswordHash(salt string) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	b := []byte(c.Password + salt)
+	b := []byte(c.UnsafePassword + salt)
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
-// GetPlayer returns the player that is playing the character.
-func (c *Character) GetPlayer() *Player {
+// Player returns the player that is playing the character.
+func (c *Character) Player() *Player {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.player
@@ -108,19 +108,19 @@ func (c *Character) SetPlayer(p *Player) {
 	c.player = p
 }
 
-// GetLocation returns the character's location.
-func (c *Character) GetLocation() *Location {
+// UnsafeLocation returns the character's location.
+func (c *Character) Location() *Location {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return c.Location
+	return c.UnsafeLocation
 }
 
-// GetLocationData returns the character's location as a JSON-dump.
-func (c *Character) GetLocationData() string {
+// LocationData returns the character's location as a JSON-dump.
+func (c *Character) LocationData() string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	locationJson, err := json.Marshal(c.Location.Coords)
+	locationJson, err := json.Marshal(c.UnsafeLocation.Coords)
 	if err != nil {
 		log.Fatalf("[character] failed to marshal location data: %s", err)
 	}
@@ -132,17 +132,17 @@ func (c *Character) GetLocationData() string {
 func (c *Character) SetLocation(l *Location) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	c.Location = l
+	c.UnsafeLocation = l
 }
 
-// GetRoom returns the room that the character is in.
-func (c *Character) GetRoom() *Room {
-	return Armeria.worldManager.GetRoomFromLocation(c.Location)
+// Room returns the room that the character is in.
+func (c *Character) Room() *Room {
+	return Armeria.worldManager.RoomFromLocation(c.UnsafeLocation)
 }
 
-// GetArea returns the area that the character is in.
-func (c *Character) GetArea() *Area {
-	return Armeria.worldManager.GetAreaFromLocation(c.Location)
+// Area returns the area that the character is in.
+func (c *Character) Area() *Area {
+	return Armeria.worldManager.AreaFromLocation(c.UnsafeLocation)
 }
 
 // Colorize will color text according to the character's color settings.
@@ -172,65 +172,65 @@ func (c *Character) Colorize(text string, color int) string {
 
 // LoggedIn handles everything that needs to happen when a character enters the game.
 func (c *Character) LoggedIn() {
-	room := Armeria.worldManager.GetRoomFromLocation(c.Location)
-	area := Armeria.worldManager.GetAreaFromLocation(c.Location)
+	room := Armeria.worldManager.RoomFromLocation(c.UnsafeLocation)
+	area := Armeria.worldManager.AreaFromLocation(c.UnsafeLocation)
 
 	// Add character to room
 	if room == nil {
-		log.Fatalf("[character] character %s logged in to an invalid room", c.GetName())
+		log.Fatalf("[character] character %s logged in to an invalid room", c.Name())
 	}
 	room.AddObjectToRoom(c)
 
 	// Use command: /look
-	Armeria.commandManager.ProcessCommand(c.GetPlayer(), "look")
+	Armeria.commandManager.ProcessCommand(c.Player(), "look")
 
 	// Show message to others in the same room
-	roomChars := room.GetCharacters(c)
+	roomChars := room.Characters(c)
 	for _, char := range roomChars {
-		pc := char.GetPlayer()
+		pc := char.Player()
 		pc.clientActions.ShowText(
-			fmt.Sprintf("%s connected and appeared here with you.", c.GetName()),
+			fmt.Sprintf("%s connected and appeared here with you.", c.Name()),
 		)
 	}
 
-	area.OnCharacterEntered(c, true)
-	room.OnCharacterEntered(c, true)
+	area.CharacterEntered(c, true)
+	room.CharacterEntered(c, true)
 
 	Armeria.log.Info("character entered the game",
-		zap.String("character", c.GetName()),
+		zap.String("character", c.Name()),
 	)
 }
 
 // LoggedOut handles everything that needs to happen when a character leaves the game.
 func (c *Character) LoggedOut() {
-	room := Armeria.worldManager.GetRoomFromLocation(c.Location)
-	area := Armeria.worldManager.GetAreaFromLocation(c.Location)
+	room := Armeria.worldManager.RoomFromLocation(c.UnsafeLocation)
+	area := Armeria.worldManager.AreaFromLocation(c.UnsafeLocation)
 
 	// Remove character from room
 	if room == nil {
-		log.Fatalf("[character] character %s logged out in an invalid room", c.GetName())
+		log.Fatalf("[character] character %s logged out in an invalid room", c.Name())
 	}
 	room.RemoveObjectFromRoom(c)
 
 	// Show message to others in the same room
-	roomChars := room.GetCharacters(nil)
+	roomChars := room.Characters(nil)
 	for _, char := range roomChars {
-		pc := char.GetPlayer()
+		pc := char.Player()
 		pc.clientActions.ShowText(
-			fmt.Sprintf("%s disconnected and is no longer here with you.", c.GetName()),
+			fmt.Sprintf("%s disconnected and is no longer here with you.", c.Name()),
 		)
 	}
 
-	area.OnCharacterLeft(c, true)
-	room.OnCharacterLeft(c, true)
+	area.CharacterLeft(c, true)
+	room.CharacterLeft(c, true)
 
 	// Clear temp attributes
-	for key, _ := range c.TempAttributes {
-		delete(c.TempAttributes, key)
+	for key, _ := range c.UnsafeTempAttributes {
+		delete(c.UnsafeTempAttributes, key)
 	}
 
 	Armeria.log.Info("character left the game",
-		zap.String("character", c.GetName()),
+		zap.String("character", c.Name()),
 	)
 }
 
@@ -238,20 +238,20 @@ func (c *Character) LoggedOut() {
 func (c *Character) GetTempAttribute(name string) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return c.TempAttributes[name]
+	return c.UnsafeTempAttributes[name]
 }
 
-// SetTempAttribute sets a temporary attribute, which is cleared on log out. Additionally, these
+// TempAttribute sets a temporary attribute, which is cleared on log out. Additionally, these
 // attributes are not validated.
-func (c *Character) SetTempAttribute(name string, value string) {
+func (c *Character) TempAttribute(name string, value string) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	if c.TempAttributes == nil {
-		c.TempAttributes = make(map[string]string)
+	if c.UnsafeTempAttributes == nil {
+		c.UnsafeTempAttributes = make(map[string]string)
 	}
 
-	c.TempAttributes[name] = value
+	c.UnsafeTempAttributes[name] = value
 }
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
@@ -259,35 +259,35 @@ func (c *Character) SetAttribute(name string, value string) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	if c.Attributes == nil {
-		c.Attributes = make(map[string]string)
+	if c.UnsafeAttributes == nil {
+		c.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(GetValidCharacterAttributes(), name) {
+	if !misc.Contains(ValidCharacterAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
 			zap.String("attribute", name),
 			zap.String("value", value),
 		)
 	}
 
-	c.Attributes[name] = value
+	c.UnsafeAttributes[name] = value
 }
 
-// GetAttribute returns a permanent attribute.
-func (c *Character) GetAttribute(name string) string {
+// Attribute returns a permanent attribute.
+func (c *Character) Attribute(name string) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	if len(c.Attributes[name]) == 0 {
-		return GetCharacterAttributeDefault(name)
+	if len(c.UnsafeAttributes[name]) == 0 {
+		return CharacterAttributeDefault(name)
 	}
 
-	return c.Attributes[name]
+	return c.UnsafeAttributes[name]
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed.
 func (c *Character) MoveAllowed(to *Location) (bool, string) {
-	newRoom := Armeria.worldManager.GetRoomFromLocation(to)
+	newRoom := Armeria.worldManager.RoomFromLocation(to)
 	if newRoom == nil {
 		return false, "You cannot move that way."
 	}
@@ -297,33 +297,33 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 
 // Move will move the character to a new location (no move checks are performed).
 func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
-	oldRoom := c.GetRoom()
-	newRoom := Armeria.worldManager.GetRoomFromLocation(to)
+	oldRoom := c.Room()
+	newRoom := Armeria.worldManager.RoomFromLocation(to)
 
 	oldRoom.RemoveObjectFromRoom(c)
 	newRoom.AddObjectToRoom(c)
 
-	for _, char := range oldRoom.GetCharacters(nil) {
-		char.GetPlayer().clientActions.ShowText(msgToOld)
+	for _, char := range oldRoom.Characters(nil) {
+		char.Player().clientActions.ShowText(msgToOld)
 	}
 
-	for _, char := range newRoom.GetCharacters(c) {
-		char.GetPlayer().clientActions.ShowText(msgToNew)
+	for _, char := range newRoom.Characters(c) {
+		char.Player().clientActions.ShowText(msgToNew)
 	}
 
-	c.GetPlayer().clientActions.ShowText(msgToChar)
+	c.Player().clientActions.ShowText(msgToChar)
 
 	c.SetLocation(to)
 
 	// Trigger character entered / left events on the new and old rooms, respectively
-	newRoom.OnCharacterEntered(c, false)
-	oldRoom.OnCharacterLeft(c, false)
+	newRoom.CharacterEntered(c, false)
+	oldRoom.CharacterLeft(c, false)
 }
 
-// GetEditorData returns the JSON used for the object editor.
+// EditorData returns the JSON used for the object editor.
 func (c *Character) GetEditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
-	for _, attrName := range GetValidCharacterAttributes() {
+	for _, attrName := range ValidCharacterAttributes() {
 		propType := "editable"
 		if attrName == "picture" {
 			propType = "picture"
@@ -332,12 +332,12 @@ func (c *Character) GetEditorData() *ObjectEditorData {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: propType,
 			Name:     attrName,
-			Value:    c.GetAttribute(attrName),
+			Value:    c.Attribute(attrName),
 		})
 	}
 
 	return &ObjectEditorData{
-		Name:       c.GetName(),
+		Name:       c.Name(),
 		ObjectType: "character",
 		Properties: props,
 	}

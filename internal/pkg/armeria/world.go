@@ -10,8 +10,8 @@ import (
 )
 
 type WorldManager struct {
-	dataFile string
-	World    []*Area `json:"world"`
+	dataFile    string
+	UnsafeWorld []*Area `json:"world"`
 }
 
 func NewWorldManager() *WorldManager {
@@ -46,7 +46,7 @@ func (m *WorldManager) LoadWorld() {
 	}
 
 	Armeria.log.Info("areas loaded",
-		zap.Int("count", len(m.World)),
+		zap.Int("count", len(m.UnsafeWorld)),
 	)
 }
 
@@ -77,9 +77,9 @@ func (m *WorldManager) SaveWorld() {
 	)
 }
 
-func (m *WorldManager) GetAreaFromLocation(l *Location) *Area {
-	for _, a := range m.World {
-		if a.GetName() == l.AreaName {
+func (m *WorldManager) AreaFromLocation(l *Location) *Area {
+	for _, a := range m.UnsafeWorld {
+		if a.Name() == l.AreaName {
 			return a
 		}
 	}
@@ -87,16 +87,16 @@ func (m *WorldManager) GetAreaFromLocation(l *Location) *Area {
 	return nil
 }
 
-func (m *WorldManager) GetRoomFromLocation(l *Location) *Room {
-	a := m.GetAreaFromLocation(l)
+func (m *WorldManager) RoomFromLocation(l *Location) *Room {
+	a := m.AreaFromLocation(l)
 	if a == nil {
 		return nil
 	}
 
-	return a.GetRoom(l.Coords)
+	return a.RoomAt(l.Coords)
 }
 
-func (m *WorldManager) GetRoomInDirection(a *Area, r *Room, direction string) *Room {
+func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room {
 	o := misc.DirectionOffsets(direction)
 	if o == nil {
 		Armeria.log.Fatal("invalid direction provided",
@@ -105,13 +105,13 @@ func (m *WorldManager) GetRoomInDirection(a *Area, r *Room, direction string) *R
 	}
 
 	loc := &Location{
-		AreaName: a.Name,
+		AreaName: a.UnsafeName,
 		Coords: &Coords{
-			X: r.Coords.X + o["x"],
-			Y: r.Coords.Y + o["y"],
-			Z: r.Coords.Z + o["z"],
+			X: r.UnafeCoords.X + o["x"],
+			Y: r.UnafeCoords.Y + o["y"],
+			Z: r.UnafeCoords.Z + o["z"],
 		},
 	}
 
-	return m.GetRoomFromLocation(loc)
+	return m.RoomFromLocation(loc)
 }

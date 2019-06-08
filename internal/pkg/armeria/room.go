@@ -8,10 +8,10 @@ import (
 )
 
 type Room struct {
-	Attributes map[string]string `json:"attributes"`
-	Coords     *Coords           `json:"coords"`
-	objects    []Object
-	mux        sync.Mutex
+	UnsafeAttributes map[string]string `json:"attributes"`
+	UnafeCoords      *Coords           `json:"coords"`
+	objects          []Object
+	mux              sync.Mutex
 }
 
 type Coords struct {
@@ -26,7 +26,7 @@ type Location struct {
 	Coords   *Coords `json:"coords"`
 }
 
-func GetValidRoomAttributes() []string {
+func ValidRoomAttributes() []string {
 	return []string{
 		"title",
 		"description",
@@ -34,7 +34,7 @@ func GetValidRoomAttributes() []string {
 	}
 }
 
-func GetRoomAttributeDefault(name string) string {
+func RoomAttributeDefault(name string) string {
 	switch name {
 	case "title":
 		return "Empty Room"
@@ -47,56 +47,56 @@ func GetRoomAttributeDefault(name string) string {
 	return ""
 }
 
-func (r *Room) GetCoords() *Coords {
+func (r *Room) Coords() *Coords {
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	return r.Coords
+	return r.UnafeCoords
 }
 
 func (r *Room) SetAttribute(name string, value string) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	if r.Attributes == nil {
-		r.Attributes = make(map[string]string)
+	if r.UnsafeAttributes == nil {
+		r.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(GetValidRoomAttributes(), name) {
+	if !misc.Contains(ValidRoomAttributes(), name) {
 		log.Fatalf("[area] attempted set-attribute on a room using an invalid attribute: %s", name)
 	}
 
-	r.Attributes[name] = value
+	r.UnsafeAttributes[name] = value
 }
 
-func (r *Room) GetAttribute(name string) string {
+func (r *Room) Attribute(name string) string {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	if len(r.Attributes[name]) == 0 {
-		return GetRoomAttributeDefault(name)
+	if len(r.UnsafeAttributes[name]) == 0 {
+		return RoomAttributeDefault(name)
 	}
 
-	return r.Attributes[name]
+	return r.UnsafeAttributes[name]
 }
 
-func (r *Room) GetObjects() []Object {
+func (r *Room) Objects() []Object {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	return r.objects
 }
 
-// GetCharacters returns online characters within the room.
-func (r *Room) GetCharacters(except *Character) []*Character {
+// Characters returns online characters within the room.
+func (r *Room) Characters(except *Character) []*Character {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
 	var returnChars []*Character
 
 	for _, o := range r.objects {
-		if o.GetType() == ObjectTypeCharacter {
-			if except == nil || o.GetName() != except.GetName() {
+		if o.Type() == ObjectTypeCharacter {
+			if except == nil || o.Name() != except.Name() {
 				char := o.(*Character)
-				if char.GetPlayer() != nil {
+				if char.Player() != nil {
 					returnChars = append(returnChars, char)
 				}
 			}
@@ -117,7 +117,7 @@ func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 	defer r.mux.Unlock()
 
 	for i, o := range r.objects {
-		if o.GetType() == obj.GetType() && o.GetName() == obj.GetName() {
+		if o.Type() == obj.Type() && o.Name() == obj.Name() {
 			r.objects[i] = r.objects[len(r.objects)-1]
 			r.objects = r.objects[:len(r.objects)-1]
 			return true
@@ -127,8 +127,8 @@ func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 	return false
 }
 
-// GetObjectData returns the JSON used for rendering the room objects on the client.
-func (r *Room) GetObjectData() string {
+// ObjectData returns the JSON used for rendering the room objects on the client.
+func (r *Room) ObjectData() string {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
@@ -136,9 +136,9 @@ func (r *Room) GetObjectData() string {
 
 	for _, o := range r.objects {
 		roomObjects = append(roomObjects, map[string]interface{}{
-			"name":    o.GetName(),
-			"type":    o.GetType(),
-			"picture": o.GetAttribute("picture"),
+			"name":    o.Name(),
+			"type":    o.Type(),
+			"picture": o.Attribute("picture"),
 		})
 	}
 
@@ -150,44 +150,44 @@ func (r *Room) GetObjectData() string {
 	return string(roomObjectJson)
 }
 
-// GetEditorData returns the JSON used for the object editor.
-func (r *Room) GetEditorData() *ObjectEditorData {
+// EditorData returns the JSON used for the object editor.
+func (r *Room) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
-	for _, attrName := range GetValidRoomAttributes() {
+	for _, attrName := range ValidRoomAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: "editable",
 			Name:     attrName,
-			Value:    r.GetAttribute(attrName),
+			Value:    r.Attribute(attrName),
 		})
 	}
 
 	return &ObjectEditorData{
-		Name:       r.GetAttribute("title"),
+		Name:       r.Attribute("title"),
 		ObjectType: "room",
 		Properties: props,
 	}
 }
 
-// OnCharacterEntered is called when the character is moved to the room (or logged in).
-func (r *Room) OnCharacterEntered(c *Character, causedByLogin bool) {
-	ca := c.GetPlayer().clientActions
+// CharacterEntered is called when the character is moved to the room (or logged in).
+func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
+	ca := c.Player().clientActions
 	ca.SyncMapLocation()
 	ca.SyncRoomTitle()
 
-	for _, char := range r.GetCharacters(nil) {
-		char.GetPlayer().clientActions.SyncRoomObjects()
+	for _, char := range r.Characters(nil) {
+		char.Player().clientActions.SyncRoomObjects()
 	}
 
-	for _, o := range r.GetObjects() {
-		if o.GetType() == ObjectTypeMob {
+	for _, o := range r.Objects() {
+		if o.Type() == ObjectTypeMob {
 			go CallMobFunc(c, o.(*MobInstance), "character_entered")
 		}
 	}
 }
 
-// OnCharacterLeft is called when the character left the room (or logged out).
-func (r *Room) OnCharacterLeft(c *Character, causedByLogout bool) {
-	for _, char := range r.GetCharacters(nil) {
-		char.GetPlayer().clientActions.SyncRoomObjects()
+// CharacterLeft is called when the character left the room (or logged out).
+func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
+	for _, char := range r.Characters(nil) {
+		char.Player().clientActions.SyncRoomObjects()
 	}
 }

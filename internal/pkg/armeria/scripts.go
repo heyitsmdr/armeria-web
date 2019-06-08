@@ -11,7 +11,7 @@ import (
 
 // ReadMobScript returns the script contents for a mob from disk.
 func ReadMobScript(m *Mob) string {
-	b, err := ioutil.ReadFile(m.GetScriptFile())
+	b, err := ioutil.ReadFile(m.ScriptFile())
 	if err != nil {
 		return ""
 	}
@@ -20,7 +20,7 @@ func ReadMobScript(m *Mob) string {
 
 // WriteMobScript writes a mob script to disk.
 func WriteMobScript(m *Mob, script string) {
-	_ = ioutil.WriteFile(m.GetScriptFile(), []byte(script), 0644)
+	_ = ioutil.WriteFile(m.ScriptFile(), []byte(script), 0644)
 }
 
 func LuaMobSay(L *lua.LState) int {
@@ -28,12 +28,12 @@ func LuaMobSay(L *lua.LState) int {
 	mname := lua.LVAsString(L.GetGlobal("mob_name"))
 	mid := lua.LVAsString(L.GetGlobal("mob_instance"))
 
-	m := Armeria.mobManager.GetMobByName(mname)
-	mi := m.GetInstanceById(mid)
+	m := Armeria.mobManager.MobByName(mname)
+	mi := m.InstanceById(mid)
 
-	for _, c := range mi.GetRoom().GetCharacters(nil) {
-		c.GetPlayer().clientActions.ShowColorizedText(
-			fmt.Sprintf("%s says, \"%s\".", mi.GetFName(), text),
+	for _, c := range mi.Room().Characters(nil) {
+		c.Player().clientActions.ShowColorizedText(
+			fmt.Sprintf("%s says, \"%s\".", mi.FormattedName(), text),
 			ColorSay,
 		)
 	}
@@ -46,16 +46,16 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string) {
 	defer L.Close()
 
 	// global variables
-	L.SetGlobal("invoker_name", lua.LString(invoker.GetName()))
-	L.SetGlobal("mob_instance", lua.LString(mi.Id))
-	L.SetGlobal("mob_name", lua.LString(mi.Parent))
+	L.SetGlobal("invoker_name", lua.LString(invoker.Name()))
+	L.SetGlobal("mob_instance", lua.LString(mi.UnsafeId))
+	L.SetGlobal("mob_name", lua.LString(mi.UnsafeParent))
 	// global functions
 	L.SetGlobal("mob_say", L.NewFunction(LuaMobSay))
 
-	err := L.DoFile(mi.GetParent().GetScriptFile())
+	err := L.DoFile(mi.Parent().ScriptFile())
 	if err != nil {
 		Armeria.log.Error("error compiling lua script",
-			zap.String("script", mi.GetParent().GetScriptFile()),
+			zap.String("script", mi.Parent().ScriptFile()),
 			zap.Error(err),
 		)
 		return
@@ -68,7 +68,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string) {
 	})
 	if err != nil {
 		Armeria.log.Error("error executing function in lua script",
-			zap.String("script", mi.GetParent().GetScriptFile()),
+			zap.String("script", mi.Parent().ScriptFile()),
 			zap.String("function", funcName),
 			zap.Error(err),
 		)

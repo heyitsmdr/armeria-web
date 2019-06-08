@@ -27,24 +27,24 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 	var editorData *ObjectEditorData
 	switch objectType {
 	case "character":
-		c := Armeria.characterManager.GetCharacterByName(name)
-		oldKey = c.GetAttribute("picture")
+		c := Armeria.characterManager.CharacterByName(name)
+		oldKey = c.Attribute("picture")
 		c.SetAttribute("picture", k)
 		editorData = c.GetEditorData()
 		p.clientActions.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.GetFName()),
+			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
 			ColorSuccess,
 		)
-		for _, chars := range p.GetCharacter().GetRoom().GetCharacters(nil) {
-			chars.GetPlayer().clientActions.SyncRoomObjects()
+		for _, chars := range p.GetCharacter().Room().Characters(nil) {
+			chars.Player().clientActions.SyncRoomObjects()
 		}
 	case "mob":
-		m := Armeria.mobManager.GetMobByName(name)
-		oldKey = m.GetAttribute("picture")
+		m := Armeria.mobManager.MobByName(name)
+		oldKey = m.Attribute("picture")
 		m.SetAttribute("picture", k)
-		editorData = m.GetEditorData()
+		editorData = m.EditorData()
 		p.clientActions.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.Name),
+			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.UnsafeName),
 			ColorSuccess,
 		)
 	default:

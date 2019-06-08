@@ -52,33 +52,33 @@ func (ca *ClientActions) ShowRawText(text string) {
 
 // RenderMap displays the current area on the minimap.
 func (ca *ClientActions) RenderMap() {
-	minimap := ca.player.GetCharacter().GetArea().GetMinimapData()
+	minimap := ca.player.GetCharacter().Area().MinimapData()
 	ca.player.CallClientAction("setMapData", minimap)
 }
 
 // SyncMapLocation sets the character location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
-	loc := ca.player.GetCharacter().GetLocationData()
+	loc := ca.player.GetCharacter().LocationData()
 	ca.player.CallClientAction("setCharacterLocation", loc)
 }
 
 // SyncRoomObjects sets the current room objects on the client.
 func (ca *ClientActions) SyncRoomObjects() {
-	obj := ca.player.GetCharacter().GetRoom().GetObjectData()
+	obj := ca.player.GetCharacter().Room().ObjectData()
 	ca.player.CallClientAction("setRoomObjects", obj)
 }
 
 // SyncRoomTitle sets the current room title on the client.
 func (ca *ClientActions) SyncRoomTitle() {
-	r := ca.player.GetCharacter().GetRoom()
-	ca.player.CallClientAction("setRoomTitle", r.GetAttribute("title"))
+	r := ca.player.GetCharacter().Room()
+	ca.player.CallClientAction("setRoomTitle", r.Attribute("title"))
 }
 
 // ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	// add access key
 	c := ca.player.GetCharacter()
-	editorData.AccessKey = c.GetName() + "/" + c.GetSaltedPasswordHash("ARM0bj3ct3d1t0rERIA")
+	editorData.AccessKey = c.Name() + "/" + c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA")
 	j, err := json.Marshal(editorData)
 	if err != nil {
 		Armeria.log.Fatal("failed to marshal data",
