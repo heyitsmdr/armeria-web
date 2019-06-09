@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"sync"
+
+	lua "github.com/yuin/gopher-lua"
 )
 
 type Room struct {
@@ -180,7 +182,12 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 
 	for _, o := range r.Objects() {
 		if o.Type() == ObjectTypeMob {
-			go CallMobFunc(c, o.(*MobInstance), "character_entered")
+			go CallMobFunc(
+				c,
+				o.(*MobInstance),
+				"character_entered",
+				lua.LString(c.Name()),
+			)
 		}
 	}
 }
@@ -189,5 +196,16 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 	for _, char := range r.Characters(nil) {
 		char.Player().clientActions.SyncRoomObjects()
+	}
+
+	for _, o := range r.Objects() {
+		if o.Type() == ObjectTypeMob {
+			go CallMobFunc(
+				c,
+				o.(*MobInstance),
+				"character_left",
+				lua.LString(c.Name()),
+			)
+		}
 	}
 }

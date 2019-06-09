@@ -69,7 +69,7 @@ func (m *WorldManager) SaveWorld() {
 		)
 	}
 
-	worldFile.Sync()
+	_ = worldFile.Sync()
 
 	Armeria.log.Info("wrote data to file",
 		zap.String("file", m.dataFile),

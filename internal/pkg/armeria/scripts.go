@@ -41,7 +41,7 @@ func LuaMobSay(L *lua.LState) int {
 	return 0
 }
 
-func CallMobFunc(invoker *Character, mi *MobInstance, funcName string) {
+func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...lua.LValue) {
 	L := lua.NewState()
 	defer L.Close()
 
@@ -65,7 +65,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string) {
 		Fn:      L.GetGlobal(funcName),
 		NRet:    0,
 		Protect: true,
-	})
+	}, args...)
 	if err != nil {
 		Armeria.log.Error("error executing function in lua script",
 			zap.String("script", mi.Parent().ScriptFile()),
