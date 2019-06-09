@@ -4,6 +4,8 @@ import (
 	"armeria/internal/pkg/misc"
 	"fmt"
 	"strings"
+
+	lua "github.com/yuin/gopher-lua"
 )
 
 func handleLoginCommand(r *CommandContext) {
@@ -18,7 +20,7 @@ func handleLoginCommand(r *CommandContext) {
 	}
 
 	if c.Password() != r.Args["password"] {
-		r.Player.clientActions.ShowColorizedText("UnsafePassword incorrect for that character.", ColorError)
+		r.Player.clientActions.ShowColorizedText("Password incorrect for that character.", ColorError)
 		return
 	}
 
@@ -132,6 +134,17 @@ func handleSayCommand(r *CommandContext) {
 				ColorSay,
 			),
 		)
+	}
+
+	for _, o := range room.Objects() {
+		if o.Type() == ObjectTypeMob {
+			go CallMobFunc(
+				r.Character,
+				o.(*MobInstance),
+				"character_said",
+				lua.LString(r.Args["text"]),
+			)
+		}
 	}
 }
 

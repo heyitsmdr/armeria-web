@@ -7,6 +7,7 @@
       v-model="textToSend"
       @keyup.enter="handleSendText"
       @keyup.escape="handleRemoveFocus"
+      @keypress="handleKeyPress"
       @focus="handleFocus"
       @blur="handleBlur"
     />
@@ -21,6 +22,7 @@
     data: () => {
       return {
         textToSend: '',
+        password: '',
         isFocused: false,
       }
     },
@@ -61,6 +63,11 @@
           this.$store.dispatch('sendSlashCommand', {
             command: `/say ${slashCommand}`
           });
+        } else if (slashCommand.substr(0, 6).toLowerCase() === '/login') {
+          let characterName = slashCommand.split(' ')[1];
+          this.$store.dispatch('sendSlashCommand', {
+            command: `/login ${characterName} ${this.password}`
+          });
         } else if (this.checkDebugCommands(slashCommand)) {
           // do nothing
         } else {
@@ -90,6 +97,19 @@
       handleBlur() {
         this.isFocused = false;
         this.$store.dispatch('setAllowGlobalHotkeys', true);
+      },
+
+      handleKeyPress(e) {
+        if (this.textToSend.substr(0, 6).toLowerCase() === '/login' && this.textToSend.split(" ").length === 3) {
+          if (e.key !== 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.password += e.key;
+            this.textToSend += "*";
+          }
+        } else {
+          this.password = "";
+        }
       }
     }
   }
