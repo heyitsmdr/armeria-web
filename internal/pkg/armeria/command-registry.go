@@ -209,6 +209,17 @@ func RegisterGameCommands() {
 			},
 			Subcommands: []*Command{
 				{
+					Name: "list",
+					Help: "Lists the mobs in the game, optionally using a filter.",
+					Arguments: []*CommandArgument{
+						{
+							Name:     "filter",
+							Optional: true,
+						},
+					},
+					Handler: handleMobListCommand,
+				},
+				{
 					Name: "create",
 					Help: "Creates a new mob in the game.",
 					Arguments: []*CommandArgument{

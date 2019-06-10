@@ -45,6 +45,13 @@ func ValidateMobAttribute(name string, value string) (bool, string) {
 	return true, ""
 }
 
+// Name returns the name of the Mob.
+func (m *Mob) Name() string {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+	return m.UnsafeName
+}
+
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
 func (m *Mob) SetAttribute(name string, value string) {
 	m.mux.Lock()

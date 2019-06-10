@@ -99,6 +99,7 @@
         this.$store.dispatch('setAllowGlobalHotkeys', true);
       },
 
+      // TODO: Add functionality to be able to handle a backspace press (might only be on keyDown)
       handleKeyPress(e) {
         if (this.textToSend.substr(0, 6).toLowerCase() === '/login' && this.textToSend.split(" ").length === 3) {
           if (e.key !== 'Enter') {

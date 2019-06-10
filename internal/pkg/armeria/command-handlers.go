@@ -450,6 +450,34 @@ func handleCharacterSetCommand(r *CommandContext) {
 	}
 }
 
+func handleMobListCommand(r *CommandContext) {
+	f := r.Args["filter"]
+
+	var mobs []string
+	for _, m := range Armeria.mobManager.Mobs() {
+		if len(f) == 0 || strings.Contains(strings.ToLower(m.Name()), strings.ToLower(f)) {
+			mobs = append(mobs, m.Name())
+		}
+	}
+
+	var matchingText string
+	if len(f) > 0 {
+		matchingText = " matching \"" + f + "\""
+	}
+
+	if len(mobs) == 0 {
+		r.Player.clientActions.ShowColorizedText(
+			fmt.Sprintf("There are no mobs matching \"%s\".", f),
+			ColorError,
+		)
+		return
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf("There are [b]%d[/b] mobs%s: %s.", len(mobs), matchingText, strings.Join(mobs, ", ")),
+	)
+}
+
 func handleMobCreateCommand(r *CommandContext) {
 	n := r.Args["name"]
 

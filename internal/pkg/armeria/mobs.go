@@ -115,6 +115,10 @@ func (m *MobManager) MobByName(name string) *Mob {
 	return nil
 }
 
+func (m *MobManager) Mobs() []*Mob {
+	return m.UnsafeMobs
+}
+
 func (m *MobManager) CreateMob(mob *Mob) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
