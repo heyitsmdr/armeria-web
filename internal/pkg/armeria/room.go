@@ -87,7 +87,7 @@ func (r *Room) Objects() []Object {
 	return r.objects
 }
 
-// Characters returns online characters within the room.
+// OnlineCharacters returns online characters within the room.
 func (r *Room) Characters(except *Character) []*Character {
 	r.mux.Lock()
 	defer r.mux.Unlock()

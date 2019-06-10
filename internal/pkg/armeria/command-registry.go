@@ -116,6 +116,17 @@ func RegisterGameCommands() {
 			},
 			Subcommands: []*Command{
 				{
+					Name: "list",
+					Help: "Lists the characters in the game, optionally using a filter.",
+					Arguments: []*CommandArgument{
+						{
+							Name:     "filter",
+							Optional: true,
+						},
+					},
+					Handler: handleCharacterListCommand,
+				},
+				{
 					Name: "set",
 					Help: "Allows you to set a character attribute. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{

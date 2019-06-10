@@ -373,7 +373,7 @@ func handleWhisperCommand(r *CommandContext) {
 }
 
 func handleWhoCommand(r *CommandContext) {
-	chars := Armeria.characterManager.Characters()
+	chars := Armeria.characterManager.OnlineCharacters()
 
 	noun := "characters"
 	verb := "are"
@@ -412,6 +412,34 @@ func handleCharacterEditCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+}
+
+func handleCharacterListCommand(r *CommandContext) {
+	f := r.Args["filter"]
+
+	var chars []string
+	for _, c := range Armeria.characterManager.Characters() {
+		if len(f) == 0 || strings.Contains(strings.ToLower(c.Name()), strings.ToLower(f)) {
+			chars = append(chars, c.Name())
+		}
+	}
+
+	var matchingText string
+	if len(f) > 0 {
+		matchingText = " matching \"" + f + "\""
+	}
+
+	if len(chars) == 0 {
+		r.Player.clientActions.ShowColorizedText(
+			fmt.Sprintf("There are no characters matching \"%s\".", f),
+			ColorError,
+		)
+		return
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf("There are [b]%d[/b] characters%s: %s.", len(chars), matchingText, strings.Join(chars, ", ")),
+	)
 }
 
 func handleCharacterSetCommand(r *CommandContext) {

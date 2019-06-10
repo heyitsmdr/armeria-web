@@ -69,7 +69,7 @@ func (m *CharacterManager) SaveCharacters() {
 		)
 	}
 
-	charactersFile.Sync()
+	_ = charactersFile.Sync()
 
 	Armeria.log.Info("wrote data to file",
 		zap.String("file", m.dataFile),
@@ -88,8 +88,8 @@ func (m *CharacterManager) CharacterByName(name string) *Character {
 	return nil
 }
 
-// UnsafeCharacters returns the characters logged in to the game.
-func (m *CharacterManager) Characters() []*Character {
+// OnlineCharacters returns the characters logged in to the game.
+func (m *CharacterManager) OnlineCharacters() []*Character {
 	var chars []*Character
 	for _, c := range m.UnsafeCharacters {
 		if c.Player() != nil {
@@ -97,4 +97,9 @@ func (m *CharacterManager) Characters() []*Character {
 		}
 	}
 	return chars
+}
+
+// Characters returns all the characters in the database.
+func (m *CharacterManager) Characters() []*Character {
+	return m.UnsafeCharacters
 }

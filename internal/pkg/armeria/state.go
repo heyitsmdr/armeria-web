@@ -67,7 +67,7 @@ func (gs *GameState) Reload(callingPlayer *Player, component string) {
 	go func() {
 		for stepName := range steps {
 			if stepName == "send_warning" {
-				for _, c := range gs.characterManager.Characters() {
+				for _, c := range gs.characterManager.OnlineCharacters() {
 					c.Player().clientActions.ShowText("The game server is about to go down for a restart in 5 seconds.")
 				}
 				time.Sleep(5 * time.Second)
