@@ -50,7 +50,7 @@
 
     export default {
         name: 'ObjectEditor',
-        computed: mapState(['computed: mapState([\'isProduction\', \'objectTarget\'])', 'objectEditorOpen', 'objectEditorData']),
+        computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData']),
         watch: {
             objectEditorOpen: function(newVal) {
                 this.$socket.sendObj({
