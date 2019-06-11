@@ -25,7 +25,9 @@
       </div>
       <div class="container-right">
         <div class="container-skills">Skills</div>
-        <div class="container-inventory">Inventory</div>
+        <div class="container-inventory">
+          <Inventory />
+        </div>
       </div>
     </div>
   </div>
@@ -37,6 +39,7 @@ import MainText from '@/components/MainText';
 import InputBox from '@/components/InputBox';
 import Minimap from '@/components/Minimap';
 import RoomTargets from '@/components/RoomTargets';
+import Inventory from '@/components/Inventory';
 
 export default {
   name: 'App',
@@ -44,7 +47,8 @@ export default {
     InputBox,
     MainText,
     Minimap,
-    RoomTargets
+    RoomTargets,
+    Inventory
   },
   data: () => {
     return {
@@ -211,7 +215,7 @@ html, body {
       }
 
       .container-inventory {
-        flex-basis: 350px;
+        flex-basis: 342px;
       }
     }
   }
