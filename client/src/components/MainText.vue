@@ -27,7 +27,7 @@
         computed: {
             ...mapState(['gameText']),
             containerHeight() {
-                const height = this.windowHeight - 300 - 45;
+                const height = this.windowHeight - 37 - 30 - 2;
                 return `${height}px`;
             }
         },

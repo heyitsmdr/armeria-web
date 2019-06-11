@@ -1,12 +1,15 @@
 <template>
   <div id="app">
-    <div class="container-top">
+    <div class="container-wrapper">
       <div class="container-left">
         <div class="container-minimap">
           <Minimap />
         </div>
         <div class="container-targets">
           <RoomTargets />
+        </div>
+        <div class="container-hotkeys">
+          Hotkeys
         </div>
       </div>
       <div class="container-center">
@@ -16,10 +19,15 @@
         <div class="container-input">
           <InputBox />
         </div>
+        <div class="container-bars">
+          Health/Magic/Stamina Bars
+        </div>
       </div>
-      <div class="container-right">Quests</div>
+      <div class="container-right">
+        <div class="container-skills">Skills</div>
+        <div class="container-inventory">Inventory</div>
+      </div>
     </div>
-    <div class="container-bottom">Bottom</div>
   </div>
 </template>
 
@@ -146,7 +154,7 @@ html, body {
   flex-direction: column;
   height: 100%;
 
-  .container-top {
+  .container-wrapper {
     flex-grow: 1;
     display: flex;
 
@@ -163,6 +171,10 @@ html, body {
 
       .container-targets {
         flex-grow: 1;
+      }
+
+      .container-hotkeys {
+        flex-basis: 250px;
       }
     }
 
@@ -181,18 +193,27 @@ html, body {
         flex-shrink: 1;
         background-color: #000;
       }
+
+      .container-bars {
+        flex-basis: 30px;
+      }
     }
 
     .container-right {
       flex-basis: $sidebarWidth;
       min-width: $sidebarWidth;
       background-color: $backgroundLight;
-    }
-  }
+      display: flex;
+      flex-direction: column;
 
-  .container-bottom {
-    flex-basis: 300px;
-    background-color: $backgroundLight;
+      .container-skills {
+        flex-grow: 1;
+      }
+
+      .container-inventory {
+        flex-basis: 350px;
+      }
+    }
   }
 }
 </style>

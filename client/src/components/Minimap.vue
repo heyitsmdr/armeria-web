@@ -173,6 +173,7 @@ export default {
     position: relative;
     overflow: hidden;
     transition: all .3s ease-in-out;
+    box-shadow: inset 0px 0px 10px 1px #000;
 
     .position {
         position: absolute;
