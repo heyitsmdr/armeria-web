@@ -91,7 +91,13 @@
                     case 'character':
                         this.$socket.sendObj({
                             type: 'command',
-                            payload: `/character set ${this.objectEditorData.name} ${propName} ${propValue}`
+                            payload: `/character set "${this.objectEditorData.name}" ${propName} ${propValue}`
+                        });
+                        break;
+                    case 'mob':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/mob set "${this.objectEditorData.name}" ${propName} ${propValue}`
                         });
                         break;
                 }

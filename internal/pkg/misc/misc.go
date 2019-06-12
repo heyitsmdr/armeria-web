@@ -21,7 +21,7 @@ func Find(a []string, x string) int {
 	return len(a)
 }
 
-// DirectionOffsets returns the X/Y/Z offsets for each direction as a map
+// DirectionOffsets returns the X/Y/Z offsets for each direction as a map.
 func DirectionOffsets(dir string) map[string]int {
 	offsets := map[string]map[string]int{
 		"north": {"x": 0, "y": 1, "z": 0},
@@ -40,4 +40,31 @@ func DirectionOffsets(dir string) map[string]int {
 func SliceRemove(s []interface{}, i int) []interface{} {
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
+}
+
+// ParseArguments parses a string and returns an array of arguments.
+func ParseArguments(args []string) []string {
+	var parsed []string
+
+	var recording bool
+	var recorded string
+	for _, a := range args {
+		start := a[0:1]
+		end := a[len(a)-1:]
+		if start == "\"" && end == "\"" {
+			parsed = append(parsed, a[1:len(a)-1])
+		} else if start == "\"" {
+			recording = true
+			recorded = recorded + a[1:]
+		} else if end == "\"" {
+			recording = false
+			parsed = append(parsed, recorded+" "+a[:len(a)-1])
+			recorded = ""
+		} else if recording {
+			recorded = recorded + " " + a
+		} else {
+			parsed = append(parsed, a)
+		}
+	}
+	return parsed
 }

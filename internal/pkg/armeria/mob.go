@@ -4,6 +4,7 @@ import (
 	"armeria/internal/pkg/misc"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -140,5 +141,9 @@ func (m *Mob) InstanceById(id string) *MobInstance {
 
 // ScriptFile returns the full path to the associated Lua script file.
 func (m *Mob) ScriptFile() string {
-	return fmt.Sprintf("%s/scripts/mob-%s.lua", Armeria.dataPath, m.UnsafeName)
+	return fmt.Sprintf(
+		"%s/scripts/mob-%s.lua",
+		Armeria.dataPath,
+		strings.ReplaceAll(m.UnsafeName, " ", "-"),
+	)
 }

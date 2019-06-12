@@ -25,7 +25,7 @@ export default {
 
         handleItemDragStart: function(e) {
             e.target.classList.add('dragging');
-            // e.dataTransfer.setData("some_data", "bar");
+            //e.dataTransfer.setData('is_item', 'true');
             // And in Drop event: e.dataTransfer.getData("some_data");
         },
 
