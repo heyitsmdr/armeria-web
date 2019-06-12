@@ -29,7 +29,7 @@ func LuaMobSay(L *lua.LState) int {
 	mid := lua.LVAsString(L.GetGlobal("mob_instance"))
 
 	m := Armeria.mobManager.MobByName(mname)
-	mi := m.InstanceById(mid)
+	mi := m.InstanceByUUID(mid)
 
 	for _, c := range mi.Room().Characters(nil) {
 		c.Player().clientActions.ShowColorizedText(
@@ -47,7 +47,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 
 	// global variables
 	L.SetGlobal("invoker_name", lua.LString(invoker.Name()))
-	L.SetGlobal("mob_instance", lua.LString(mi.UnsafeId))
+	L.SetGlobal("mob_uuid", lua.LString(mi.UUID))
 	L.SetGlobal("mob_name", lua.LString(mi.UnsafeParent))
 	// global functions
 	L.SetGlobal("mob_say", L.NewFunction(LuaMobSay))

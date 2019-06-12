@@ -518,7 +518,7 @@ func handleMobCreateCommand(r *CommandContext) {
 		UnsafeName: n,
 	}
 
-	Armeria.mobManager.CreateMob(m)
+	Armeria.mobManager.AddMob(m)
 
 	r.Player.clientActions.ShowColorizedText(
 		fmt.Sprintf("A mob named [b]%s[/b] has been created.", n),
@@ -602,4 +602,60 @@ func handleMobSpawnCommand(r *CommandContext) {
 		)
 		c.Player().clientActions.SyncRoomObjects()
 	}
+}
+
+func handleWipeCommand(r *CommandContext) {
+	for _, o := range r.Character.Room().Objects() {
+		if o.Type() != ObjectTypeCharacter {
+			r.Character.Room().RemoveObjectFromRoom(o)
+		}
+	}
+}
+
+func handleItemCreateCommand(r *CommandContext) {
+	n := r.Args["name"]
+
+	if Armeria.itemManager.ItemByName(n) != nil {
+		r.Player.clientActions.ShowColorizedText("An item already exists with that name.", ColorError)
+		return
+	}
+
+	i := &Item{
+		UnsafeName: n,
+	}
+
+	Armeria.itemManager.AddItem(i)
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("An item named [b]%s[/b] has been created.", n),
+		ColorSuccess,
+	)
+}
+
+func handleItemListCommand(r *CommandContext) {
+	f := r.Args["filter"]
+
+	var items []string
+	for _, i := range Armeria.itemManager.Items() {
+		if len(f) == 0 || strings.Contains(strings.ToLower(i.Name()), strings.ToLower(f)) {
+			items = append(items, i.Name())
+		}
+	}
+
+	var matchingText string
+	if len(f) > 0 {
+		matchingText = " matching \"" + f + "\""
+	}
+
+	if len(items) == 0 {
+		r.Player.clientActions.ShowColorizedText(
+			fmt.Sprintf("There are no items matching \"%s\".", f),
+			ColorError,
+		)
+		return
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf("There are [b]%d[/b] items%s: %s.", len(items), matchingText, strings.Join(items, ", ")),
+	)
 }

@@ -74,7 +74,7 @@ func (m *MobManager) SaveMobs() {
 		)
 	}
 
-	mobsFile.Sync()
+	_ = mobsFile.Sync()
 
 	Armeria.log.Info("wrote data to file",
 		zap.String("file", m.dataFile),
@@ -106,22 +106,23 @@ func (m *MobManager) MobByName(name string) *Mob {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
-	for _, m := range m.UnsafeMobs {
-		if strings.ToLower(m.UnsafeName) == strings.ToLower(name) {
-			return m
+	for _, mob := range m.UnsafeMobs {
+		if strings.ToLower(mob.Name()) == strings.ToLower(name) {
+			return mob
 		}
 	}
 
 	return nil
 }
 
+// Mobs returns all of the in-memory Mobs.
 func (m *MobManager) Mobs() []*Mob {
 	return m.UnsafeMobs
 }
 
-func (m *MobManager) CreateMob(mob *Mob) {
+// AddMob adds a new Mob reference to memory.
+func (m *MobManager) AddMob(mob *Mob) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
-
 	m.UnsafeMobs = append(m.UnsafeMobs, mob)
 }

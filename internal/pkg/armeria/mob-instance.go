@@ -9,11 +9,16 @@ import (
 )
 
 type MobInstance struct {
-	UnsafeId         string            `json:"id"`
+	UUID             string            `json:"uuid"`
 	UnsafeParent     string            `json:"parent"`
 	UnsafeLocation   *Location         `json:"location"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	mux              sync.Mutex
+}
+
+// Id returns the UUID of the instance.
+func (mi *MobInstance) Id() string {
+	return mi.UUID
 }
 
 // Parent returns the Mob parent.

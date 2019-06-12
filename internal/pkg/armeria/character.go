@@ -12,6 +12,7 @@ import (
 )
 
 type Character struct {
+	UUID                 string            `json:"uuid"`
 	UnsafeName           string            `json:"name"`
 	UnsafePassword       string            `json:"password"`
 	UnsafeLocation       *Location         `json:"location"`
@@ -47,6 +48,11 @@ func CharacterAttributeDefault(name string) string {
 	}
 
 	return ""
+}
+
+// UUID returns the uuid of the character.
+func (c *Character) Id() string {
+	return c.UUID
 }
 
 // Type returns the object type, since Character implements the Object interface.

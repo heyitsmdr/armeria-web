@@ -108,18 +108,21 @@ func (r *Room) Characters(except *Character) []*Character {
 	return returnChars
 }
 
+// AddObjectToRoom adds an Object to the Room.
 func (r *Room) AddObjectToRoom(obj Object) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	r.objects = append(r.objects, obj)
 }
 
+// RemoveObjectFromRoom attempts to remove the Object from the Room, and returns
+// a bool indicating whether it was successful or not.
 func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
 	for i, o := range r.objects {
-		if o.Type() == obj.Type() && o.Name() == obj.Name() {
+		if o.Id() == obj.Id() {
 			r.objects[i] = r.objects[len(r.objects)-1]
 			r.objects = r.objects[:len(r.objects)-1]
 			return true
@@ -138,6 +141,7 @@ func (r *Room) ObjectData() string {
 
 	for _, o := range r.objects {
 		roomObjects = append(roomObjects, map[string]interface{}{
+			"uuid":    o.Id(),
 			"name":    o.Name(),
 			"type":    o.Type(),
 			"picture": o.Attribute("picture"),

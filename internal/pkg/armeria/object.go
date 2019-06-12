@@ -1,9 +1,9 @@
 package armeria
 
 // Object is the interface that describes an in-game object, which is
-// implemented by Character and MobInstance.
-
+// implemented by Character, MobInstance, and ItemInstance.
 type Object interface {
+	Id() string
 	Type() int
 	Name() string
 	FormattedName() string
@@ -14,4 +14,5 @@ type Object interface {
 const (
 	ObjectTypeCharacter int = 0
 	ObjectTypeMob       int = 1
+	ObjectTypeItem      int = 2
 )

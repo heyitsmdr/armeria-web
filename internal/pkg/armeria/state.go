@@ -17,6 +17,7 @@ type GameState struct {
 	characterManager *CharacterManager
 	worldManager     *WorldManager
 	mobManager       *MobManager
+	itemManager      *ItemManager
 	publicPath       string
 	dataPath         string
 	objectImagesPath string
@@ -47,6 +48,7 @@ func Init(production bool, publicPath string, dataPath string, scriptsPath strin
 	Armeria.characterManager = NewCharacterManager()
 	Armeria.worldManager = NewWorldManager()
 	Armeria.mobManager = NewMobManager()
+	Armeria.itemManager = NewItemManager()
 
 	RegisterGameCommands()
 	InitWeb(httpPort)
@@ -56,6 +58,7 @@ func (gs *GameState) Save() {
 	gs.characterManager.SaveCharacters()
 	gs.worldManager.SaveWorld()
 	gs.mobManager.SaveMobs()
+	gs.itemManager.SaveItems()
 }
 
 func (gs *GameState) Reload(callingPlayer *Player, component string) {

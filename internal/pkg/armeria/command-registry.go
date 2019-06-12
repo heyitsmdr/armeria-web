@@ -280,6 +280,36 @@ func RegisterGameCommands() {
 				},
 			},
 		},
+		{
+			Name: "item",
+			Help: "Allows you to manage items.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Subcommands: []*Command{
+				{
+					Name: "list",
+					Help: "Lists the items in the game, optionally using a filter.",
+					Arguments: []*CommandArgument{
+						{
+							Name:     "filter",
+							Optional: true,
+						},
+					},
+					Handler: handleItemListCommand,
+				},
+				{
+					Name: "create",
+					Help: "Creates a new item in the game.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "name",
+						},
+					},
+					Handler: handleItemCreateCommand,
+				},
+			},
+		},
 	}
 
 	for _, cmd := range commands {

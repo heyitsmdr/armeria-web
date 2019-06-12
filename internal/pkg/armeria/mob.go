@@ -3,11 +3,10 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
-	"strconv"
 	"strings"
 	"sync"
-	"time"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -109,13 +108,14 @@ func (m *Mob) EditorData() *ObjectEditorData {
 	}
 }
 
-// CreateInstance creates a new MobInstance, adds it to the Mob and returns the MobInstance.
+// CreateInstance creates a new MobInstance, adds it to the Mob
+// and returns the MobInstance.
 func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
 	mi := &MobInstance{
-		UnsafeId:       strconv.FormatInt(time.Now().UnixNano(), 10),
+		UUID:           uuid.New().String(),
 		UnsafeParent:   m.UnsafeName,
 		UnsafeLocation: loc,
 	}
@@ -125,13 +125,13 @@ func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 	return mi
 }
 
-// InstanceById returns a MobInstance by the instance identifier.
-func (m *Mob) InstanceById(id string) *MobInstance {
+// InstanceByUUID returns a MobInstance by the instance identifier.
+func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
 	for _, mi := range m.UnsafeInstances {
-		if mi.UnsafeId == id {
+		if mi.UUID == uuid {
 			return mi
 		}
 	}
