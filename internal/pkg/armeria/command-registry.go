@@ -278,6 +278,16 @@ func RegisterGameCommands() {
 					},
 					Handler: handleMobSpawnCommand,
 				},
+				{
+					Name: "instances",
+					Help: "View the locations of a particular mob.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "mob",
+						},
+					},
+					Handler: handleMobInstancesCommand,
+				},
 			},
 		},
 		{
@@ -309,6 +319,14 @@ func RegisterGameCommands() {
 					Handler: handleItemCreateCommand,
 				},
 			},
+		},
+		{
+			Name: "wipe",
+			Help: "Wipes the objects in the same room.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleWipeCommand,
 		},
 	}
 

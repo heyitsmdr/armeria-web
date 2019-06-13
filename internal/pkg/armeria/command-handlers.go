@@ -514,10 +514,7 @@ func handleMobCreateCommand(r *CommandContext) {
 		return
 	}
 
-	m := &Mob{
-		UnsafeName: n,
-	}
-
+	m := Armeria.mobManager.CreateMob(n)
 	Armeria.mobManager.AddMob(m)
 
 	r.Player.clientActions.ShowColorizedText(
@@ -604,12 +601,63 @@ func handleMobSpawnCommand(r *CommandContext) {
 	}
 }
 
+func handleMobInstancesCommand(r *CommandContext) {
+	mob := strings.ToLower(r.Args["mob"])
+
+	m := Armeria.mobManager.MobByName(mob)
+	if m == nil {
+		r.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		return
+	}
+
+	var mobLocations []string
+	for i, mi := range m.Instances() {
+		mobLocations = append(
+			mobLocations,
+			fmt.Sprintf(
+				"  %d) %s (%s) is currently at %s,%d,%d,%d (%s).",
+				i+1,
+				mi.FormattedName(),
+				mi.Id(),
+				mi.Location().AreaName,
+				mi.Location().Coords.X,
+				mi.Location().Coords.Y,
+				mi.Location().Coords.Z,
+				mi.Room().Attribute("title"),
+			),
+		)
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf(
+			"Instances of %s:\n%s",
+			m.Name(),
+			strings.Join(mobLocations, "\n"),
+		),
+	)
+}
+
 func handleWipeCommand(r *CommandContext) {
 	for _, o := range r.Character.Room().Objects() {
-		if o.Type() != ObjectTypeCharacter {
-			r.Character.Room().RemoveObjectFromRoom(o)
+		switch o.Type() {
+		case ObjectTypeMob:
+			m := Armeria.mobManager.MobByName(o.Name())
+			s := r.Character.Room().RemoveObjectFromRoom(o)
+			if m != nil && s {
+				m.DeleteInstance(o.(*MobInstance))
+			}
 		}
 	}
+
+	for _, c := range r.Character.Room().Characters(r.Character) {
+		c.Player().clientActions.ShowText(
+			fmt.Sprintf("%s wiped the room.", r.Character.FormattedName()),
+		)
+		c.Player().clientActions.SyncRoomObjects()
+	}
+
+	r.Player.clientActions.ShowColorizedText("You wiped the room.", ColorSuccess)
+	r.Player.clientActions.SyncRoomObjects()
 }
 
 func handleItemCreateCommand(r *CommandContext) {

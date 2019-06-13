@@ -37,9 +37,10 @@ func DirectionOffsets(dir string) map[string]int {
 
 // SliceRemove removes the element at the specified index; this does not
 // preserve ordering.
-func SliceRemove(s []interface{}, i int) []interface{} {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
+func SliceRemove(s interface{}, i int) interface{} {
+	sa := s.([]*interface{})
+	sa[i] = sa[len(sa)-1]
+	return sa[:len(sa)-1]
 }
 
 // ParseArguments parses a string and returns an array of arguments.

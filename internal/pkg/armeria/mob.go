@@ -47,8 +47,6 @@ func ValidateMobAttribute(name string, value string) (bool, string) {
 
 // Name returns the name of the Mob.
 func (m *Mob) Name() string {
-	m.mux.Lock()
-	defer m.mux.Unlock()
 	return m.UnsafeName
 }
 
@@ -125,6 +123,22 @@ func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 	return mi
 }
 
+// DeleteInstance removes the MobInstance from memory.
+func (m *Mob) DeleteInstance(mi *MobInstance) bool {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
+	for i, inst := range m.UnsafeInstances {
+		if inst.Id() == mi.Id() {
+			m.UnsafeInstances[i] = m.UnsafeInstances[len(m.UnsafeInstances)-1]
+			m.UnsafeInstances = m.UnsafeInstances[:len(m.UnsafeInstances)-1]
+			return true
+		}
+	}
+
+	return false
+}
+
 // InstanceByUUID returns a MobInstance by the instance identifier.
 func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
 	m.mux.Lock()
@@ -137,6 +151,10 @@ func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
 	}
 
 	return nil
+}
+
+func (m *Mob) Instances() []*MobInstance {
+	return m.UnsafeInstances
 }
 
 // ScriptFile returns the full path to the associated Lua script file.

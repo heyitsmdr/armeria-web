@@ -3,6 +3,7 @@ package armeria
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
@@ -118,6 +119,19 @@ func (m *MobManager) MobByName(name string) *Mob {
 // Mobs returns all of the in-memory Mobs.
 func (m *MobManager) Mobs() []*Mob {
 	return m.UnsafeMobs
+}
+
+// CreateMob creates a new Mob instance, but doesn't add it to memory.
+func (m *MobManager) CreateMob(name string) *Mob {
+	mob := &Mob{
+		UnsafeName: name,
+	}
+
+	// create script file
+	content := fmt.Sprintf("-- %s Script", name)
+	_ = ioutil.WriteFile(mob.ScriptFile(), []byte(content), 0644)
+
+	return mob
 }
 
 // AddMob adds a new Mob reference to memory.

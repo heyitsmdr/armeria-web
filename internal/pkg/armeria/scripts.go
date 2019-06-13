@@ -26,7 +26,7 @@ func WriteMobScript(m *Mob, script string) {
 func LuaMobSay(L *lua.LState) int {
 	text := L.ToString(1)
 	mname := lua.LVAsString(L.GetGlobal("mob_name"))
-	mid := lua.LVAsString(L.GetGlobal("mob_instance"))
+	mid := lua.LVAsString(L.GetGlobal("mob_uuid"))
 
 	m := Armeria.mobManager.MobByName(mname)
 	mi := m.InstanceByUUID(mid)
