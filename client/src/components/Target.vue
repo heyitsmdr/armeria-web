@@ -2,7 +2,7 @@
     <div>
         <div
                 class="container"
-                :class="{'selected': objectTarget == name, 'is-character': objectType == 0,  'is-mob': objectType == 1 }"
+                :class="{'selected': objectTarget == name, 'is-character': objectType == 0,  'is-mob': objectType == 1, 'is-item': objectType == 2 }"
                 ref="container"
                 @mousedown="handleMouseDown"
                 @mouseup="handleMouseUp"
@@ -117,6 +117,14 @@ export default {
 
         .name {
             color: #d48a3e;
+        }
+    }
+
+    &.is-item {
+         border: 1px solid #fff;
+
+        .name {
+            color: #fff;
         }
     }
 

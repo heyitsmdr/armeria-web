@@ -6,8 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/google/uuid"
 )
 
 type Mob struct {
@@ -50,25 +51,6 @@ func (m *Mob) Name() string {
 	return m.UnsafeName
 }
 
-// SetAttribute sets a permanent attribute and only valid attributes can be set.
-func (m *Mob) SetAttribute(name string, value string) {
-	m.mux.Lock()
-	defer m.mux.Unlock()
-
-	if m.UnsafeAttributes == nil {
-		m.UnsafeAttributes = make(map[string]string)
-	}
-
-	if !misc.Contains(ValidMobAttributes(), name) {
-		Armeria.log.Fatal("attempted to set invalid attribute",
-			zap.String("attribute", name),
-			zap.String("value", value),
-		)
-	}
-
-	m.UnsafeAttributes[name] = value
-}
-
 // Attribute returns a permanent attribute.
 func (m *Mob) Attribute(name string) string {
 	m.mux.Lock()
@@ -79,6 +61,21 @@ func (m *Mob) Attribute(name string) string {
 	}
 
 	return m.UnsafeAttributes[name]
+}
+
+// SetAttribute sets a permanent attribute and only valid attributes can be set.
+func (m *Mob) SetAttribute(name string, value string) {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
+	if !misc.Contains(ValidMobAttributes(), name) {
+		Armeria.log.Fatal("attempted to set invalid attribute",
+			zap.String("attribute", name),
+			zap.String("value", value),
+		)
+	}
+
+	m.UnsafeAttributes[name] = value
 }
 
 // EditorData returns the JSON used for the object editor.
@@ -113,9 +110,10 @@ func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 	defer m.mux.Unlock()
 
 	mi := &MobInstance{
-		UUID:           uuid.New().String(),
-		UnsafeParent:   m.UnsafeName,
-		UnsafeLocation: loc,
+		UUID:             uuid.New().String(),
+		UnsafeParent:     m.UnsafeName,
+		UnsafeLocation:   loc,
+		UnsafeAttributes: make(map[string]string),
 	}
 
 	m.UnsafeInstances = append(m.UnsafeInstances, mi)

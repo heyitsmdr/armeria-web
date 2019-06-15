@@ -571,9 +571,7 @@ func handleMobSetCommand(r *CommandContext) {
 }
 
 func handleMobSpawnCommand(r *CommandContext) {
-	mob := strings.ToLower(r.Args["mob"])
-
-	m := Armeria.mobManager.MobByName(mob)
+	m := Armeria.mobManager.MobByName(r.Args["mob"])
 	if m == nil {
 		r.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
 		return
@@ -646,6 +644,12 @@ func handleWipeCommand(r *CommandContext) {
 			if m != nil && s {
 				m.DeleteInstance(o.(*MobInstance))
 			}
+		case ObjectTypeItem:
+			i := Armeria.itemManager.ItemByName(o.Name())
+			s := r.Character.Room().RemoveObjectFromRoom(o)
+			if i != nil && s {
+				i.DeleteInstance(o.(*ItemInstance))
+			}
 		}
 	}
 
@@ -668,10 +672,7 @@ func handleItemCreateCommand(r *CommandContext) {
 		return
 	}
 
-	i := &Item{
-		UnsafeName: n,
-	}
-
+	i := Armeria.itemManager.CreateItem(n)
 	Armeria.itemManager.AddItem(i)
 
 	r.Player.clientActions.ShowColorizedText(
@@ -706,4 +707,34 @@ func handleItemListCommand(r *CommandContext) {
 	r.Player.clientActions.ShowText(
 		fmt.Sprintf("There are [b]%d[/b] items%s: %s.", len(items), matchingText, strings.Join(items, ", ")),
 	)
+}
+
+func handleItemSpawnCommand(r *CommandContext) {
+	i := Armeria.itemManager.ItemByName(r.Args["item"])
+	if i == nil {
+		r.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		return
+	}
+
+	l := r.Character.Location()
+	loc := &Location{
+		AreaName: l.AreaName,
+		Coords: &Coords{
+			X: l.Coords.X,
+			Y: l.Coords.Y,
+			Z: l.Coords.Z,
+			I: l.Coords.I,
+		},
+	}
+
+	ii := i.CreateInstance()
+	ii.SetLocation(loc)
+	r.Character.Room().AddObjectToRoom(ii)
+
+	for _, c := range r.Character.Room().Characters(nil) {
+		c.Player().clientActions.ShowText(
+			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", ii.FormattedName()),
+		)
+		c.Player().clientActions.SyncRoomObjects()
+	}
 }

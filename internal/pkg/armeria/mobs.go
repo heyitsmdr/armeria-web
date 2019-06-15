@@ -124,7 +124,8 @@ func (m *MobManager) Mobs() []*Mob {
 // CreateMob creates a new Mob instance, but doesn't add it to memory.
 func (m *MobManager) CreateMob(name string) *Mob {
 	mob := &Mob{
-		UnsafeName: name,
+		UnsafeName:       name,
+		UnsafeAttributes: make(map[string]string),
 	}
 
 	// create script file

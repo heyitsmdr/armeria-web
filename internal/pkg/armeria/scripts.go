@@ -61,6 +61,11 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 		return
 	}
 
+	lv := L.GetGlobal(funcName)
+	if lv.Type() == lua.LTNil {
+		return
+	}
+
 	err = L.CallByParam(lua.P{
 		Fn:      L.GetGlobal(funcName),
 		NRet:    0,

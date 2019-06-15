@@ -26,7 +26,7 @@ func (mi *MobInstance) Parent() *Mob {
 	return Armeria.mobManager.MobByName(mi.UnsafeParent)
 }
 
-// Location returns the location of the mob.
+// Location returns the location of the MobInstance.
 func (mi *MobInstance) Location() *Location {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
@@ -43,21 +43,17 @@ func (mi *MobInstance) Type() int {
 	return ObjectTypeMob
 }
 
-// UnsafeName returns the raw mob name.
+// UnsafeName returns the raw Mob name.
 func (mi *MobInstance) Name() string {
-	mi.mux.Lock()
-	defer mi.mux.Unlock()
 	return mi.UnsafeParent
 }
 
-// FormattedName returns the formatted mob name.
+// FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
-	mi.mux.Lock()
-	defer mi.mux.Unlock()
 	return fmt.Sprintf("[b]%s[/b]", mi.UnsafeParent)
 }
 
-// SetAttribute sets a permanent attribute on the mob instance.
+// SetAttribute sets a permanent attribute on the MobInstance.
 func (mi *MobInstance) SetAttribute(name string, value string) {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()
@@ -76,7 +72,7 @@ func (mi *MobInstance) SetAttribute(name string, value string) {
 	mi.UnsafeAttributes[name] = value
 }
 
-// Attribute returns an attribute on the mob instance, and falls back to the parent Mob.
+// Attribute returns an attribute on the MobInstance, and falls back to the parent Mob.
 func (mi *MobInstance) Attribute(name string) string {
 	mi.mux.Lock()
 	defer mi.mux.Unlock()

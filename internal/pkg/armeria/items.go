@@ -100,6 +100,16 @@ func (m *ItemManager) Items() []*Item {
 	return m.UnsafeItems
 }
 
+// CreateItem creates a new Item instance, but doesn't add it to memory.
+func (m *ItemManager) CreateItem(name string) *Item {
+	item := &Item{
+		UnsafeName:       name,
+		UnsafeAttributes: make(map[string]string),
+	}
+
+	return item
+}
+
 // AddItem adds a new Item reference to memory.
 func (m *ItemManager) AddItem(i *Item) {
 	m.mux.Lock()

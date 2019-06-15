@@ -273,7 +273,8 @@ func RegisterGameCommands() {
 					Help: "Spawns a mob at this location.",
 					Arguments: []*CommandArgument{
 						{
-							Name: "mob",
+							Name:             "mob",
+							IncludeRemaining: true,
 						},
 					},
 					Handler: handleMobSpawnCommand,
@@ -313,10 +314,22 @@ func RegisterGameCommands() {
 					Help: "Creates a new item in the game.",
 					Arguments: []*CommandArgument{
 						{
-							Name: "name",
+							Name:             "name",
+							IncludeRemaining: true,
 						},
 					},
 					Handler: handleItemCreateCommand,
+				},
+				{
+					Name: "spawn",
+					Help: "Spawns an item at this location.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "item",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleItemSpawnCommand,
 				},
 			},
 		},
