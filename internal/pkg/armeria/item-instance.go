@@ -48,6 +48,17 @@ func (ii *ItemInstance) FormattedName() string {
 	return fmt.Sprintf("[b]%s[/b]", ii.UnsafeParent)
 }
 
+// Room returns the Room of the ItemInstance, if it is in one.
+func (ii *ItemInstance) Room() *Room {
+	ii.mux.Lock()
+	defer ii.mux.Unlock()
+	if ii.UnsafeLocationType != ItemLocationRoom {
+		return nil
+	}
+
+	return Armeria.worldManager.RoomFromLocation(ii.UnsafeLocation)
+}
+
 // SetAttribute sets a permanent attribute on the ItemInstance.
 func (ii *ItemInstance) SetAttribute(name string, value string) {
 	ii.mux.Lock()

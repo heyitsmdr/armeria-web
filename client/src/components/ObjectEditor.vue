@@ -100,6 +100,12 @@
                             payload: `/mob set "${this.objectEditorData.name}" ${propName} ${propValue}`
                         });
                         break;
+                    case 'item':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/item set "${this.objectEditorData.name}" ${propName} ${propValue}`
+                        });
+                        break;
                 }
             },
 

@@ -42,13 +42,13 @@ func (cmd *Command) CheckPermissions(p *Player) bool {
 	}
 
 	if cmd.Permissions.RequireNoCharacter {
-		if p.GetCharacter() != nil {
+		if p.Character() != nil {
 			return false
 		}
 	}
 
 	if cmd.Permissions.RequireCharacter {
-		if p.GetCharacter() == nil {
+		if p.Character() == nil {
 			return false
 		}
 	}

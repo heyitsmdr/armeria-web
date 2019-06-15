@@ -52,9 +52,9 @@ func (p *Player) readPump() {
 		case "objectEditorOpen":
 			open := messageRead.Payload.(bool)
 			if open {
-				p.GetCharacter().TempAttribute("editorOpen", "true")
+				p.Character().SetTempAttribute("editorOpen", "true")
 			} else {
-				p.GetCharacter().TempAttribute("editorOpen", "false")
+				p.Character().SetTempAttribute("editorOpen", "false")
 			}
 		case "objectPictureUpload":
 			StoreObjectPicture(p, messageRead.Payload.(map[string]interface{}))
@@ -136,7 +136,7 @@ func (p *Player) AttachCharacter(c *Character) {
 	p.character = c
 }
 
-func (p *Player) GetCharacter() *Character {
+func (p *Player) Character() *Character {
 	p.mux.Lock()
 	defer p.mux.Unlock()
 	return p.character

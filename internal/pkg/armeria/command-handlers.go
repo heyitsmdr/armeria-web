@@ -122,15 +122,15 @@ func handleSayCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowText(
-		r.Player.GetCharacter().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], r.Args["text"]), ColorSay),
+		r.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], r.Args["text"]), ColorSay),
 	)
 
-	room := Armeria.worldManager.RoomFromLocation(r.Player.GetCharacter().Location())
-	otherChars := room.Characters(r.Player.GetCharacter())
+	room := Armeria.worldManager.RoomFromLocation(r.Player.Character().Location())
+	otherChars := room.Characters(r.Player.Character())
 	for _, c := range otherChars {
 		c.Player().clientActions.ShowText(
-			c.Player().GetCharacter().Colorize(
-				fmt.Sprintf("%s %s, \"%s\".", r.Player.GetCharacter().FormattedName(), verbs[1], r.Args["text"]),
+			c.Player().Character().Colorize(
+				fmt.Sprintf("%s %s, \"%s\".", r.Player.Character().FormattedName(), verbs[1], r.Args["text"]),
 				ColorSay,
 			),
 		)
@@ -240,7 +240,7 @@ func handleRoomSetCommand(r *CommandContext) {
 		ColorSuccess,
 	)
 
-	editorOpen := r.Character.GetTempAttribute("editorOpen")
+	editorOpen := r.Character.TempAttribute("editorOpen")
 	if editorOpen == "true" {
 		r.Player.clientActions.ShowObjectEditor(r.Character.Room().EditorData())
 	}
@@ -411,7 +411,7 @@ func handleCharacterEditCommand(r *CommandContext) {
 		}
 	}
 
-	r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+	r.Player.clientActions.ShowObjectEditor(c.EditorData())
 }
 
 func handleCharacterListCommand(r *CommandContext) {
@@ -472,9 +472,9 @@ func handleCharacterSetCommand(r *CommandContext) {
 
 	}
 
-	editorOpen := r.Character.GetTempAttribute("editorOpen")
+	editorOpen := r.Character.TempAttribute("editorOpen")
 	if editorOpen == "true" {
-		r.Player.clientActions.ShowObjectEditor(c.GetEditorData())
+		r.Player.clientActions.ShowObjectEditor(c.EditorData())
 	}
 }
 
@@ -551,10 +551,12 @@ func handleMobSetCommand(r *CommandContext) {
 		return
 	}
 
-	valid, why := ValidateMobAttribute(attr, val)
-	if !valid {
-		r.Player.clientActions.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
-		return
+	if len(val) > 0 {
+		valid, why := ValidateMobAttribute(attr, val)
+		if !valid {
+			r.Player.clientActions.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			return
+		}
 	}
 
 	m.SetAttribute(attr, val)
@@ -564,7 +566,7 @@ func handleMobSetCommand(r *CommandContext) {
 		ColorSuccess,
 	)
 
-	editorOpen := r.Character.GetTempAttribute("editorOpen")
+	editorOpen := r.Character.TempAttribute("editorOpen")
 	if editorOpen == "true" {
 		r.Player.clientActions.ShowObjectEditor(m.EditorData())
 	}
@@ -600,9 +602,7 @@ func handleMobSpawnCommand(r *CommandContext) {
 }
 
 func handleMobInstancesCommand(r *CommandContext) {
-	mob := strings.ToLower(r.Args["mob"])
-
-	m := Armeria.mobManager.MobByName(mob)
+	m := Armeria.mobManager.MobByName(r.Args["mob"])
 	if m == nil {
 		r.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
 		return
@@ -737,4 +737,98 @@ func handleItemSpawnCommand(r *CommandContext) {
 		)
 		c.Player().clientActions.SyncRoomObjects()
 	}
+}
+
+func handleItemEditCommand(r *CommandContext) {
+	i := Armeria.itemManager.ItemByName(r.Args["item"])
+	if i == nil {
+		r.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		return
+	}
+
+	r.Player.clientActions.ShowObjectEditor(i.EditorData())
+}
+
+func handleItemSetCommand(r *CommandContext) {
+	item := strings.ToLower(r.Args["item"])
+	attr := strings.ToLower(r.Args["property"])
+	val := strings.ToLower(r.Args["value"])
+
+	i := Armeria.itemManager.ItemByName(item)
+	if i == nil {
+		r.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		return
+	}
+
+	if !misc.Contains(ValidItemAttributes(), attr) {
+		r.Player.clientActions.ShowColorizedText("That's not a valid item attribute.", ColorError)
+		return
+	}
+
+	if len(val) > 0 {
+		valid, why := ValidateItemAttribute(attr, val)
+		if !valid {
+			r.Player.clientActions.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			return
+		}
+	}
+
+	i.SetAttribute(attr, val)
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("You modified the [b]%s[/b] property of the item [b]%s[/b].", attr, i.Name()),
+		ColorSuccess,
+	)
+
+	editorOpen := r.Character.TempAttribute("editorOpen")
+	if editorOpen == "true" {
+		r.Player.clientActions.ShowObjectEditor(i.EditorData())
+	}
+}
+
+func handleItemInstancesCommand(r *CommandContext) {
+	i := Armeria.itemManager.ItemByName(r.Args["item"])
+	if i == nil {
+		r.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		return
+	}
+
+	var itemLocations []string
+	for idx, ii := range i.Instances() {
+		if ii.LocationType() == ItemLocationRoom {
+			itemLocations = append(
+				itemLocations,
+				fmt.Sprintf(
+					"  %d) %s (%s) is currently at %s,%d,%d,%d (%s).",
+					idx+1,
+					ii.FormattedName(),
+					ii.Id(),
+					ii.Location().AreaName,
+					ii.Location().Coords.X,
+					ii.Location().Coords.Y,
+					ii.Location().Coords.Z,
+					ii.Room().Attribute("title"),
+				),
+			)
+		} else if ii.LocationType() == ItemLocationCharacter {
+			itemLocations = append(
+				itemLocations,
+				fmt.Sprintf(
+					"  %d) %s (%s) is currently on the character %s.",
+					idx+1,
+					ii.FormattedName(),
+					ii.Id(),
+					ii.Character().FormattedName(),
+				),
+			)
+		}
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf(
+			"Instances of %s:\n%s",
+			i.Name(),
+			strings.Join(itemLocations, "\n"),
+		),
+	)
 }

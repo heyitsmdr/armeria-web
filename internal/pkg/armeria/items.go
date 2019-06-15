@@ -22,6 +22,7 @@ func NewItemManager() *ItemManager {
 	}
 
 	m.LoadItems()
+	m.AddItemInstancesToRooms()
 
 	return m
 }
@@ -79,6 +80,32 @@ func (m *ItemManager) SaveItems() {
 		zap.String("file", m.dataFile),
 		zap.Int("bytes", bytes),
 	)
+}
+
+// AddItemInstancesToRooms adds ItemInstances to that are in Rooms to their
+// respective Room objects.
+func (m *ItemManager) AddItemInstancesToRooms() {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
+	for _, i := range m.UnsafeItems {
+		for _, ii := range i.UnsafeInstances {
+			if ii.LocationType() != ItemLocationRoom {
+				continue
+			}
+
+			r := Armeria.worldManager.RoomFromLocation(ii.Location())
+			if r == nil {
+				Armeria.log.Fatal("item instance in invalid room",
+					zap.String("item", ii.Name()),
+					zap.String("uuid", ii.Id()),
+					zap.String("location", fmt.Sprintf("%v", ii.Location())),
+				)
+				return
+			}
+			r.AddObjectToRoom(ii)
+		}
+	}
 }
 
 // ItemByName returns the matching Item.

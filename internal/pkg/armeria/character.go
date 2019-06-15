@@ -240,16 +240,16 @@ func (c *Character) LoggedOut() {
 	)
 }
 
-// GetTempAttribute retrieves a previously-saved temp attribute.
-func (c *Character) GetTempAttribute(name string) string {
+// TempAttribute retrieves a previously-saved temp attribute.
+func (c *Character) TempAttribute(name string) string {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.UnsafeTempAttributes[name]
 }
 
-// TempAttribute sets a temporary attribute, which is cleared on log out. Additionally, these
+// SetTempAttribute sets a temporary attribute, which is cleared on log out. Additionally, these
 // attributes are not validated.
-func (c *Character) TempAttribute(name string, value string) {
+func (c *Character) SetTempAttribute(name string, value string) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
@@ -327,7 +327,7 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 }
 
 // EditorData returns the JSON used for the object editor.
-func (c *Character) GetEditorData() *ObjectEditorData {
+func (c *Character) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidCharacterAttributes() {
 		propType := "editable"

@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"strconv"
 	"sync"
 
 	"github.com/google/uuid"
@@ -20,13 +21,15 @@ type Item struct {
 func ValidItemAttributes() []string {
 	return []string{
 		"picture",
+		"rarity",
 	}
 }
 
 // ItemAttributeDefault returns the default value for a particular attribute.
 func ItemAttributeDefault(name string) string {
 	switch name {
-
+	case "rarity":
+		return "0"
 	}
 
 	return ""
@@ -36,19 +39,31 @@ func ItemAttributeDefault(name string) string {
 // for a particular attribute.
 func ValidateItemAttribute(name string, value string) (bool, string) {
 	switch name {
-	case "script":
-		return false, "script cannot be set explicitly"
+	case "rarity":
+		valueInt, err := strconv.Atoi(value)
+		if err != nil {
+			return false, "value must be an integer"
+		} else if valueInt < 0 || valueInt > 4 {
+			return false, "rarity out of range (valid: 0-4)"
+		}
 	}
 
 	return true, ""
 }
 
+// Name returns the name of the Item.
 func (i *Item) Name() string {
 	i.mux.Lock()
 	defer i.mux.Unlock()
 	return i.UnsafeName
 }
 
+// Instances returns all of the ItemInstance instances.
+func (i *Item) Instances() []*ItemInstance {
+	return i.UnsafeInstances
+}
+
+// CreateInstance creates a new ItemInstance and adds it in-memory.
 func (i *Item) CreateInstance() *ItemInstance {
 	i.mux.Lock()
 	defer i.mux.Unlock()
@@ -105,4 +120,29 @@ func (i *Item) SetAttribute(name string, value string) {
 	}
 
 	i.UnsafeAttributes[name] = value
+}
+
+// EditorData returns the JSON used for the object editor.
+func (i *Item) EditorData() *ObjectEditorData {
+	var props []*ObjectEditorDataProperty
+	for _, attrName := range ValidItemAttributes() {
+		propType := "editable"
+		if attrName == "picture" {
+			propType = "picture"
+		} else if attrName == "script" {
+			propType = "script"
+		}
+
+		props = append(props, &ObjectEditorDataProperty{
+			PropType: propType,
+			Name:     attrName,
+			Value:    i.Attribute(attrName),
+		})
+	}
+
+	return &ObjectEditorData{
+		Name:       i.UnsafeName,
+		ObjectType: "item",
+		Properties: props,
+	}
 }

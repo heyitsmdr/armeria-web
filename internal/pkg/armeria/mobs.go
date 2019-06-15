@@ -93,6 +93,7 @@ func (m *MobManager) AddMobInstancesToRooms() {
 			if r == nil {
 				Armeria.log.Fatal("mob instance in invalid room",
 					zap.String("mob", mi.Name()),
+					zap.String("uuid", mi.Id()),
 					zap.String("location", fmt.Sprintf("%v", mi.Location())),
 				)
 				return

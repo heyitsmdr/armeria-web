@@ -245,7 +245,8 @@ func RegisterGameCommands() {
 					Help: "Opens the editor panel for a mob.",
 					Arguments: []*CommandArgument{
 						{
-							Name: "mob",
+							Name:             "mob",
+							IncludeRemaining: true,
 						},
 					},
 					Handler: handleMobEditCommand,
@@ -284,7 +285,8 @@ func RegisterGameCommands() {
 					Help: "View the locations of a particular mob.",
 					Arguments: []*CommandArgument{
 						{
-							Name: "mob",
+							Name:             "mob",
+							IncludeRemaining: true,
 						},
 					},
 					Handler: handleMobInstancesCommand,
@@ -330,6 +332,46 @@ func RegisterGameCommands() {
 						},
 					},
 					Handler: handleItemSpawnCommand,
+				},
+				{
+					Name: "edit",
+					Help: "Opens the editor panel for an item.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "item",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleItemEditCommand,
+				},
+				{
+					Name: "set",
+					Help: "Allows you to set an item attribute. Leave value empty to revert to default.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "item",
+						},
+						{
+							Name: "property",
+						},
+						{
+							Name:             "value",
+							IncludeRemaining: true,
+							Optional:         true,
+						},
+					},
+					Handler: handleItemSetCommand,
+				},
+				{
+					Name: "instances",
+					Help: "View the locations of a particular item.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "item",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleItemInstancesCommand,
 				},
 			},
 		},

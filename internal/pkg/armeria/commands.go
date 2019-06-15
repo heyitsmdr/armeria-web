@@ -97,8 +97,8 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 		Args:    cmdArgs,
 	}
 
-	if p.GetCharacter() != nil {
-		ctx.Character = p.GetCharacter()
+	if p.Character() != nil {
+		ctx.Character = p.Character()
 	}
 
 	if len(cmd.Alias) > 0 {

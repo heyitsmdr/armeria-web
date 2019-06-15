@@ -32,7 +32,7 @@ func NewClientActions(p *Player) *ClientActions {
 // ShowColorizedText displays color-formatted text if there is a character attached to
 // the player instance.
 func (ca *ClientActions) ShowColorizedText(text string, color int) {
-	c := ca.player.GetCharacter()
+	c := ca.player.Character()
 	if c != nil {
 		ca.ShowText(c.Colorize(text, color))
 		return
@@ -52,32 +52,32 @@ func (ca *ClientActions) ShowRawText(text string) {
 
 // RenderMap displays the current area on the minimap.
 func (ca *ClientActions) RenderMap() {
-	minimap := ca.player.GetCharacter().Area().MinimapData()
+	minimap := ca.player.Character().Area().MinimapData()
 	ca.player.CallClientAction("setMapData", minimap)
 }
 
 // SyncMapLocation sets the character location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
-	loc := ca.player.GetCharacter().LocationData()
+	loc := ca.player.Character().LocationData()
 	ca.player.CallClientAction("setCharacterLocation", loc)
 }
 
 // SyncRoomObjects sets the current room objects on the client.
 func (ca *ClientActions) SyncRoomObjects() {
-	obj := ca.player.GetCharacter().Room().ObjectData()
+	obj := ca.player.Character().Room().ObjectData()
 	ca.player.CallClientAction("setRoomObjects", obj)
 }
 
 // SyncRoomTitle sets the current room title on the client.
 func (ca *ClientActions) SyncRoomTitle() {
-	r := ca.player.GetCharacter().Room()
+	r := ca.player.Character().Room()
 	ca.player.CallClientAction("setRoomTitle", r.Attribute("title"))
 }
 
 // ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	// add access key
-	c := ca.player.GetCharacter()
+	c := ca.player.Character()
 	editorData.AccessKey = c.Name() + "/" + c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA")
 	j, err := json.Marshal(editorData)
 	if err != nil {

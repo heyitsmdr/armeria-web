@@ -30,12 +30,12 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		c := Armeria.characterManager.CharacterByName(name)
 		oldKey = c.Attribute("picture")
 		c.SetAttribute("picture", k)
-		editorData = c.GetEditorData()
+		editorData = c.EditorData()
 		p.clientActions.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
 			ColorSuccess,
 		)
-		for _, chars := range p.GetCharacter().Room().Characters(nil) {
+		for _, chars := range p.Character().Room().Characters(nil) {
 			chars.Player().clientActions.SyncRoomObjects()
 		}
 	case "mob":
@@ -44,7 +44,16 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		m.SetAttribute("picture", k)
 		editorData = m.EditorData()
 		p.clientActions.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.UnsafeName),
+			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.Name()),
+			ColorSuccess,
+		)
+	case "item":
+		i := Armeria.itemManager.ItemByName(name)
+		oldKey = i.Attribute("picture")
+		i.SetAttribute("picture", k)
+		editorData = i.EditorData()
+		p.clientActions.ShowColorizedText(
+			fmt.Sprintf("A picture has been uploaded and set for item [b]%s[/b].", i.Name()),
 			ColorSuccess,
 		)
 	default:
@@ -57,7 +66,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		DeleteObjectPictureFromDisk(oldKey)
 	}
 
-	editorOpen := p.GetCharacter().GetTempAttribute("editorOpen")
+	editorOpen := p.Character().TempAttribute("editorOpen")
 	if editorOpen == "true" {
 		p.clientActions.ShowObjectEditor(editorData)
 	}
@@ -71,7 +80,8 @@ func SaveObjectPictureToDisk(o map[string]interface{}) string {
 	pictureData := o["pictureData"].(string)
 
 	hash := md5.Sum([]byte(pictureData))
-	key := fmt.Sprintf("%s-%s-%x", objectType, strings.ToLower(name), hash)
+	normalizedName := strings.ReplaceAll(strings.ToLower(name), " ", "-")
+	key := fmt.Sprintf("%s-%s-%x", objectType, normalizedName, hash)
 
 	dec, err := base64.StdEncoding.DecodeString(pictureData)
 	if err != nil {
@@ -115,7 +125,8 @@ func SaveObjectPictureToDisk(o map[string]interface{}) string {
 		)
 		return ""
 	}
-	f.Sync()
+
+	_ = f.Sync()
 
 	Armeria.log.Info("wrote object picture to disk",
 		zap.String("file", pictureFile),
