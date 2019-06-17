@@ -145,6 +145,7 @@ func (r *Room) ObjectData() string {
 			"name":    o.Name(),
 			"type":    o.Type(),
 			"picture": o.Attribute("picture"),
+			"rarity":  o.Attribute("rarity"),
 		})
 	}
 
