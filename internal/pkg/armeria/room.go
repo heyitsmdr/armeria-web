@@ -33,6 +33,7 @@ func ValidRoomAttributes() []string {
 		"title",
 		"description",
 		"color",
+		"type",
 	}
 }
 

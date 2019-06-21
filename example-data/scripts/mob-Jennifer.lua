@@ -5,6 +5,6 @@ end
 
 function character_said(text)
   if text == "hey" then
-    mob_say "Greetings!"
+    mob_say("Greetings!")
   end
 end

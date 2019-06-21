@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -114,4 +115,18 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 	}
 
 	return m.RoomFromLocation(loc)
+}
+
+func (m *WorldManager) AreaByName(name string) *Area {
+	for _, a := range m.UnsafeWorld {
+		if strings.ToLower(a.Name()) == strings.ToLower(name) {
+			return a
+		}
+	}
+
+	return nil
+}
+
+func (m *WorldManager) Areas() []*Area {
+	return m.UnsafeWorld
 }

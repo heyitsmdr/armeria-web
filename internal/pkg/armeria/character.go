@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -36,8 +37,8 @@ const (
 func ValidCharacterAttributes() []string {
 	return []string{
 		"picture",
-		"role",
 		"title",
+		"permissions",
 	}
 }
 
@@ -188,7 +189,7 @@ func (c *Character) LoggedIn() {
 	room.AddObjectToRoom(c)
 
 	// Use command: /look
-	Armeria.commandManager.ProcessCommand(c.Player(), "look")
+	Armeria.commandManager.ProcessCommand(c.Player(), "look", false)
 
 	// Show message to others in the same room
 	roomChars := room.Characters(c)
@@ -265,10 +266,6 @@ func (c *Character) SetAttribute(name string, value string) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	if c.UnsafeAttributes == nil {
-		c.UnsafeAttributes = make(map[string]string)
-	}
-
 	if !misc.Contains(ValidCharacterAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
 			zap.String("attribute", name),
@@ -293,9 +290,17 @@ func (c *Character) Attribute(name string) string {
 
 // MoveAllowed will check if moving to a particular location is valid/allowed.
 func (c *Character) MoveAllowed(to *Location) (bool, string) {
+	if len(c.TempAttribute("ghost")) > 0 {
+		return true, ""
+	}
+
 	newRoom := Armeria.worldManager.RoomFromLocation(to)
 	if newRoom == nil {
 		return false, "You cannot move that way."
+	}
+
+	if newRoom.Attribute("type") == "track" {
+		return false, "You cannot walk onto the train tracks!"
 	}
 
 	return true, ""
@@ -347,4 +352,13 @@ func (c *Character) EditorData() *ObjectEditorData {
 		ObjectType: "character",
 		Properties: props,
 	}
+}
+
+// HasPermission returns true if the Character has a particular permission.
+func (c *Character) HasPermission(p string) bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	perms := strings.Split(c.UnsafeAttributes["permissions"], " ")
+	return misc.Contains(perms, p)
 }

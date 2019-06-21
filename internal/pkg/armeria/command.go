@@ -26,13 +26,15 @@ type CommandArgument struct {
 type CommandPermissions struct {
 	RequireNoCharacter bool
 	RequireCharacter   bool
+	RequirePermission  string
 }
 
 type CommandContext struct {
-	Command   *Command
-	Player    *Player
-	Character *Character
-	Args      map[string]string
+	Command         *Command
+	Player          *Player
+	PlayerInitiated bool
+	Character       *Character
+	Args            map[string]string
 }
 
 // CheckPermissions returns whether or not a player can use the command
@@ -53,6 +55,11 @@ func (cmd *Command) CheckPermissions(p *Player) bool {
 		}
 	}
 
+	if len(cmd.Permissions.RequirePermission) > 0 {
+		if !p.Character().HasPermission(cmd.Permissions.RequirePermission) {
+			return false
+		}
+	}
 	return true
 }
 

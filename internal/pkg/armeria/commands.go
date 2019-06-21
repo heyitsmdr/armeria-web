@@ -38,7 +38,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 		if strings.ToLower(cmd.Name) == cmdName || misc.Contains(cmd.AltNames, cmdName) {
 			// Handle permissions
 			if !cmd.CheckPermissions(p) {
-				return nil, nil, "You cannot use that command right now."
+				return nil, nil, "You cannot use that command."
 			}
 
 			// Handle sub-commands
@@ -78,7 +78,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 
 // ProcessCommand will evaluate and process a command sent by the player either
 // manually or programmatically.
-func (m *CommandManager) ProcessCommand(p *Player, command string) {
+func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiated bool) {
 	sections := strings.Fields(command)
 	if len(sections) == 0 {
 		return
@@ -92,9 +92,10 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 	}
 
 	ctx := &CommandContext{
-		Command: cmd,
-		Player:  p,
-		Args:    cmdArgs,
+		Command:         cmd,
+		Player:          p,
+		Args:            cmdArgs,
+		PlayerInitiated: playerInitiated,
 	}
 
 	if p.Character() != nil {
@@ -102,7 +103,7 @@ func (m *CommandManager) ProcessCommand(p *Player, command string) {
 	}
 
 	if len(cmd.Alias) > 0 {
-		m.ProcessCommand(p, cmd.Alias)
+		m.ProcessCommand(p, cmd.Alias, playerInitiated)
 		return
 	}
 

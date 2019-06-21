@@ -48,7 +48,7 @@ func (p *Player) readPump() {
 		switch messageRead.Type {
 		case "command":
 			cmd := messageRead.Payload.(string)
-			Armeria.commandManager.ProcessCommand(p, cmd[1:])
+			Armeria.commandManager.ProcessCommand(p, cmd[1:], true)
 		case "objectEditorOpen":
 			open := messageRead.Payload.(bool)
 			if open {

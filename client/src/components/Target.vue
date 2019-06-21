@@ -55,6 +55,8 @@ export default {
                     this.$socket.sendObj({type: 'command', payload: '/character edit ' + this.name});
                 } else if (this.objectType == 1) {
                     this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
+                } else if (this.objectType == 2) {
+                    this.$socket.sendObj({ type: 'command',  payload: '/item edit ' + this.name });
                 }
             } else {
                 this.$store.dispatch('setObjectTarget', this.name);

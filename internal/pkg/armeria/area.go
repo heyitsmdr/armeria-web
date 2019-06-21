@@ -1,15 +1,19 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"encoding/json"
 	"log"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 type Area struct {
-	UnsafeName  string  `json:"name"`
-	UnsafeRooms []*Room `json:"rooms"`
-	mux         sync.Mutex
+	UnsafeName       string            `json:"name"`
+	UnsafeRooms      []*Room           `json:"rooms"`
+	UnsafeAttributes map[string]string `json:"attributes"`
+	mux              sync.Mutex
 }
 
 type AdjacentRooms struct {
@@ -29,6 +33,20 @@ const (
 	UpDirection    = "up"
 	DownDirection  = "down"
 )
+
+// ValidAreaAttributes returns an array of valid attributes that can be permanently set.
+func ValidAreaAttributes() []string {
+	return []string{}
+}
+
+// AreaAttributeDefault returns the default value for a particular attribute.
+func AreaAttributeDefault(name string) string {
+	switch name {
+
+	}
+
+	return ""
+}
 
 // UnsafeName returns the name of the area.
 func (a *Area) Name() string {
@@ -62,6 +80,7 @@ func (a *Area) MinimapData() string {
 		rooms = append(rooms, map[string]interface{}{
 			"title": r.Attribute("title"),
 			"color": r.Attribute("color"),
+			"type":  r.Attribute("type"),
 			"x":     r.Coords().X,
 			"y":     r.Coords().Y,
 			"z":     r.Coords().Z,
@@ -80,6 +99,51 @@ func (a *Area) MinimapData() string {
 
 	return string(mapJson)
 
+}
+
+// EditorData returns the JSON used for the object editor.
+func (a *Area) EditorData() *ObjectEditorData {
+	var props []*ObjectEditorDataProperty
+	for _, attrName := range ValidAreaAttributes() {
+		props = append(props, &ObjectEditorDataProperty{
+			PropType: "editable",
+			Name:     attrName,
+			Value:    a.Attribute(attrName),
+		})
+	}
+
+	return &ObjectEditorData{
+		Name:       a.Name(),
+		ObjectType: "area",
+		Properties: props,
+	}
+}
+
+// SetAttribute sets a permanent attribute and only valid attributes can be set.
+func (a *Area) SetAttribute(name string, value string) {
+	a.mux.Lock()
+	defer a.mux.Unlock()
+
+	if !misc.Contains(ValidAreaAttributes(), name) {
+		Armeria.log.Fatal("attempted to set invalid attribute",
+			zap.String("attribute", name),
+			zap.String("value", value),
+		)
+	}
+
+	a.UnsafeAttributes[name] = value
+}
+
+// Attribute returns a permanent attribute.
+func (a *Area) Attribute(name string) string {
+	a.mux.Lock()
+	defer a.mux.Unlock()
+
+	if len(a.UnsafeAttributes[name]) == 0 {
+		return AreaAttributeDefault(name)
+	}
+
+	return a.UnsafeAttributes[name]
 }
 
 // CharacterEntered is called when the character is moved into the area (or logged in).

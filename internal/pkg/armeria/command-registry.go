@@ -63,7 +63,8 @@ func RegisterGameCommands() {
 			Name: "room",
 			Help: "Allows you to manage rooms.",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
 			},
 			Subcommands: []*Command{
 				{
@@ -112,7 +113,8 @@ func RegisterGameCommands() {
 			Name: "character",
 			Help: "Allows you to manage characters.",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_CHAREDIT",
 			},
 			Subcommands: []*Command{
 				{
@@ -161,20 +163,23 @@ func RegisterGameCommands() {
 			Name: "save",
 			Help: "Writes the in-memory game data to disk.",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_SYSOP",
 			},
 			Handler: handleSaveCommand,
 		},
 		{
 			Name: "reload",
 			Help: "Updates, builds and reloads the server, client, or both.",
+
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_SYSOP",
+			},
 			Arguments: []*CommandArgument{
 				{
 					Name: "component",
 				},
-			},
-			Permissions: &CommandPermissions{
-				RequireCharacter: true,
 			},
 			Handler: handleReloadCommand,
 		},
@@ -216,7 +221,8 @@ func RegisterGameCommands() {
 			Name: "mob",
 			Help: "Allows you to manage mobiles (npcs/monsters).",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
 			},
 			Subcommands: []*Command{
 				{
@@ -294,10 +300,44 @@ func RegisterGameCommands() {
 			},
 		},
 		{
+			Name: "area",
+			Help: "Allows you to manage areas.",
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
+			},
+			Subcommands: []*Command{
+				{
+					Name: "list",
+					Help: "Lists the areas in the game, optionally using a filter.",
+					Arguments: []*CommandArgument{
+						{
+							Name:     "filter",
+							Optional: true,
+						},
+					},
+					Handler: handleAreaListCommand,
+				},
+				{
+					Name: "edit",
+					Help: "Opens the editor panel for an area.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "area",
+							Optional:         true,
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleAreaEditCommand,
+				},
+			},
+		},
+		{
 			Name: "item",
 			Help: "Allows you to manage items.",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
 			},
 			Subcommands: []*Command{
 				{
@@ -379,9 +419,19 @@ func RegisterGameCommands() {
 			Name: "wipe",
 			Help: "Wipes the objects in the same room.",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
 			},
 			Handler: handleWipeCommand,
+		},
+		{
+			Name: "ghost",
+			Help: "Allows you to bypass restrictions when moving.",
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_GHOST",
+			},
+			Handler: handleGhostCommand,
 		},
 	}
 

@@ -55,7 +55,7 @@ export default {
 
             this.clearMap();
 
-            const filteredRooms = rooms.filter(r => r.z == zIndex);
+            const filteredRooms = rooms.filter(r => r.z === zIndex);
 
             filteredRooms.forEach(room => {
                 const div = document.createElement('div');
@@ -71,6 +71,10 @@ export default {
                 div.setAttribute('z', room.z);
                 div.addEventListener('mouseover', this.onRoomHover);
                 div.className = 'room';
+
+                if (room.type === 'track') {
+                    div.style.opacity = '0.3';
+                }
 
                 this.$refs['floor'].appendChild(div)
             })

@@ -97,6 +97,14 @@ func handleLookCommand(r *CommandContext) {
 			r.Character.Colorize(validDirString, ColorRoomDirs) +
 			withYou,
 	)
+
+	if r.PlayerInitiated {
+		for _, c := range r.Character.Room().Characters(r.Character) {
+			c.Player().clientActions.ShowText(
+				fmt.Sprintf("%s takes a look around.", r.Character.FormattedName()),
+			)
+		}
+	}
 }
 
 func handleSayCommand(r *CommandContext) {
@@ -108,7 +116,7 @@ func handleSayCommand(r *CommandContext) {
 	var moveOverride = []string{"n", "s", "e", "w", "u", "d"}
 	for _, mo := range moveOverride {
 		if r.Args["text"] == mo {
-			Armeria.commandManager.ProcessCommand(r.Player, "move "+mo)
+			Armeria.commandManager.ProcessCommand(r.Player, "move "+mo, true)
 			return
 		}
 	}
@@ -126,11 +134,10 @@ func handleSayCommand(r *CommandContext) {
 	)
 
 	room := Armeria.worldManager.RoomFromLocation(r.Player.Character().Location())
-	otherChars := room.Characters(r.Player.Character())
-	for _, c := range otherChars {
+	for _, c := range room.Characters(r.Character) {
 		c.Player().clientActions.ShowText(
 			c.Player().Character().Colorize(
-				fmt.Sprintf("%s %s, \"%s\".", r.Player.Character().FormattedName(), verbs[1], r.Args["text"]),
+				fmt.Sprintf("%s %s, \"%s\".", r.Character.FormattedName(), verbs[1], r.Args["text"]),
 				ColorSay,
 			),
 		)
@@ -201,7 +208,7 @@ func handleMoveCommand(r *CommandContext) {
 
 	moveAllowed, moveError := r.Character.MoveAllowed(newLocation)
 	if !moveAllowed {
-		r.Player.clientActions.ShowText(moveError)
+		r.Player.clientActions.ShowColorizedText(moveError, ColorError)
 		return
 	}
 
@@ -212,7 +219,7 @@ func handleMoveCommand(r *CommandContext) {
 		r.Character.Colorize(fmt.Sprintf("%s walked in from %s.", r.Character.FormattedName(), arriveDir), ColorMovement),
 	)
 
-	Armeria.commandManager.ProcessCommand(r.Player, "look")
+	Armeria.commandManager.ProcessCommand(r.Player, "look", false)
 }
 
 func handleRoomEditCommand(r *CommandContext) {
@@ -831,4 +838,58 @@ func handleItemInstancesCommand(r *CommandContext) {
 			strings.Join(itemLocations, "\n"),
 		),
 	)
+}
+
+func handleGhostCommand(r *CommandContext) {
+	if len(r.Character.TempAttribute("ghost")) > 0 {
+		r.Character.SetTempAttribute("ghost", "")
+		r.Player.clientActions.ShowColorizedText("You are no longer ghostly.", ColorSuccess)
+	} else {
+		r.Character.SetTempAttribute("ghost", "1")
+		r.Player.clientActions.ShowColorizedText("You are now ghostly.", ColorSuccess)
+	}
+}
+
+func handleAreaListCommand(r *CommandContext) {
+	f := r.Args["filter"]
+
+	var areas []string
+	for _, a := range Armeria.worldManager.Areas() {
+		if len(f) == 0 || strings.Contains(strings.ToLower(a.Name()), strings.ToLower(f)) {
+			areas = append(areas, a.Name())
+		}
+	}
+
+	var matchingText string
+	if len(f) > 0 {
+		matchingText = " matching \"" + f + "\""
+	}
+
+	if len(areas) == 0 {
+		r.Player.clientActions.ShowColorizedText(
+			fmt.Sprintf("There are no areas matching \"%s\".", f),
+			ColorError,
+		)
+		return
+	}
+
+	r.Player.clientActions.ShowText(
+		fmt.Sprintf("There are [b]%d[/b] areas%s: %s.", len(areas), matchingText, strings.Join(areas, ", ")),
+	)
+}
+
+func handleAreaEditCommand(r *CommandContext) {
+	area := r.Args["area"]
+	var a *Area
+	if len(area) == 0 {
+		a = r.Character.Area()
+	} else {
+		a = Armeria.worldManager.AreaByName(area)
+		if a == nil {
+			r.Player.clientActions.ShowColorizedText("That area doesn't exist.", ColorError)
+			return
+		}
+	}
+
+	r.Player.clientActions.ShowObjectEditor(a.EditorData())
 }

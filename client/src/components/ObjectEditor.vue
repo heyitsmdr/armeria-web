@@ -214,11 +214,15 @@
         color: #ccc;
         transition: all .1s ease-in-out;
         font-weight: 600;
+        background-color: #383838;
+        padding: 0 7px;
+        border-radius: 5px;
     }
 
     .header .close:hover {
         cursor: pointer;
         color: #fff;
+        background-color: #5d5b5b;
     }
 
     .prop-container {

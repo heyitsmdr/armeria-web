@@ -48,7 +48,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	// global variables
 	L.SetGlobal("invoker_name", lua.LString(invoker.Name()))
 	L.SetGlobal("mob_uuid", lua.LString(mi.UUID))
-	L.SetGlobal("mob_name", lua.LString(mi.UnsafeParent))
+	L.SetGlobal("mob_name", lua.LString(mi.Name()))
 	// global functions
 	L.SetGlobal("mob_say", L.NewFunction(LuaMobSay))
 
@@ -58,6 +58,17 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 			zap.String("script", mi.Parent().ScriptFile()),
 			zap.Error(err),
 		)
+		if invoker.HasPermission("CAN_BUILD") {
+			invoker.Player().clientActions.ShowColorizedText(
+				fmt.Sprintf(
+					"There was an error compiling %s() on mob %s:\n%s",
+					funcName,
+					mi.Name(),
+					err.Error(),
+				),
+				ColorError,
+			)
+		}
 		return
 	}
 
@@ -77,5 +88,16 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 			zap.String("function", funcName),
 			zap.Error(err),
 		)
+		if invoker.HasPermission("CAN_BUILD") {
+			invoker.Player().clientActions.ShowColorizedText(
+				fmt.Sprintf(
+					"There was an error running %s() on mob %s:\n%s",
+					funcName,
+					mi.Name(),
+					err.Error(),
+				),
+				ColorError,
+			)
+		}
 	}
 }
