@@ -18,7 +18,7 @@ type Character struct {
 	UnsafePassword       string            `json:"password"`
 	UnsafeLocation       *Location         `json:"location"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
-	UnsafeTempAttributes map[string]string
+	UnsafeTempAttributes map[string]string `json:"-"`
 	player               *Player
 	mux                  sync.Mutex
 }
