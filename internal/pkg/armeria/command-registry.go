@@ -308,6 +308,17 @@ func RegisterGameCommands() {
 			},
 			Subcommands: []*Command{
 				{
+					Name: "create",
+					Help: "Creates a new area in the game.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "name",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleAreaCreateCommand,
+				},
+				{
 					Name: "list",
 					Help: "Lists the areas in the game, optionally using a filter.",
 					Arguments: []*CommandArgument{

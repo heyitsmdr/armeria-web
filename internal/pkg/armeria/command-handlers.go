@@ -197,7 +197,7 @@ func handleMoveCommand(r *CommandContext) {
 	z := loc.Coords.Z + o["z"]
 
 	newLocation := &Location{
-		AreaName: loc.AreaName,
+		AreaUUID: loc.AreaUUID,
 		Coords: &Coords{
 			X: x,
 			Y: y,
@@ -268,7 +268,7 @@ func handleRoomCreateCommand(r *CommandContext) {
 	z := loc.Coords.Z + o["z"]
 
 	newLoc := &Location{
-		AreaName: loc.AreaName,
+		AreaUUID: loc.AreaUUID,
 		Coords: &Coords{
 			X: x,
 			Y: y,
@@ -281,9 +281,8 @@ func handleRoomCreateCommand(r *CommandContext) {
 		return
 	}
 
-	r.Character.Area().AddRoom(&Room{
-		UnafeCoords: newLoc.Coords,
-	})
+	room := Armeria.worldManager.CreateRoom()
+	r.Character.Area().AddRoom(room)
 
 	for _, c := range r.Character.Area().Characters(nil) {
 		c.Player().clientActions.RenderMap()
@@ -307,7 +306,7 @@ func handleRoomDestroyCommand(r *CommandContext) {
 	z := loc.Coords.Z + o["z"]
 
 	l := &Location{
-		AreaName: loc.AreaName,
+		AreaUUID: loc.AreaUUID,
 		Coords: &Coords{
 			X: x,
 			Y: y,
@@ -588,7 +587,7 @@ func handleMobSpawnCommand(r *CommandContext) {
 
 	l := r.Character.Location()
 	loc := &Location{
-		AreaName: l.AreaName,
+		AreaUUID: l.AreaUUID,
 		Coords: &Coords{
 			X: l.Coords.X,
 			Y: l.Coords.Y,
@@ -617,6 +616,7 @@ func handleMobInstancesCommand(r *CommandContext) {
 
 	var mobLocations []string
 	for i, mi := range m.Instances() {
+		a := Armeria.worldManager.AreaFromLocation(mi.Location())
 		mobLocations = append(
 			mobLocations,
 			fmt.Sprintf(
@@ -624,7 +624,7 @@ func handleMobInstancesCommand(r *CommandContext) {
 				i+1,
 				mi.FormattedName(),
 				mi.Id(),
-				mi.Location().AreaName,
+				a.Name(),
 				mi.Location().Coords.X,
 				mi.Location().Coords.Y,
 				mi.Location().Coords.Z,
@@ -725,7 +725,7 @@ func handleItemSpawnCommand(r *CommandContext) {
 
 	l := r.Character.Location()
 	loc := &Location{
-		AreaName: l.AreaName,
+		AreaUUID: l.AreaUUID,
 		Coords: &Coords{
 			X: l.Coords.X,
 			Y: l.Coords.Y,
@@ -803,6 +803,7 @@ func handleItemInstancesCommand(r *CommandContext) {
 	var itemLocations []string
 	for idx, ii := range i.Instances() {
 		if ii.LocationType() == ItemLocationRoom {
+			a := Armeria.worldManager.AreaFromLocation(ii.Location())
 			itemLocations = append(
 				itemLocations,
 				fmt.Sprintf(
@@ -810,7 +811,7 @@ func handleItemInstancesCommand(r *CommandContext) {
 					idx+1,
 					ii.FormattedName(),
 					ii.Id(),
-					ii.Location().AreaName,
+					a.Name(),
 					ii.Location().Coords.X,
 					ii.Location().Coords.Y,
 					ii.Location().Coords.Z,
@@ -848,6 +849,10 @@ func handleGhostCommand(r *CommandContext) {
 		r.Character.SetTempAttribute("ghost", "1")
 		r.Player.clientActions.ShowColorizedText("You are now ghostly.", ColorSuccess)
 	}
+}
+
+func handleAreaCreateCommand(r *CommandContext) {
+	//n := r.Args["name"]
 }
 
 func handleAreaListCommand(r *CommandContext) {

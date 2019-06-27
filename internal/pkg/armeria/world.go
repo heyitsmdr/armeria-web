@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/google/uuid"
+
 	"go.uber.org/zap"
 )
 
@@ -78,9 +80,32 @@ func (m *WorldManager) SaveWorld() {
 	)
 }
 
+func (m *WorldManager) CreateRoom() *Room {
+	return &Room{
+		UnsafeCoords: &Coords{
+			X: 0,
+			Y: 0,
+			Z: 0,
+			I: 0,
+		},
+		UnsafeAttributes: map[string]string{},
+	}
+}
+
+func (m *WorldManager) CreateArea(name string) *Area {
+	a := &Area{
+		UUID:             uuid.New().String(),
+		UnsafeName:       name,
+		UnsafeAttributes: make(map[string]string),
+	}
+	r := m.CreateRoom()
+	a.AddRoom(r)
+	return a
+}
+
 func (m *WorldManager) AreaFromLocation(l *Location) *Area {
 	for _, a := range m.UnsafeWorld {
-		if a.Name() == l.AreaName {
+		if a.Id() == l.AreaUUID {
 			return a
 		}
 	}
@@ -108,9 +133,9 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 	loc := &Location{
 		AreaName: a.UnsafeName,
 		Coords: &Coords{
-			X: r.UnafeCoords.X + o["x"],
-			Y: r.UnafeCoords.Y + o["y"],
-			Z: r.UnafeCoords.Z + o["z"],
+			X: r.UnsafeCoords.X + o["x"],
+			Y: r.UnsafeCoords.Y + o["y"],
+			Z: r.UnsafeCoords.Z + o["z"],
 		},
 	}
 

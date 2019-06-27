@@ -11,7 +11,7 @@ import (
 
 type Room struct {
 	UnsafeAttributes map[string]string `json:"attributes"`
-	UnafeCoords      *Coords           `json:"coords"`
+	UnsafeCoords     *Coords           `json:"coords"`
 	objects          []Object
 	mux              sync.Mutex
 }
@@ -24,7 +24,7 @@ type Coords struct {
 }
 
 type Location struct {
-	AreaName string  `json:"area"`
+	AreaUUID string  `json:"area"`
 	Coords   *Coords `json:"coords"`
 }
 
@@ -53,7 +53,7 @@ func RoomAttributeDefault(name string) string {
 func (r *Room) Coords() *Coords {
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	return r.UnafeCoords
+	return r.UnsafeCoords
 }
 
 func (r *Room) SetAttribute(name string, value string) {

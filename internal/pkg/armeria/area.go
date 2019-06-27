@@ -10,6 +10,7 @@ import (
 )
 
 type Area struct {
+	UUID             string            `json:"uuid"`
 	UnsafeName       string            `json:"name"`
 	UnsafeRooms      []*Room           `json:"rooms"`
 	UnsafeAttributes map[string]string `json:"attributes"`
@@ -48,6 +49,11 @@ func AreaAttributeDefault(name string) string {
 	return ""
 }
 
+// Id returns the UUID of the Area..
+func (a *Area) Id() string {
+	return a.UUID
+}
+
 // UnsafeName returns the name of the area.
 func (a *Area) Name() string {
 	a.mux.Lock()
@@ -55,7 +61,7 @@ func (a *Area) Name() string {
 	return a.UnsafeName
 }
 
-// RoomAt returns the Room at a particular UnafeCoords within the same area.
+// RoomAt returns the Room at a particular UnsafeCoords within the same area.
 func (a *Area) RoomAt(c *Coords) *Room {
 	a.mux.Lock()
 	defer a.mux.Unlock()
