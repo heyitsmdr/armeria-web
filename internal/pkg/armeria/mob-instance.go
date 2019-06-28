@@ -35,7 +35,7 @@ func (mi *MobInstance) Location() *Location {
 
 // Room returns the Room of the mob.
 func (mi *MobInstance) Room() *Room {
-	return Armeria.worldManager.RoomFromLocation(mi.Location())
+	return mi.Location().Room()
 }
 
 // Type returns the object type, since Mob implements the Object interface.

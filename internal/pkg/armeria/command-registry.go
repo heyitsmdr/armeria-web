@@ -444,6 +444,19 @@ func RegisterGameCommands() {
 			},
 			Handler: handleGhostCommand,
 		},
+		{
+			Name: "password",
+			Help: "Sets a new password for your character.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "password",
+				},
+			},
+			Handler: handlePasswordCommand,
+		},
 	}
 
 	for _, cmd := range commands {

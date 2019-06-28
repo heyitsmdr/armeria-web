@@ -25,7 +25,7 @@ export default {
             gridPadding: 8,
             mapHeight: 0,
             mapWidth: 0,
-            areaTitle: '-',
+            areaTitle: 'Unknown'
         }
     },
     watch: {
@@ -84,7 +84,7 @@ export default {
             const floor = this.$refs['floor'];
             const halfMapWidth = this.mapWidth / 2;
             const halfMapHeight = this.mapHeight / 2;
-            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2);
 
             floor.style.left = (halfMapWidth - (gridSizeFull / 2) - (gridSizeFull * location.x) - (this.gridPadding * location.x)) + 'px';
             floor.style.top = (halfMapHeight - (gridSizeFull / 2) - (gridSizeFull * -location.y) - (this.gridPadding * -location.y)) + 'px';
@@ -108,8 +108,6 @@ export default {
                     break;
                 }
             }
-
-            this.location = location;
         },
 
         onRoomHover(event) {
@@ -121,8 +119,10 @@ export default {
     mounted() {
         const map = this.$refs['map'];
         const pos = this.$refs['position'];
+        
         this.mapHeight = map.clientHeight;
         this.mapWidth = map.clientWidth;
+
         // set position to half height/width with an offset for border size on position marker
         pos.style.top = ((this.mapHeight / 2) - 2) + 'px';
         pos.style.left = ((this.mapWidth / 2) - 2) + 'px';

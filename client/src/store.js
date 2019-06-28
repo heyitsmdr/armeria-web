@@ -13,7 +13,7 @@ export default new Vuex.Store({
     minimapData: {},
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
-    roomTitle: '',
+    roomTitle: 'Unknown',
     objectTarget: '',
     objectEditorOpen: false,
     objectEditorData: {},

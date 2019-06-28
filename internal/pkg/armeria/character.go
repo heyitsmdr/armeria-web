@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Character struct {
@@ -86,11 +87,33 @@ func (c *Character) FormattedNameWithTitle() string {
 	return fmt.Sprintf("[b]%s[/b]", c.UnsafeName)
 }
 
-// Password returns the character's password.
-func (c *Character) Password() string {
+// CheckPassword returns a bool indicating whether the password is correct or not.
+func (c *Character) CheckPassword(pw string) bool {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	return c.UnsafePassword
+
+	byteHash := []byte(c.UnsafePassword)
+	err := bcrypt.CompareHashAndPassword(byteHash, []byte(pw))
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+// SetPassword hashes and sets a new password for the Character.
+func (c *Character) SetPassword(pw string) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.MinCost)
+	if err != nil {
+		Armeria.log.Fatal("error generating password hash",
+			zap.Error(err),
+		)
+	}
+
+	c.UnsafePassword = string(hash)
 }
 
 // SaltedPasswordHash returns the character's salted password as an md5 hash.
@@ -144,12 +167,12 @@ func (c *Character) SetLocation(l *Location) {
 
 // Room returns the room that the character is in.
 func (c *Character) Room() *Room {
-	return Armeria.worldManager.RoomFromLocation(c.UnsafeLocation)
+	return c.UnsafeLocation.Room()
 }
 
 // Area returns the area that the character is in.
 func (c *Character) Area() *Area {
-	return Armeria.worldManager.AreaFromLocation(c.UnsafeLocation)
+	return c.UnsafeLocation.Area()
 }
 
 // Colorize will color text according to the character's color settings.
@@ -179,12 +202,15 @@ func (c *Character) Colorize(text string, color int) string {
 
 // LoggedIn handles everything that needs to happen when a character enters the game.
 func (c *Character) LoggedIn() {
-	room := Armeria.worldManager.RoomFromLocation(c.UnsafeLocation)
-	area := Armeria.worldManager.AreaFromLocation(c.UnsafeLocation)
+	room := c.Room()
+	area := c.Area()
 
 	// Add character to room
-	if room == nil {
-		log.Fatalf("[character] character %s logged in to an invalid room", c.Name())
+	if room == nil || area == nil {
+		Armeria.log.Fatal("character logged into an invalid area/room",
+			zap.String("character", c.Name()),
+		)
+		return
 	}
 	room.AddObjectToRoom(c)
 
@@ -210,12 +236,15 @@ func (c *Character) LoggedIn() {
 
 // LoggedOut handles everything that needs to happen when a character leaves the game.
 func (c *Character) LoggedOut() {
-	room := Armeria.worldManager.RoomFromLocation(c.UnsafeLocation)
-	area := Armeria.worldManager.AreaFromLocation(c.UnsafeLocation)
+	room := c.Room()
+	area := c.Area()
 
 	// Remove character from room
-	if room == nil {
-		log.Fatalf("[character] character %s logged out in an invalid room", c.Name())
+	if room == nil || area == nil {
+		Armeria.log.Fatal("character logged out of an invalid area/room",
+			zap.String("character", c.Name()),
+		)
+		return
 	}
 	room.RemoveObjectFromRoom(c)
 
@@ -294,7 +323,7 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 		return true, ""
 	}
 
-	newRoom := Armeria.worldManager.RoomFromLocation(to)
+	newRoom := to.Room()
 	if newRoom == nil {
 		return false, "You cannot move that way."
 	}
@@ -309,7 +338,7 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 // Move will move the character to a new location (no move checks are performed).
 func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.Room()
-	newRoom := Armeria.worldManager.RoomFromLocation(to)
+	newRoom := to.Room()
 
 	oldRoom.RemoveObjectFromRoom(c)
 	newRoom.AddObjectToRoom(c)

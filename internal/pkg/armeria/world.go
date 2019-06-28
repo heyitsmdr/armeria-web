@@ -80,14 +80,9 @@ func (m *WorldManager) SaveWorld() {
 	)
 }
 
-func (m *WorldManager) CreateRoom() *Room {
+func (m *WorldManager) CreateRoom(c *Coords) *Room {
 	return &Room{
-		UnsafeCoords: &Coords{
-			X: 0,
-			Y: 0,
-			Z: 0,
-			I: 0,
-		},
+		UnsafeCoords:     c,
 		UnsafeAttributes: map[string]string{},
 	}
 }
@@ -98,28 +93,9 @@ func (m *WorldManager) CreateArea(name string) *Area {
 		UnsafeName:       name,
 		UnsafeAttributes: make(map[string]string),
 	}
-	r := m.CreateRoom()
+	r := m.CreateRoom(&Coords{0, 0, 0, 0})
 	a.AddRoom(r)
 	return a
-}
-
-func (m *WorldManager) AreaFromLocation(l *Location) *Area {
-	for _, a := range m.UnsafeWorld {
-		if a.Id() == l.AreaUUID {
-			return a
-		}
-	}
-
-	return nil
-}
-
-func (m *WorldManager) RoomFromLocation(l *Location) *Room {
-	a := m.AreaFromLocation(l)
-	if a == nil {
-		return nil
-	}
-
-	return a.RoomAt(l.Coords)
 }
 
 func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room {
@@ -131,7 +107,7 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 	}
 
 	loc := &Location{
-		AreaName: a.UnsafeName,
+		AreaUUID: a.Id(),
 		Coords: &Coords{
 			X: r.UnsafeCoords.X + o["x"],
 			Y: r.UnsafeCoords.Y + o["y"],
@@ -139,7 +115,7 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 		},
 	}
 
-	return m.RoomFromLocation(loc)
+	return loc.Room()
 }
 
 func (m *WorldManager) AreaByName(name string) *Area {

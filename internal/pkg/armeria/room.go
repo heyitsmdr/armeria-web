@@ -16,18 +16,6 @@ type Room struct {
 	mux              sync.Mutex
 }
 
-type Coords struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-	Z int `json:"z"`
-	I int `json:"-"`
-}
-
-type Location struct {
-	AreaUUID string  `json:"area"`
-	Coords   *Coords `json:"coords"`
-}
-
 func ValidRoomAttributes() []string {
 	return []string{
 		"title",

@@ -90,7 +90,7 @@ export default {
           this.$store.dispatch('setObjectTarget', '');
           this.$store.dispatch('setObjectEditorOpen', false);
           break;
-        case '/':
+        case 'enter':
           this.$store.dispatch('setForceInputFocus', true);
           break;
       }

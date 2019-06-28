@@ -19,7 +19,7 @@ func handleLoginCommand(r *CommandContext) {
 		return
 	}
 
-	if c.Password() != r.Args["password"] {
+	if !c.CheckPassword(r.Args["password"]) {
 		r.Player.clientActions.ShowColorizedText("Password incorrect for that character.", ColorError)
 		return
 	}
@@ -43,7 +43,7 @@ func handleLoginCommand(r *CommandContext) {
 }
 
 func handleLookCommand(r *CommandContext) {
-	rm := Armeria.worldManager.RoomFromLocation(r.Character.Location())
+	rm := r.Character.Room()
 
 	var objNames []string
 	for _, o := range rm.Objects() {
@@ -133,7 +133,7 @@ func handleSayCommand(r *CommandContext) {
 		r.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], r.Args["text"]), ColorSay),
 	)
 
-	room := Armeria.worldManager.RoomFromLocation(r.Player.Character().Location())
+	room := r.Character.Room()
 	for _, c := range room.Characters(r.Character) {
 		c.Player().clientActions.ShowText(
 			c.Player().Character().Colorize(
@@ -267,21 +267,22 @@ func handleRoomCreateCommand(r *CommandContext) {
 	y := loc.Coords.Y + o["y"]
 	z := loc.Coords.Z + o["z"]
 
+	coords := &Coords{
+		X: x,
+		Y: y,
+		Z: z,
+	}
 	newLoc := &Location{
 		AreaUUID: loc.AreaUUID,
-		Coords: &Coords{
-			X: x,
-			Y: y,
-			Z: z,
-		},
+		Coords:   coords,
 	}
 
-	if Armeria.worldManager.RoomFromLocation(newLoc) != nil {
+	if newLoc.Room() != nil {
 		r.Player.clientActions.ShowColorizedText("There's already a room in that direction.", ColorError)
 		return
 	}
 
-	room := Armeria.worldManager.CreateRoom()
+	room := Armeria.worldManager.CreateRoom(coords)
 	r.Character.Area().AddRoom(room)
 
 	for _, c := range r.Character.Area().Characters(nil) {
@@ -314,7 +315,7 @@ func handleRoomDestroyCommand(r *CommandContext) {
 		},
 	}
 
-	rm := Armeria.worldManager.RoomFromLocation(l)
+	rm := l.Room()
 	if rm == nil {
 		r.Player.clientActions.ShowColorizedText("There's no room in that direction.", ColorError)
 		return
@@ -616,7 +617,7 @@ func handleMobInstancesCommand(r *CommandContext) {
 
 	var mobLocations []string
 	for i, mi := range m.Instances() {
-		a := Armeria.worldManager.AreaFromLocation(mi.Location())
+		a := mi.Location().Area()
 		mobLocations = append(
 			mobLocations,
 			fmt.Sprintf(
@@ -803,7 +804,7 @@ func handleItemInstancesCommand(r *CommandContext) {
 	var itemLocations []string
 	for idx, ii := range i.Instances() {
 		if ii.LocationType() == ItemLocationRoom {
-			a := Armeria.worldManager.AreaFromLocation(ii.Location())
+			a := ii.Location().Area()
 			itemLocations = append(
 				itemLocations,
 				fmt.Sprintf(
@@ -897,4 +898,10 @@ func handleAreaEditCommand(r *CommandContext) {
 	}
 
 	r.Player.clientActions.ShowObjectEditor(a.EditorData())
+}
+
+func handlePasswordCommand(r *CommandContext) {
+	pw := r.Args["password"]
+	r.Character.SetPassword(pw)
+	r.Player.clientActions.ShowColorizedText("Your character password has been set.", ColorSuccess)
 }

@@ -94,7 +94,7 @@ func (m *ItemManager) AddItemInstancesToRooms() {
 				continue
 			}
 
-			r := Armeria.worldManager.RoomFromLocation(ii.Location())
+			r := ii.Location().Room()
 			if r == nil {
 				Armeria.log.Fatal("item instance in invalid room",
 					zap.String("item", ii.Name()),

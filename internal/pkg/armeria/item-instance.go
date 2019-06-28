@@ -56,7 +56,7 @@ func (ii *ItemInstance) Room() *Room {
 		return nil
 	}
 
-	return Armeria.worldManager.RoomFromLocation(ii.UnsafeLocation)
+	return ii.UnsafeLocation.Room()
 }
 
 // SetAttribute sets a permanent attribute on the ItemInstance.
