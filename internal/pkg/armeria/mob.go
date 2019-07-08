@@ -160,6 +160,6 @@ func (m *Mob) ScriptFile() string {
 	return fmt.Sprintf(
 		"%s/scripts/mob-%s.lua",
 		Armeria.dataPath,
-		strings.ReplaceAll(m.UnsafeName, " ", "-"),
+		strings.ToLower(strings.ReplaceAll(m.UnsafeName, " ", "-")),
 	)
 }
