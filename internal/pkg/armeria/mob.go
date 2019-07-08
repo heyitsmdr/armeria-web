@@ -151,6 +151,7 @@ func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
 	return nil
 }
 
+// Instances returns all of the mob instances in memory.
 func (m *Mob) Instances() []*MobInstance {
 	return m.UnsafeInstances
 }
