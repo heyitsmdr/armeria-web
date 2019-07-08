@@ -20,9 +20,9 @@ export default {
     name: 'Minimap',
     data: () => {
         return {
-            gridSize: 24,
+            gridSize: 22,
             gridBorderSize: 2,
-            gridPadding: 8,
+            gridPadding: 6,
             mapHeight: 0,
             mapWidth: 0,
             areaTitle: 'Unknown'

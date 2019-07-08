@@ -175,6 +175,7 @@ html, body {
 
       .container-targets {
         flex-grow: 1;
+        min-height: 100px;
       }
 
       .container-hotkeys {

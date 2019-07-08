@@ -457,6 +457,22 @@ func RegisterGameCommands() {
 			},
 			Handler: handlePasswordCommand,
 		},
+		{
+			Name:     "teleport",
+			AltNames: []string{"tp"},
+			Help:     "Teleports to a character or location.",
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_TELEPORT",
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "destination",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleTeleportCommand,
+		},
 	}
 
 	for _, cmd := range commands {

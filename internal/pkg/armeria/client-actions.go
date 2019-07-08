@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"go.uber.org/zap"
 )
@@ -71,7 +72,14 @@ func (ca *ClientActions) SyncRoomObjects() {
 // SyncRoomTitle sets the current room title on the client.
 func (ca *ClientActions) SyncRoomTitle() {
 	r := ca.player.Character().Room()
-	ca.player.CallClientAction("setRoomTitle", r.Attribute("title"))
+	if ca.player.Character().HasPermission("CAN_BUILD") {
+		c := r.Coords()
+		ca.player.CallClientAction("setRoomTitle",
+			fmt.Sprintf("%s (%d,%d,%d)", r.Attribute("title"), c.X, c.Y, c.Z),
+		)
+	} else {
+		ca.player.CallClientAction("setRoomTitle", r.Attribute("title"))
+	}
 }
 
 // ShowObjectEditor displays the object editor on the client.

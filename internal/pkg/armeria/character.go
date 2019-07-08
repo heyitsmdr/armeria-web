@@ -319,16 +319,16 @@ func (c *Character) Attribute(name string) string {
 
 // MoveAllowed will check if moving to a particular location is valid/allowed.
 func (c *Character) MoveAllowed(to *Location) (bool, string) {
+	r := to.Room()
+	if r == nil {
+		return false, "You cannot move that way."
+	}
+
 	if len(c.TempAttribute("ghost")) > 0 {
 		return true, ""
 	}
 
-	newRoom := to.Room()
-	if newRoom == nil {
-		return false, "You cannot move that way."
-	}
-
-	if newRoom.Attribute("type") == "track" {
+	if r.Attribute("type") == "track" {
 		return false, "You cannot walk onto the train tracks!"
 	}
 
@@ -339,6 +339,8 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.Room()
 	newRoom := to.Room()
+	oldArea := c.Area()
+	newArea := to.Area()
 
 	oldRoom.RemoveObjectFromRoom(c)
 	newRoom.AddObjectToRoom(c)
@@ -354,6 +356,11 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 	c.Player().clientActions.ShowText(msgToChar)
 
 	c.SetLocation(to)
+
+	if oldArea.Id() != newArea.Id() {
+		oldArea.CharacterLeft(c, false)
+		newArea.CharacterEntered(c, false)
+	}
 
 	// Trigger character entered / left events on the new and old rooms, respectively
 	newRoom.CharacterEntered(c, false)

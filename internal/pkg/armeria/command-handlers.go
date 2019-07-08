@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
+	"strconv"
 	"strings"
 
 	lua "github.com/yuin/gopher-lua"
@@ -853,7 +854,19 @@ func handleGhostCommand(r *CommandContext) {
 }
 
 func handleAreaCreateCommand(r *CommandContext) {
-	//n := r.Args["name"]
+	n := r.Args["name"]
+
+	if Armeria.worldManager.AreaByName(n) != nil {
+		r.Player.clientActions.ShowColorizedText("An area by that name already exists.", ColorError)
+		return
+	}
+
+	a := Armeria.worldManager.CreateArea(n)
+
+	r.Player.clientActions.ShowColorizedText(
+		fmt.Sprintf("An area named [b]%s[/b] has been created!", a.Name()),
+		ColorSuccess,
+	)
 }
 
 func handleAreaListCommand(r *CommandContext) {
@@ -904,4 +917,76 @@ func handlePasswordCommand(r *CommandContext) {
 	pw := r.Args["password"]
 	r.Character.SetPassword(pw)
 	r.Player.clientActions.ShowColorizedText("Your character password has been set.", ColorSuccess)
+}
+
+func handleTeleportCommand(r *CommandContext) {
+	t := r.Args["destination"]
+
+	var l *Location
+	var moveMsg string
+	if t[0:1] == "@" {
+		cn := t[1:]
+		c := Armeria.characterManager.CharacterByName(cn)
+		if c == nil {
+			r.Player.clientActions.ShowColorizedText("There is no character by that name.", ColorError)
+			return
+		} else if c.Player() == nil {
+			r.Player.clientActions.ShowColorizedText("That character is not online.", ColorError)
+			return
+		}
+
+		cl := c.Location().Coords
+		l = &Location{
+			AreaUUID: c.Area().Id(),
+			Coords:   &Coords{cl.X, cl.Y, cl.Z, cl.I},
+		}
+		moveMsg = fmt.Sprintf("You teleported to %s.", c.FormattedName())
+	} else {
+		loc := strings.Split(t, ",")
+		if len(loc) != 4 {
+			r.Player.clientActions.ShowColorizedText("Incorrect format for teleport. Use [area],[x],[y],[z].", ColorError)
+			return
+		}
+
+		a := Armeria.worldManager.AreaByName(loc[0])
+		if a == nil {
+			r.Player.clientActions.ShowColorizedText("That is not a valid area.", ColorError)
+			return
+		}
+
+		var x, y, z int
+		x, xerr := strconv.Atoi(loc[1])
+		y, yerr := strconv.Atoi(loc[2])
+		z, zerr := strconv.Atoi(loc[3])
+		if xerr != nil || yerr != nil || zerr != nil {
+			r.Player.clientActions.ShowColorizedText("The x, y, and z coordinate must be a valid number.", ColorError)
+			return
+		}
+
+		l = &Location{
+			AreaUUID: a.Id(),
+			Coords: &Coords{
+				X: x,
+				Y: y,
+				Z: z,
+				I: 0,
+			},
+		}
+
+		moveMsg = fmt.Sprintf("You teleported to [b]%s[/b] at %d, %d, %d.", a.Name(), x, y, z)
+	}
+
+	if l.Room() == nil {
+		r.Player.clientActions.ShowColorizedText("You cannot teleport there!", ColorError)
+		return
+	}
+
+	r.Character.Move(
+		l,
+		r.Character.Colorize(moveMsg, ColorMovement),
+		r.Character.Colorize(fmt.Sprintf("%s teleported away!", r.Character.FormattedName()), ColorMovement),
+		r.Character.Colorize(fmt.Sprintf("%s teleported here!", r.Character.FormattedName()), ColorMovement),
+	)
+
+	Armeria.commandManager.ProcessCommand(r.Player, "look", false)
 }

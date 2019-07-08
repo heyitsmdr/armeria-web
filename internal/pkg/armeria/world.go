@@ -93,8 +93,11 @@ func (m *WorldManager) CreateArea(name string) *Area {
 		UnsafeName:       name,
 		UnsafeAttributes: make(map[string]string),
 	}
+
 	r := m.CreateRoom(&Coords{0, 0, 0, 0})
 	a.AddRoom(r)
+	m.UnsafeWorld = append(m.UnsafeWorld, a)
+
 	return a
 }
 

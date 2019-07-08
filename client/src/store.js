@@ -37,7 +37,7 @@ export default new Vuex.Store({
     },
 
     SOCKET_ONERROR: () => {
-      console.log('an error occurred in the socket connection');
+      //console.log('an error occurred in the socket connection');
     },
 
     ADD_GAME_TEXT: (state, text) => {
