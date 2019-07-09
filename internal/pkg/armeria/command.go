@@ -3,6 +3,8 @@ package armeria
 import (
 	"fmt"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 type Command struct {
@@ -21,6 +23,7 @@ type CommandArgument struct {
 	Name             string
 	IncludeRemaining bool
 	Optional         bool
+	NoLog            bool
 }
 
 type CommandPermissions struct {
@@ -120,4 +123,37 @@ func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string
 	}
 
 	return strings.Join(output, "\n")
+}
+
+// ArgumentByName returns a CommandArgument that matches the argument's name.
+func (cmd *Command) ArgumentByName(name string) *CommandArgument {
+	for _, a := range cmd.Arguments {
+		if strings.ToLower(a.Name) == strings.ToLower(name) {
+			return a
+		}
+	}
+
+	return nil
+}
+
+// LogCtx logs a player using a command.
+func (cmd *Command) LogCtx(ctx *CommandContext) {
+	var args []string
+	for k, v := range ctx.Args {
+		a := cmd.ArgumentByName(k)
+		if a == nil || !a.NoLog {
+			args = append(args, fmt.Sprintf("%s=%s", k, v))
+		}
+	}
+
+	c := "Anonymous"
+	if ctx.Character != nil {
+		c = ctx.Character.Name()
+	}
+
+	Armeria.log.Info("player executed command",
+		zap.String("character", c),
+		zap.String("command", ctx.Command.Name),
+		zap.Strings("arguments", args),
+	)
 }

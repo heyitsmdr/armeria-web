@@ -107,5 +107,6 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 		return
 	}
 
+	cmd.LogCtx(ctx)
 	cmd.Handler(ctx)
 }

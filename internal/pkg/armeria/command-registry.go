@@ -13,7 +13,8 @@ func RegisterGameCommands() {
 					Name: "character",
 				},
 				{
-					Name: "password",
+					Name:  "password",
+					NoLog: true,
 				},
 			},
 			Handler: handleLoginCommand,
@@ -452,7 +453,8 @@ func RegisterGameCommands() {
 			},
 			Arguments: []*CommandArgument{
 				{
-					Name: "password",
+					Name:  "password",
+					NoLog: true,
 				},
 			},
 			Handler: handlePasswordCommand,
