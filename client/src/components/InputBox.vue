@@ -4,6 +4,7 @@
       class="input-box"
       ref="inputBox"
       type="text"
+      placeholder="Type a command or say something.."
       v-model="textToSend"
       @keyup.enter="handleSendText"
       @keyup.escape="handleRemoveFocus"
@@ -119,6 +120,7 @@
 <style scoped>
   .container {
     background-color: #0c0c0c;
+    border: 1px solid #272727;
   }
 
   .input-box {
@@ -135,7 +137,6 @@
 
   .container.active {
     background-color: #000;
-    border: 1px solid #303030;
     box-shadow: 0px 0px 10px 0px #292929;
   }
 
