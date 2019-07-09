@@ -74,6 +74,7 @@ export default {
 
                 if (room.type === 'track') {
                     div.style.opacity = '0.3';
+                    div.style.borderRadius = '20px';
                 }
 
                 this.$refs['floor'].appendChild(div)
