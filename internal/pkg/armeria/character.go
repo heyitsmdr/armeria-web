@@ -145,8 +145,8 @@ func (c *Character) Location() *Location {
 	return c.UnsafeLocation
 }
 
-// LocationData returns the character's location as a JSON-dump.
-func (c *Character) LocationData() string {
+// LocationJSON returns the character's location as a JSON-dump.
+func (c *Character) LocationJSON() string {
 	c.RLock()
 	defer c.RUnlock()
 

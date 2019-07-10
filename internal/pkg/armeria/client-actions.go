@@ -59,7 +59,7 @@ func (ca *ClientActions) RenderMap() {
 
 // SyncMapLocation sets the character location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
-	loc := ca.player.Character().LocationData()
+	loc := ca.player.Character().LocationJSON()
 	ca.player.CallClientAction("setCharacterLocation", loc)
 }
 
