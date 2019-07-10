@@ -11,10 +11,10 @@ import (
 )
 
 type Item struct {
+	sync.RWMutex
 	UnsafeName       string            `json:"name"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	UnsafeInstances  []*ItemInstance   `json:"instances"`
-	mux              sync.Mutex
 }
 
 // ValidItemAttributes returns an array of valid attributes that can be permanently set.
@@ -53,20 +53,24 @@ func ValidateItemAttribute(name string, value string) (bool, string) {
 
 // Name returns the name of the Item.
 func (i *Item) Name() string {
-	i.mux.Lock()
-	defer i.mux.Unlock()
+	i.RLock()
+	defer i.RUnlock()
+
 	return i.UnsafeName
 }
 
 // Instances returns all of the ItemInstance instances.
 func (i *Item) Instances() []*ItemInstance {
+	i.RLock()
+	defer i.RUnlock()
+
 	return i.UnsafeInstances
 }
 
 // CreateInstance creates a new ItemInstance and adds it in-memory.
 func (i *Item) CreateInstance() *ItemInstance {
-	i.mux.Lock()
-	defer i.mux.Unlock()
+	i.Lock()
+	defer i.Unlock()
 
 	ii := &ItemInstance{
 		UUID:             uuid.New().String(),
@@ -81,8 +85,8 @@ func (i *Item) CreateInstance() *ItemInstance {
 
 // DeleteInstance removes the ItemInstance from memory.
 func (i *Item) DeleteInstance(ii *ItemInstance) bool {
-	i.mux.Lock()
-	defer i.mux.Unlock()
+	i.Lock()
+	defer i.Unlock()
 
 	for idx, inst := range i.UnsafeInstances {
 		if inst.Id() == ii.Id() {
@@ -97,8 +101,8 @@ func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 
 // Attribute returns a permanent attribute.
 func (i *Item) Attribute(name string) string {
-	i.mux.Lock()
-	defer i.mux.Unlock()
+	i.RLock()
+	defer i.RUnlock()
 
 	if len(i.UnsafeAttributes[name]) == 0 {
 		return ItemAttributeDefault(name)
@@ -109,8 +113,8 @@ func (i *Item) Attribute(name string) string {
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
 func (i *Item) SetAttribute(name string, value string) {
-	i.mux.Lock()
-	defer i.mux.Unlock()
+	i.Lock()
+	defer i.Unlock()
 
 	if !misc.Contains(ValidItemAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
