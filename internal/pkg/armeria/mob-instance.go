@@ -3,8 +3,9 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
-	"go.uber.org/zap"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 type MobInstance struct {
@@ -82,7 +83,7 @@ func (mi *MobInstance) SetAttribute(name string, value string) {
 // Attribute returns an attribute on the MobInstance, and falls back to the parent Mob.
 func (mi *MobInstance) Attribute(name string) string {
 	mi.RLock()
-	defer mi.RUnlock()defer mi.mux.Unlock()
+	defer mi.RUnlock()
 
 	if len(mi.UnsafeAttributes[name]) == 0 {
 		return mi.Parent().Attribute(name)
