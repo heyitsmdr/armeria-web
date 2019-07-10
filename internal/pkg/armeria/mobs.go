@@ -12,9 +12,9 @@ import (
 )
 
 type MobManager struct {
+	sync.RWMutex
 	dataFile   string
 	UnsafeMobs []*Mob `json:"mobs"`
-	mux        sync.Mutex
 }
 
 func NewMobManager() *MobManager {
@@ -30,6 +30,9 @@ func NewMobManager() *MobManager {
 
 // LoadMobs loads the mobs from disk into memory.
 func (m *MobManager) LoadMobs() {
+	m.Lock()
+	defer m.Unlock()
+
 	mobsFile, err := os.Open(m.dataFile)
 	defer mobsFile.Close()
 
@@ -57,6 +60,9 @@ func (m *MobManager) LoadMobs() {
 
 // SaveMobs writes the in-memory mobs to disk.
 func (m *MobManager) SaveMobs() {
+	m.RLock()
+	defer m.RUnlock()
+
 	mobsFile, err := os.Create(m.dataFile)
 	defer mobsFile.Close()
 
@@ -84,11 +90,11 @@ func (m *MobManager) SaveMobs() {
 }
 
 func (m *MobManager) AddMobInstancesToRooms() {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	for _, m := range m.UnsafeMobs {
-		for _, mi := range m.UnsafeInstances {
+		for _, mi := range m.Instances() {
 			r := mi.Location().Room()
 			if r == nil {
 				Armeria.log.Fatal("mob instance in invalid room",
@@ -105,8 +111,8 @@ func (m *MobManager) AddMobInstancesToRooms() {
 
 // MobByName returns the matching Mob.
 func (m *MobManager) MobByName(name string) *Mob {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	for _, mob := range m.UnsafeMobs {
 		if strings.ToLower(mob.Name()) == strings.ToLower(name) {
@@ -119,6 +125,9 @@ func (m *MobManager) MobByName(name string) *Mob {
 
 // Mobs returns all of the in-memory Mobs.
 func (m *MobManager) Mobs() []*Mob {
+	m.RLock()
+	defer m.RUnlock()
+
 	return m.UnsafeMobs
 }
 
@@ -138,7 +147,8 @@ func (m *MobManager) CreateMob(name string) *Mob {
 
 // AddMob adds a new Mob reference to memory.
 func (m *MobManager) AddMob(mob *Mob) {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
+
 	m.UnsafeMobs = append(m.UnsafeMobs, mob)
 }
