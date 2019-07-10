@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 )
 
 type CharacterManager struct {
+	sync.RWMutex
 	dataFile         string
 	UnsafeCharacters []*Character `json:"characters"`
 }
@@ -25,6 +27,9 @@ func NewCharacterManager() *CharacterManager {
 }
 
 func (m *CharacterManager) LoadCharacters() {
+	m.Lock()
+	defer m.Unlock()
+
 	charactersFile, err := os.Open(m.dataFile)
 	defer charactersFile.Close()
 
@@ -51,6 +56,9 @@ func (m *CharacterManager) LoadCharacters() {
 }
 
 func (m *CharacterManager) SaveCharacters() {
+	m.RLock()
+	defer m.RUnlock()
+
 	charactersFile, err := os.Create(m.dataFile)
 	defer charactersFile.Close()
 
@@ -79,6 +87,9 @@ func (m *CharacterManager) SaveCharacters() {
 
 // CharacterByName returns the matching Character.
 func (m *CharacterManager) CharacterByName(name string) *Character {
+	m.RLock()
+	defer m.RUnlock()
+
 	for _, c := range m.UnsafeCharacters {
 		if strings.ToLower(c.Name()) == strings.ToLower(name) {
 			return c
@@ -90,6 +101,9 @@ func (m *CharacterManager) CharacterByName(name string) *Character {
 
 // OnlineCharacters returns the characters logged in to the game.
 func (m *CharacterManager) OnlineCharacters() []*Character {
+	m.RLock()
+	defer m.RUnlock()
+
 	var chars []*Character
 	for _, c := range m.UnsafeCharacters {
 		if c.Player() != nil {
@@ -101,5 +115,8 @@ func (m *CharacterManager) OnlineCharacters() []*Character {
 
 // Characters returns all the characters in the database.
 func (m *CharacterManager) Characters() []*Character {
+	m.RLock()
+	defer m.RUnlock()
+
 	return m.UnsafeCharacters
 }
