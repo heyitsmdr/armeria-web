@@ -53,7 +53,7 @@ func (ca *ClientActions) ShowRawText(text string) {
 
 // RenderMap displays the current area on the minimap.
 func (ca *ClientActions) RenderMap() {
-	minimap := ca.player.Character().Area().MinimapData()
+	minimap := ca.player.Character().Area().MinimapJSON()
 	ca.player.CallClientAction("setMapData", minimap)
 }
 

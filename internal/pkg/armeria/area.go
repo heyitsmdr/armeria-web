@@ -10,11 +10,11 @@ import (
 )
 
 type Area struct {
+	sync.RWMutex
 	UUID             string            `json:"uuid"`
 	UnsafeName       string            `json:"name"`
 	UnsafeRooms      []*Room           `json:"rooms"`
 	UnsafeAttributes map[string]string `json:"attributes"`
-	mux              sync.Mutex
 }
 
 type AdjacentRooms struct {
@@ -56,15 +56,16 @@ func (a *Area) Id() string {
 
 // UnsafeName returns the name of the area.
 func (a *Area) Name() string {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+	a.RLock()
+	defer a.RUnlock()
+
 	return a.UnsafeName
 }
 
 // RoomAt returns the Room at a particular UnsafeCoords within the same area.
 func (a *Area) RoomAt(c *Coords) *Room {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+	a.RLock()
+	defer a.RUnlock()
 
 	for _, r := range a.UnsafeRooms {
 		rc := r.Coords()
@@ -76,10 +77,10 @@ func (a *Area) RoomAt(c *Coords) *Room {
 	return nil
 }
 
-// MinimapData returns the JSON used for minimap rendering on the client.
-func (a *Area) MinimapData() string {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+// MinimapJSON returns the JSON used for minimap rendering on the client.
+func (a *Area) MinimapJSON() string {
+	a.RLock()
+	defer a.RUnlock()
 
 	var rooms []map[string]interface{}
 	for _, r := range a.UnsafeRooms {
@@ -127,8 +128,8 @@ func (a *Area) EditorData() *ObjectEditorData {
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
 func (a *Area) SetAttribute(name string, value string) {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+	a.Lock()
+	defer a.Unlock()
 
 	if !misc.Contains(ValidAreaAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
@@ -142,8 +143,8 @@ func (a *Area) SetAttribute(name string, value string) {
 
 // Attribute returns a permanent attribute.
 func (a *Area) Attribute(name string) string {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+	a.RLock()
+	defer a.RUnlock()
 
 	if len(a.UnsafeAttributes[name]) == 0 {
 		return AreaAttributeDefault(name)
@@ -164,24 +165,25 @@ func (a *Area) CharacterLeft(c *Character, causedByLogout bool) {
 
 // AddRoom adds a Room to the area.
 func (a *Area) AddRoom(r *Room) {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+	a.Lock()
+	defer a.Unlock()
 	a.UnsafeRooms = append(a.UnsafeRooms, r)
 }
 
 func (a *Area) RemoveRoom(r *Room) {
-
+	a.Lock()
+	defer a.Unlock()
 }
 
 // UnsafeCharacters returns online characters within the area, with an optional Character exception.
 func (a *Area) Characters(except *Character) []*Character {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+	a.RLock()
+	defer a.RUnlock()
 
 	var returnChars []*Character
 
 	for _, r := range a.UnsafeRooms {
-		for _, o := range r.objects {
+		for _, o := range r.Objects() {
 			if o.Type() == ObjectTypeCharacter {
 				if except == nil || o.Name() != except.Name() {
 					char := o.(*Character)
