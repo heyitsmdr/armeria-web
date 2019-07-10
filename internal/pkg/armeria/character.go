@@ -14,6 +14,7 @@ import (
 )
 
 type Character struct {
+	sync.RWMutex
 	UUID                 string            `json:"uuid"`
 	UnsafeName           string            `json:"name"`
 	UnsafePassword       string            `json:"password"`
@@ -21,7 +22,6 @@ type Character struct {
 	UnsafeAttributes     map[string]string `json:"attributes"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	player               *Player
-	mux                  sync.Mutex
 }
 
 const (
@@ -64,22 +64,22 @@ func (c *Character) Type() int {
 
 // UnsafeName returns the raw character name.
 func (c *Character) Name() string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	return c.UnsafeName
 }
 
 // FormattedName returns the formatted character name.
 func (c *Character) FormattedName() string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	return fmt.Sprintf("[b]%s[/b]", c.UnsafeName)
 }
 
 // FormattedNameWithTitle returns the formatted character name including the character's title (if set).
 func (c *Character) FormattedNameWithTitle() string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	title := c.UnsafeAttributes["title"]
 	if title != "" {
 		return fmt.Sprintf("[b]%s[/b] (%s)", c.UnsafeName, title)
@@ -89,8 +89,8 @@ func (c *Character) FormattedNameWithTitle() string {
 
 // CheckPassword returns a bool indicating whether the password is correct or not.
 func (c *Character) CheckPassword(pw string) bool {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	byteHash := []byte(c.UnsafePassword)
 	err := bcrypt.CompareHashAndPassword(byteHash, []byte(pw))
@@ -103,8 +103,8 @@ func (c *Character) CheckPassword(pw string) bool {
 
 // SetPassword hashes and sets a new password for the Character.
 func (c *Character) SetPassword(pw string) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.MinCost)
 	if err != nil {
@@ -118,37 +118,37 @@ func (c *Character) SetPassword(pw string) {
 
 // SaltedPasswordHash returns the character's salted password as an md5 hash.
 func (c *Character) SaltedPasswordHash(salt string) string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	b := []byte(c.UnsafePassword + salt)
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
 // Player returns the player that is playing the character.
 func (c *Character) Player() *Player {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	return c.player
 }
 
 // SetPlayer sets the player that is playing the character.
 func (c *Character) SetPlayer(p *Player) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.Lock()
+	defer c.Unlock()
 	c.player = p
 }
 
 // UnsafeLocation returns the character's location.
 func (c *Character) Location() *Location {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	return c.UnsafeLocation
 }
 
 // LocationData returns the character's location as a JSON-dump.
 func (c *Character) LocationData() string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	locationJson, err := json.Marshal(c.UnsafeLocation.Coords)
 	if err != nil {
@@ -160,25 +160,29 @@ func (c *Character) LocationData() string {
 
 // SetLocation sets the character's location.
 func (c *Character) SetLocation(l *Location) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	c.UnsafeLocation = l
 }
 
 // Room returns the room that the character is in.
 func (c *Character) Room() *Room {
+	c.RLock()
+	defer c.RUnlock()
 	return c.UnsafeLocation.Room()
 }
 
 // Area returns the area that the character is in.
 func (c *Character) Area() *Area {
+	c.RLock()
+	defer c.RUnlock()
 	return c.UnsafeLocation.Area()
 }
 
 // Colorize will color text according to the character's color settings.
 func (c *Character) Colorize(text string, color int) string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	switch color {
 	case ColorRoomTitle:
@@ -272,16 +276,16 @@ func (c *Character) LoggedOut() {
 
 // TempAttribute retrieves a previously-saved temp attribute.
 func (c *Character) TempAttribute(name string) string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	return c.UnsafeTempAttributes[name]
 }
 
 // SetTempAttribute sets a temporary attribute, which is cleared on log out. Additionally, these
 // attributes are not validated.
 func (c *Character) SetTempAttribute(name string, value string) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	if c.UnsafeTempAttributes == nil {
 		c.UnsafeTempAttributes = make(map[string]string)
@@ -292,8 +296,8 @@ func (c *Character) SetTempAttribute(name string, value string) {
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
 func (c *Character) SetAttribute(name string, value string) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	if !misc.Contains(ValidCharacterAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
@@ -307,8 +311,8 @@ func (c *Character) SetAttribute(name string, value string) {
 
 // Attribute returns a permanent attribute.
 func (c *Character) Attribute(name string) string {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	if len(c.UnsafeAttributes[name]) == 0 {
 		return CharacterAttributeDefault(name)
@@ -392,8 +396,8 @@ func (c *Character) EditorData() *ObjectEditorData {
 
 // HasPermission returns true if the Character has a particular permission.
 func (c *Character) HasPermission(p string) bool {
-	c.mux.Lock()
-	defer c.mux.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	perms := strings.Split(c.UnsafeAttributes["permissions"], " ")
 	return misc.Contains(perms, p)
