@@ -12,10 +12,10 @@ import (
 )
 
 type Mob struct {
+	sync.RWMutex
 	UnsafeName       string            `json:"name"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	UnsafeInstances  []*MobInstance    `json:"instances"`
-	mux              sync.Mutex
 }
 
 // ValidMobAttributes returns an array of valid attributes that can be permanently set.
@@ -48,13 +48,15 @@ func ValidateMobAttribute(name string, value string) (bool, string) {
 
 // Name returns the name of the Mob.
 func (m *Mob) Name() string {
+	m.RLock()
+	defer m.RUnlock()
 	return m.UnsafeName
 }
 
 // Attribute returns a permanent attribute.
 func (m *Mob) Attribute(name string) string {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	if len(m.UnsafeAttributes[name]) == 0 {
 		return MobAttributeDefault(name)
@@ -65,8 +67,8 @@ func (m *Mob) Attribute(name string) string {
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
 func (m *Mob) SetAttribute(name string, value string) {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
 
 	if !misc.Contains(ValidMobAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
@@ -106,8 +108,8 @@ func (m *Mob) EditorData() *ObjectEditorData {
 // CreateInstance creates a new MobInstance, adds it to the Mob
 // and returns the MobInstance.
 func (m *Mob) CreateInstance(loc *Location) *MobInstance {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
 
 	mi := &MobInstance{
 		UUID:             uuid.New().String(),
@@ -123,8 +125,8 @@ func (m *Mob) CreateInstance(loc *Location) *MobInstance {
 
 // DeleteInstance removes the MobInstance from memory.
 func (m *Mob) DeleteInstance(mi *MobInstance) bool {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
 
 	for i, inst := range m.UnsafeInstances {
 		if inst.Id() == mi.Id() {
@@ -139,8 +141,8 @@ func (m *Mob) DeleteInstance(mi *MobInstance) bool {
 
 // InstanceByUUID returns a MobInstance by the instance identifier.
 func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	for _, mi := range m.UnsafeInstances {
 		if mi.UUID == uuid {
@@ -153,11 +155,15 @@ func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
 
 // Instances returns all of the mob instances in memory.
 func (m *Mob) Instances() []*MobInstance {
+	m.RLock()
+	defer m.RUnlock()
 	return m.UnsafeInstances
 }
 
 // ScriptFile returns the full path to the associated Lua script file.
 func (m *Mob) ScriptFile() string {
+	m.RLock()
+	defer m.RUnlock()
 	return fmt.Sprintf(
 		"%s/scripts/mob-%s.lua",
 		Armeria.dataPath,
