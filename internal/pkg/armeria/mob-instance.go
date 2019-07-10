@@ -3,17 +3,16 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
-	"sync"
-
 	"go.uber.org/zap"
+	"sync"
 )
 
 type MobInstance struct {
+	sync.RWMutex
 	UUID             string            `json:"uuid"`
 	UnsafeParent     string            `json:"parent"`
 	UnsafeLocation   *Location         `json:"location"`
 	UnsafeAttributes map[string]string `json:"attributes"`
-	mux              sync.Mutex
 }
 
 // Id returns the UUID of the instance.
@@ -23,19 +22,23 @@ func (mi *MobInstance) Id() string {
 
 // Parent returns the Mob parent.
 func (mi *MobInstance) Parent() *Mob {
+	mi.RLock()
+	defer mi.RUnlock()
 	return Armeria.mobManager.MobByName(mi.UnsafeParent)
 }
 
 // Location returns the location of the MobInstance.
 func (mi *MobInstance) Location() *Location {
-	mi.mux.Lock()
-	defer mi.mux.Unlock()
+	mi.RLock()
+	defer mi.RUnlock()
 	return mi.UnsafeLocation
 }
 
 // Room returns the Room of the mob.
 func (mi *MobInstance) Room() *Room {
-	return mi.Location().Room()
+	mi.RLock()
+	defer mi.RUnlock()
+	return mi.UnsafeLocation.Room()
 }
 
 // Type returns the object type, since Mob implements the Object interface.
@@ -45,18 +48,22 @@ func (mi *MobInstance) Type() int {
 
 // UnsafeName returns the raw Mob name.
 func (mi *MobInstance) Name() string {
+	mi.RLock()
+	defer mi.RUnlock()
 	return mi.UnsafeParent
 }
 
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
+	mi.RLock()
+	defer mi.RUnlock()
 	return fmt.Sprintf("[b]%s[/b]", mi.UnsafeParent)
 }
 
 // SetAttribute sets a permanent attribute on the MobInstance.
 func (mi *MobInstance) SetAttribute(name string, value string) {
-	mi.mux.Lock()
-	defer mi.mux.Unlock()
+	mi.Lock()
+	defer mi.Unlock()
 
 	if mi.UnsafeAttributes == nil {
 		mi.UnsafeAttributes = make(map[string]string)
@@ -74,8 +81,8 @@ func (mi *MobInstance) SetAttribute(name string, value string) {
 
 // Attribute returns an attribute on the MobInstance, and falls back to the parent Mob.
 func (mi *MobInstance) Attribute(name string) string {
-	mi.mux.Lock()
-	defer mi.mux.Unlock()
+	mi.RLock()
+	defer mi.RUnlock()defer mi.mux.Unlock()
 
 	if len(mi.UnsafeAttributes[name]) == 0 {
 		return mi.Parent().Attribute(name)
