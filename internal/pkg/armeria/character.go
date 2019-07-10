@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 
@@ -152,7 +151,10 @@ func (c *Character) LocationJSON() string {
 
 	locationJson, err := json.Marshal(c.UnsafeLocation.Coords)
 	if err != nil {
-		log.Fatalf("[character] failed to marshal location data: %s", err)
+		Armeria.log.Fatal("failed to marshal character location data",
+			zap.String("character", c.UnsafeName),
+			zap.Error(err),
+		)
 	}
 
 	return string(locationJson)
