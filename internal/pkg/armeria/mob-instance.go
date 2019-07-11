@@ -25,6 +25,7 @@ func (mi *MobInstance) Id() string {
 func (mi *MobInstance) Parent() *Mob {
 	mi.RLock()
 	defer mi.RUnlock()
+
 	return Armeria.mobManager.MobByName(mi.UnsafeParent)
 }
 
@@ -32,6 +33,7 @@ func (mi *MobInstance) Parent() *Mob {
 func (mi *MobInstance) Location() *Location {
 	mi.RLock()
 	defer mi.RUnlock()
+
 	return mi.UnsafeLocation
 }
 
@@ -39,6 +41,7 @@ func (mi *MobInstance) Location() *Location {
 func (mi *MobInstance) Room() *Room {
 	mi.RLock()
 	defer mi.RUnlock()
+
 	return mi.UnsafeLocation.Room()
 }
 
@@ -51,6 +54,7 @@ func (mi *MobInstance) Type() int {
 func (mi *MobInstance) Name() string {
 	mi.RLock()
 	defer mi.RUnlock()
+
 	return mi.UnsafeParent
 }
 
@@ -58,6 +62,7 @@ func (mi *MobInstance) Name() string {
 func (mi *MobInstance) FormattedName() string {
 	mi.RLock()
 	defer mi.RUnlock()
+
 	return fmt.Sprintf("[b]%s[/b]", mi.UnsafeParent)
 }
 
