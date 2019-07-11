@@ -84,7 +84,7 @@ func (gs *GameState) Reload(callingPlayer *Player, component string) {
 					callingPlayer.clientActions.ShowText(
 						"An error occurred when attempting to update. Check the logs for more info.",
 					)
-					log.Printf("[state] an error occurred when trying to execute update.sh: %s", err)
+					Armeria.log.Error("error trying to execute update.sh", zap.Error(err))
 					close(steps)
 				} else {
 					callingPlayer.clientActions.ShowText(string(output))
@@ -104,7 +104,7 @@ func (gs *GameState) Reload(callingPlayer *Player, component string) {
 					callingPlayer.clientActions.ShowText(
 						"An error occurred when attempting to restart. Check the logs for more info.",
 					)
-					log.Printf("[state] an error occurred when trying to execute restart.sh: %s", err)
+					Armeria.log.Error("error trying to execute restart.sh", zap.Error(err))
 					return
 				}
 				os.Exit(0)
