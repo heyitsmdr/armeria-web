@@ -11,9 +11,9 @@ import (
 )
 
 type ItemManager struct {
+	sync.RWMutex
 	dataFile    string
 	UnsafeItems []*Item `json:"items"`
-	mux         sync.Mutex
 }
 
 func NewItemManager() *ItemManager {
@@ -29,6 +29,9 @@ func NewItemManager() *ItemManager {
 
 // LoadItems loads the items from disk into memory.
 func (m *ItemManager) LoadItems() {
+	m.Lock()
+	defer m.Unlock()
+
 	itemsFile, err := os.Open(m.dataFile)
 	defer itemsFile.Close()
 
@@ -56,6 +59,9 @@ func (m *ItemManager) LoadItems() {
 
 // SaveItems writes the in-memory items to disk.
 func (m *ItemManager) SaveItems() {
+	m.RLock()
+	defer m.RUnlock()
+
 	itemsFile, err := os.Create(m.dataFile)
 	defer itemsFile.Close()
 
@@ -85,11 +91,11 @@ func (m *ItemManager) SaveItems() {
 // AddItemInstancesToRooms adds ItemInstances to that are in Rooms to their
 // respective Room objects.
 func (m *ItemManager) AddItemInstancesToRooms() {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
 
 	for _, i := range m.UnsafeItems {
-		for _, ii := range i.UnsafeInstances {
+		for _, ii := range i.Instances() {
 			if ii.LocationType() != ItemLocationRoom {
 				continue
 			}
@@ -110,8 +116,8 @@ func (m *ItemManager) AddItemInstancesToRooms() {
 
 // ItemByName returns the matching Item.
 func (m *ItemManager) ItemByName(name string) *Item {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	for _, i := range m.UnsafeItems {
 		if strings.ToLower(i.Name()) == strings.ToLower(name) {
@@ -124,6 +130,9 @@ func (m *ItemManager) ItemByName(name string) *Item {
 
 // Items returns all of the in-memory Items.
 func (m *ItemManager) Items() []*Item {
+	m.RLock()
+	defer m.RUnlock()
+
 	return m.UnsafeItems
 }
 
@@ -137,7 +146,8 @@ func (m *ItemManager) CreateItem(name string) *Item {
 
 // AddItem adds a new Item reference to memory.
 func (m *ItemManager) AddItem(i *Item) {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
+
 	m.UnsafeItems = append(m.UnsafeItems, i)
 }
