@@ -10,10 +10,10 @@ import (
 )
 
 type Room struct {
+	sync.RWMutex
 	UnsafeAttributes map[string]string `json:"attributes"`
 	UnsafeCoords     *Coords           `json:"coords"`
 	objects          []Object
-	mux              sync.Mutex
 }
 
 func ValidRoomAttributes() []string {
@@ -39,14 +39,15 @@ func RoomAttributeDefault(name string) string {
 }
 
 func (r *Room) Coords() *Coords {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.RLock()
+	defer r.RUnlock()
+
 	return r.UnsafeCoords
 }
 
 func (r *Room) SetAttribute(name string, value string) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.Lock()
+	defer r.Unlock()
 
 	if r.UnsafeAttributes == nil {
 		r.UnsafeAttributes = make(map[string]string)
@@ -60,8 +61,8 @@ func (r *Room) SetAttribute(name string, value string) {
 }
 
 func (r *Room) Attribute(name string) string {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.RLock()
+	defer r.RUnlock()
 
 	if len(r.UnsafeAttributes[name]) == 0 {
 		return RoomAttributeDefault(name)
@@ -71,15 +72,16 @@ func (r *Room) Attribute(name string) string {
 }
 
 func (r *Room) Objects() []Object {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.RLock()
+	defer r.RUnlock()
+
 	return r.objects
 }
 
 // OnlineCharacters returns online characters within the room.
 func (r *Room) Characters(except *Character) []*Character {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.RLock()
+	defer r.RUnlock()
 
 	var returnChars []*Character
 
@@ -99,16 +101,17 @@ func (r *Room) Characters(except *Character) []*Character {
 
 // AddObjectToRoom adds an Object to the Room.
 func (r *Room) AddObjectToRoom(obj Object) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.Lock()
+	defer r.Unlock()
+
 	r.objects = append(r.objects, obj)
 }
 
 // RemoveObjectFromRoom attempts to remove the Object from the Room, and returns
 // a bool indicating whether it was successful or not.
 func (r *Room) RemoveObjectFromRoom(obj Object) bool {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.Lock()
+	defer r.Unlock()
 
 	for i, o := range r.objects {
 		if o.Id() == obj.Id() {
@@ -123,8 +126,8 @@ func (r *Room) RemoveObjectFromRoom(obj Object) bool {
 
 // ObjectData returns the JSON used for rendering the room objects on the client.
 func (r *Room) ObjectData() string {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.RLock()
+	defer r.RUnlock()
 
 	var roomObjects []map[string]interface{}
 
