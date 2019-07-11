@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/google/uuid"
 
@@ -13,6 +14,7 @@ import (
 )
 
 type WorldManager struct {
+	sync.RWMutex
 	dataFile    string
 	UnsafeWorld []*Area `json:"world"`
 }
@@ -28,6 +30,9 @@ func NewWorldManager() *WorldManager {
 }
 
 func (m *WorldManager) LoadWorld() {
+	m.Lock()
+	defer m.Unlock()
+
 	worldFile, err := os.Open(m.dataFile)
 	defer worldFile.Close()
 
@@ -54,6 +59,9 @@ func (m *WorldManager) LoadWorld() {
 }
 
 func (m *WorldManager) SaveWorld() {
+	m.RLock()
+	defer m.RUnlock()
+
 	worldFile, err := os.Create(m.dataFile)
 	defer worldFile.Close()
 
@@ -88,6 +96,9 @@ func (m *WorldManager) CreateRoom(c *Coords) *Room {
 }
 
 func (m *WorldManager) CreateArea(name string) *Area {
+	m.Lock()
+	defer m.Unlock()
+
 	a := &Area{
 		UUID:             uuid.New().String(),
 		UnsafeName:       name,
@@ -112,9 +123,9 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 	loc := &Location{
 		AreaUUID: a.Id(),
 		Coords: &Coords{
-			X: r.UnsafeCoords.X + o["x"],
-			Y: r.UnsafeCoords.Y + o["y"],
-			Z: r.UnsafeCoords.Z + o["z"],
+			X: r.Coords().X + o["x"],
+			Y: r.Coords().Y + o["y"],
+			Z: r.Coords().Z + o["z"],
 		},
 	}
 
@@ -122,6 +133,9 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 }
 
 func (m *WorldManager) AreaByName(name string) *Area {
+	m.RLock()
+	defer m.RUnlock()
+
 	for _, a := range m.UnsafeWorld {
 		if strings.ToLower(a.Name()) == strings.ToLower(name) {
 			return a
@@ -132,5 +146,8 @@ func (m *WorldManager) AreaByName(name string) *Area {
 }
 
 func (m *WorldManager) Areas() []*Area {
+	m.RLock()
+	defer m.RUnlock()
+
 	return m.UnsafeWorld
 }
