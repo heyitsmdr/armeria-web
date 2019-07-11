@@ -9,8 +9,8 @@ import (
 )
 
 type PlayerManager struct {
+	sync.RWMutex
 	players map[*Player]bool
-	mux     sync.Mutex
 }
 
 // Init creates a new player Manager instance
@@ -20,8 +20,11 @@ func NewPlayerManager() *PlayerManager {
 	}
 }
 
-// NewPlayer creates a new Player instance and returns it
+// NewPlayer creates a new Player instance, adds it to memory, and returns Player.
 func (m *PlayerManager) NewPlayer(conn *websocket.Conn) *Player {
+	m.Lock()
+	defer m.Unlock()
+
 	p := &Player{
 		socket:           conn,
 		pumpsInitialized: false,
@@ -42,8 +45,8 @@ func (m *PlayerManager) NewPlayer(conn *websocket.Conn) *Player {
 
 // DisconnectPlayer will gracefully remove the player from the game and terminate the socket connection
 func (m *PlayerManager) DisconnectPlayer(p *Player) {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
 
 	if !m.players[p] {
 		return
