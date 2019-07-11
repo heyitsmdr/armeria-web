@@ -9,13 +9,13 @@ import (
 )
 
 type ItemInstance struct {
+	sync.RWMutex
 	UUID               string            `json:"uuid"`
 	UnsafeParent       string            `json:"parent"`
 	UnsafeLocationType int               `json:"location_type"`
 	UnsafeLocation     *Location         `json:"location"`
 	UnsafeCharacter    string            `json:"character"`
 	UnsafeAttributes   map[string]string `json:"attributes"`
-	mux                sync.Mutex
 }
 
 const (
@@ -30,6 +30,9 @@ func (ii *ItemInstance) Id() string {
 
 // Parent returns the Item parent.
 func (ii *ItemInstance) Parent() *Item {
+	ii.RLock()
+	defer ii.RUnlock()
+
 	return Armeria.itemManager.ItemByName(ii.UnsafeParent)
 }
 
@@ -40,18 +43,25 @@ func (ii *ItemInstance) Type() int {
 
 // UnsafeName returns the raw Item name.
 func (ii *ItemInstance) Name() string {
+	ii.RLock()
+	defer ii.RUnlock()
+
 	return ii.UnsafeParent
 }
 
 // FormattedName returns the formatted Item name.
 func (ii *ItemInstance) FormattedName() string {
+	ii.RLock()
+	defer ii.RUnlock()
+
 	return fmt.Sprintf("[b]%s[/b]", ii.UnsafeParent)
 }
 
 // Room returns the Room of the ItemInstance, if it is in one.
 func (ii *ItemInstance) Room() *Room {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.RLock()
+	defer ii.RUnlock()
+
 	if ii.UnsafeLocationType != ItemLocationRoom {
 		return nil
 	}
@@ -61,8 +71,8 @@ func (ii *ItemInstance) Room() *Room {
 
 // SetAttribute sets a permanent attribute on the ItemInstance.
 func (ii *ItemInstance) SetAttribute(name string, value string) {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.Lock()
+	defer ii.Unlock()
 
 	if ii.UnsafeAttributes == nil {
 		ii.UnsafeAttributes = make(map[string]string)
@@ -80,8 +90,8 @@ func (ii *ItemInstance) SetAttribute(name string, value string) {
 
 // Attribute returns an attribute on the ItemInstance, and falls back to the parent Item.
 func (ii *ItemInstance) Attribute(name string) string {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.RLock()
+	defer ii.RUnlock()
 
 	if len(ii.UnsafeAttributes[name]) == 0 {
 		return ii.Parent().Attribute(name)
@@ -92,37 +102,42 @@ func (ii *ItemInstance) Attribute(name string) string {
 
 // LocationType returns the location type (room or character).
 func (ii *ItemInstance) LocationType() int {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.RLock()
+	defer ii.RUnlock()
+
 	return ii.UnsafeLocationType
 }
 
 // Location returns the location of the ItemInstance.
 func (ii *ItemInstance) Location() *Location {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.RLock()
+	defer ii.RUnlock()
+
 	return ii.UnsafeLocation
 }
 
 // SetLocation sets the location of the ItemInstance.
 func (ii *ItemInstance) SetLocation(l *Location) {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.Lock()
+	defer ii.Unlock()
+
 	ii.UnsafeLocationType = ItemLocationRoom
 	ii.UnsafeLocation = l
 }
 
 // Character returns the Character that has the ItemInstance.
 func (ii *ItemInstance) Character() *Character {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.RLock()
+	defer ii.RUnlock()
+
 	return Armeria.characterManager.CharacterByName(ii.UnsafeCharacter)
 }
 
 // SetCharacter sets the character that has the ItemInstance.
 func (ii *ItemInstance) SetCharacter(c *Character) {
-	ii.mux.Lock()
-	defer ii.mux.Unlock()
+	ii.Lock()
+	defer ii.Unlock()
+
 	ii.UnsafeLocationType = ItemLocationCharacter
 	ii.UnsafeCharacter = c.Name()
 }
