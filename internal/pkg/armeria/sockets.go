@@ -28,5 +28,5 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 
 	p := Armeria.playerManager.NewPlayer(conn)
 	p.SetupPumps()
-	p.ShowConnectionText()
+	p.Connected()
 }

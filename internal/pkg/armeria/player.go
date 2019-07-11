@@ -11,12 +11,12 @@ import (
 )
 
 type Player struct {
+	sync.RWMutex
 	clientActions    *ClientActions
 	socket           *websocket.Conn
 	pumpsInitialized bool
 	sendData         chan *OutgoingDataStructure
 	character        *Character
-	mux              sync.Mutex
 }
 
 type IncomingDataStructure struct {
@@ -121,7 +121,8 @@ func (p *Player) CallClientAction(actionName string, payload interface{}) {
 	p.sendData <- &OutgoingDataStructure{Action: actionName, Payload: payload}
 }
 
-func (p *Player) ShowConnectionText() {
+// Connected is called when the player successfully connects to the game (pre-login).
+func (p *Player) Connected() {
 	lines := []string{
 		"Welcome to the world of Armeria!\n",
 		"If you have a character, you can <b>/login</b>. Otherwise, use <b>/create</b>.",
@@ -131,13 +132,15 @@ func (p *Player) ShowConnectionText() {
 }
 
 func (p *Player) AttachCharacter(c *Character) {
-	p.mux.Lock()
-	defer p.mux.Unlock()
+	p.Lock()
+	defer p.Unlock()
+
 	p.character = c
 }
 
 func (p *Player) Character() *Character {
-	p.mux.Lock()
-	defer p.mux.Unlock()
+	p.RLock()
+	defer p.RUnlock()
+
 	return p.character
 }
