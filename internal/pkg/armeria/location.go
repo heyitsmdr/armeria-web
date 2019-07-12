@@ -1,7 +1,10 @@
 package armeria
 
 import (
+	"encoding/json"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 // Coords store positional information relative to an Area.
@@ -24,13 +27,44 @@ type Location struct {
 func NewLocation(areaUuid string, x int, y int, z int) *Location {
 	return &Location{
 		UnsafeAreaUUID: areaUuid,
-		Coords: &Coords{
-			X: x,
-			Y: y,
-			Z: z,
-			I: 0,
-		},
+		Coords:         NewCoords(x, y, z, 0),
 	}
+}
+
+// CopyLocation copies the contents of a Location pointer and returns a fresh Location pointer.
+func CopyLocation(l *Location) *Location {
+	return &Location{
+		UnsafeAreaUUID: l.AreaUUID(),
+		Coords:         NewCoords(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I()),
+	}
+}
+
+// NewCoords creates and returns a new Coords.
+func NewCoords(x int, y int, z int, i int) *Coords {
+	return &Coords{
+		UnsafeX: x,
+		UnsafeY: y,
+		UnsafeZ: z,
+		UnsafeI: i,
+	}
+}
+
+// CopyCoords copies the contents of a Coords pointer and returns a fresh Coords pointer.
+func CopyCoords(c *Coords) *Coords {
+	return &Coords{
+		UnsafeX: c.X(),
+		UnsafeY: c.Y(),
+		UnsafeZ: c.Z(),
+		UnsafeI: c.I(),
+	}
+}
+
+// AreaUUID returns the Area UUID for the Location.
+func (l *Location) AreaUUID() string {
+	l.RLock()
+	defer l.RUnlock()
+
+	return l.UnsafeAreaUUID
 }
 
 // SetAreaUUID sets the Area UUID for the Location.
@@ -118,8 +152,22 @@ func (c *Coords) Set(x int, y int, z int, i int) {
 	c.Lock()
 	defer c.Unlock()
 
-	c.X = x
-	c.Y = y
-	c.Z = z
-	c.I = i
+	c.UnsafeX = x
+	c.UnsafeY = y
+	c.UnsafeZ = z
+	c.UnsafeI = i
+}
+
+func (c *Coords) JSON() string {
+	c.RLock()
+	defer c.RUnlock()
+
+	j, err := json.Marshal(c)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal coords",
+			zap.Error(err),
+		)
+	}
+
+	return string(j)
 }

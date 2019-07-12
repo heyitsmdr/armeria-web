@@ -157,7 +157,6 @@ func handleSayCommand(ctx *CommandContext) {
 }
 
 func handleMoveCommand(ctx *CommandContext) {
-	loc := ctx.Character.Location()
 	d := ctx.Args["direction"]
 
 	walkDir := ""
@@ -192,21 +191,13 @@ func handleMoveCommand(ctx *CommandContext) {
 		return
 	}
 
+	loc := ctx.Character.Location()
 	o := misc.DirectionOffsets(d)
-	x := loc.Coords.X + o["x"]
-	y := loc.Coords.Y + o["y"]
-	z := loc.Coords.Z + o["z"]
+	x := loc.Coords.X() + o["x"]
+	y := loc.Coords.Y() + o["y"]
+	z := loc.Coords.Z() + o["z"]
 
-	newLocation := &Location{
-		UnsafeAreaUUID: loc.UnsafeAreaUUID,
-		Coords: &Coords{
-			X: x,
-			Y: y,
-			Z: z,
-			I: loc.Coords.I,
-		},
-	}
-
+	newLocation := NewLocation(loc.AreaUUID(), x, y, z)
 	moveAllowed, moveError := ctx.Character.MoveAllowed(newLocation)
 	if !moveAllowed {
 		ctx.Player.clientActions.ShowColorizedText(moveError, ColorError)
@@ -264,26 +255,17 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 	}
 
 	loc := ctx.Character.Location()
-	x := loc.Coords.X + o["x"]
-	y := loc.Coords.Y + o["y"]
-	z := loc.Coords.Z + o["z"]
+	x := loc.Coords.X() + o["x"]
+	y := loc.Coords.Y() + o["y"]
+	z := loc.Coords.Z() + o["z"]
 
-	coords := &Coords{
-		X: x,
-		Y: y,
-		Z: z,
-	}
-	newLoc := &Location{
-		UnsafeAreaUUID: loc.UnsafeAreaUUID,
-		Coords:         coords,
-	}
-
+	newLoc := NewLocation(loc.AreaUUID(), x, y, z)
 	if newLoc.Room() != nil {
 		ctx.Player.clientActions.ShowColorizedText("There's already a room in that direction.", ColorError)
 		return
 	}
 
-	room := Armeria.worldManager.CreateRoom(coords)
+	room := Armeria.worldManager.CreateRoom(NewCoords(x, y, z, loc.Coords.I()))
 	ctx.Character.Area().AddRoom(room)
 
 	for _, c := range ctx.Character.Area().Characters(nil) {
@@ -303,31 +285,24 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 	}
 
 	loc := ctx.Character.Location()
-	x := loc.Coords.X + o["x"]
-	y := loc.Coords.Y + o["y"]
-	z := loc.Coords.Z + o["z"]
+	x := loc.Coords.X() + o["x"]
+	y := loc.Coords.Y() + o["y"]
+	z := loc.Coords.Z() + o["z"]
 
-	l := &Location{
-		UnsafeAreaUUID: loc.UnsafeAreaUUID,
-		Coords: &Coords{
-			X: x,
-			Y: y,
-			Z: z,
-		},
-	}
+	l := NewLocation(loc.AreaUUID(), x, y, z)
 
-	rm := l.Room()
-	if rm == nil {
+	r := l.Room()
+	if r == nil {
 		ctx.Player.clientActions.ShowColorizedText("There's no room in that direction.", ColorError)
 		return
 	}
 
-	if len(rm.Characters(nil)) > 0 {
+	if len(r.Characters(nil)) > 0 {
 		ctx.Player.clientActions.ShowColorizedText("There are characters in the room you're attempting to destroy.", ColorError)
 		return
 	}
 
-	ctx.Player.clientActions.ShowText("Success.")
+	ctx.Player.clientActions.ShowColorizedText("Success.", ColorSuccess)
 }
 
 func handleSaveCommand(ctx *CommandContext) {
@@ -588,17 +563,8 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 	}
 
 	l := ctx.Character.Location()
-	loc := &Location{
-		UnsafeAreaUUID: l.UnsafeAreaUUID,
-		Coords: &Coords{
-			X: l.Coords.X,
-			Y: l.Coords.Y,
-			Z: l.Coords.Z,
-			I: l.Coords.I,
-		},
-	}
 
-	mi := m.CreateInstance(loc)
+	mi := m.CreateInstance(l)
 	ctx.Character.Room().AddObjectToRoom(mi)
 
 	for _, c := range ctx.Character.Room().Characters(nil) {
@@ -618,7 +584,7 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 
 	var mobLocations []string
 	for i, mi := range m.Instances() {
-		a := mi.Location().Area()
+		a := mi.Location.Area()
 		mobLocations = append(
 			mobLocations,
 			fmt.Sprintf(
@@ -627,10 +593,10 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 				mi.FormattedName(),
 				mi.Id(),
 				a.Name(),
-				mi.Location().Coords.X,
-				mi.Location().Coords.Y,
-				mi.Location().Coords.Z,
-				mi.Room().Attribute("title"),
+				mi.Location.Coords.X(),
+				mi.Location.Coords.Y(),
+				mi.Location.Coords.Z(),
+				mi.Location.Room().Attribute("title"),
 			),
 		)
 	}
@@ -726,18 +692,11 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 	}
 
 	l := ctx.Character.Location()
-	loc := &Location{
-		UnsafeAreaUUID: l.UnsafeAreaUUID,
-		Coords: &Coords{
-			X: l.Coords.X,
-			Y: l.Coords.Y,
-			Z: l.Coords.Z,
-			I: l.Coords.I,
-		},
-	}
 
 	ii := i.CreateInstance()
-	ii.SetLocation(loc)
+	ii.SetLocationType(ItemLocationRoom)
+	ii.Location.SetAreaUUID(l.AreaUUID())
+	ii.Location.Coords.Set(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I())
 	ctx.Character.Room().AddObjectToRoom(ii)
 
 	for _, c := range ctx.Character.Room().Characters(nil) {
@@ -805,7 +764,7 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 	var itemLocations []string
 	for idx, ii := range i.Instances() {
 		if ii.LocationType() == ItemLocationRoom {
-			a := ii.Location().Area()
+			a := ii.Location.Area()
 			itemLocations = append(
 				itemLocations,
 				fmt.Sprintf(
@@ -814,10 +773,10 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 					ii.FormattedName(),
 					ii.Id(),
 					a.Name(),
-					ii.Location().Coords.X,
-					ii.Location().Coords.Y,
-					ii.Location().Coords.Z,
-					ii.Room().Attribute("title"),
+					ii.Location.Coords.X(),
+					ii.Location.Coords.Y(),
+					ii.Location.Coords.Z(),
+					ii.Location.Room().Attribute("title"),
 				),
 			)
 		} else if ii.LocationType() == ItemLocationCharacter {
@@ -936,10 +895,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 		}
 
 		cl := c.Location().Coords
-		l = &Location{
-			UnsafeAreaUUID: c.Area().Id(),
-			Coords:         &Coords{cl.X, cl.Y, cl.Z, cl.I},
-		}
+		l = NewLocation(c.Area().Id(), cl.X(), cl.Y(), cl.Z())
 		moveMsg = fmt.Sprintf("You teleported to %s.", c.FormattedName())
 	} else {
 		loc := strings.Split(t, ",")
@@ -963,16 +919,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 			return
 		}
 
-		l = &Location{
-			UnsafeAreaUUID: a.Id(),
-			Coords: &Coords{
-				X: x,
-				Y: y,
-				Z: z,
-				I: 0,
-			},
-		}
-
+		l = NewLocation(a.Id(), x, y, z)
 		moveMsg = fmt.Sprintf("You teleported to [b]%s[/b] at %d, %d, %d.", a.Name(), x, y, z)
 	}
 

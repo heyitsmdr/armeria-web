@@ -12,7 +12,7 @@ import (
 type Room struct {
 	sync.RWMutex
 	UnsafeAttributes map[string]string `json:"attributes"`
-	UnsafeCoords     *Coords           `json:"coords"`
+	Coords           *Coords           `json:"coords"`
 	objects          []Object
 }
 
@@ -36,13 +36,6 @@ func RoomAttributeDefault(name string) string {
 	}
 
 	return ""
-}
-
-func (r *Room) Coords() *Coords {
-	r.RLock()
-	defer r.RUnlock()
-
-	return r.UnsafeCoords
 }
 
 func (r *Room) SetAttribute(name string, value string) {

@@ -88,11 +88,11 @@ func (m *ItemManager) SaveItems() {
 	)
 }
 
-// AddItemInstancesToRooms adds ItemInstances to that are in Rooms to their
+// AddItemInstancesToRooms adds ItemInstances that are in Rooms to their
 // respective Room objects.
 func (m *ItemManager) AddItemInstancesToRooms() {
-	m.Lock()
-	defer m.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 
 	for _, i := range m.UnsafeItems {
 		for _, ii := range i.Instances() {
@@ -100,12 +100,12 @@ func (m *ItemManager) AddItemInstancesToRooms() {
 				continue
 			}
 
-			r := ii.Location().Room()
+			r := ii.Location.Room()
 			if r == nil {
 				Armeria.log.Fatal("item instance in invalid room",
 					zap.String("item", ii.Name()),
 					zap.String("uuid", ii.Id()),
-					zap.String("location", fmt.Sprintf("%v", ii.Location())),
+					zap.String("location", fmt.Sprintf("%v", ii.Location)),
 				)
 				return
 			}

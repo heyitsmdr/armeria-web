@@ -13,7 +13,7 @@ type ItemInstance struct {
 	UUID               string            `json:"uuid"`
 	UnsafeParent       string            `json:"parent"`
 	UnsafeLocationType int               `json:"location_type"`
-	UnsafeLocation     *Location         `json:"location"`
+	Location           *Location         `json:"location"`
 	UnsafeCharacter    string            `json:"character"`
 	UnsafeAttributes   map[string]string `json:"attributes"`
 }
@@ -57,18 +57,6 @@ func (ii *ItemInstance) FormattedName() string {
 	return fmt.Sprintf("[b]%s[/b]", ii.UnsafeParent)
 }
 
-// Room returns the Room of the ItemInstance, if it is in one.
-func (ii *ItemInstance) Room() *Room {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	if ii.UnsafeLocationType != ItemLocationRoom {
-		return nil
-	}
-
-	return ii.UnsafeLocation.Room()
-}
-
 // SetAttribute sets a permanent attribute on the ItemInstance.
 func (ii *ItemInstance) SetAttribute(name string, value string) {
 	ii.Lock()
@@ -108,21 +96,12 @@ func (ii *ItemInstance) LocationType() int {
 	return ii.UnsafeLocationType
 }
 
-// Location returns the location of the ItemInstance.
-func (ii *ItemInstance) Location() *Location {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	return ii.UnsafeLocation
-}
-
-// SetLocation sets the location of the ItemInstance.
-func (ii *ItemInstance) SetLocation(l *Location) {
+// SetLocationType sets the location type of the ItemInstance.
+func (ii *ItemInstance) SetLocationType(t int) {
 	ii.Lock()
 	defer ii.Unlock()
 
-	ii.UnsafeLocationType = ItemLocationRoom
-	ii.UnsafeLocation = l
+	ii.UnsafeLocationType = t
 }
 
 // Character returns the Character that has the ItemInstance.

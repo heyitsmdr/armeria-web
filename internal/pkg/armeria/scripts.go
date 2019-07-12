@@ -31,7 +31,7 @@ func LuaMobSay(L *lua.LState) int {
 	m := Armeria.mobManager.MobByName(mname)
 	mi := m.InstanceByUUID(mid)
 
-	for _, c := range mi.Room().Characters(nil) {
+	for _, c := range mi.Location.Room().Characters(nil) {
 		c.Player().clientActions.ShowColorizedText(
 			fmt.Sprintf("%s says, \"%s\".", mi.FormattedName(), text),
 			ColorSay,

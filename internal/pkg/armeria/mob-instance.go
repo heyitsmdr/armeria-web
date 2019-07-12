@@ -12,7 +12,7 @@ type MobInstance struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
 	UnsafeParent     string            `json:"parent"`
-	UnsafeLocation   *Location         `json:"location"`
+	Location         *Location         `json:"location"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 }
 
@@ -27,22 +27,6 @@ func (mi *MobInstance) Parent() *Mob {
 	defer mi.RUnlock()
 
 	return Armeria.mobManager.MobByName(mi.UnsafeParent)
-}
-
-// Location returns the location of the MobInstance.
-func (mi *MobInstance) Location() *Location {
-	mi.RLock()
-	defer mi.RUnlock()
-
-	return mi.UnsafeLocation
-}
-
-// Room returns the Room of the mob.
-func (mi *MobInstance) Room() *Room {
-	mi.RLock()
-	defer mi.RUnlock()
-
-	return mi.UnsafeLocation.Room()
 }
 
 // Type returns the object type, since Mob implements the Object interface.

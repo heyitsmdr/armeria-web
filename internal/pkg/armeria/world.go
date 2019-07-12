@@ -90,7 +90,7 @@ func (m *WorldManager) SaveWorld() {
 
 func (m *WorldManager) CreateRoom(c *Coords) *Room {
 	return &Room{
-		UnsafeCoords:     c,
+		Coords:           CopyCoords(c),
 		UnsafeAttributes: map[string]string{},
 	}
 }
@@ -105,7 +105,7 @@ func (m *WorldManager) CreateArea(name string) *Area {
 		UnsafeAttributes: make(map[string]string),
 	}
 
-	r := m.CreateRoom(&Coords{0, 0, 0, 0})
+	r := m.CreateRoom(NewCoords(0, 0, 0, 0))
 	a.AddRoom(r)
 	m.UnsafeWorld = append(m.UnsafeWorld, a)
 
@@ -120,14 +120,7 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 		)
 	}
 
-	loc := &Location{
-		UnsafeAreaUUID: a.Id(),
-		Coords: &Coords{
-			X: r.Coords().X + o["x"],
-			Y: r.Coords().Y + o["y"],
-			Z: r.Coords().Z + o["z"],
-		},
-	}
+	loc := NewLocation(a.Id(), r.Coords.X()+o["x"], r.Coords.Y()+o["y"], r.Coords.Z()+o["z"])
 
 	return loc.Room()
 }

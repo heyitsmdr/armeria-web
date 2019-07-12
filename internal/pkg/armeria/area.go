@@ -62,14 +62,14 @@ func (a *Area) Name() string {
 	return a.UnsafeName
 }
 
-// RoomAt returns the Room at a particular UnsafeCoords within the same area.
+// RoomAt returns the Room at a particular Coords within the same area.
 func (a *Area) RoomAt(c *Coords) *Room {
 	a.RLock()
 	defer a.RUnlock()
 
 	for _, r := range a.UnsafeRooms {
-		rc := r.Coords()
-		if rc.X == c.X && rc.Y == c.Y && rc.Z == c.Z && rc.I == c.I {
+		rc := r.Coords
+		if rc.X() == c.X() && rc.Y() == c.Y() && rc.Z() == c.Z() && rc.I() == c.I() {
 			return r
 		}
 	}
@@ -88,9 +88,9 @@ func (a *Area) MinimapJSON() string {
 			"title": r.Attribute("title"),
 			"color": r.Attribute("color"),
 			"type":  r.Attribute("type"),
-			"x":     r.Coords().X,
-			"y":     r.Coords().Y,
-			"z":     r.Coords().Z,
+			"x":     r.Coords.X(),
+			"y":     r.Coords.Y(),
+			"z":     r.Coords.Z(),
 		})
 	}
 

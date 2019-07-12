@@ -59,7 +59,7 @@ func (ca *ClientActions) RenderMap() {
 
 // SyncMapLocation sets the character location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
-	loc := ca.player.Character().LocationJSON()
+	loc := ca.player.Character().Location().Coords.JSON()
 	ca.player.CallClientAction("setCharacterLocation", loc)
 }
 
@@ -73,9 +73,9 @@ func (ca *ClientActions) SyncRoomObjects() {
 func (ca *ClientActions) SyncRoomTitle() {
 	r := ca.player.Character().Room()
 	if ca.player.Character().HasPermission("CAN_BUILD") {
-		c := r.Coords()
+		c := r.Coords
 		ca.player.CallClientAction("setRoomTitle",
-			fmt.Sprintf("%s (%d,%d,%d)", r.Attribute("title"), c.X, c.Y, c.Z),
+			fmt.Sprintf("%s (%d,%d,%d)", r.Attribute("title"), c.X(), c.Y(), c.Z()),
 		)
 	} else {
 		ca.player.CallClientAction("setRoomTitle", r.Attribute("title"))

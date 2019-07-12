@@ -3,7 +3,6 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -119,6 +118,7 @@ func (c *Character) SetPassword(pw string) {
 func (c *Character) SaltedPasswordHash(salt string) string {
 	c.RLock()
 	defer c.RUnlock()
+
 	b := []byte(c.UnsafePassword + salt)
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
@@ -127,6 +127,7 @@ func (c *Character) SaltedPasswordHash(salt string) string {
 func (c *Character) Player() *Player {
 	c.RLock()
 	defer c.RUnlock()
+
 	return c.player
 }
 
@@ -134,6 +135,7 @@ func (c *Character) Player() *Player {
 func (c *Character) SetPlayer(p *Player) {
 	c.Lock()
 	defer c.Unlock()
+
 	c.player = p
 }
 
@@ -141,36 +143,21 @@ func (c *Character) SetPlayer(p *Player) {
 func (c *Character) Location() *Location {
 	c.RLock()
 	defer c.RUnlock()
+
 	return c.UnsafeLocation
 }
 
-// LocationJSON returns the character's location as a JSON-dump.
-func (c *Character) LocationJSON() string {
-	c.RLock()
-	defer c.RUnlock()
-
-	locationJson, err := json.Marshal(c.UnsafeLocation.Coords)
-	if err != nil {
-		Armeria.log.Fatal("failed to marshal character location data",
-			zap.String("character", c.UnsafeName),
-			zap.Error(err),
-		)
-	}
-
-	return string(locationJson)
-}
-
-// SetLocation sets the character's location.
+// SetLocation is a helper function to set a Character's Location based on a Location object.
 func (c *Character) SetLocation(l *Location) {
-	c.RLock()
-	defer c.RUnlock()
-	c.UnsafeLocation = l
+	c.Location().SetAreaUUID(l.AreaUUID())
+	c.Location().Coords.Set(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I())
 }
 
 // Room returns the room that the character is in.
 func (c *Character) Room() *Room {
 	c.RLock()
 	defer c.RUnlock()
+
 	return c.UnsafeLocation.Room()
 }
 
@@ -178,6 +165,7 @@ func (c *Character) Room() *Room {
 func (c *Character) Area() *Area {
 	c.RLock()
 	defer c.RUnlock()
+
 	return c.UnsafeLocation.Area()
 }
 
@@ -280,6 +268,7 @@ func (c *Character) LoggedOut() {
 func (c *Character) TempAttribute(name string) string {
 	c.RLock()
 	defer c.RUnlock()
+
 	return c.UnsafeTempAttributes[name]
 }
 

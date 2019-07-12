@@ -73,9 +73,11 @@ func (i *Item) CreateInstance() *ItemInstance {
 	defer i.Unlock()
 
 	ii := &ItemInstance{
-		UUID:             uuid.New().String(),
-		UnsafeParent:     i.UnsafeName,
-		UnsafeAttributes: make(map[string]string),
+		UUID:               uuid.New().String(),
+		UnsafeParent:       i.UnsafeName,
+		UnsafeAttributes:   make(map[string]string),
+		UnsafeLocationType: ItemLocationRoom,
+		Location:           &Location{},
 	}
 
 	i.UnsafeInstances = append(i.UnsafeInstances, ii)
