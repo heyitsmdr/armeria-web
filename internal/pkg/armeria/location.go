@@ -7,10 +7,10 @@ import (
 // Coords store positional information relative to an Area.
 type Coords struct {
 	sync.RWMutex
-	X int `json:"x"`
-	Y int `json:"y"`
-	Z int `json:"z"`
-	I int `json:"-"`
+	UnsafeX int `json:"x"`
+	UnsafeY int `json:"y"`
+	UnsafeZ int `json:"z"`
+	UnsafeI int `json:"-"`
 }
 
 // Location stores where something is within the world.
@@ -65,8 +65,52 @@ func (l *Location) Room() *Room {
 	return a.RoomAt(l.Coords)
 }
 
-func (c *Coords) Get() {
+// X returns the x-coordinate.
+func (c *Coords) X() int {
+	c.RLock()
+	defer c.RUnlock()
 
+	return c.UnsafeX
+}
+
+// Y returns the y-coordinate.
+func (c *Coords) Y() int {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.UnsafeY
+}
+
+// Z returns the z-coordinate.
+func (c *Coords) Z() int {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.UnsafeZ
+}
+
+// I returns the i-coordinate.
+func (c *Coords) I() int {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.UnsafeI
+}
+
+// XYZ returns an integer array for the x, y, and z coordinates.
+func (c *Coords) XYZ() []int {
+	c.RLock()
+	defer c.RUnlock()
+
+	return []int{c.UnsafeX, c.UnsafeY, c.UnsafeZ}
+}
+
+// XYZI returns an integer array for the x, y, z, and i coordinates.
+func (c *Coords) XYZI() []int {
+	c.RLock()
+	defer c.RUnlock()
+
+	return []int{c.UnsafeX, c.UnsafeY, c.UnsafeZ, c.UnsafeI}
 }
 
 // Set sets the x, y, z and i values of the Coords.
