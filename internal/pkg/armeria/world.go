@@ -121,7 +121,7 @@ func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room
 	}
 
 	loc := &Location{
-		AreaUUID: a.Id(),
+		UnsafeAreaUUID: a.Id(),
 		Coords: &Coords{
 			X: r.Coords().X + o["x"],
 			Y: r.Coords().Y + o["y"],

@@ -198,7 +198,7 @@ func handleMoveCommand(ctx *CommandContext) {
 	z := loc.Coords.Z + o["z"]
 
 	newLocation := &Location{
-		AreaUUID: loc.AreaUUID,
+		UnsafeAreaUUID: loc.UnsafeAreaUUID,
 		Coords: &Coords{
 			X: x,
 			Y: y,
@@ -274,8 +274,8 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 		Z: z,
 	}
 	newLoc := &Location{
-		AreaUUID: loc.AreaUUID,
-		Coords:   coords,
+		UnsafeAreaUUID: loc.UnsafeAreaUUID,
+		Coords:         coords,
 	}
 
 	if newLoc.Room() != nil {
@@ -308,7 +308,7 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 	z := loc.Coords.Z + o["z"]
 
 	l := &Location{
-		AreaUUID: loc.AreaUUID,
+		UnsafeAreaUUID: loc.UnsafeAreaUUID,
 		Coords: &Coords{
 			X: x,
 			Y: y,
@@ -589,7 +589,7 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 
 	l := ctx.Character.Location()
 	loc := &Location{
-		AreaUUID: l.AreaUUID,
+		UnsafeAreaUUID: l.UnsafeAreaUUID,
 		Coords: &Coords{
 			X: l.Coords.X,
 			Y: l.Coords.Y,
@@ -727,7 +727,7 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 
 	l := ctx.Character.Location()
 	loc := &Location{
-		AreaUUID: l.AreaUUID,
+		UnsafeAreaUUID: l.UnsafeAreaUUID,
 		Coords: &Coords{
 			X: l.Coords.X,
 			Y: l.Coords.Y,
@@ -937,8 +937,8 @@ func handleTeleportCommand(ctx *CommandContext) {
 
 		cl := c.Location().Coords
 		l = &Location{
-			AreaUUID: c.Area().Id(),
-			Coords:   &Coords{cl.X, cl.Y, cl.Z, cl.I},
+			UnsafeAreaUUID: c.Area().Id(),
+			Coords:         &Coords{cl.X, cl.Y, cl.Z, cl.I},
 		}
 		moveMsg = fmt.Sprintf("You teleported to %s.", c.FormattedName())
 	} else {
@@ -964,7 +964,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 		}
 
 		l = &Location{
-			AreaUUID: a.Id(),
+			UnsafeAreaUUID: a.Id(),
 			Coords: &Coords{
 				X: x,
 				Y: y,
