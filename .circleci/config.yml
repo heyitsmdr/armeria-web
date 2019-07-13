@@ -19,8 +19,8 @@ jobs:
     deploy:
       docker:
         - image: circleci/golang:1.12
-        steps:
-          - run: curl http://something.com/a/b
+      steps:
+        - run: curl http://something.com/a/b
 workflows:
   version: 2
   build_and_test:
