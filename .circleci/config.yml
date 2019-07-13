@@ -19,8 +19,13 @@ jobs:
   build_client:
     docker:
       - image: circleci/node:12
+    working_directory: /tmp/armeria/client
     steps:
       - checkout
+          path: /tmp/armeria
+      - run:
+          name: Install dependencies
+          command: yarn install
       - run:
           name: Build client
           command: yarn build
