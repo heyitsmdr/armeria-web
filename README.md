@@ -3,10 +3,25 @@
 Armeria is an open-source web-based online role-playing game being written in [Golang](https://golang.org/)
 and [Vue.js](https://vuejs.org/).
 
+## Appendix
+
+* [Contributing](#contributing)
+    * [Getting Started](#getting-started)
+    * [Local Development](#local-development)
+    * [Publishing Features](#publishing-features)
+    * [CI/CD](#cicd)
+    * [Releasing](#releasing)
+
 ## Contributing
 
-Since Armeria is open-source, anyone can run Armeria locally and contribute to the game. The only thing not included
-is access to the production data. However, there is an abundance of example data included with the repo.
+Since Armeria is open-source, anyone can run Armeria locally and contribute to the game. All contributions are welcome
+and extremely appreciated. The only thing not included is access to the production data. However, there is an
+abundance of example data included with the repo.
+
+### Getting Started
+
+To begin contributing to Armeria, create a fork of the `armeria` repo. You can work on your changes on a feature
+branch based off of your forked repo.
 
 ### Local Development
 
@@ -46,4 +61,33 @@ $ yarn install
 $ yarn serve
 ```
 
-You can load the client here: [http://localhost:8080/](http://localhost:8080/)
+You can load the client here: [http://localhost:8080/](http://localhost:8080/). While running `yarn serve`, you can
+make changes to the client files and the changes will be hot reloaded immediately within the browser. Some of these
+changes may terminate your connection to the game server and require you to re-login.
+
+### Publishing Features
+
+When you have finished working on a feature, be sure there are no broken unit tests. You can check this via:
+
+```bash
+$ go test ./...
+```
+
+If you are adding new code, be sure you are also modifying or adding unit tests to ensure test coverage. Furthermore,
+anything that should be documented externally should be written in `/docs` as well.
+
+Once ready, create a Pull Request (PR) from your forked repo's feature branch to this repo's `master` branch.
+
+### CI/CD
+
+Once you've created a Pull Request, our CircleCI build will kick off and ensure all unit tests are passing. The build
+will additionally confirm that the binary can be built and ran successfully. If any of these steps fail, you will be
+notified via the open PR.
+
+### Releasing
+
+The main repo has a `master` branch and `release` branch. The former is a development branch that will contain squashed
+merges from contributors that are feature-complete (and ready to be released at any time). Once we've deemed it
+necessary to cut a release, we will create a Pull Request to merge `master` into `release`. Once merged, CircleCI will
+deploy the code to the production server and trigger a server restart. Characters on the game will be kicked off for
+a few seconds while the new server instance starts back up.
