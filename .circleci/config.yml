@@ -32,7 +32,7 @@ jobs:
       - persist_to_workspace:
           root: workspace/client
           paths:
-            - /tmp/armeria/client
+            - .
   deploy:
     docker:
       - image: circleci/golang:1.12
