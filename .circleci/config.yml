@@ -30,9 +30,9 @@ jobs:
           name: Build client
           command: yarn build
       - persist_to_workspace:
-          root: workspace/client
+          root: /tmp/armeria/client
           paths:
-            - .
+            - dist
   deploy:
     docker:
       - image: circleci/golang:1.12
@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Copy compiled client files to srver
           command: |
-            scp -o StrictHostKeyChecking=no -r workspace/armeria/client root@armeria.mdr.dev:/opt/armeria/client
+            scp -o StrictHostKeyChecking=no -r workspace/dist/ root@armeria.mdr.dev:/opt/armeria/client
       - run:
           name: Copy binary to server
           command: |
