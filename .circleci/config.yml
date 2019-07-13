@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build_and_test:
+  build_server:
     docker:
       - image: circleci/golang:1.12
     steps:
@@ -16,6 +16,14 @@ jobs:
           root: workspace
           paths:
             - armeria
+  build_client:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+      - run:
+          name: Build client
+          command: yarn build
   deploy:
     docker:
       - image: circleci/golang:1.12
@@ -38,10 +46,12 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - build_and_test
+      - build_server
+      - build_client
       - deploy:
           requires:
-            - build_and_test
+            - build_server
+            - build_client
           filters:
             branches:
               only: master
