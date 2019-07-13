@@ -1,14 +1,6 @@
 version: 2
 jobs:
-  build:
-    docker:
-      - image: circleci/golang:1.12
-    steps:
-      - checkout
-      - run:
-          name: build binary
-          command: go build cmd/armeria/main.go
-  test:
+  test_and_build:
     docker:
       - image: circleci/golang:1.12
     steps:
@@ -16,6 +8,9 @@ jobs:
       - run:
           name: run unit tests
           command: go test -race ./...
+      - run:
+          name: build binary
+          command: go build -o armeria cmd/armeria/main.go
   deploy:
     docker:
       - image: circleci/golang:1.12
