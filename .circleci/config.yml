@@ -6,18 +6,21 @@ jobs:
     steps:
       - checkout
       - run:
-            name: build binary
-            command: go build -o armeria cmd/armeria/main.go
+          name: Build binary
+          command: go build -o armeria cmd/armeria/main.go
       - run:
-          name: run unit tests
+          name: Run unit tests
           command: go test -race ./...
   deploy:
     docker:
       - image: circleci/golang:1.12
     steps:
-        - run: curl http://something.com/a/b
+        - run: curl -XPOST https://armeria.mdr.dev/api/reload?key=$RELOAD_KEY
 workflows:
   version: 2
-  build_and_test:
+  build_test_deploy:
     jobs:
       - build_and_test
+      - deploy:
+          requires:
+            - build_and_test
