@@ -29,7 +29,7 @@ jobs:
       - run:
           name: Symlink to the new binary
           command: |
-            ssh -o StrictHostKeyChecking=no root@armeria.mdr.dev ln -s /opt/armeria/armeria-$CIRCLE_BUILD_NUM /opt/armeria/armeria
+            ssh -o StrictHostKeyChecking=no root@armeria.mdr.dev ln -s -f /opt/armeria/armeria-$CIRCLE_BUILD_NUM /opt/armeria/armeria
       - run:
           name: Restart armeria
           command: |
