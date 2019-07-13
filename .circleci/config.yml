@@ -22,9 +22,18 @@ jobs:
     steps:
       - attach_workspace:
           at: workspace
-      - run: scp -o StrictHostKeyChecking=no workspace/armeria root@armeria.mdr.dev:/opt/armeria/armeria-$CIRCLE_BUILD_NUM
-      - run: ssh -o StrictHostKeyChecking=no root@armeria.mdr.dev "systemctl restart armeria
-
+      - run:
+          name: Copy binary to server
+          command: |
+            scp -o StrictHostKeyChecking=no workspace/armeria root@armeria.mdr.dev:/opt/armeria/armeria-$CIRCLE_BUILD_NUM
+      - run:
+          name: Symlink to the new binary
+          command: |
+            ssh -o StrictHostKeyChecking=no root@armeria.mdr.dev ln -s /opt/armeria/armeria-$CIRCLE_BUILD_NUM /opt/armeria/armeria
+      - run:
+          name: Restart armeria
+          command: |
+            ssh -o StrictHostKeyChecking=no root@armeria.mdr.dev systemctl restart armeria
 workflows:
   version: 2
   build_test_deploy:
