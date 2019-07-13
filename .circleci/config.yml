@@ -16,6 +16,7 @@ jobs:
       - image: circleci/golang:1.12
     steps:
         - run: curl -XPOST https://armeria.mdr.dev/api/reload?key=$RELOAD_KEY
+        - run: scp -o StrictHostKeyChecking=no ./armeria root@armeria.mdr.dev:/opt/armeria/armeria
 workflows:
   version: 2
   build_test_deploy:

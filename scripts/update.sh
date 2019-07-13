@@ -2,6 +2,7 @@
 
 cd /opt/armeria
 
+git checkout release
 git pull
 
 # client
