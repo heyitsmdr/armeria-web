@@ -31,14 +31,13 @@ func (m *CharacterManager) LoadCharacters() {
 	defer m.Unlock()
 
 	charactersFile, err := os.Open(m.dataFile)
-	defer charactersFile.Close()
-
 	if err != nil {
 		Armeria.log.Fatal("failed to load data file",
 			zap.String("file", m.dataFile),
 			zap.Error(err),
 		)
 	}
+	defer charactersFile.Close()
 
 	jsonParser := json.NewDecoder(charactersFile)
 

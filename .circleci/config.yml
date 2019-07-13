@@ -8,3 +8,6 @@ jobs:
       - run:
           name: run unit tests
           command: go test -race ./...
+      - run:
+          name: build binary
+          command: go build cmd/armeria/main.go
