@@ -6,8 +6,27 @@ jobs:
     steps:
       - checkout
       - run:
-          name: run unit tests
-          command: go test -race ./...
-      - run:
           name: build binary
           command: go build cmd/armeria/main.go
+    test:
+      docker:
+        - image: circleci/golang:1.12
+      steps:
+        - checkout
+        - run:
+            name: run unit tests
+            command: go test -race ./...
+    deploy:
+      docker:
+        - image: circleci/golang:1.12
+        steps:
+          - run: curl http://something.com/a/b
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
+  deploy:
+    jobs:
+      - deploy
