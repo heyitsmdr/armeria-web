@@ -44,7 +44,7 @@ jobs:
           command: |
             ssh -o StrictHostKeyChecking=no root@armeria.mdr.dev rm -rf /opt/armeria/client
       - run:
-          name: Copy compiled client files to srver
+          name: Copy compiled client files to server
           command: |
             scp -o StrictHostKeyChecking=no -r workspace/dist/ root@armeria.mdr.dev:/opt/armeria/client
       - run:
@@ -71,4 +71,4 @@ workflows:
             - build_client
           filters:
             branches:
-              only: master
+              only: release
