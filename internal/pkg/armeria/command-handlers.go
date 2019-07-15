@@ -310,20 +310,6 @@ func handleSaveCommand(ctx *CommandContext) {
 	ctx.Player.clientActions.ShowText("The game data has been saved to disk.")
 }
 
-func handleReloadCommand(ctx *CommandContext) {
-	if ctx.Args["component"] != "server" && ctx.Args["component"] != "client" && ctx.Args["component"] != "both" {
-		ctx.Player.clientActions.ShowText("You can reload the following components: server, client, or both.")
-		return
-	}
-
-	if !Armeria.production {
-		ctx.Player.clientActions.ShowColorizedText("You can only reload in production!", ColorError)
-		return
-	}
-
-	Armeria.Reload(ctx.Player, ctx.Args["component"])
-}
-
 func handleRefreshCommand(ctx *CommandContext) {
 	ctx.Player.clientActions.RenderMap()
 	ctx.Player.clientActions.SyncRoomObjects()

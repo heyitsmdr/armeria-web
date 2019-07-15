@@ -170,21 +170,6 @@ func RegisterGameCommands() {
 			Handler: handleSaveCommand,
 		},
 		{
-			Name: "reload",
-			Help: "Updates, builds and reloads the server, client, or both.",
-
-			Permissions: &CommandPermissions{
-				RequireCharacter:  true,
-				RequirePermission: "CAN_SYSOP",
-			},
-			Arguments: []*CommandArgument{
-				{
-					Name: "component",
-				},
-			},
-			Handler: handleReloadCommand,
-		},
-		{
 			Name: "refresh",
 			Help: "Asks the server to re-render the data on the client.",
 			Permissions: &CommandPermissions{
