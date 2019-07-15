@@ -8,6 +8,7 @@ and [Vue.js](https://vuejs.org/).
 * [Contributing](#contributing)
     * [Getting Started](#getting-started)
     * [Local Development](#local-development)
+    * [Upgrading Dependencies](#upgrading-dependencies)
     * [Publishing Features](#publishing-features)
     * [CI/CD](#cicd)
     * [Releasing](#releasing)
@@ -64,6 +65,25 @@ $ yarn serve
 You can load the client here: [http://localhost:8080/](http://localhost:8080/). While running `yarn serve`, you can
 make changes to the client files and the changes will be hot reloaded immediately within the browser. Some of these
 changes may terminate your connection to the game server and require you to re-login.
+
+### Upgrading Dependencies
+
+To upgrade Vue.js, you can use the Vue CLI. Be sure you have the Vue CLI and the Vue CLI Upgrade packages installed:
+
+```bash
+$ yarn global add @vue/cli
+$ yarn global add @vue/cli-upgrade
+```
+
+You can upgrade the client by running:
+
+```bash
+$ cd client
+$ vue upgrade major
+```
+
+Press `Y` to confirm updating `package.json` and re-running `yarn install` automatically. Make sure the client builds
+successfully and commit the changes.
 
 ### Publishing Features
 
