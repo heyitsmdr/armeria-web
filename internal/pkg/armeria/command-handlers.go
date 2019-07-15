@@ -239,7 +239,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		ColorSuccess,
 	)
 
-	editorOpen := ctx.Character.TempAttribute("editorOpen")
+	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		ctx.Player.clientActions.ShowObjectEditor(ctx.Character.Room().EditorData())
 	}
@@ -330,6 +330,8 @@ func handleWhisperCommand(ctx *CommandContext) {
 		return
 	}
 
+	c.SetTempAttribute(TempAttributeReplyTo, ctx.Character.Name())
+
 	ctx.Player.clientActions.ShowColorizedText(
 		fmt.Sprintf("You whisper to %s, \"%s\".", c.FormattedName(), m),
 		ColorWhisper,
@@ -339,6 +341,18 @@ func handleWhisperCommand(ctx *CommandContext) {
 		fmt.Sprintf("%s whispers to you, \"%s\".", ctx.Character.FormattedName(), m),
 		ColorWhisper,
 	)
+}
+
+func handleReplyCommand(ctx *CommandContext) {
+	m := ctx.Args["message"]
+
+	rt := ctx.Character.TempAttribute(TempAttributeReplyTo)
+	if len(rt) == 0 {
+		ctx.Player.clientActions.ShowColorizedText("No one has sent you a whisper yet.", ColorError)
+		return
+	}
+
+	Armeria.commandManager.ProcessCommand(ctx.Player, fmt.Sprintf("whisper %s %s", rt, m), false)
 }
 
 func handleWhoCommand(ctx *CommandContext) {
@@ -441,7 +455,7 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 
 	}
 
-	editorOpen := ctx.Character.TempAttribute("editorOpen")
+	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		ctx.Player.clientActions.ShowObjectEditor(c.EditorData())
 	}
@@ -535,7 +549,7 @@ func handleMobSetCommand(ctx *CommandContext) {
 		ColorSuccess,
 	)
 
-	editorOpen := ctx.Character.TempAttribute("editorOpen")
+	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		ctx.Player.clientActions.ShowObjectEditor(m.EditorData())
 	}
@@ -734,7 +748,7 @@ func handleItemSetCommand(ctx *CommandContext) {
 		ColorSuccess,
 	)
 
-	editorOpen := ctx.Character.TempAttribute("editorOpen")
+	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		ctx.Player.clientActions.ShowObjectEditor(i.EditorData())
 	}
@@ -789,11 +803,11 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 }
 
 func handleGhostCommand(ctx *CommandContext) {
-	if len(ctx.Character.TempAttribute("ghost")) > 0 {
-		ctx.Character.SetTempAttribute("ghost", "")
+	if len(ctx.Character.TempAttribute(TempAttributeGhost)) > 0 {
+		ctx.Character.SetTempAttribute(TempAttributeGhost, "")
 		ctx.Player.clientActions.ShowColorizedText("You are no longer ghostly.", ColorSuccess)
 	} else {
-		ctx.Character.SetTempAttribute("ghost", "1")
+		ctx.Character.SetTempAttribute(TempAttributeGhost, "1")
 		ctx.Player.clientActions.ShowColorizedText("You are now ghostly.", ColorSuccess)
 	}
 }

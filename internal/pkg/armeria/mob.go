@@ -18,23 +18,6 @@ type Mob struct {
 	UnsafeInstances  []*MobInstance    `json:"instances"`
 }
 
-// ValidMobAttributes returns an array of valid attributes that can be permanently set.
-func ValidMobAttributes() []string {
-	return []string{
-		"picture",
-		"script",
-	}
-}
-
-// MobAttributeDefault returns the default value for a particular attribute.
-func MobAttributeDefault(name string) string {
-	switch name {
-
-	}
-
-	return ""
-}
-
 // ValidateMobAttribute returns a bool indicating whether a particular value is allowed
 // for a particular attribute.
 func ValidateMobAttribute(name string, value string) (bool, string) {

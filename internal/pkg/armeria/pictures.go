@@ -28,8 +28,8 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 	switch objectType {
 	case "character":
 		c := Armeria.characterManager.CharacterByName(name)
-		oldKey = c.Attribute("picture")
-		c.SetAttribute("picture", k)
+		oldKey = c.Attribute(AttributePicture)
+		c.SetAttribute(AttributePicture, k)
 		editorData = c.EditorData()
 		p.clientActions.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
@@ -40,8 +40,8 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		}
 	case "mob":
 		m := Armeria.mobManager.MobByName(name)
-		oldKey = m.Attribute("picture")
-		m.SetAttribute("picture", k)
+		oldKey = m.Attribute(AttributePicture)
+		m.SetAttribute(AttributePicture, k)
 		editorData = m.EditorData()
 		p.clientActions.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.Name()),
@@ -49,8 +49,8 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		)
 	case "item":
 		i := Armeria.itemManager.ItemByName(name)
-		oldKey = i.Attribute("picture")
-		i.SetAttribute("picture", k)
+		oldKey = i.Attribute(AttributePicture)
+		i.SetAttribute(AttributePicture, k)
 		editorData = i.EditorData()
 		p.clientActions.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for item [b]%s[/b].", i.Name()),
@@ -66,7 +66,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		DeleteObjectPictureFromDisk(oldKey)
 	}
 
-	editorOpen := p.Character().TempAttribute("editorOpen")
+	editorOpen := p.Character().TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		p.clientActions.ShowObjectEditor(editorData)
 	}

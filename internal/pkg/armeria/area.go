@@ -35,20 +35,6 @@ const (
 	DownDirection  = "down"
 )
 
-// ValidAreaAttributes returns an array of valid attributes that can be permanently set.
-func ValidAreaAttributes() []string {
-	return []string{}
-}
-
-// AreaAttributeDefault returns the default value for a particular attribute.
-func AreaAttributeDefault(name string) string {
-	switch name {
-
-	}
-
-	return ""
-}
-
 // Id returns the UUID of the Area..
 func (a *Area) Id() string {
 	return a.UUID

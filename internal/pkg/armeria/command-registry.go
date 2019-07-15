@@ -196,6 +196,21 @@ func RegisterGameCommands() {
 			Handler: handleWhisperCommand,
 		},
 		{
+			Name:     "reply",
+			AltNames: []string{"r"},
+			Help:     "Replies to the last whisper received.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "message",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleReplyCommand,
+		},
+		{
 			Name: "who",
 			Help: "Displays the characters currently playing.",
 			Permissions: &CommandPermissions{

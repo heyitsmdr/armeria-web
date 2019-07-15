@@ -66,7 +66,7 @@ func (ii *ItemInstance) SetAttribute(name string, value string) {
 		ii.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(ValidMobAttributes(), name) {
+	if !misc.Contains(ValidItemAttributes(), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
 			zap.String("attribute", name),
 			zap.String("value", value),

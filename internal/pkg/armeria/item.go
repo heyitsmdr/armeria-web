@@ -17,24 +17,6 @@ type Item struct {
 	UnsafeInstances  []*ItemInstance   `json:"instances"`
 }
 
-// ValidItemAttributes returns an array of valid attributes that can be permanently set.
-func ValidItemAttributes() []string {
-	return []string{
-		"picture",
-		"rarity",
-	}
-}
-
-// ItemAttributeDefault returns the default value for a particular attribute.
-func ItemAttributeDefault(name string) string {
-	switch name {
-	case "rarity":
-		return "0"
-	}
-
-	return ""
-}
-
 // ValidateItemAttribute returns a bool indicating whether a particular value is allowed
 // for a particular attribute.
 func ValidateItemAttribute(name string, value string) (bool, string) {

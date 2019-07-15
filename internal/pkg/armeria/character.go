@@ -32,24 +32,6 @@ const (
 	ColorSuccess   int = 6
 )
 
-// ValidCharacterAttributes returns an array of valid attributes that can be permanently set.
-func ValidCharacterAttributes() []string {
-	return []string{
-		"picture",
-		"title",
-		"permissions",
-	}
-}
-
-// CharacterAttributeDefault returns the default value for a particular attribute.
-func CharacterAttributeDefault(name string) string {
-	switch name {
-
-	}
-
-	return ""
-}
-
 // UUID returns the uuid of the character.
 func (c *Character) Id() string {
 	return c.UUID
@@ -319,7 +301,7 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 		return false, "You cannot move that way."
 	}
 
-	if len(c.TempAttribute("ghost")) > 0 {
+	if len(c.TempAttribute(TempAttributeGhost)) > 0 {
 		return true, ""
 	}
 
@@ -367,7 +349,7 @@ func (c *Character) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidCharacterAttributes() {
 		propType := "editable"
-		if attrName == "picture" {
+		if attrName == AttributePicture {
 			propType = "picture"
 		}
 

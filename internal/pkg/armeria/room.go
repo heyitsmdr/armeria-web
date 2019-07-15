@@ -16,28 +16,6 @@ type Room struct {
 	objects          []Object
 }
 
-func ValidRoomAttributes() []string {
-	return []string{
-		"title",
-		"description",
-		"color",
-		"type",
-	}
-}
-
-func RoomAttributeDefault(name string) string {
-	switch name {
-	case "title":
-		return "Empty Room"
-	case "description":
-		return "You are in a newly created empty room. Make it a good one!"
-	case "color":
-		return "190,190,190"
-	}
-
-	return ""
-}
-
 func (r *Room) SetAttribute(name string, value string) {
 	r.Lock()
 	defer r.Unlock()
@@ -129,8 +107,8 @@ func (r *Room) ObjectData() string {
 			"uuid":    o.Id(),
 			"name":    o.Name(),
 			"type":    o.Type(),
-			"picture": o.Attribute("picture"),
-			"rarity":  o.Attribute("rarity"),
+			"picture": o.Attribute(AttributePicture),
+			"rarity":  o.Attribute(AttributeRarity),
 		})
 	}
 
@@ -154,7 +132,7 @@ func (r *Room) EditorData() *ObjectEditorData {
 	}
 
 	return &ObjectEditorData{
-		Name:       r.Attribute("title"),
+		Name:       r.Attribute(AttributeTitle),
 		ObjectType: "room",
 		Properties: props,
 	}
