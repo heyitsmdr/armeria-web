@@ -85,6 +85,13 @@ $ vue upgrade major
 Press `Y` to confirm updating `package.json` and re-running `yarn install` automatically. Make sure the client builds
 successfully and commit the changes.
 
+To upgrade another Node dependency, you can do this by running:
+
+```bash
+$ cd client
+$ yarn add <dependency name>
+```
+
 ### Publishing Features
 
 When you have finished working on a feature, be sure there are no broken unit tests. You can check this via:
