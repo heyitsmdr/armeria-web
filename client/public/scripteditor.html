@@ -100,9 +100,9 @@
         window.addEventListener('resize', resizeEditor);
         resizeEditor()
 
-        document.getElementById('save').addEventListener('click', () => {
+        document.getElementById('save').addEventListener('click', (evt) => {
             $.post(`${urlBase}/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
-                if (status === 'success') {
+                if (status === 'success' && !evt.shiftKey) {
                     window.close();
                 }
             })
