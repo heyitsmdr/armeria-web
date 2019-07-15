@@ -60,13 +60,13 @@
     <script src="vendor/ace-1.4.4/mode-lua.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.4/worker-lua.js" type="text/javascript" charset="utf-8"></script>
     <script>
-        var editor = ace.edit("editor");
+        let editor = ace.edit("editor");
 
         // set theme
         editor.setTheme("ace/theme/tomorrow_night");
 
         // set mode to lua
-        var LuaMode = ace.require("ace/mode/lua").Mode;
+        let LuaMode = ace.require("ace/mode/lua").Mode;
         editor.session.setMode(new LuaMode());
 
         // set common options
@@ -77,13 +77,19 @@
             document.getElementById('editor').style.width = `${window.innerWidth}px`;
         }
 
-        var urlParams = new URLSearchParams(window.location.search);
+        let urlParams = new URLSearchParams(window.location.search);
 
+        const dev = urlParams.get('dev');
         const name = urlParams.get('name');
         const type = urlParams.get('type');
         const accessKey = urlParams.get('accessKey');
 
-        $.get(`/script/${type}/${name}/${accessKey}`, (data) => {
+        let urlBase = '';
+        if (dev === 'true') {
+            urlBase = 'http://localhost:8081'
+        }
+
+        $.get(`${urlBase}/script/${type}/${name}/${accessKey}`, (data) => {
             editor.session.setValue(data);
             editor.gotoLine(1);
         }).fail(() => {

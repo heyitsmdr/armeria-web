@@ -157,13 +157,15 @@
 
             handleScriptEditClick: function() {
                 let baseUrl = '/scripteditor.html';
+                let dev = 'false';
 
                 if (!this.isProduction) {
-                    baseUrl = 'http://localhost:8081/scripteditor.html';
+                    baseUrl = 'http://localhost:8080/scripteditor.html';
+                    dev = 'true';
                 }
 
                 window.open(
-                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}`,
+                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}&dev=${dev}`,
                     'scripteditor',
                     'width=800,height=600'
                 );

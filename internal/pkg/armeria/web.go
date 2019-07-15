@@ -7,6 +7,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -122,7 +123,10 @@ func InitWeb(port int) {
 		http.ServeFile(w, req, fmt.Sprintf("%s/index.html", Armeria.publicPath))
 	})
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port),
+		handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(r),
+	)
+
 	if err != nil {
 		Armeria.log.Fatal("error listening to http",
 			zap.Error(err),
