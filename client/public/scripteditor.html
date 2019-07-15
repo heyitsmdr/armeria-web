@@ -101,8 +101,10 @@
         resizeEditor()
 
         document.getElementById('save').addEventListener('click', () => {
-            $.post(`/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
-                console.log(data, status);
+            $.post(`${urlBase}/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
+                if (status === 'success') {
+                    window.close();
+                }
             })
         });
     </script>
