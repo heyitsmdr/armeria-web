@@ -24,7 +24,7 @@ func HandleScriptRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
+	if c.PasswordHash() != ak {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -58,7 +58,7 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA") != ak {
+	if c.PasswordHash() != ak {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

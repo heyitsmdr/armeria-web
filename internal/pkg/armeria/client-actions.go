@@ -86,7 +86,7 @@ func (ca *ClientActions) SyncRoomTitle() {
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	// add access key
 	c := ca.player.Character()
-	editorData.AccessKey = c.Name() + "/" + c.SaltedPasswordHash("ARM0bj3ct3d1t0rERIA")
+	editorData.AccessKey = c.Name() + "/" + c.PasswordHash()
 	j, err := json.Marshal(editorData)
 	if err != nil {
 		Armeria.log.Fatal("failed to marshal data",

@@ -96,12 +96,12 @@ func (c *Character) SetPassword(pw string) {
 	c.UnsafePassword = string(hash)
 }
 
-// SaltedPasswordHash returns the character's salted password as an md5 hash.
-func (c *Character) SaltedPasswordHash(salt string) string {
+// PasswordHash returns the character's already-encrypted password as an md5 hash.
+func (c *Character) PasswordHash() string {
 	c.RLock()
 	defer c.RUnlock()
 
-	b := []byte(c.UnsafePassword + salt)
+	b := []byte(c.UnsafePassword)
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
