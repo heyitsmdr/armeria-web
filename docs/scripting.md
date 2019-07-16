@@ -8,9 +8,9 @@
 
 ## Functions
 
-### mob_say(text)
+### say(text)
 
-Have the mob say something to the room it's in.
+Have the mob say `text` in the same room. All other characters in the room will see this.
 
 ## Events
 

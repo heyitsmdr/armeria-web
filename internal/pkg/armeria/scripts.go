@@ -50,7 +50,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("mob_uuid", lua.LString(mi.UUID))
 	L.SetGlobal("mob_name", lua.LString(mi.Name()))
 	// global functions
-	L.SetGlobal("mob_say", L.NewFunction(LuaMobSay))
+	L.SetGlobal("say", L.NewFunction(LuaMobSay))
 
 	err := L.DoFile(mi.Parent().ScriptFile())
 	if err != nil {
