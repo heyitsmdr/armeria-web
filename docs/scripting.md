@@ -34,7 +34,7 @@ duration of the character's session.
 * `temp` `(bool)`: whether to set a persistent or temporary attribute
 
 **Returns**
-* A `int` set to either `0` for success, `-1` for an invalid character, or `-2` for an invalid persistent attribute
+* An `int` set to either `0` for success, `-1` for an invalid character, or `-2` for an invalid persistent attribute
 
 Sets the value of a character's persistent or temporary attribute. A temporary attribute only exists for the
 duration of the character's session.
