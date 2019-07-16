@@ -339,7 +339,11 @@ func handleWhisperCommand(ctx *CommandContext) {
 	)
 
 	c.Player().clientActions.ShowColorizedText(
-		fmt.Sprintf("%s whispers to you, \"%s\".", ctx.Character.FormattedName(), m),
+		fmt.Sprintf("%s whispers to you from %s, \"%s\".",
+			ctx.Character.FormattedName(),
+			c.Location().Area().Name(),
+			m,
+		),
 		ColorWhisper,
 	)
 }
