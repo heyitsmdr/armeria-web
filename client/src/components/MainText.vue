@@ -40,6 +40,12 @@
     }
 </script>
 
+<style>
+    .line .monospace {
+        font-family: 'Inconsolata', monospace;
+        font-size: 16px;
+    }
+</style>
 <style scoped>
     .main-text-container {
         display: flex;
