@@ -30,7 +30,7 @@ func handleLoginCommand(ctx *CommandContext) {
 		return
 	}
 
-	if c.Room() == nil {
+	if c.Location().Room() == nil {
 		ctx.Player.clientActions.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
 		return
 	}
@@ -44,7 +44,7 @@ func handleLoginCommand(ctx *CommandContext) {
 }
 
 func handleLookCommand(ctx *CommandContext) {
-	rm := ctx.Character.Room()
+	rm := ctx.Character.Location().Room()
 
 	var objNames []string
 	for _, o := range rm.Objects() {
@@ -58,7 +58,7 @@ func handleLookCommand(ctx *CommandContext) {
 		withYou = fmt.Sprintf("\nHere with you: %s.", strings.Join(objNames, ", "))
 	}
 
-	ar := ctx.Character.Area().AdjacentRooms(rm)
+	ar := ctx.Character.Location().Area().AdjacentRooms(rm)
 	var validDirs []string
 	if ar.North != nil {
 		validDirs = append(validDirs, "[b]north[/b]")
@@ -100,7 +100,7 @@ func handleLookCommand(ctx *CommandContext) {
 	)
 
 	if ctx.PlayerInitiated {
-		for _, c := range ctx.Character.Room().Characters(ctx.Character) {
+		for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
 			c.Player().clientActions.ShowText(
 				fmt.Sprintf("%s takes a look around.", ctx.Character.FormattedName()),
 			)
@@ -134,7 +134,7 @@ func handleSayCommand(ctx *CommandContext) {
 		ctx.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], ctx.Args["text"]), ColorSay),
 	)
 
-	room := ctx.Character.Room()
+	room := ctx.Character.Location().Room()
 	for _, c := range room.Characters(ctx.Character) {
 		c.Player().clientActions.ShowText(
 			c.Player().Character().Colorize(
@@ -216,7 +216,7 @@ func handleMoveCommand(ctx *CommandContext) {
 }
 
 func handleRoomEditCommand(stx *CommandContext) {
-	stx.Player.clientActions.ShowObjectEditor(stx.Character.Room().EditorData())
+	stx.Player.clientActions.ShowObjectEditor(stx.Character.Location().Room().EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
@@ -227,9 +227,9 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Character.Room().SetAttribute(attr, ctx.Args["value"])
+	ctx.Character.Location().Room().SetAttribute(attr, ctx.Args["value"])
 
-	for _, c := range ctx.Character.Room().Characters(ctx.Character) {
+	for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
 		c.Player().clientActions.ShowText(
 			fmt.Sprintf("%s modified the room.", ctx.Character.FormattedName()),
 		)
@@ -242,7 +242,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		ctx.Player.clientActions.ShowObjectEditor(ctx.Character.Room().EditorData())
+		ctx.Player.clientActions.ShowObjectEditor(ctx.Character.Location().Room().EditorData())
 	}
 }
 
@@ -267,9 +267,9 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 	}
 
 	room := Armeria.worldManager.CreateRoom(NewCoords(x, y, z, loc.Coords.I()))
-	ctx.Character.Area().AddRoom(room)
+	ctx.Character.Location().Area().AddRoom(room)
 
-	for _, c := range ctx.Character.Area().Characters(nil) {
+	for _, c := range ctx.Character.Location().Area().Characters(nil) {
 		c.Player().clientActions.RenderMap()
 	}
 
@@ -570,9 +570,9 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 	l := ctx.Character.Location()
 
 	mi := m.CreateInstance(l)
-	ctx.Character.Room().AddObjectToRoom(mi)
+	ctx.Character.Location().Room().AddObjectToRoom(mi)
 
-	for _, c := range ctx.Character.Room().Characters(nil) {
+	for _, c := range ctx.Character.Location().Room().Characters(nil) {
 		c.Player().clientActions.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mi.FormattedName()),
 		)
@@ -616,24 +616,24 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 }
 
 func handleWipeCommand(ctx *CommandContext) {
-	for _, o := range ctx.Character.Room().Objects() {
+	for _, o := range ctx.Character.Location().Room().Objects() {
 		switch o.Type() {
 		case ObjectTypeMob:
 			m := Armeria.mobManager.MobByName(o.Name())
-			s := ctx.Character.Room().RemoveObjectFromRoom(o)
+			s := ctx.Character.Location().Room().RemoveObjectFromRoom(o)
 			if m != nil && s {
 				m.DeleteInstance(o.(*MobInstance))
 			}
 		case ObjectTypeItem:
 			i := Armeria.itemManager.ItemByName(o.Name())
-			s := ctx.Character.Room().RemoveObjectFromRoom(o)
+			s := ctx.Character.Location().Room().RemoveObjectFromRoom(o)
 			if i != nil && s {
 				i.DeleteInstance(o.(*ItemInstance))
 			}
 		}
 	}
 
-	for _, c := range ctx.Character.Room().Characters(ctx.Character) {
+	for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
 		c.Player().clientActions.ShowText(
 			fmt.Sprintf("%s wiped the room.", ctx.Character.FormattedName()),
 		)
@@ -702,9 +702,9 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 	ii.SetLocationType(ItemLocationRoom)
 	ii.Location.SetAreaUUID(l.AreaUUID())
 	ii.Location.Coords.Set(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I())
-	ctx.Character.Room().AddObjectToRoom(ii)
+	ctx.Character.Location().Room().AddObjectToRoom(ii)
 
-	for _, c := range ctx.Character.Room().Characters(nil) {
+	for _, c := range ctx.Character.Location().Room().Characters(nil) {
 		c.Player().clientActions.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", ii.FormattedName()),
 		)
@@ -865,7 +865,7 @@ func handleAreaEditCommand(ctx *CommandContext) {
 	area := ctx.Args["area"]
 	var a *Area
 	if len(area) == 0 {
-		a = ctx.Character.Area()
+		a = ctx.Character.Location().Area()
 	} else {
 		a = Armeria.worldManager.AreaByName(area)
 		if a == nil {
@@ -900,7 +900,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 		}
 
 		cl := c.Location().Coords
-		l = NewLocation(c.Area().Id(), cl.X(), cl.Y(), cl.Z())
+		l = NewLocation(c.Location().Area().Id(), cl.X(), cl.Y(), cl.Z())
 		moveMsg = fmt.Sprintf("You teleported to %s.", c.FormattedName())
 	} else {
 		loc := strings.Split(t, ",")

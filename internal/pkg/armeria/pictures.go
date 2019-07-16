@@ -35,7 +35,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
 			ColorSuccess,
 		)
-		for _, chars := range p.Character().Room().Characters(nil) {
+		for _, chars := range p.Character().Location().Room().Characters(nil) {
 			chars.Player().clientActions.SyncRoomObjects()
 		}
 	case "mob":
