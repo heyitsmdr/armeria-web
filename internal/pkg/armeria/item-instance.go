@@ -2,10 +2,9 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"errors"
 	"fmt"
 	"sync"
-
-	"go.uber.org/zap"
 )
 
 type ItemInstance struct {
@@ -58,7 +57,7 @@ func (ii *ItemInstance) FormattedName() string {
 }
 
 // SetAttribute sets a permanent attribute on the ItemInstance.
-func (ii *ItemInstance) SetAttribute(name string, value string) {
+func (ii *ItemInstance) SetAttribute(name string, value string) error {
 	ii.Lock()
 	defer ii.Unlock()
 
@@ -67,13 +66,11 @@ func (ii *ItemInstance) SetAttribute(name string, value string) {
 	}
 
 	if !misc.Contains(ValidItemAttributes(), name) {
-		Armeria.log.Fatal("attempted to set invalid attribute",
-			zap.String("attribute", name),
-			zap.String("value", value),
-		)
+		return errors.New("attribute name is invalid")
 	}
 
 	ii.UnsafeAttributes[name] = value
+	return nil
 }
 
 // Attribute returns an attribute on the ItemInstance, and falls back to the parent Item.

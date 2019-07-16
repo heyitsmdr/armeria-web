@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -271,18 +272,16 @@ func (c *Character) SetTempAttribute(name string, value string) {
 }
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
-func (c *Character) SetAttribute(name string, value string) {
+func (c *Character) SetAttribute(name string, value string) error {
 	c.Lock()
 	defer c.Unlock()
 
 	if !misc.Contains(ValidCharacterAttributes(), name) {
-		Armeria.log.Fatal("attempted to set invalid attribute",
-			zap.String("attribute", name),
-			zap.String("value", value),
-		)
+		return errors.New("attribute name is invalid")
 	}
 
 	c.UnsafeAttributes[name] = value
+	return nil
 }
 
 // Attribute returns a permanent attribute.

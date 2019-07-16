@@ -25,6 +25,20 @@ will return an empty string
 Returns the value of a character's persistent or temporary attribute. A temporary attribute only exists for the
 duration of the character's session.
 
+### c_set_attr(character_name, attribute, temp)
+
+**Arguments**:
+* `character_name` `(string)`: name of the character
+* `attribute` `(string)`: attribute name to set
+* `value` `(string)`: attribute value to set
+* `temp` `(bool)`: whether to set a persistent or temporary attribute
+
+**Returns**
+* A `int` set to either `0` for success, `-1` for an invalid character, or `-2` for an invalid persistent attribute
+
+Sets the value of a character's persistent or temporary attribute. A temporary attribute only exists for the
+duration of the character's session.
+
 ### say(text)
 
 **Arguments**:

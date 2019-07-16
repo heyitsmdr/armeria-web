@@ -63,6 +63,32 @@ func LuaCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
+func LuaSetCharacterAttribute(L *lua.LState) int {
+	character := L.ToString(1)
+	attr := L.ToString(2)
+	val := L.ToString(3)
+	tmp := L.ToBool(4)
+
+	c := Armeria.characterManager.CharacterByName(character)
+	if c == nil {
+		L.Push(lua.LNumber(-1))
+		return 1
+	}
+
+	if !tmp {
+		err := c.SetAttribute(attr, val)
+		if err != nil {
+			L.Push(lua.LNumber(-2))
+			return 1
+		}
+	} else {
+		c.SetTempAttribute(attr, val)
+	}
+
+	L.Push(lua.LNumber(0))
+	return 1
+}
+
 func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...lua.LValue) {
 	L := lua.NewState()
 	defer L.Close()
@@ -74,6 +100,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	// global functions
 	L.SetGlobal("say", L.NewFunction(LuaMobSay))
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
+	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 
 	err := L.DoFile(mi.Parent().ScriptFile())
 	if err != nil {
