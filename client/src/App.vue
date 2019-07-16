@@ -53,12 +53,16 @@ export default {
   data: () => {
     return {
       windowHeight: 0,
+      windowWidth: 0,
     }
   },
   computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen']),
   methods: {
     onWindowResize() {
       this.windowHeight = window.innerHeight;
+      this.windowWidth = window.innerWidth;
+
+      document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
     },
     onKeyUp(event) {
       if (!this.allowGlobalHotkeys) {
