@@ -24,6 +24,10 @@ type ObjectEditorDataProperty struct {
 	PropType string `json:"propType"`
 }
 
+const (
+	TextOptionMonospace int = 0
+)
+
 func NewClientActions(p *Player) *ClientActions {
 	return &ClientActions{
 		player: p,
@@ -32,13 +36,22 @@ func NewClientActions(p *Player) *ClientActions {
 
 // ShowColorizedText displays color-formatted text if there is a character attached to
 // the player instance.
-func (ca *ClientActions) ShowColorizedText(text string, color int) {
+func (ca *ClientActions) ShowColorizedText(text string, color int, opts ...int) {
+	var t string
 	c := ca.player.Character()
 	if c != nil {
-		ca.ShowText(c.Colorize(text, color))
-		return
+		t = c.Colorize(text, color)
+	} else {
+		t = text
 	}
-	ca.ShowText(text)
+
+	for _, o := range opts {
+		if o == TextOptionMonospace {
+			t = fmt.Sprintf("<span class='monospace'>%s</span>", t)
+		}
+	}
+
+	ca.ShowText(t)
 }
 
 // ShowText displays text on the player's main text window.

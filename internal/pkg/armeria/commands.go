@@ -87,7 +87,7 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
-		p.clientActions.ShowColorizedText(errorMsg, ColorError)
+		p.clientActions.ShowColorizedText(errorMsg, ColorCmdHelp, TextOptionMonospace)
 		return
 	}
 
