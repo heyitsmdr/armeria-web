@@ -23,9 +23,9 @@ func ObjectSortOrder(objectType int) int {
 	switch objectType {
 	case ObjectTypeMob:
 		return 75
-	case ObjectTypeItem:
-		return 50
 	case ObjectTypeCharacter:
+		return 50
+	case ObjectTypeItem:
 		return 25
 	}
 
