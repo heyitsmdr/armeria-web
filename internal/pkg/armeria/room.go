@@ -6,6 +6,8 @@ import (
 	"log"
 	"sync"
 
+	"go.uber.org/zap"
+
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -107,6 +109,7 @@ func (r *Room) ObjectData() string {
 			"uuid":    o.Id(),
 			"name":    o.Name(),
 			"type":    o.Type(),
+			"sort":    ObjectSortOrder(o.Type()),
 			"picture": o.Attribute(AttributePicture),
 			"rarity":  o.Attribute(AttributeRarity),
 		})
@@ -114,7 +117,9 @@ func (r *Room) ObjectData() string {
 
 	roomObjectJson, err := json.Marshal(roomObjects)
 	if err != nil {
-		log.Fatalf("[area] failed to marshal room object data: %s", err)
+		Armeria.log.Fatal("failed to marshal room object data",
+			zap.Error(err),
+		)
 	}
 
 	return string(roomObjectJson)
