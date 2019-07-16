@@ -30,6 +30,7 @@ const (
 	ColorRoomDirs  int = 4
 	ColorWhisper   int = 5
 	ColorSuccess   int = 6
+	ColorCmdHelp   int = 7
 )
 
 // UUID returns the uuid of the character.
@@ -171,6 +172,8 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#b730f7'>%s</span>", text)
 	case ColorSuccess:
 		return fmt.Sprintf("<span style='color:#8ee22b'>%s</span>", text)
+	case ColorCmdHelp:
+		return fmt.Sprintf("<span style='color:#e9761e'>%s</span>", text)
 	default:
 		return text
 	}
