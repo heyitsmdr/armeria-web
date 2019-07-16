@@ -59,7 +59,7 @@ func (i *Item) CreateInstance() *ItemInstance {
 		UnsafeParent:       i.UnsafeName,
 		UnsafeAttributes:   make(map[string]string),
 		UnsafeLocationType: ItemLocationRoom,
-		Location:           &Location{},
+		Location:           NewLocation("", 0, 0, 0),
 	}
 
 	i.UnsafeInstances = append(i.UnsafeInstances, ii)

@@ -2,7 +2,7 @@
     <div class="root">
         <div class="container" @click="handleClick">
             <Target
-                v-for="obj in roomObjects"
+                v-for="obj in sortedRoomObjects"
                 :key="obj.type + '-' + obj.name"
                 :name="obj.name"
                 :pictureKey="obj.picture"
@@ -21,7 +21,20 @@ export default {
     components: {
         Target
     },
-    computed: mapState(['roomObjects']),
+    computed: {
+        ...mapState(['roomObjects']),
+        sortedRoomObjects: function() {
+            return this.roomObjects.sort((a, b) => {
+                if (b.sort > a.sort) {
+                    return 1;
+                } else if (a.sort > b.sort) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
+        }
+    },
     methods: {
         handleClick: function() {
             //this.$store.dispatch('setObjectTarget', '');
