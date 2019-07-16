@@ -44,6 +44,7 @@ func LuaMobSay(L *lua.LState) int {
 func LuaCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
+	tmp := L.ToBool(3)
 
 	c := Armeria.characterManager.CharacterByName(character)
 	if c == nil {
@@ -51,7 +52,13 @@ func LuaCharacterAttribute(L *lua.LState) int {
 		return 1
 	}
 
-	attrValue := c.Attribute(attr)
+	var attrValue string
+	if !tmp {
+		attrValue = c.Attribute(attr)
+	} else {
+		attrValue = c.TempAttribute(attr)
+	}
+
 	L.Push(lua.LString(attrValue))
 	return 1
 }

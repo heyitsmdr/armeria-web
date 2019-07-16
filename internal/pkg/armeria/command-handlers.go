@@ -150,6 +150,7 @@ func handleSayCommand(ctx *CommandContext) {
 				ctx.Character,
 				o.(*MobInstance),
 				"character_said",
+				lua.LString(ctx.Character.Name()),
 				lua.LString(ctx.Args["text"]),
 			)
 		}
