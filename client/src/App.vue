@@ -53,12 +53,16 @@ export default {
   data: () => {
     return {
       windowHeight: 0,
+      windowWidth: 0,
     }
   },
   computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen']),
   methods: {
     onWindowResize() {
       this.windowHeight = window.innerHeight;
+      this.windowWidth = window.innerWidth;
+
+      document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
     },
     onKeyUp(event) {
       if (!this.allowGlobalHotkeys) {
@@ -126,7 +130,7 @@ export default {
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
-@import url('https://fonts.googleapis.com/css?family=Inconsolata&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Inconsolata:400,700&display=swap');
 $backgroundNormal: #111;
 $backgroundLight: #1b1b1b;
 $sidebarWidth: 250px;

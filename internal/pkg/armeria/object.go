@@ -8,7 +8,7 @@ type Object interface {
 	Name() string
 	FormattedName() string
 	Attribute(name string) string
-	SetAttribute(name string, value string)
+	SetAttribute(name string, value string) error
 }
 
 const (

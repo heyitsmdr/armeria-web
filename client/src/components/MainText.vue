@@ -59,7 +59,7 @@
 
     .line {
         color: #cacaca;
-        user-select: all;
+        user-select: text;
         white-space: pre;
     }
 </style>

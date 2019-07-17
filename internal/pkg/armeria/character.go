@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -136,22 +137,6 @@ func (c *Character) SetLocation(l *Location) {
 	c.Location().Coords.Set(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I())
 }
 
-// Room returns the room that the character is in.
-func (c *Character) Room() *Room {
-	c.RLock()
-	defer c.RUnlock()
-
-	return c.UnsafeLocation.Room()
-}
-
-// Area returns the area that the character is in.
-func (c *Character) Area() *Area {
-	c.RLock()
-	defer c.RUnlock()
-
-	return c.UnsafeLocation.Area()
-}
-
 // Colorize will color text according to the character's color settings.
 func (c *Character) Colorize(text string, color int) string {
 	c.RLock()
@@ -181,8 +166,8 @@ func (c *Character) Colorize(text string, color int) string {
 
 // LoggedIn handles everything that needs to happen when a character enters the game.
 func (c *Character) LoggedIn() {
-	room := c.Room()
-	area := c.Area()
+	room := c.Location().Room()
+	area := c.Location().Area()
 
 	// Add character to room
 	if room == nil || area == nil {
@@ -215,8 +200,8 @@ func (c *Character) LoggedIn() {
 
 // LoggedOut handles everything that needs to happen when a character leaves the game.
 func (c *Character) LoggedOut() {
-	room := c.Room()
-	area := c.Area()
+	room := c.Location().Room()
+	area := c.Location().Area()
 
 	// Remove character from room
 	if room == nil || area == nil {
@@ -271,18 +256,16 @@ func (c *Character) SetTempAttribute(name string, value string) {
 }
 
 // SetAttribute sets a permanent attribute and only valid attributes can be set.
-func (c *Character) SetAttribute(name string, value string) {
+func (c *Character) SetAttribute(name string, value string) error {
 	c.Lock()
 	defer c.Unlock()
 
 	if !misc.Contains(ValidCharacterAttributes(), name) {
-		Armeria.log.Fatal("attempted to set invalid attribute",
-			zap.String("attribute", name),
-			zap.String("value", value),
-		)
+		return errors.New("attribute name is invalid")
 	}
 
 	c.UnsafeAttributes[name] = value
+	return nil
 }
 
 // Attribute returns a permanent attribute.
@@ -317,9 +300,9 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 
 // Move will move the character to a new location (no move checks are performed).
 func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
-	oldRoom := c.Room()
+	oldRoom := c.Location().Room()
 	newRoom := to.Room()
-	oldArea := c.Area()
+	oldArea := c.Location().Area()
 	newArea := to.Area()
 
 	oldRoom.RemoveObjectFromRoom(c)
