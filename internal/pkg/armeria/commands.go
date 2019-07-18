@@ -20,6 +20,11 @@ func NewCommandManager() *CommandManager {
 	}
 }
 
+// Commands returns all the registered commands in the game.
+func (m *CommandManager) Commands() []*Command {
+	return m.commands
+}
+
 // RegisterCommand will register a Command with the command manager with the arguments
 // parsed out.
 func (m *CommandManager) RegisterCommand(c *Command) {

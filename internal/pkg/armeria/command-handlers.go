@@ -942,3 +942,32 @@ func handleTeleportCommand(ctx *CommandContext) {
 
 	Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
 }
+
+func handleCommandsCommand(ctx *CommandContext) {
+	var valid []*Command
+	var largest int
+	for _, cmd := range Armeria.commandManager.Commands() {
+		if cmd.CheckPermissions(ctx.Player) && len(cmd.Alias) == 0 {
+			valid = append(valid, cmd)
+
+			if len(cmd.Name) > largest {
+				largest = len(cmd.Name)
+			}
+		}
+	}
+
+	var list []string
+	for _, cmd := range valid {
+		list = append(list,
+			fmt.Sprintf("  /%-"+strconv.Itoa(largest)+"v %s", cmd.Name, cmd.Help),
+		)
+	}
+
+	ctx.Player.client.ShowColorizedText(
+		TextStyle(
+			fmt.Sprintf("[b]Commands you can use:[/b]\n%s", strings.Join(list, "\n")),
+			TextStyleMonospace,
+		),
+		ColorCmdHelp,
+	)
+}

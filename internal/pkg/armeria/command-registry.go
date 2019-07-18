@@ -3,6 +3,11 @@ package armeria
 func RegisterGameCommands() {
 	commands := []*Command{
 		{
+			Name:    "commands",
+			Help:    "Displays top-level commands you have access to.",
+			Handler: handleCommandsCommand,
+		},
+		{
 			Name: "login",
 			Help: "Logs your character into the game world.",
 			Permissions: &CommandPermissions{
