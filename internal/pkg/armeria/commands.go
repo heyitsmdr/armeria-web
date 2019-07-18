@@ -76,7 +76,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 	return nil, nil, "That's an invalid command."
 }
 
-// ProcessCommand will evaluate and process a command sent by the player either
+// ProcessCommand will evaluate and process a command sent by the parent either
 // manually or programmatically.
 func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiated bool) {
 	sections := strings.Fields(command)
@@ -87,7 +87,10 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
-		p.clientActions.ShowColorizedText(errorMsg, ColorCmdHelp, TextOptionMonospace)
+		p.client.ShowColorizedText(
+			TextStyle(errorMsg, TextStyleMonospace),
+			ColorCmdHelp,
+		)
 		return
 	}
 

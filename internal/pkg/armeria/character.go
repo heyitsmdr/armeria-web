@@ -107,7 +107,7 @@ func (c *Character) PasswordHash() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
-// Player returns the player that is playing the character.
+// Player returns the parent that is playing the character.
 func (c *Character) Player() *Player {
 	c.RLock()
 	defer c.RUnlock()
@@ -115,7 +115,7 @@ func (c *Character) Player() *Player {
 	return c.player
 }
 
-// SetPlayer sets the player that is playing the character.
+// SetPlayer sets the parent that is playing the character.
 func (c *Character) SetPlayer(p *Player) {
 	c.Lock()
 	defer c.Unlock()
@@ -185,7 +185,7 @@ func (c *Character) LoggedIn() {
 	roomChars := room.Characters(c)
 	for _, char := range roomChars {
 		pc := char.Player()
-		pc.clientActions.ShowText(
+		pc.client.ShowText(
 			fmt.Sprintf("%s connected and appeared here with you.", c.Name()),
 		)
 	}
@@ -216,7 +216,7 @@ func (c *Character) LoggedOut() {
 	roomChars := room.Characters(nil)
 	for _, char := range roomChars {
 		pc := char.Player()
-		pc.clientActions.ShowText(
+		pc.client.ShowText(
 			fmt.Sprintf("%s disconnected and is no longer here with you.", c.Name()),
 		)
 	}
@@ -309,14 +309,14 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 	newRoom.AddObjectToRoom(c)
 
 	for _, char := range oldRoom.Characters(nil) {
-		char.Player().clientActions.ShowText(msgToOld)
+		char.Player().client.ShowText(msgToOld)
 	}
 
 	for _, char := range newRoom.Characters(c) {
-		char.Player().clientActions.ShowText(msgToNew)
+		char.Player().client.ShowText(msgToNew)
 	}
 
-	c.Player().clientActions.ShowText(msgToChar)
+	c.Player().client.ShowText(msgToChar)
 
 	c.SetLocation(to)
 

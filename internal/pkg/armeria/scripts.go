@@ -32,7 +32,7 @@ func LuaMobSay(L *lua.LState) int {
 	mi := m.InstanceByUUID(mid)
 
 	for _, c := range mi.Location.Room().Characters(nil) {
-		c.Player().clientActions.ShowColorizedText(
+		c.Player().client.ShowColorizedText(
 			fmt.Sprintf("%s says, \"%s\".", mi.FormattedName(), text),
 			ColorSay,
 		)
@@ -109,7 +109,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 			zap.Error(err),
 		)
 		if invoker.HasPermission("CAN_BUILD") {
-			invoker.Player().clientActions.ShowColorizedText(
+			invoker.Player().client.ShowColorizedText(
 				fmt.Sprintf(
 					"There was an error compiling %s() on mob %s:\n%s",
 					funcName,
@@ -139,7 +139,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 			zap.Error(err),
 		)
 		if invoker.HasPermission("CAN_BUILD") {
-			invoker.Player().clientActions.ShowColorizedText(
+			invoker.Player().client.ShowColorizedText(
 				fmt.Sprintf(
 					"There was an error running %s() on mob %s:\n%s",
 					funcName,

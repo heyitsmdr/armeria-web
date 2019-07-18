@@ -12,7 +12,7 @@ import (
 
 type Player struct {
 	sync.RWMutex
-	clientActions    *ClientActions
+	client           ClientActions
 	socket           *websocket.Conn
 	pumpsInitialized bool
 	sendData         chan *OutgoingDataStructure
@@ -59,7 +59,7 @@ func (p *Player) readPump() {
 		case "objectPictureUpload":
 			StoreObjectPicture(p, messageRead.Payload.(map[string]interface{}))
 		default:
-			p.clientActions.ShowText("Your client sent invalid data.")
+			p.client.ShowText("Your client sent invalid data.")
 		}
 	}
 }
@@ -121,14 +121,14 @@ func (p *Player) CallClientAction(actionName string, payload interface{}) {
 	p.sendData <- &OutgoingDataStructure{Action: actionName, Payload: payload}
 }
 
-// Connected is called when the player successfully connects to the game (pre-login).
+// Connected is called when the parent successfully connects to the game (pre-login).
 func (p *Player) Connected() {
 	lines := []string{
 		"Welcome to the world of Armeria!\n",
 		"If you have a character, you can <b>/login</b>. Otherwise, use <b>/create</b>.",
 	}
 
-	p.clientActions.ShowRawText(strings.Join(lines, "\n"))
+	p.client.ShowRawText(strings.Join(lines, "\n"))
 }
 
 func (p *Player) AttachCharacter(c *Character) {

@@ -145,12 +145,12 @@ func (r *Room) EditorData() *ObjectEditorData {
 
 // CharacterEntered is called when the character is moved to the room (or logged in).
 func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
-	ca := c.Player().clientActions
+	ca := c.Player().client
 	ca.SyncMapLocation()
 	ca.SyncRoomTitle()
 
 	for _, char := range r.Characters(nil) {
-		char.Player().clientActions.SyncRoomObjects()
+		char.Player().client.SyncRoomObjects()
 	}
 
 	for _, o := range r.Objects() {
@@ -168,7 +168,7 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 // CharacterLeft is called when the character left the room (or logged out).
 func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 	for _, char := range r.Characters(nil) {
-		char.Player().clientActions.SyncRoomObjects()
+		char.Player().client.SyncRoomObjects()
 	}
 
 	for _, o := range r.Objects() {

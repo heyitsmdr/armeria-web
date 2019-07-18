@@ -40,7 +40,7 @@ type CommandContext struct {
 	Args            map[string]string
 }
 
-// CheckPermissions returns whether or not a player can use the command
+// CheckPermissions returns whether or not a parent can use the command
 func (cmd *Command) CheckPermissions(p *Player) bool {
 	if cmd.Permissions == nil {
 		return true
@@ -66,7 +66,7 @@ func (cmd *Command) CheckPermissions(p *Player) bool {
 	return true
 }
 
-// ShowSubcommandHelp returns the list of sub-commands that the player has access to as a string
+// ShowSubcommandHelp returns the list of sub-commands that the parent has access to as a string
 func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) string {
 	if len(cmd.Subcommands) == 0 {
 		return "There are no sub-commands available."
@@ -136,7 +136,7 @@ func (cmd *Command) ArgumentByName(name string) *CommandArgument {
 	return nil
 }
 
-// LogCtx logs a player using a command.
+// LogCtx logs a parent using a command.
 func (cmd *Command) LogCtx(ctx *CommandContext) {
 	var args []string
 	for k, v := range ctx.Args {
@@ -151,7 +151,7 @@ func (cmd *Command) LogCtx(ctx *CommandContext) {
 		c = ctx.Character.Name()
 	}
 
-	Armeria.log.Info("player executed command",
+	Armeria.log.Info("parent executed command",
 		zap.String("character", c),
 		zap.String("command", ctx.Command.Name),
 		zap.Strings("arguments", args),
