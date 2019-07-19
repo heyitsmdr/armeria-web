@@ -16,7 +16,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 
 	k := SaveObjectPictureToDisk(o)
 	if len(k) == 0 {
-		p.clientActions.ShowColorizedText("The picture could not be uploaded to a problem that occurred on the server.", ColorError)
+		p.client.ShowColorizedText("The picture could not be uploaded to a problem that occurred on the server.", ColorError)
 		return
 	}
 
@@ -31,19 +31,19 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		oldKey = c.Attribute(AttributePicture)
 		c.SetAttribute(AttributePicture, k)
 		editorData = c.EditorData()
-		p.clientActions.ShowColorizedText(
+		p.client.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
 			ColorSuccess,
 		)
 		for _, chars := range p.Character().Location().Room().Characters(nil) {
-			chars.Player().clientActions.SyncRoomObjects()
+			chars.Player().client.SyncRoomObjects()
 		}
 	case "mob":
 		m := Armeria.mobManager.MobByName(name)
 		oldKey = m.Attribute(AttributePicture)
 		m.SetAttribute(AttributePicture, k)
 		editorData = m.EditorData()
-		p.clientActions.ShowColorizedText(
+		p.client.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.Name()),
 			ColorSuccess,
 		)
@@ -52,12 +52,12 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		oldKey = i.Attribute(AttributePicture)
 		i.SetAttribute(AttributePicture, k)
 		editorData = i.EditorData()
-		p.clientActions.ShowColorizedText(
+		p.client.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for item [b]%s[/b].", i.Name()),
 			ColorSuccess,
 		)
 	default:
-		p.clientActions.ShowColorizedText("The picture was uploaded as an invalid type.", ColorError)
+		p.client.ShowColorizedText("The picture was uploaded as an invalid type.", ColorError)
 		DeleteObjectPictureFromDisk(k)
 		return
 	}
@@ -68,7 +68,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 
 	editorOpen := p.Character().TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		p.clientActions.ShowObjectEditor(editorData)
+		p.client.ShowObjectEditor(editorData)
 	}
 }
 

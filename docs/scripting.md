@@ -3,6 +3,7 @@
 ## Index
 
 * Function [c_attr](#c_attrcharacter_name-attribute-temp)
+* Function [c_set_attr](#c_set_attrcharacter_name-attribute-temp)
 * Function: [say](#saytext)
 
 * Event: [character_entered](#character_enteredcharacter_name)
@@ -25,7 +26,7 @@ will return an empty string
 Returns the value of a character's persistent or temporary attribute. A temporary attribute only exists for the
 duration of the character's session.
 
-### c_set_attr(character_name, attribute, temp)
+### c_set_attr(character_name, attribute, value, temp)
 
 **Arguments**:
 * `character_name` `(string)`: name of the character

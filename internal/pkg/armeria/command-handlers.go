@@ -16,29 +16,29 @@ func handleLoginCommand(ctx *CommandContext) {
 
 	c := Armeria.characterManager.CharacterByName(ctx.Args["character"])
 	if c == nil {
-		ctx.Player.clientActions.ShowText("Character not found.")
+		ctx.Player.client.ShowText("Character not found.")
 		return
 	}
 
 	if !c.CheckPassword(ctx.Args["password"]) {
-		ctx.Player.clientActions.ShowColorizedText("Password incorrect for that character.", ColorError)
+		ctx.Player.client.ShowColorizedText("Password incorrect for that character.", ColorError)
 		return
 	}
 
 	if c.Player() != nil {
-		ctx.Player.clientActions.ShowColorizedText("This character is already logged in.", ColorError)
+		ctx.Player.client.ShowColorizedText("This character is already logged in.", ColorError)
 		return
 	}
 
 	if c.Location().Room() == nil {
-		ctx.Player.clientActions.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
+		ctx.Player.client.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
 		return
 	}
 
 	ctx.Player.AttachCharacter(c)
 	c.SetPlayer(ctx.Player)
 
-	ctx.Player.clientActions.ShowColorizedText(fmt.Sprintf("You've entered Armeria as %s!", c.FormattedName()), ColorSuccess)
+	ctx.Player.client.ShowColorizedText(fmt.Sprintf("You've entered Armeria as %s!", c.FormattedName()), ColorSuccess)
 
 	c.LoggedIn()
 }
@@ -92,7 +92,7 @@ func handleLookCommand(ctx *CommandContext) {
 		}
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		ctx.Character.Colorize(rm.Attribute("title"), ColorRoomTitle) + "\n" +
 			rm.Attribute("description") +
 			ctx.Character.Colorize(validDirString, ColorRoomDirs) +
@@ -101,7 +101,7 @@ func handleLookCommand(ctx *CommandContext) {
 
 	if ctx.PlayerInitiated {
 		for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
-			c.Player().clientActions.ShowText(
+			c.Player().client.ShowText(
 				fmt.Sprintf("%s takes a look around.", ctx.Character.FormattedName()),
 			)
 		}
@@ -110,7 +110,7 @@ func handleLookCommand(ctx *CommandContext) {
 
 func handleSayCommand(ctx *CommandContext) {
 	if len(ctx.Args) == 0 {
-		ctx.Player.clientActions.ShowText("Say what?")
+		ctx.Player.client.ShowText("Say what?")
 		return
 	}
 
@@ -130,13 +130,13 @@ func handleSayCommand(ctx *CommandContext) {
 		verbs = []string{"exclaim", "exclaims"}
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		ctx.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], ctx.Args["text"]), ColorSay),
 	)
 
 	room := ctx.Character.Location().Room()
 	for _, c := range room.Characters(ctx.Character) {
-		c.Player().clientActions.ShowText(
+		c.Player().client.ShowText(
 			c.Player().Character().Colorize(
 				fmt.Sprintf("%s %s, \"%s\".", ctx.Character.FormattedName(), verbs[1], ctx.Args["text"]),
 				ColorSay,
@@ -188,7 +188,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		walkDir = "down"
 		arriveDir = "above"
 	default:
-		ctx.Player.clientActions.ShowText("That's not a valid direction to move in.")
+		ctx.Player.client.ShowText("That's not a valid direction to move in.")
 		return
 	}
 
@@ -201,7 +201,7 @@ func handleMoveCommand(ctx *CommandContext) {
 	newLocation := NewLocation(loc.AreaUUID(), x, y, z)
 	moveAllowed, moveError := ctx.Character.MoveAllowed(newLocation)
 	if !moveAllowed {
-		ctx.Player.clientActions.ShowColorizedText(moveError, ColorError)
+		ctx.Player.client.ShowColorizedText(moveError, ColorError)
 		return
 	}
 
@@ -216,33 +216,33 @@ func handleMoveCommand(ctx *CommandContext) {
 }
 
 func handleRoomEditCommand(stx *CommandContext) {
-	stx.Player.clientActions.ShowObjectEditor(stx.Character.Location().Room().EditorData())
+	stx.Player.client.ShowObjectEditor(stx.Character.Location().Room().EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
 
 	if !misc.Contains(ValidRoomAttributes(), attr) {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid room attribute.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
 	}
 
 	ctx.Character.Location().Room().SetAttribute(attr, ctx.Args["value"])
 
 	for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
-		c.Player().clientActions.ShowText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("%s modified the room.", ctx.Character.FormattedName()),
 		)
 	}
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You modified the [b]%s[/b] property of the room.", attr),
 		ColorSuccess,
 	)
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		ctx.Player.clientActions.ShowObjectEditor(ctx.Character.Location().Room().EditorData())
+		ctx.Player.client.ShowObjectEditor(ctx.Character.Location().Room().EditorData())
 	}
 }
 
@@ -251,7 +251,7 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 
 	o := misc.DirectionOffsets(d)
 	if o == nil {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid direction to create a room in.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid direction to create a room in.", ColorError)
 		return
 	}
 
@@ -262,7 +262,7 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 
 	newLoc := NewLocation(loc.AreaUUID(), x, y, z)
 	if newLoc.Room() != nil {
-		ctx.Player.clientActions.ShowColorizedText("There's already a room in that direction.", ColorError)
+		ctx.Player.client.ShowColorizedText("There's already a room in that direction.", ColorError)
 		return
 	}
 
@@ -270,10 +270,10 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 	ctx.Character.Location().Area().AddRoom(room)
 
 	for _, c := range ctx.Character.Location().Area().Characters(nil) {
-		c.Player().clientActions.RenderMap()
+		c.Player().client.RenderMap()
 	}
 
-	ctx.Player.clientActions.ShowText("A new room has been created.")
+	ctx.Player.client.ShowText("A new room has been created.")
 }
 
 func handleRoomDestroyCommand(ctx *CommandContext) {
@@ -281,7 +281,7 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 
 	o := misc.DirectionOffsets(d)
 	if o == nil {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid direction to destroy a room in.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid direction to destroy a room in.", ColorError)
 		return
 	}
 
@@ -294,28 +294,28 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 
 	r := l.Room()
 	if r == nil {
-		ctx.Player.clientActions.ShowColorizedText("There's no room in that direction.", ColorError)
+		ctx.Player.client.ShowColorizedText("There's no room in that direction.", ColorError)
 		return
 	}
 
 	if len(r.Characters(nil)) > 0 {
-		ctx.Player.clientActions.ShowColorizedText("There are characters in the room you're attempting to destroy.", ColorError)
+		ctx.Player.client.ShowColorizedText("There are characters in the room you're attempting to destroy.", ColorError)
 		return
 	}
 
-	ctx.Player.clientActions.ShowColorizedText("Success.", ColorSuccess)
+	ctx.Player.client.ShowColorizedText("Success.", ColorSuccess)
 }
 
 func handleSaveCommand(ctx *CommandContext) {
 	Armeria.Save()
-	ctx.Player.clientActions.ShowText("The game data has been saved to disk.")
+	ctx.Player.client.ShowText("The game data has been saved to disk.")
 }
 
 func handleRefreshCommand(ctx *CommandContext) {
-	ctx.Player.clientActions.RenderMap()
-	ctx.Player.clientActions.SyncRoomObjects()
-	ctx.Player.clientActions.SyncRoomTitle()
-	ctx.Player.clientActions.ShowText("Client data has been refreshed.")
+	ctx.Player.client.RenderMap()
+	ctx.Player.client.SyncRoomObjects()
+	ctx.Player.client.SyncRoomTitle()
+	ctx.Player.client.ShowText("Client data has been refreshed.")
 }
 
 func handleWhisperCommand(ctx *CommandContext) {
@@ -324,21 +324,21 @@ func handleWhisperCommand(ctx *CommandContext) {
 
 	c := Armeria.characterManager.CharacterByName(t)
 	if c == nil {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid character name.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid character name.", ColorError)
 		return
 	} else if c.Player() == nil {
-		ctx.Player.clientActions.ShowColorizedText("That character is not online.", ColorError)
+		ctx.Player.client.ShowColorizedText("That character is not online.", ColorError)
 		return
 	}
 
 	c.SetTempAttribute(TempAttributeReplyTo, ctx.Character.Name())
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You whisper to %s, \"%s\".", c.FormattedName(), m),
 		ColorWhisper,
 	)
 
-	c.Player().clientActions.ShowColorizedText(
+	c.Player().client.ShowColorizedText(
 		fmt.Sprintf("%s whispers to you from %s, \"%s\".",
 			ctx.Character.FormattedName(),
 			c.Location().Area().Name(),
@@ -353,7 +353,7 @@ func handleReplyCommand(ctx *CommandContext) {
 
 	rt := ctx.Character.TempAttribute(TempAttributeReplyTo)
 	if len(rt) == 0 {
-		ctx.Player.clientActions.ShowColorizedText("No one has sent you a whisper yet.", ColorError)
+		ctx.Player.client.ShowColorizedText("No one has sent you a whisper yet.", ColorError)
 		return
 	}
 
@@ -375,7 +375,7 @@ func handleWhoCommand(ctx *CommandContext) {
 		fn = append(fn, c.FormattedNameWithTitle())
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf(
 			"There %s %d %s playing right now:\n%s",
 			verb,
@@ -394,12 +394,12 @@ func handleCharacterEditCommand(ctx *CommandContext) {
 	} else {
 		c = Armeria.characterManager.CharacterByName(strings.ToLower(char))
 		if c == nil {
-			ctx.Player.clientActions.ShowColorizedText("That character doesn't exist.", ColorError)
+			ctx.Player.client.ShowColorizedText("That character doesn't exist.", ColorError)
 			return
 		}
 	}
 
-	ctx.Player.clientActions.ShowObjectEditor(c.EditorData())
+	ctx.Player.client.ShowObjectEditor(c.EditorData())
 }
 
 func handleCharacterListCommand(ctx *CommandContext) {
@@ -418,14 +418,14 @@ func handleCharacterListCommand(ctx *CommandContext) {
 	}
 
 	if len(chars) == 0 {
-		ctx.Player.clientActions.ShowColorizedText(
+		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no characters matching \"%s\".", f),
 			ColorError,
 		)
 		return
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf("There are [b]%d[/b] characters%s: %s.", len(chars), matchingText, strings.Join(chars, ", ")),
 	)
 }
@@ -437,24 +437,24 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 
 	c := Armeria.characterManager.CharacterByName(char)
 	if c == nil {
-		ctx.Player.clientActions.ShowColorizedText("That character doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That character doesn't exist.", ColorError)
 		return
 	}
 
 	if !misc.Contains(ValidCharacterAttributes(), attr) {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid character attribute.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid character attribute.", ColorError)
 		return
 	}
 
 	c.SetAttribute(attr, val)
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You modified the [b]%s[/b] property of the character %s.", attr, c.FormattedName()),
 		ColorSuccess,
 	)
 
 	if c.Name() != ctx.Character.Name() && c.Player() != nil {
-		c.Player().clientActions.ShowText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("Your character was modified by %s.", ctx.Character.FormattedName()),
 		)
 
@@ -462,7 +462,7 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		ctx.Player.clientActions.ShowObjectEditor(c.EditorData())
+		ctx.Player.client.ShowObjectEditor(c.EditorData())
 	}
 }
 
@@ -482,14 +482,14 @@ func handleMobListCommand(ctx *CommandContext) {
 	}
 
 	if len(mobs) == 0 {
-		ctx.Player.clientActions.ShowColorizedText(
+		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no mobs matching \"%s\".", f),
 			ColorError,
 		)
 		return
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf("There are [b]%d[/b] mobs%s: %s.", len(mobs), matchingText, strings.Join(mobs, ", ")),
 	)
 }
@@ -498,14 +498,14 @@ func handleMobCreateCommand(ctx *CommandContext) {
 	n := ctx.Args["name"]
 
 	if Armeria.mobManager.MobByName(n) != nil {
-		ctx.Player.clientActions.ShowColorizedText("A mob already exists with that name.", ColorError)
+		ctx.Player.client.ShowColorizedText("A mob already exists with that name.", ColorError)
 		return
 	}
 
 	m := Armeria.mobManager.CreateMob(n)
 	Armeria.mobManager.AddMob(m)
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("A mob named [b]%s[/b] has been created.", n),
 		ColorSuccess,
 	)
@@ -516,11 +516,11 @@ func handleMobEditCommand(ctx *CommandContext) {
 
 	m := Armeria.mobManager.MobByName(mname)
 	if m == nil {
-		ctx.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That mob doesn't exist.", ColorError)
 		return
 	}
 
-	ctx.Player.clientActions.ShowObjectEditor(m.EditorData())
+	ctx.Player.client.ShowObjectEditor(m.EditorData())
 }
 
 func handleMobSetCommand(ctx *CommandContext) {
@@ -530,40 +530,40 @@ func handleMobSetCommand(ctx *CommandContext) {
 
 	m := Armeria.mobManager.MobByName(mob)
 	if m == nil {
-		ctx.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That mob doesn't exist.", ColorError)
 		return
 	}
 
 	if !misc.Contains(ValidMobAttributes(), attr) {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid mob attribute.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid mob attribute.", ColorError)
 		return
 	}
 
 	if len(val) > 0 {
 		valid, why := ValidateMobAttribute(attr, val)
 		if !valid {
-			ctx.Player.clientActions.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
 			return
 		}
 	}
 
 	m.SetAttribute(attr, val)
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You modified the [b]%s[/b] property of the mob [b]%s[/b].", attr, m.UnsafeName),
 		ColorSuccess,
 	)
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		ctx.Player.clientActions.ShowObjectEditor(m.EditorData())
+		ctx.Player.client.ShowObjectEditor(m.EditorData())
 	}
 }
 
 func handleMobSpawnCommand(ctx *CommandContext) {
 	m := Armeria.mobManager.MobByName(ctx.Args["mob"])
 	if m == nil {
-		ctx.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That mob doesn't exist.", ColorError)
 		return
 	}
 
@@ -573,17 +573,17 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 	ctx.Character.Location().Room().AddObjectToRoom(mi)
 
 	for _, c := range ctx.Character.Location().Room().Characters(nil) {
-		c.Player().clientActions.ShowText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mi.FormattedName()),
 		)
-		c.Player().clientActions.SyncRoomObjects()
+		c.Player().client.SyncRoomObjects()
 	}
 }
 
 func handleMobInstancesCommand(ctx *CommandContext) {
 	m := Armeria.mobManager.MobByName(ctx.Args["mob"])
 	if m == nil {
-		ctx.Player.clientActions.ShowColorizedText("That mob doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That mob doesn't exist.", ColorError)
 		return
 	}
 
@@ -606,7 +606,7 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 		)
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf(
 			"Instances of %s:\n%s",
 			m.Name(),
@@ -634,28 +634,28 @@ func handleWipeCommand(ctx *CommandContext) {
 	}
 
 	for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
-		c.Player().clientActions.ShowText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("%s wiped the room.", ctx.Character.FormattedName()),
 		)
-		c.Player().clientActions.SyncRoomObjects()
+		c.Player().client.SyncRoomObjects()
 	}
 
-	ctx.Player.clientActions.ShowColorizedText("You wiped the room.", ColorSuccess)
-	ctx.Player.clientActions.SyncRoomObjects()
+	ctx.Player.client.ShowColorizedText("You wiped the room.", ColorSuccess)
+	ctx.Player.client.SyncRoomObjects()
 }
 
 func handleItemCreateCommand(ctx *CommandContext) {
 	n := ctx.Args["name"]
 
 	if Armeria.itemManager.ItemByName(n) != nil {
-		ctx.Player.clientActions.ShowColorizedText("An item already exists with that name.", ColorError)
+		ctx.Player.client.ShowColorizedText("An item already exists with that name.", ColorError)
 		return
 	}
 
 	i := Armeria.itemManager.CreateItem(n)
 	Armeria.itemManager.AddItem(i)
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("An item named [b]%s[/b] has been created.", n),
 		ColorSuccess,
 	)
@@ -677,14 +677,14 @@ func handleItemListCommand(ctx *CommandContext) {
 	}
 
 	if len(items) == 0 {
-		ctx.Player.clientActions.ShowColorizedText(
+		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no items matching \"%s\".", f),
 			ColorError,
 		)
 		return
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf("There are [b]%d[/b] items%s: %s.", len(items), matchingText, strings.Join(items, ", ")),
 	)
 }
@@ -692,7 +692,7 @@ func handleItemListCommand(ctx *CommandContext) {
 func handleItemSpawnCommand(ctx *CommandContext) {
 	i := Armeria.itemManager.ItemByName(ctx.Args["item"])
 	if i == nil {
-		ctx.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That item doesn't exist.", ColorError)
 		return
 	}
 
@@ -705,21 +705,21 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 	ctx.Character.Location().Room().AddObjectToRoom(ii)
 
 	for _, c := range ctx.Character.Location().Room().Characters(nil) {
-		c.Player().clientActions.ShowText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", ii.FormattedName()),
 		)
-		c.Player().clientActions.SyncRoomObjects()
+		c.Player().client.SyncRoomObjects()
 	}
 }
 
 func handleItemEditCommand(ctx *CommandContext) {
 	i := Armeria.itemManager.ItemByName(ctx.Args["item"])
 	if i == nil {
-		ctx.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That item doesn't exist.", ColorError)
 		return
 	}
 
-	ctx.Player.clientActions.ShowObjectEditor(i.EditorData())
+	ctx.Player.client.ShowObjectEditor(i.EditorData())
 }
 
 func handleItemSetCommand(ctx *CommandContext) {
@@ -729,40 +729,40 @@ func handleItemSetCommand(ctx *CommandContext) {
 
 	i := Armeria.itemManager.ItemByName(item)
 	if i == nil {
-		ctx.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That item doesn't exist.", ColorError)
 		return
 	}
 
 	if !misc.Contains(ValidItemAttributes(), attr) {
-		ctx.Player.clientActions.ShowColorizedText("That's not a valid item attribute.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid item attribute.", ColorError)
 		return
 	}
 
 	if len(val) > 0 {
 		valid, why := ValidateItemAttribute(attr, val)
 		if !valid {
-			ctx.Player.clientActions.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
 			return
 		}
 	}
 
 	i.SetAttribute(attr, val)
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You modified the [b]%s[/b] property of the item [b]%s[/b].", attr, i.Name()),
 		ColorSuccess,
 	)
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		ctx.Player.clientActions.ShowObjectEditor(i.EditorData())
+		ctx.Player.client.ShowObjectEditor(i.EditorData())
 	}
 }
 
 func handleItemInstancesCommand(ctx *CommandContext) {
 	i := Armeria.itemManager.ItemByName(ctx.Args["item"])
 	if i == nil {
-		ctx.Player.clientActions.ShowColorizedText("That item doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That item doesn't exist.", ColorError)
 		return
 	}
 
@@ -798,7 +798,7 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 		}
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf(
 			"Instances of %s:\n%s",
 			i.Name(),
@@ -810,10 +810,10 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 func handleGhostCommand(ctx *CommandContext) {
 	if len(ctx.Character.TempAttribute(TempAttributeGhost)) > 0 {
 		ctx.Character.SetTempAttribute(TempAttributeGhost, "")
-		ctx.Player.clientActions.ShowColorizedText("You are no longer ghostly.", ColorSuccess)
+		ctx.Player.client.ShowColorizedText("You are no longer ghostly.", ColorSuccess)
 	} else {
 		ctx.Character.SetTempAttribute(TempAttributeGhost, "1")
-		ctx.Player.clientActions.ShowColorizedText("You are now ghostly.", ColorSuccess)
+		ctx.Player.client.ShowColorizedText("You are now ghostly.", ColorSuccess)
 	}
 }
 
@@ -821,13 +821,13 @@ func handleAreaCreateCommand(ctx *CommandContext) {
 	n := ctx.Args["name"]
 
 	if Armeria.worldManager.AreaByName(n) != nil {
-		ctx.Player.clientActions.ShowColorizedText("An area by that name already exists.", ColorError)
+		ctx.Player.client.ShowColorizedText("An area by that name already exists.", ColorError)
 		return
 	}
 
 	a := Armeria.worldManager.CreateArea(n)
 
-	ctx.Player.clientActions.ShowColorizedText(
+	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("An area named [b]%s[/b] has been created!", a.Name()),
 		ColorSuccess,
 	)
@@ -849,14 +849,14 @@ func handleAreaListCommand(ctx *CommandContext) {
 	}
 
 	if len(areas) == 0 {
-		ctx.Player.clientActions.ShowColorizedText(
+		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no areas matching \"%s\".", f),
 			ColorError,
 		)
 		return
 	}
 
-	ctx.Player.clientActions.ShowText(
+	ctx.Player.client.ShowText(
 		fmt.Sprintf("There are [b]%d[/b] areas%s: %s.", len(areas), matchingText, strings.Join(areas, ", ")),
 	)
 }
@@ -869,18 +869,18 @@ func handleAreaEditCommand(ctx *CommandContext) {
 	} else {
 		a = Armeria.worldManager.AreaByName(area)
 		if a == nil {
-			ctx.Player.clientActions.ShowColorizedText("That area doesn't exist.", ColorError)
+			ctx.Player.client.ShowColorizedText("That area doesn't exist.", ColorError)
 			return
 		}
 	}
 
-	ctx.Player.clientActions.ShowObjectEditor(a.EditorData())
+	ctx.Player.client.ShowObjectEditor(a.EditorData())
 }
 
 func handlePasswordCommand(ctx *CommandContext) {
 	pw := ctx.Args["password"]
 	ctx.Character.SetPassword(pw)
-	ctx.Player.clientActions.ShowColorizedText("Your character password has been set.", ColorSuccess)
+	ctx.Player.client.ShowColorizedText("Your character password has been set.", ColorSuccess)
 }
 
 func handleTeleportCommand(ctx *CommandContext) {
@@ -892,10 +892,10 @@ func handleTeleportCommand(ctx *CommandContext) {
 		cn := t[1:]
 		c := Armeria.characterManager.CharacterByName(cn)
 		if c == nil {
-			ctx.Player.clientActions.ShowColorizedText("There is no character by that name.", ColorError)
+			ctx.Player.client.ShowColorizedText("There is no character by that name.", ColorError)
 			return
 		} else if c.Player() == nil {
-			ctx.Player.clientActions.ShowColorizedText("That character is not online.", ColorError)
+			ctx.Player.client.ShowColorizedText("That character is not online.", ColorError)
 			return
 		}
 
@@ -905,13 +905,13 @@ func handleTeleportCommand(ctx *CommandContext) {
 	} else {
 		loc := strings.Split(t, ",")
 		if len(loc) != 4 {
-			ctx.Player.clientActions.ShowColorizedText("Incorrect format for teleport. Use [area],[x],[y],[z].", ColorError)
+			ctx.Player.client.ShowColorizedText("Incorrect format for teleport. Use [area],[x],[y],[z].", ColorError)
 			return
 		}
 
 		a := Armeria.worldManager.AreaByName(loc[0])
 		if a == nil {
-			ctx.Player.clientActions.ShowColorizedText("That is not a valid area.", ColorError)
+			ctx.Player.client.ShowColorizedText("That is not a valid area.", ColorError)
 			return
 		}
 
@@ -920,7 +920,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 		y, yerr := strconv.Atoi(loc[2])
 		z, zerr := strconv.Atoi(loc[3])
 		if xerr != nil || yerr != nil || zerr != nil {
-			ctx.Player.clientActions.ShowColorizedText("The x, y, and z coordinate must be a valid number.", ColorError)
+			ctx.Player.client.ShowColorizedText("The x, y, and z coordinate must be a valid number.", ColorError)
 			return
 		}
 
@@ -929,7 +929,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 	}
 
 	if l.Room() == nil {
-		ctx.Player.clientActions.ShowColorizedText("You cannot teleport there!", ColorError)
+		ctx.Player.client.ShowColorizedText("You cannot teleport there!", ColorError)
 		return
 	}
 
@@ -941,4 +941,33 @@ func handleTeleportCommand(ctx *CommandContext) {
 	)
 
 	Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
+}
+
+func handleCommandsCommand(ctx *CommandContext) {
+	var valid []*Command
+	var largest int
+	for _, cmd := range Armeria.commandManager.Commands() {
+		if cmd.CheckPermissions(ctx.Player) && len(cmd.Alias) == 0 {
+			valid = append(valid, cmd)
+
+			if len(cmd.Name) > largest {
+				largest = len(cmd.Name)
+			}
+		}
+	}
+
+	var list []string
+	for _, cmd := range valid {
+		list = append(list,
+			fmt.Sprintf("  /%-"+strconv.Itoa(largest)+"v %s", cmd.Name, cmd.Help),
+		)
+	}
+
+	ctx.Player.client.ShowColorizedText(
+		TextStyle(
+			fmt.Sprintf("[b]Commands you can use:[/b]\n%s", strings.Join(list, "\n")),
+			TextStyleMonospace,
+		),
+		ColorCmdHelp,
+	)
 }

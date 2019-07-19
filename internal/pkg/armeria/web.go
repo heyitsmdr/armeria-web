@@ -84,7 +84,7 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 
 	cp := c.Player()
 	if cp != nil {
-		cp.clientActions.ShowColorizedText(
+		cp.client.ShowColorizedText(
 			fmt.Sprintf("The script has been saved to [b]%s[/b].", m.UnsafeName),
 			ColorSuccess,
 		)
