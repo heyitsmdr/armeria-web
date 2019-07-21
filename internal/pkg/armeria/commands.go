@@ -8,6 +8,11 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	CommandErrNoPerms = "You cannot use that command."
+	CommandErrInvalid = "That's an invalid command."
+)
+
 // Manager is the global manager instance for Command objects
 type CommandManager struct {
 	commands []*Command
@@ -43,7 +48,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 		if strings.ToLower(cmd.Name) == cmdName || misc.Contains(cmd.AltNames, cmdName) {
 			// Handle permissions
 			if !cmd.CheckPermissions(p) {
-				return nil, nil, "You cannot use that command."
+				return nil, nil, CommandErrNoPerms
 			}
 
 			// Handle sub-commands
@@ -78,7 +83,7 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 		}
 	}
 
-	return nil, nil, "That's an invalid command."
+	return nil, nil, CommandErrInvalid
 }
 
 // ProcessCommand will evaluate and process a command sent by the parent either
@@ -92,10 +97,14 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
-		p.client.ShowColorizedText(
-			TextStyle(errorMsg, TextStyleMonospace),
-			ColorCmdHelp,
-		)
+		if errorMsg != CommandErrInvalid && errorMsg != CommandErrNoPerms {
+			p.client.ShowColorizedText(
+				TextStyle(errorMsg, TextStyleMonospace),
+				ColorCmdHelp,
+			)
+		} else {
+			p.client.ShowColorizedText(errorMsg, ColorCmdHelp)
+		}
 		return
 	}
 
