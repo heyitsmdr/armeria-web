@@ -44,6 +44,7 @@
     .line .monospace {
         font-family: 'Inconsolata', monospace;
         font-size: 16px;
+        white-space: pre;
     }
 </style>
 <style scoped>
@@ -60,6 +61,5 @@
     .line {
         color: #cacaca;
         user-select: text;
-        white-space: pre;
     }
 </style>
