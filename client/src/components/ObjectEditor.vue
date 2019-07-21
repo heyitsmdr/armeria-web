@@ -185,6 +185,7 @@
 
     .object-editor.visible {
         flex-basis: 300px;
+        min-width: 300px;
         margin-right: 5px;
     }
 
