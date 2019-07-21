@@ -2,6 +2,9 @@ package armeria
 
 import (
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"go.uber.org/zap"
 )
@@ -45,8 +48,20 @@ func Init(production bool, publicPath string, dataPath string, httpPort int) {
 	Armeria.mobManager = NewMobManager()
 	Armeria.itemManager = NewItemManager()
 
+	Armeria.setupGracefulExit()
+
 	RegisterGameCommands()
 	InitWeb(httpPort)
+}
+
+func (gs *GameState) setupGracefulExit() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		gs.Save()
+		os.Exit(0)
+	}()
 }
 
 func (gs *GameState) Save() {
