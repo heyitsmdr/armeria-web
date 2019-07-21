@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -49,6 +50,7 @@ func Init(production bool, publicPath string, dataPath string, httpPort int) {
 	Armeria.itemManager = NewItemManager()
 
 	Armeria.setupGracefulExit()
+	Armeria.setupPeriodicSaves()
 
 	RegisterGameCommands()
 	InitWeb(httpPort)
@@ -61,6 +63,15 @@ func (gs *GameState) setupGracefulExit() {
 		<-sigs
 		gs.Save()
 		os.Exit(0)
+	}()
+}
+
+func (gs *GameState) setupPeriodicSaves() {
+	c := time.Tick(2 * time.Minute)
+	go func() {
+		for range c {
+			gs.Save()
+		}
 	}()
 }
 
