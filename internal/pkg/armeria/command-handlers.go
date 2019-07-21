@@ -340,13 +340,13 @@ func handleWhisperCommand(ctx *CommandContext) {
 	c.SetTempAttribute(TempAttributeReplyTo, ctx.Character.Name())
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You whisper to %s, \"%s\".", c.FormattedName(), m),
+		fmt.Sprintf("You whisper to %s, \"%s\".", c.FormattedNameWithTitle(), m),
 		ColorWhisper,
 	)
 
 	c.Player().client.ShowColorizedText(
 		fmt.Sprintf("%s whispers to you from %s, \"%s\".",
-			ctx.Character.FormattedName(),
+			ctx.Character.FormattedNameWithTitle(),
 			c.Location().Area().Name(),
 			m,
 		),

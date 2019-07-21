@@ -62,6 +62,7 @@ func (c *Character) FormattedName() string {
 func (c *Character) FormattedNameWithTitle() string {
 	c.RLock()
 	defer c.RUnlock()
+
 	title := c.UnsafeAttributes["title"]
 	if title != "" {
 		return fmt.Sprintf("[b]%s[/b] (%s)", c.UnsafeName, title)
