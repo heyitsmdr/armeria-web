@@ -2,8 +2,8 @@
 
 ## Index
 
-* Function [c_attr](#c_attrcharacter_name-attribute-temp)
-* Function [c_set_attr](#c_set_attrcharacter_name-attribute-temp)
+* Function: [c_attr](#c_attrcharacter_name-attribute-temp)
+* Function: [c_set_attr](#c_set_attrcharacter_name-attribute-value-temp)
 * Function: [say](#saytext)
 
 * Event: [character_entered](#character_enteredcharacter_name)
