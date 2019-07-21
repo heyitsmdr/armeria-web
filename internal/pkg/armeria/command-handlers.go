@@ -298,12 +298,18 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 		return
 	}
 
-	if len(r.Characters(nil)) > 0 {
-		ctx.Player.client.ShowColorizedText("There are characters in the room you're attempting to destroy.", ColorError)
+	if len(r.Objects()) > 0 {
+		ctx.Player.client.ShowColorizedText("There is something in the room you're attempting to destroy.", ColorError)
 		return
 	}
 
-	ctx.Player.client.ShowColorizedText("Success.", ColorSuccess)
+	loc.Area().RemoveRoom(r)
+
+	for _, c := range ctx.Character.Location().Area().Characters(nil) {
+		c.Player().client.RenderMap()
+	}
+
+	ctx.Player.client.ShowColorizedText("The room has been destroyed.", ColorSuccess)
 }
 
 func handleSaveCommand(ctx *CommandContext) {

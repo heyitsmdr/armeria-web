@@ -153,15 +153,24 @@ func (a *Area) CharacterLeft(c *Character, causedByLogout bool) {
 func (a *Area) AddRoom(r *Room) {
 	a.Lock()
 	defer a.Unlock()
+
 	a.UnsafeRooms = append(a.UnsafeRooms, r)
 }
 
-func (a *Area) RemoveRoom(r *Room) {
+func (a *Area) RemoveRoom(rm *Room) {
 	a.Lock()
 	defer a.Unlock()
+
+	for i, r := range a.UnsafeRooms {
+		if r.Coords.Matches(rm.Coords) {
+			a.UnsafeRooms[i] = a.UnsafeRooms[len(a.UnsafeRooms)-1]
+			a.UnsafeRooms = a.UnsafeRooms[:len(a.UnsafeRooms)-1]
+			break
+		}
+	}
 }
 
-// UnsafeCharacters returns online characters within the area, with an optional Character exception.
+// Characters returns online characters within the area, with an optional Character exception.
 func (a *Area) Characters(except *Character) []*Character {
 	a.RLock()
 	defer a.RUnlock()
