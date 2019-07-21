@@ -122,23 +122,27 @@ func handleSayCommand(ctx *CommandContext) {
 		}
 	}
 
-	verbs := []string{"say", "says"}
-	lastChar := ctx.Args["text"][len(ctx.Args["text"])-1:]
-	if lastChar == "?" {
+	normalizedText, textType := TextPunctuation(ctx.Args["text"])
+
+	var verbs []string
+	switch textType {
+	case TextQuestion:
 		verbs = []string{"ask", "asks"}
-	} else if lastChar == "!" {
+	case TextExclaim:
 		verbs = []string{"exclaim", "exclaims"}
+	default:
+		verbs = []string{"say", "says"}
 	}
 
 	ctx.Player.client.ShowText(
-		ctx.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\".", verbs[0], ctx.Args["text"]), ColorSay),
+		ctx.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\"", verbs[0], normalizedText), ColorSay),
 	)
 
 	room := ctx.Character.Location().Room()
 	for _, c := range room.Characters(ctx.Character) {
 		c.Player().client.ShowText(
 			c.Player().Character().Colorize(
-				fmt.Sprintf("%s %s, \"%s\".", ctx.Character.FormattedName(), verbs[1], ctx.Args["text"]),
+				fmt.Sprintf("%s %s, \"%s\"", ctx.Character.FormattedName(), verbs[1], normalizedText),
 				ColorSay,
 			),
 		)
@@ -339,16 +343,18 @@ func handleWhisperCommand(ctx *CommandContext) {
 
 	c.SetTempAttribute(TempAttributeReplyTo, ctx.Character.Name())
 
+	normalizedText, _ := TextPunctuation(m)
+
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You whisper to %s, \"%s\".", c.FormattedNameWithTitle(), m),
+		fmt.Sprintf("You whisper to %s, \"%s\"", c.FormattedNameWithTitle(), normalizedText),
 		ColorWhisper,
 	)
 
 	c.Player().client.ShowColorizedText(
-		fmt.Sprintf("%s whispers to you from %s, \"%s\".",
+		fmt.Sprintf("%s whispers to you from %s, \"%s\"",
 			ctx.Character.FormattedNameWithTitle(),
 			c.Location().Area().Name(),
-			m,
+			normalizedText,
 		),
 		ColorWhisper,
 	)
