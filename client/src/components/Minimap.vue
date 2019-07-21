@@ -160,6 +160,7 @@ export default {
     background-color: #1b1b1b;
     border-bottom: 1px solid #313131;
     color: #fff;
+    flex-shrink: 1;
 
     .map-name {
         font-weight: 600;
@@ -175,6 +176,7 @@ export default {
     background-color: #0c0c0c;
     border-bottom: 1px solid #313131;
     flex-grow: 1;
+    min-height: 205px;
     position: relative;
     overflow: hidden;
     transition: all .3s ease-in-out;
