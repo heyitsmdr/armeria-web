@@ -31,9 +31,21 @@ func LuaMobSay(L *lua.LState) int {
 	m := Armeria.mobManager.MobByName(mname)
 	mi := m.InstanceByUUID(mid)
 
+	normalizedText, textType := TextPunctuation(text)
+
+	var verb string
+	switch textType {
+	case TextQuestion:
+		verb = "asks"
+	case TextExclaim:
+		verb = "exclaims"
+	default:
+		verb = "says"
+	}
+
 	for _, c := range mi.Location.Room().Characters(nil) {
 		c.Player().client.ShowColorizedText(
-			fmt.Sprintf("%s says, \"%s\".", mi.FormattedName(), text),
+			fmt.Sprintf("%s %s, \"%s\"", mi.FormattedName(), verb, normalizedText),
 			ColorSay,
 		)
 	}
