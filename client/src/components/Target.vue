@@ -21,7 +21,8 @@
             </div>
             <div class="name">
                 <div class="name-container">
-                    {{ name }}
+                    <div>{{ name }}</div>
+                    <div class="alt">{{ title }}</div>
                 </div>
             </div>
         </div>
@@ -33,7 +34,7 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'Target',
-    props: ['name', 'objectType', 'pictureKey'],
+    props: ['name', 'objectType', 'pictureKey', 'title'],
     computed: mapState(['isProduction', 'objectTarget']),
     methods: {
         getBackgroundUrl() {
@@ -139,9 +140,9 @@ export default {
         flex-basis: 50px;
 
         .picture-container {
-             height: 50px;
+            height: 50px;
             box-shadow: inset 0px 0px 5px 0px #3a3a3a;
-             background-size: contain;
+            background-size: contain;
         }
     }
 
@@ -153,6 +154,11 @@ export default {
 
         .name-container {
             font-weight: 600;
+
+            .alt {
+                font-weight: 400;
+                font-size: 12px;
+            }
         }
     }
 }

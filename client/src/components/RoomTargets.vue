@@ -7,6 +7,7 @@
                 :name="obj.name"
                 :pictureKey="obj.picture"
                 :objectType="obj.type"
+                :title="obj.title"
             />
         </div>
     </div>

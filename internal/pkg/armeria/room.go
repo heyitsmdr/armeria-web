@@ -112,6 +112,7 @@ func (r *Room) ObjectData() string {
 			"sort":    ObjectSortOrder(o.Type()),
 			"picture": o.Attribute(AttributePicture),
 			"rarity":  o.Attribute(AttributeRarity),
+			"title":   o.Attribute(AttributeTitle),
 		})
 	}
 
