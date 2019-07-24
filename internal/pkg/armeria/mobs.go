@@ -23,6 +23,7 @@ func NewMobManager() *MobManager {
 	}
 
 	m.LoadMobs()
+	m.AttachParents()
 	m.AddMobInstancesToRooms()
 
 	return m
@@ -89,6 +90,19 @@ func (m *MobManager) SaveMobs() {
 	)
 }
 
+// AttachParents attaches a pointer to MobInstance that references the parent Mob.
+func (m *MobManager) AttachParents() {
+	m.RLock()
+	defer m.RUnlock()
+
+	for _, m := range m.UnsafeMobs {
+		for _, mi := range m.Instances() {
+			mi.Parent = m
+		}
+	}
+}
+
+// AddMobInstancesToRooms adds MobInstance objects to their respective Room objects.
 func (m *MobManager) AddMobInstancesToRooms() {
 	m.RLock()
 	defer m.RUnlock()

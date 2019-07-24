@@ -10,11 +10,11 @@ import (
 type ItemInstance struct {
 	sync.RWMutex
 	UUID               string            `json:"uuid"`
-	UnsafeParent       string            `json:"parent"`
 	UnsafeLocationType int               `json:"location_type"`
 	Location           *Location         `json:"location"`
 	UnsafeCharacter    string            `json:"character"`
 	UnsafeAttributes   map[string]string `json:"attributes"`
+	Parent             *Item             `json:"-"`
 }
 
 const (
@@ -27,14 +27,6 @@ func (ii *ItemInstance) Id() string {
 	return ii.UUID
 }
 
-// Parent returns the Item parent.
-func (ii *ItemInstance) Parent() *Item {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	return Armeria.itemManager.ItemByName(ii.UnsafeParent)
-}
-
 // Type returns the object type, since Item implements the Object interface.
 func (ii *ItemInstance) Type() int {
 	return ObjectTypeItem
@@ -42,18 +34,12 @@ func (ii *ItemInstance) Type() int {
 
 // UnsafeName returns the raw Item name.
 func (ii *ItemInstance) Name() string {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	return ii.UnsafeParent
+	return ii.Parent.Name()
 }
 
 // FormattedName returns the formatted Item name.
 func (ii *ItemInstance) FormattedName() string {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	return fmt.Sprintf("[b]%s[/b]", ii.UnsafeParent)
+	return fmt.Sprintf("[b]%s[/b]", ii.Parent.Name())
 }
 
 // SetAttribute sets a permanent attribute on the ItemInstance.
@@ -79,7 +65,7 @@ func (ii *ItemInstance) Attribute(name string) string {
 	defer ii.RUnlock()
 
 	if len(ii.UnsafeAttributes[name]) == 0 {
-		return ii.Parent().Attribute(name)
+		return ii.Parent.Attribute(name)
 	}
 
 	return ii.UnsafeAttributes[name]

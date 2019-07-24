@@ -1,5 +1,7 @@
 package armeria
 
+import "go.uber.org/zap"
+
 func RegisterGameCommands() {
 	commands := []*Command{
 		{
@@ -528,4 +530,6 @@ func RegisterGameCommands() {
 	for _, cmd := range commands {
 		Armeria.commandManager.RegisterCommand(cmd)
 	}
+
+	Armeria.log.Info("commands registered", zap.Int("count", len(commands)))
 }

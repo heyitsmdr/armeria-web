@@ -2,10 +2,7 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
-	"fmt"
 	"strings"
-
-	"go.uber.org/zap"
 )
 
 const (
@@ -34,9 +31,6 @@ func (m *CommandManager) Commands() []*Command {
 // parsed out.
 func (m *CommandManager) RegisterCommand(c *Command) {
 	m.commands = append(m.commands, c)
-	Armeria.log.Debug("command registered",
-		zap.String("command", fmt.Sprintf("/%s", c.Name)),
-	)
 }
 
 // FindCommand will return a matched registered Command.

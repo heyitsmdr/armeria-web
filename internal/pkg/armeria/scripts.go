@@ -114,10 +114,10 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 
-	err := L.DoFile(mi.Parent().ScriptFile())
+	err := L.DoFile(mi.Parent.ScriptFile())
 	if err != nil {
 		Armeria.log.Error("error compiling lua script",
-			zap.String("script", mi.Parent().ScriptFile()),
+			zap.String("script", mi.Parent.ScriptFile()),
 			zap.Error(err),
 		)
 		if invoker.HasPermission("CAN_BUILD") {
@@ -146,7 +146,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	}, args...)
 	if err != nil {
 		Armeria.log.Error("error executing function in lua script",
-			zap.String("script", mi.Parent().ScriptFile()),
+			zap.String("script", mi.Parent.ScriptFile()),
 			zap.String("function", funcName),
 			zap.Error(err),
 		)

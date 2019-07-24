@@ -10,22 +10,14 @@ import (
 type MobInstance struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
-	UnsafeParent     string            `json:"parent"`
 	Location         *Location         `json:"location"`
 	UnsafeAttributes map[string]string `json:"attributes"`
+	Parent           *Mob              `json:"-"`
 }
 
 // Id returns the UUID of the instance.
 func (mi *MobInstance) Id() string {
 	return mi.UUID
-}
-
-// Parent returns the Mob parent.
-func (mi *MobInstance) Parent() *Mob {
-	mi.RLock()
-	defer mi.RUnlock()
-
-	return Armeria.mobManager.MobByName(mi.UnsafeParent)
 }
 
 // Type returns the object type, since Mob implements the Object interface.
@@ -35,18 +27,12 @@ func (mi *MobInstance) Type() int {
 
 // UnsafeName returns the raw Mob name.
 func (mi *MobInstance) Name() string {
-	mi.RLock()
-	defer mi.RUnlock()
-
-	return mi.UnsafeParent
+	return mi.Parent.Name()
 }
 
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
-	mi.RLock()
-	defer mi.RUnlock()
-
-	return fmt.Sprintf("[b]%s[/b]", mi.UnsafeParent)
+	return fmt.Sprintf("[b]%s[/b]", mi.Parent.Name())
 }
 
 // SetAttribute sets a permanent attribute on the MobInstance.
@@ -72,7 +58,7 @@ func (mi *MobInstance) Attribute(name string) string {
 	defer mi.RUnlock()
 
 	if len(mi.UnsafeAttributes[name]) == 0 {
-		return mi.Parent().Attribute(name)
+		return mi.Parent.Attribute(name)
 	}
 
 	return mi.UnsafeAttributes[name]

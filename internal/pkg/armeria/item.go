@@ -56,10 +56,10 @@ func (i *Item) CreateInstance() *ItemInstance {
 
 	ii := &ItemInstance{
 		UUID:               uuid.New().String(),
-		UnsafeParent:       i.UnsafeName,
 		UnsafeAttributes:   make(map[string]string),
 		UnsafeLocationType: ItemLocationRoom,
 		Location:           NewLocation("", 0, 0, 0),
+		Parent:             i,
 	}
 
 	i.UnsafeInstances = append(i.UnsafeInstances, ii)

@@ -88,7 +88,19 @@ func (m *ItemManager) SaveItems() {
 	)
 }
 
-// AddItemInstancesToRooms adds ItemInstances that are in Rooms to their
+// AttachParents attaches a pointer to ItemInstance that references the parent Item.
+func (m *ItemManager) AttachParents() {
+	m.RLock()
+	defer m.RUnlock()
+
+	for _, i := range m.UnsafeItems {
+		for _, ii := range i.Instances() {
+			ii.Parent = i
+		}
+	}
+}
+
+// AddItemInstancesToRooms adds ItemInstance objects that are in Rooms to their
 // respective Room objects.
 func (m *ItemManager) AddItemInstancesToRooms() {
 	m.RLock()

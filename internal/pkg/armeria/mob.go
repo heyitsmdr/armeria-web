@@ -96,9 +96,9 @@ func (m *Mob) CreateInstance(l *Location) *MobInstance {
 
 	mi := &MobInstance{
 		UUID:             uuid.New().String(),
-		UnsafeParent:     m.UnsafeName,
 		Location:         CopyLocation(l),
 		UnsafeAttributes: make(map[string]string),
+		Parent:           m,
 	}
 
 	m.UnsafeInstances = append(m.UnsafeInstances, mi)

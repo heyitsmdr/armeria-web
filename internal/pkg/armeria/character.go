@@ -20,7 +20,7 @@ type Character struct {
 	UnsafeLocation       *Location         `json:"location"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
 	UnsafeTempAttributes map[string]string `json:"-"`
-	player               *Player
+	player               *Player           `json:"-"`
 }
 
 const (
