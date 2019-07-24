@@ -983,3 +983,87 @@ func handleCommandsCommand(ctx *CommandContext) {
 		ColorCmdHelp,
 	)
 }
+
+func handleClipboardCopyCommand(ctx *CommandContext) {
+	t := strings.ToLower(ctx.Args["type"])
+	n := ctx.Args["name"]
+	a := ctx.Args["attributes"]
+
+	attrs := strings.Split(a, " ")
+
+	switch t {
+	case "room":
+		// validate room (based on "name")
+		var r *Room
+		if n == "." || n == "here" {
+			r = ctx.Character.Location().Room()
+		} else {
+			ctx.Player.client.ShowColorizedText("That room is not valid.", ColorError)
+			return
+		}
+		// validate room attributes
+		for _, attr := range attrs {
+			if !misc.Contains(ValidRoomAttributes(), attr) {
+				ctx.Player.client.ShowColorizedText(
+					fmt.Sprintf("Invalid room attribute: %s.", attr),
+					ColorError,
+				)
+				return
+			}
+		}
+		ctx.Character.SetTempAttribute("clipboard_type", t)
+		ctx.Character.SetTempAttribute("clipboard_attributes", a)
+		for _, attr := range attrs {
+			ctx.Character.SetTempAttribute("clipboard_attribute_"+attr, r.Attribute(attr))
+		}
+		ctx.Player.client.ShowColorizedText("Room attributes copied to clipboard.", ColorSuccess)
+	default:
+		ctx.Player.client.ShowColorizedText("That object type is not supported by the clipboard.", ColorError)
+		return
+	}
+}
+
+func handleClipboardPasteCommand(ctx *CommandContext) {
+	n := ctx.Args["name"]
+
+	cbt := ctx.Character.TempAttribute("clipboard_type")
+	if len(cbt) == 0 {
+		ctx.Player.client.ShowColorizedText("You don't have anything on your clipboard.", ColorError)
+		return
+	}
+
+	cba := strings.Split(ctx.Character.TempAttribute("clipboard_attributes"), " ")
+
+	switch cbt {
+	case "room":
+		// validate room (based on "name")
+		var r *Room
+		if n == "." || n == "here" {
+			r = ctx.Character.Location().Room()
+		} else {
+			ctx.Player.client.ShowColorizedText("That room is not valid.", ColorError)
+			return
+		}
+		// paste room attributes
+		for _, attr := range cba {
+			attrValue := ctx.Character.TempAttribute("clipboard_attribute_" + attr)
+			r.SetAttribute(attr, attrValue)
+		}
+		ctx.Player.client.ShowColorizedText("Room attributes on the clipboard have been applied.", ColorSuccess)
+	default:
+		ctx.Player.client.ShowColorizedText("That object type cannot be pasted anywhere.", ColorError)
+		return
+	}
+}
+
+func handleClipboardClearCommand(ctx *CommandContext) {
+	cba := strings.Split(ctx.Character.TempAttribute("clipboard_attributes"), " ")
+	for _, attr := range cba {
+		ctx.Character.SetTempAttribute("clipboard_attribute_"+attr, "")
+	}
+
+	ctx.Character.SetTempAttribute("clipboard_type", "")
+	ctx.Character.SetTempAttribute("clipboard_attributes", "")
+
+	ctx.Player.client.ShowColorizedText("Your clipboard has been cleared.", ColorSuccess)
+}

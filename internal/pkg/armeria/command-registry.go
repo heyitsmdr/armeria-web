@@ -480,6 +480,49 @@ func RegisterGameCommands() {
 			},
 			Handler: handleTeleportCommand,
 		},
+		{
+			Name:     "clipboard",
+			AltNames: []string{"cb"},
+			Help:     "Allows you to copy and paste object attributes easily.",
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
+			},
+			Subcommands: []*Command{
+				{
+					Name: "copy",
+					Help: "Copies one or more object attributes onto your clipboard.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "type",
+						},
+						{
+							Name: "name",
+						},
+						{
+							Name:             "attributes",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleClipboardCopyCommand,
+				},
+				{
+					Name: "paste",
+					Help: "Pastes attributes onto a matching object type.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "name",
+						},
+					},
+					Handler: handleClipboardPasteCommand,
+				},
+				{
+					Name:    "clear",
+					Help:    "Clears the clipboard.",
+					Handler: handleClipboardClearCommand,
+				},
+			},
+		},
 	}
 
 	for _, cmd := range commands {
