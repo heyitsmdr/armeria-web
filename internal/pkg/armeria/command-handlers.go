@@ -1001,7 +1001,10 @@ func handleClipboardCopyCommand(ctx *CommandContext) {
 			ctx.Player.client.ShowColorizedText("That room is not valid.", ColorError)
 			return
 		}
-		// validate room attributes
+		// validate room attributes; allow * for everything
+		if a == "*" {
+			attrs = ValidRoomAttributes()
+		}
 		for _, attr := range attrs {
 			if !misc.Contains(ValidRoomAttributes(), attr) {
 				ctx.Player.client.ShowColorizedText(
