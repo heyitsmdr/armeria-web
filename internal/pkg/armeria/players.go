@@ -35,7 +35,7 @@ func (m *PlayerManager) NewPlayer(conn *websocket.Conn) *Player {
 
 	m.players[p] = true
 
-	Armeria.log.Info("parent connected",
+	Armeria.log.Info("player connected",
 		zap.String("ip", conn.RemoteAddr().String()),
 		zap.Int("players", len(m.players)),
 	)
@@ -63,7 +63,7 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 
 	// Fatal if data should of been sent but wasn't
 	if len(p.sendData) > 0 {
-		Armeria.log.Error("parent disconnected with unsent data",
+		Armeria.log.Error("player disconnected with unsent data",
 			zap.Int("dataSize", len(p.sendData)),
 		)
 	}
@@ -82,7 +82,7 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 	// Remove the parent from the manager
 	delete(m.players, p)
 
-	Armeria.log.Info("parent disconnected",
+	Armeria.log.Info("player disconnected",
 		zap.Int("players", len(m.players)),
 	)
 }
