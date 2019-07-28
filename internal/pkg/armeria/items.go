@@ -22,6 +22,7 @@ func NewItemManager() *ItemManager {
 	}
 
 	m.LoadItems()
+	m.AttachParents()
 	m.AddItemInstancesToRooms()
 
 	return m

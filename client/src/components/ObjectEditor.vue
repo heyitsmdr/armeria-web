@@ -15,7 +15,9 @@
                     <div
                         class="editable"
                         v-if="prop.propType == 'editable'"
-                        @click="handleEditablePropClick(prop)"
+                        @click="handleEditablePropClick($event, prop)"
+                        @blur="handleEditablePropBlur($event)"
+                        @keydown="handleEditablePropKeyDown($event, prop)"
                     >
                         {{ prop.value || "&nbsp;" }}
                     </div>
@@ -32,13 +34,13 @@
                     >
                     </div>
                     <!-- script type -->
-                    <span
+                    <div
                             class="script"
                             v-if="prop.propType == 'script'"
                             @click="handleScriptEditClick"
                     >
                         Edit Script
-                    </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,6 +53,11 @@
     export default {
         name: 'ObjectEditor',
         computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData']),
+        data: function() {
+            return {
+                propOriginal: '',
+            };
+        },
         watch: {
             objectEditorOpen: function(newVal) {
                 this.$socket.sendObj({
@@ -72,12 +79,53 @@
                 this.$store.dispatch('setObjectEditorOpen', false);
             },
 
-            handleEditablePropClick: function(prop) {
-                const newValue = prompt(`Set object property "${prop.name}" to what?`, prop.value);
-                if (newValue != null) {
-                    this.setProperty(prop.name, newValue);
-                    this.$store.dispatch('setForceInputFocus', true);
+            handleEditablePropClick: function(e, prop) {
+                const editableDiv = e.target;
+                editableDiv.contentEditable = 'true';
+                editableDiv.focus();
+                document.execCommand('selectAll', false, null);
+                editableDiv.classList.add('editing');
+
+                this.propOriginal = prop.value;
+                this.$store.dispatch('setAllowGlobalHotkeys', false);
+            },
+
+            handleEditablePropBlur: function(e) {
+                const editableDiv = e.target;
+                editableDiv.contentEditable = 'false';
+                editableDiv.classList.remove('editing');
+
+                if (!editableDiv.classList.contains('success')) {
+                    this.animateDivWithClass(e.target, 'failure');
+                    editableDiv.innerHTML = this.propOriginal;
                 }
+
+                this.$store.dispatch('setAllowGlobalHotkeys', true);
+            },
+
+            handleEditablePropKeyDown: function(e, prop) {
+                if (e.key === 'Enter') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this.animateDivWithClass(e.target, 'success');
+                    e.target.blur();
+                    this.setProperty(prop.name, e.target.innerHTML);
+                } else if (e.key === 'Escape') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    e.target.blur();
+                }
+            },
+
+            animateDivWithClass: function(div, className) {
+                div.classList.add(className);
+                setTimeout(() => {
+                    div.classList.add('anim');
+                    div.classList.remove(className);
+                }, 50);
+                setTimeout(() => {
+                    div.classList.remove('anim');
+                }, 500);
             },
 
             setProperty: function(propName, propValue) {
@@ -174,7 +222,10 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+    $hoverColor: #1f1e1e;
+    $padding: 8px;
+
     .object-editor {
         background-color: #0b0b0b;
         flex-basis: 0px;
@@ -245,20 +296,43 @@
 
     .prop-value {
         flex-grow: 1;
-        padding: 8px;
         background-color: #111;
     }
 
     .prop-value .editable {
+        padding: $padding;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
-        max-width: 165px;
+        max-width: 166px;
+    }
+
+    .prop-value .editable.anim {
+        transition: all .5s ease-in-out;
+    }
+
+    .prop-value .editable.editing {
+        text-overflow: clip;
+        background-color: #000000 !important;
+        box-shadow: 0px 0px 5px #737373;
+    }
+
+    .prop-value .editable.success {
+        background-color: #317331 !important;
+    }
+
+    .prop-value .editable.failure {
+        background-color: #7b2a2a !important;
     }
 
     .prop-value .editable:hover {
         cursor: pointer;
         color: #fff;
+        background-color: $hoverColor;
+    }
+
+    .prop-value .editable:focus {
+        outline: none;
     }
 
     .prop-value .picture {
@@ -266,6 +340,7 @@
         height: 75px;
         box-shadow: inset 0px 0px 5px 0px #3a3a3a;
         background-size: contain;
+        padding: 8px;
     }
 
     .prop-value .picture.candrop {
@@ -273,13 +348,14 @@
     }
 
     .prop-value .script {
-        background-color: #404040;
-        padding: 3px;
-        border: 1px solid #797777;
+        padding: $padding;
+        overflow: hidden;
+        max-width: 166px;
     }
 
     .prop-value .script:hover {
+        background-color: $hoverColor;
         cursor: pointer;
-        border: 1px solid #d2d2d2;
+        color: #fff;
     }
 </style>

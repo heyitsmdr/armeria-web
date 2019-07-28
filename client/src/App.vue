@@ -92,7 +92,6 @@ export default {
           break;
         case 'escape':
           this.$store.dispatch('setObjectTarget', '');
-          this.$store.dispatch('setObjectEditorOpen', false);
           break;
         case 'enter':
           this.$store.dispatch('setForceInputFocus', true);
