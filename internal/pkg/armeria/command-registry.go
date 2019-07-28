@@ -6,12 +6,12 @@ func RegisterGameCommands() {
 	commands := []*Command{
 		{
 			Name:    "commands",
-			Help:    "Displays top-level commands you have access to.",
+			Help:    "Display top-level commands you have access to.",
 			Handler: handleCommandsCommand,
 		},
 		{
 			Name: "login",
-			Help: "Logs your character into the game world.",
+			Help: "Log your character into the game world.",
 			Permissions: &CommandPermissions{
 				RequireNoCharacter: true,
 			},
@@ -28,7 +28,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "look",
-			Help: "Looks at something.",
+			Help: "Look at something.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -36,7 +36,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "say",
-			Help: "Says something to everyone in the same room as you.",
+			Help: "Say something to everyone in your current room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -50,7 +50,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "move",
-			Help: "Moves your character into a connecting room.",
+			Help: "Move your character into a connecting room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -69,7 +69,7 @@ func RegisterGameCommands() {
 		{Name: "down", Alias: "move down"},
 		{
 			Name: "room",
-			Help: "Allows you to manage rooms.",
+			Help: "Manage rooms and their properties.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
@@ -77,12 +77,12 @@ func RegisterGameCommands() {
 			Subcommands: []*Command{
 				{
 					Name:    "edit",
-					Help:    "Opens the editor panel for the current room.",
+					Help:    "Open the editor panel for the current room.",
 					Handler: handleRoomEditCommand,
 				},
 				{
 					Name: "set",
-					Help: "Allows you to set a room attribute. Leave value empty to revert to default.",
+					Help: "Set a room attribute. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "property",
@@ -97,7 +97,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "create",
-					Help: "Creates a new room in a particular direction.",
+					Help: "Create a new room in the specified direction.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "direction",
@@ -107,7 +107,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "destroy",
-					Help: "Destroys a room in a particular direction.",
+					Help: "Destroy a room in the specified direction.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "direction",
@@ -119,7 +119,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "character",
-			Help: "Allows you to manage characters.",
+			Help: "Manage characters.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_CHAREDIT",
@@ -127,7 +127,7 @@ func RegisterGameCommands() {
 			Subcommands: []*Command{
 				{
 					Name: "list",
-					Help: "Lists the characters in the game, optionally using a filter.",
+					Help: "List the characters in the game, optionally using a filter.",
 					Arguments: []*CommandArgument{
 						{
 							Name:     "filter",
@@ -138,7 +138,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "set",
-					Help: "Allows you to set a character attribute. Leave value empty to revert to default.",
+					Help: "Set an attribute on the specified character. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "character",
@@ -156,7 +156,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Opens the editor panel for a character.",
+					Help: "Open the editor panel for the specified character.",
 					Arguments: []*CommandArgument{
 						{
 							Name:     "character",
@@ -169,7 +169,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "save",
-			Help: "Writes the in-memory game data to disk.",
+			Help: "Write the in-memory game data to disk.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_SYSOP",
@@ -178,7 +178,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "refresh",
-			Help: "Asks the server to re-render the data on the client.",
+			Help: "Re-render the data on the client.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -187,7 +187,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "whisper",
 			AltNames: []string{"w"},
-			Help:     "Sends a private message to another online character.",
+			Help:     "Send a private message to the specified character. They must be online.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -205,7 +205,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "reply",
 			AltNames: []string{"r"},
-			Help:     "Replies to the last whisper received.",
+			Help:     "Reply to the last whisper you received.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -219,7 +219,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "who",
-			Help: "Displays the characters currently playing.",
+			Help: "Display a list of all characters who are currently online.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -227,7 +227,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "mob",
-			Help: "Allows you to manage mobiles (npcs/monsters).",
+			Help: "Manage mobiles (npcs/monsters).",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
@@ -235,7 +235,7 @@ func RegisterGameCommands() {
 			Subcommands: []*Command{
 				{
 					Name: "list",
-					Help: "Lists the mobs in the game, optionally using a filter.",
+					Help: "List the mobs in the game, optionally using a filter.",
 					Arguments: []*CommandArgument{
 						{
 							Name:     "filter",
@@ -246,7 +246,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "create",
-					Help: "Creates a new mob in the game.",
+					Help: "Create a new mob in the game.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "name",
@@ -256,7 +256,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Opens the editor panel for a mob.",
+					Help: "Open the editor panel for a mob.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "mob",
@@ -267,7 +267,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "set",
-					Help: "Allows you to set a mob attribute. Leave value empty to revert to default.",
+					Help: "Set a mob attribute. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "mob",
@@ -285,7 +285,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "spawn",
-					Help: "Spawns a mob at this location.",
+					Help: "Spawn a mob in your current room.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "mob",
@@ -309,7 +309,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "area",
-			Help: "Allows you to manage areas.",
+			Help: "Manage areas.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
@@ -317,7 +317,7 @@ func RegisterGameCommands() {
 			Subcommands: []*Command{
 				{
 					Name: "create",
-					Help: "Creates a new area in the game.",
+					Help: "Create a new area in the game.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "name",
@@ -328,7 +328,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "list",
-					Help: "Lists the areas in the game, optionally using a filter.",
+					Help: "List the areas in the game, optionally using a filter.",
 					Arguments: []*CommandArgument{
 						{
 							Name:     "filter",
@@ -339,7 +339,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Opens the editor panel for an area.",
+					Help: "Open the editor panel for the specified area.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "area",
@@ -353,7 +353,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "item",
-			Help: "Allows you to manage items.",
+			Help: "Manage items.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
@@ -361,7 +361,7 @@ func RegisterGameCommands() {
 			Subcommands: []*Command{
 				{
 					Name: "list",
-					Help: "Lists the items in the game, optionally using a filter.",
+					Help: "List the items in the game, optionally using a filter.",
 					Arguments: []*CommandArgument{
 						{
 							Name:     "filter",
@@ -372,7 +372,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "create",
-					Help: "Creates a new item in the game.",
+					Help: "Create a new item in the game.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "name",
@@ -383,7 +383,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "spawn",
-					Help: "Spawns an item at this location.",
+					Help: "Spawn an item in your current room.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "item",
@@ -394,7 +394,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Opens the editor panel for an item.",
+					Help: "Open the editor panel for the specified item.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "item",
@@ -405,7 +405,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "set",
-					Help: "Allows you to set an item attribute. Leave value empty to revert to default.",
+					Help: "Set an item attribute. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "item",
@@ -423,7 +423,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "instances",
-					Help: "View the locations of a particular item.",
+					Help: "View the locations of the specified item.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "item",
@@ -436,7 +436,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "wipe",
-			Help: "Wipes the objects in the same room.",
+			Help: "Wipe ALL objects in your current room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
@@ -445,7 +445,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "ghost",
-			Help: "Allows you to bypass restrictions when moving.",
+			Help: "Bypass movement restrictions while moving.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_GHOST",
@@ -454,7 +454,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "password",
-			Help: "Sets a new password for your character.",
+			Help: "Set a new password for your character.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -469,7 +469,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "teleport",
 			AltNames: []string{"tp"},
-			Help:     "Teleports to a character or location.",
+			Help:     "Teleport to the specified character or room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_TELEPORT",
@@ -485,7 +485,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "clipboard",
 			AltNames: []string{"cb"},
-			Help:     "Allows you to copy and paste object attributes easily.",
+			Help:     "Copy and paste object attributes.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
@@ -493,7 +493,7 @@ func RegisterGameCommands() {
 			Subcommands: []*Command{
 				{
 					Name: "copy",
-					Help: "Copies one or more object attributes onto your clipboard.",
+					Help: "Copy attributes to your clipboard.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "type",
@@ -510,7 +510,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "paste",
-					Help: "Pastes attributes onto a matching object type.",
+					Help: "Paste attributes onto a matching object type.",
 					Arguments: []*CommandArgument{
 						{
 							Name: "name",
@@ -520,7 +520,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name:    "clear",
-					Help:    "Clears the clipboard.",
+					Help:    "Clear the clipboard.",
 					Handler: handleClipboardClearCommand,
 				},
 			},
