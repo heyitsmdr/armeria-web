@@ -115,7 +115,7 @@ export default {
             if (e.shiftKey) {
                 this.$socket.sendObj({type: 'command', payload: '/edit area'});
             }
-        }
+        },
 
         onRoomHover(event) {
             if (!event.target.classList.contains('current-location')) {
