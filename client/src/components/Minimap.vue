@@ -113,7 +113,7 @@ export default {
 
         handleAreaClick: function(e) {
             if (e.shiftKey) {
-                this.$socket.sendObj({type: 'command', payload: '/edit area'});
+                this.$socket.sendObj({type: 'command', payload: '/area edit'});
             }
         },
 
