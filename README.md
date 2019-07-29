@@ -62,7 +62,11 @@ $ yarn install
 $ yarn serve
 ```
 
-You can load the client here: [http://localhost:8080/](http://localhost:8080/). While running `yarn serve`, you can
+You can load the client here: [http://localhost:8080/](http://localhost:8080/).
+
+You should now be able to login using the command: `/login admin admin`.
+
+While running `yarn serve`, you can
 make changes to the client files and the changes will be hot reloaded immediately within the browser. Some of these
 changes may terminate your connection to the game server and require you to re-login.
 
