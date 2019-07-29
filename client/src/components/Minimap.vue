@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="area-title">
-            <div class="map-name">{{ areaTitle }}</div>
+            <div class="map-name" @click="handleAreaClick">{{ areaTitle }}</div>
             <div class="room-name">{{ roomTitle }}</div>
         </div>
         <div class="map" ref="map">
@@ -110,6 +110,12 @@ export default {
                 }
             }
         },
+
+        handleAreaClick: function(e) {
+            if (e.shiftKey) {
+                this.$socket.sendObj({type: 'command', payload: '/edit area'});
+            }
+        }
 
         onRoomHover(event) {
             if (!event.target.classList.contains('current-location')) {
