@@ -7,12 +7,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-//Config struct
 type config struct {
-	Port   int
-	Public string
-	Prod   bool
-	Data   string
+	HTTPPort   int    `yaml:"httpPort"`
+	PublicPath string `yaml:"publicPath"`
+	Production bool   `yaml:"production"`
+	DataPath   string `yaml:"dataPath"`
 }
 
 //TODO check file exists before reading

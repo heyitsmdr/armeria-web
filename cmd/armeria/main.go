@@ -6,12 +6,11 @@ import (
 )
 
 func main() {
-	publicPath := flag.String("public", "./client/dist", "public directory of client")
-	dataPath := flag.String("data", "./data", "data directory")
-	httpPort := flag.Int("port", 8081, "http listen port")
-	prodFlag := flag.Bool("prod", false, "sets production flag")
+	var configPath string
+	flag.StringVar(&configPath, "config", "no Path", "path to the config file")
+	flag.StringVar(&configPath, "c", "no Path", "path to the config file  (shorthand)")
 
 	flag.Parse()
 
-	armeria.Init(*prodFlag, *publicPath, *dataPath, *httpPort)
+	armeria.Init(configPath)
 }
