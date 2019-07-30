@@ -21,7 +21,7 @@ func (mi *MobInstance) Id() string {
 }
 
 // Type returns the object type, since Mob implements the Object interface.
-func (mi *MobInstance) Type() int {
+func (mi *MobInstance) Type() ObjectType {
 	return ObjectTypeMob
 }
 

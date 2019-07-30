@@ -127,7 +127,7 @@ func (m *ItemManager) AddItemInstancesToRooms() {
 	}
 }
 
-// ItemByName returns the matching Item.
+// ItemByName returns the matching Item, by name.
 func (m *ItemManager) ItemByName(name string) *Item {
 	m.RLock()
 	defer m.RUnlock()
@@ -135,6 +135,22 @@ func (m *ItemManager) ItemByName(name string) *Item {
 	for _, i := range m.UnsafeItems {
 		if strings.ToLower(i.Name()) == strings.ToLower(name) {
 			return i
+		}
+	}
+
+	return nil
+}
+
+// ItemInstanceById returns the matching ItemInstance, by uuid.
+func (m *ItemManager) ItemInstanceById(uuid string) *ItemInstance {
+	m.RLock()
+	defer m.RUnlock()
+
+	for _, i := range m.UnsafeItems {
+		for _, ii := range i.Instances() {
+			if ii.Id() == uuid {
+				return ii
+			}
 		}
 	}
 

@@ -49,6 +49,12 @@ func (m *CharacterManager) LoadCharacters() {
 		)
 	}
 
+	for _, _ = range m.UnsafeCharacters {
+		//if c.UnsafeInventory == nil {
+		//	c.UnsafeInventory = NewItemContainer(35)
+		//}
+	}
+
 	Armeria.log.Info("characters loaded",
 		zap.Int("count", len(m.UnsafeCharacters)),
 	)
@@ -84,13 +90,27 @@ func (m *CharacterManager) SaveCharacters() {
 	)
 }
 
-// CharacterByName returns the matching Character.
+// CharacterByName returns the matching Character, by name.
 func (m *CharacterManager) CharacterByName(name string) *Character {
 	m.RLock()
 	defer m.RUnlock()
 
 	for _, c := range m.UnsafeCharacters {
 		if strings.ToLower(c.Name()) == strings.ToLower(name) {
+			return c
+		}
+	}
+
+	return nil
+}
+
+// CharacterById returns the matching Character, by uuid.
+func (m *CharacterManager) CharacterById(uuid string) *Character {
+	m.RLock()
+	defer m.RUnlock()
+
+	for _, c := range m.UnsafeCharacters {
+		if c.Id() == uuid {
 			return c
 		}
 	}

@@ -1122,3 +1122,20 @@ func handleClipboardClearCommand(ctx *CommandContext) {
 
 	ctx.Player.client.ShowColorizedText("Your clipboard has been cleared.", ColorSuccess)
 }
+
+func handleGetCommand(ctx *CommandContext) {
+	istring := ctx.Args["item"]
+
+	r := ctx.Character.Location().Room()
+	o := r.ObjectByNameAndType(istring, ObjectTypeItem)
+	if o == nil {
+		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
+		return
+	}
+
+	i := o.(*ItemInstance)
+
+	i.SetLocationType(ItemLocationCharacter)
+
+	ctx.Player.client.ShowColorizedText("Ok.", ColorSuccess)
+}

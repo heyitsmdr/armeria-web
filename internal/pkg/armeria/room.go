@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -45,11 +46,26 @@ func (r *Room) Attribute(name string) string {
 	return r.UnsafeAttributes[name]
 }
 
+// Objects returns all the objects in the room.
 func (r *Room) Objects() []Object {
 	r.RLock()
 	defer r.RUnlock()
 
 	return r.objects
+}
+
+// ObjectByNameAndType returns an Object that matches a specific name and type.
+func (r *Room) ObjectByNameAndType(name string, ot ObjectType) Object {
+	r.RLock()
+	defer r.RUnlock()
+
+	for _, o := range r.objects {
+		if o.Type() == ot && strings.ToLower(o.Name()) == strings.ToLower(name) {
+			return o
+		}
+	}
+
+	return nil
 }
 
 // OnlineCharacters returns online characters within the room.

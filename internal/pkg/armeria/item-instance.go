@@ -10,16 +10,18 @@ import (
 type ItemInstance struct {
 	sync.RWMutex
 	UUID               string            `json:"uuid"`
-	UnsafeLocationType int               `json:"location_type"`
+	UnsafeLocationType ItemLocationType  `json:"location_type"`
 	Location           *Location         `json:"location"`
-	UnsafeCharacter    string            `json:"character"`
+	UnsafeCharacterId  string            `json:"character"`
 	UnsafeAttributes   map[string]string `json:"attributes"`
 	Parent             *Item             `json:"-"`
 }
 
+type ItemLocationType int
+
 const (
-	ItemLocationRoom      int = 0
-	ItemLocationCharacter int = 1
+	ItemLocationRoom ItemLocationType = iota
+	ItemLocationCharacter
 )
 
 // Id returns the UUID of the instance.
@@ -28,7 +30,7 @@ func (ii *ItemInstance) Id() string {
 }
 
 // Type returns the object type, since Item implements the Object interface.
-func (ii *ItemInstance) Type() int {
+func (ii *ItemInstance) Type() ObjectType {
 	return ObjectTypeItem
 }
 
@@ -72,7 +74,7 @@ func (ii *ItemInstance) Attribute(name string) string {
 }
 
 // LocationType returns the location type (room or character).
-func (ii *ItemInstance) LocationType() int {
+func (ii *ItemInstance) LocationType() ItemLocationType {
 	ii.RLock()
 	defer ii.RUnlock()
 
@@ -80,7 +82,7 @@ func (ii *ItemInstance) LocationType() int {
 }
 
 // SetLocationType sets the location type of the ItemInstance.
-func (ii *ItemInstance) SetLocationType(t int) {
+func (ii *ItemInstance) SetLocationType(t ItemLocationType) {
 	ii.Lock()
 	defer ii.Unlock()
 
@@ -92,7 +94,7 @@ func (ii *ItemInstance) Character() *Character {
 	ii.RLock()
 	defer ii.RUnlock()
 
-	return Armeria.characterManager.CharacterByName(ii.UnsafeCharacter)
+	return Armeria.characterManager.CharacterById(ii.UnsafeCharacterId)
 }
 
 // SetCharacter sets the character that has the ItemInstance.
@@ -100,6 +102,5 @@ func (ii *ItemInstance) SetCharacter(c *Character) {
 	ii.Lock()
 	defer ii.Unlock()
 
-	ii.UnsafeLocationType = ItemLocationCharacter
-	ii.UnsafeCharacter = c.Name()
+	ii.UnsafeCharacterId = c.Id()
 }

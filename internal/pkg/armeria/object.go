@@ -4,23 +4,25 @@ package armeria
 // implemented by Character, MobInstance, and ItemInstance.
 type Object interface {
 	Id() string
-	Type() int
+	Type() ObjectType
 	Name() string
 	FormattedName() string
 	Attribute(name string) string
 	SetAttribute(name string, value string) error
 }
 
+type ObjectType int
+
 const (
-	ObjectTypeCharacter int = 0
-	ObjectTypeMob       int = 1
-	ObjectTypeItem      int = 2
+	ObjectTypeCharacter ObjectType = iota
+	ObjectTypeMob
+	ObjectTypeItem
 )
 
 // ObjectSortOrder returns the sort order for each type of Object. This will affect
 // how it will appear in the client's room list. Sorting is in descending order.
-func ObjectSortOrder(objectType int) int {
-	switch objectType {
+func ObjectSortOrder(ot ObjectType) int {
+	switch ot {
 	case ObjectTypeMob:
 		return 75
 	case ObjectTypeCharacter:

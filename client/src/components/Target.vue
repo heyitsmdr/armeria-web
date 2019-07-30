@@ -6,6 +6,7 @@
                 ref="container"
                 @mousedown="handleMouseDown"
                 @mouseup="handleMouseUp"
+                @dblclick="handleDoubleClick"
                 @contextmenu.stop.prevent="onContextMenu"
         >
             <div class="picture">
@@ -53,7 +54,7 @@ export default {
             this.$refs['container'].classList.remove('mouse-down');
             if (e.shiftKey) {
                 if (this.objectType == 0) {
-                    this.$socket.sendObj({type: 'command', payload: '/character edit ' + this.name});
+                    this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
                 } else if (this.objectType == 1) {
                     this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
                 } else if (this.objectType == 2) {
@@ -63,9 +64,17 @@ export default {
                 this.$store.dispatch('setObjectTarget', this.name);
             }
         },
+
+        handleDoubleClick: function() {
+            if (this.objectType == 2) {
+                this.$socket.sendObj({ type: 'command', payload: '/get ' + this.name });
+            }
+        },
+
         onPictureDragEnter: function(event) {
             // TODO: add class to make it obvious you can drop something here
         },
+
         onPictureDragDrop: function(event) {
             const files = event.dataTransfer.files;
 
@@ -87,6 +96,7 @@ export default {
                 }
             });
         },
+
         onContextMenu: function(event) {
             // TODO: Add a custom right-click menu
             // https://dev.to/iamafro/how-to-create-a-custom-context-menu--5d7p

@@ -19,6 +19,7 @@ type Character struct {
 	UnsafePassword       string            `json:"password"`
 	UnsafeLocation       *Location         `json:"location"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
+	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	player               *Player           `json:"-"`
 }
@@ -40,7 +41,7 @@ func (c *Character) Id() string {
 }
 
 // Type returns the object type, since Character implements the Object interface.
-func (c *Character) Type() int {
+func (c *Character) Type() ObjectType {
 	return ObjectTypeCharacter
 }
 

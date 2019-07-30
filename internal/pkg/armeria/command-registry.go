@@ -535,6 +535,20 @@ func RegisterGameCommands() {
 				},
 			},
 		},
+		{
+			Name: "get",
+			Help: "Grabs an item from the ground.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "item",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleGetCommand,
+		},
 	}
 
 	for _, cmd := range commands {
