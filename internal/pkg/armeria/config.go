@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"io/ioutil"
+	"log"
 
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
@@ -27,9 +28,7 @@ func readConfigFile(filePath string) []byte {
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		Armeria.log.Debug("config file read error",
-			zap.Error(err),
-		)
+		log.Fatalf("Error reading config file: %s", err)
 	}
 	return data
 }
