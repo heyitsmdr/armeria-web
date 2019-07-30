@@ -15,8 +15,6 @@ type config struct {
 	DataPath   string `yaml:"dataPath"`
 }
 
-//TODO check file exists before reading
-
 func parseConfigFile(filePath string) config {
 	data := readConfigFile(filePath)
 	c := unmarshalConfig(data)
