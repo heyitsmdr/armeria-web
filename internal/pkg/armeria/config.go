@@ -27,7 +27,7 @@ func readConfigFile(filePath string) []byte {
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		Armeria.log.Debug("config read error",
+		Armeria.log.Debug("config file read error",
 			zap.Error(err),
 		)
 	}

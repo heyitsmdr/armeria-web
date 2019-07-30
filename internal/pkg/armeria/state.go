@@ -29,7 +29,9 @@ var (
 )
 
 func Init(fileLocation string) {
+
 	c := parseConfigFile(fileLocation)
+
 	Armeria = &GameState{
 		production:       c.Production,
 		publicPath:       c.PublicPath,
