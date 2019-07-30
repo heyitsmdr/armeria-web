@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 
-	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
 )
 
@@ -35,9 +34,7 @@ func unmarshalConfig(data []byte) config {
 	c := config{}
 	err := yaml.Unmarshal([]byte(data), &c)
 	if err != nil {
-		Armeria.log.Debug("Unmarshaling error",
-			zap.Error(err),
-		)
+		log.Fatalf("Error Unmarshalling config: %s", err)
 	}
 	return c
 }
