@@ -171,6 +171,7 @@ export default {
     .map-name {
         font-weight: 600;
         font-size: 16px;
+        cursor: pointer;
     }
 
     .room-name {
