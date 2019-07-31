@@ -7,8 +7,8 @@ import (
 
 func main() {
 	var configPath string
-	flag.StringVar(&configPath, "config", "no Path", "path to the config file")
-	flag.StringVar(&configPath, "c", "no Path", "path to the config file  (shorthand)")
+	flag.StringVar(&configPath, "config", "./config/development.yml", "path to the config file")
+	flag.StringVar(&configPath, "c", "./config/development.yml", "path to the config file  (shorthand)")
 
 	flag.Parse()
 
