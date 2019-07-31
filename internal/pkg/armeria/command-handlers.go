@@ -220,12 +220,43 @@ func handleMoveCommand(ctx *CommandContext) {
 }
 
 func handleRoomEditCommand(stx *CommandContext) {
-	stx.Player.client.ShowObjectEditor(stx.Character.Location().Room().EditorData())
+	t := stx.Args["target"]
+	fmt.Println(t)
+
+	loc := strings.Split(t, ",")
+	fmt.Println(len(loc), loc)
+	if loc[0] == "" {
+		stx.Player.client.ShowObjectEditor(stx.Character.Location().Room().EditorData())
+		return
+	}
+	if len(loc) != 4 {
+		stx.Player.client.ShowColorizedText("Incorrect format for room edit. Use [area],[x],[y],[z].", ColorError)
+		return
+	}
+
+	a := Armeria.worldManager.AreaByName(loc[0])
+
+	if a == nil {
+		stx.Player.client.ShowColorizedText("That is not a valid area.", ColorError)
+		return
+	}
+
+	x, xerr := strconv.Atoi(loc[1])
+	y, yerr := strconv.Atoi(loc[2])
+	z, zerr := strconv.Atoi(loc[3])
+	if xerr != nil || yerr != nil || zerr != nil {
+		stx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
+		return
+	}
+
+	ed := a.RoomAt(NewCoords(x, y, z, 0)).EditorData()
+
+	stx.Player.client.ShowObjectEditor(ed)
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
-
+	fmt.Println(ctx)
 	if !misc.Contains(ValidRoomAttributes(), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
