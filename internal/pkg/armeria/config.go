@@ -22,7 +22,6 @@ func parseConfigFile(filePath string) config {
 }
 
 func readConfigFile(filePath string) []byte {
-
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("Error reading config file: %s", err)
