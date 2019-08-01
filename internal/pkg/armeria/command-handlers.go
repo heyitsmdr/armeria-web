@@ -221,37 +221,31 @@ func handleMoveCommand(ctx *CommandContext) {
 
 func handleRoomEditCommand(stx *CommandContext) {
 	t := stx.Args["target"]
-	fmt.Println(t)
+	a := stx.Character.Location().Area()
+	tr := stx.Character.Location().Room()
 
-	loc := strings.Split(t, ",")
-	fmt.Println(len(loc), loc)
-	if loc[0] == "" {
-		stx.Player.client.ShowObjectEditor(stx.Character.Location().Room().EditorData())
+	args := strings.Split(t, ",")
+
+	if args[0] == "" {
+		stx.Player.client.ShowObjectEditor(tr.EditorData())
 		return
 	}
-	if len(loc) != 4 {
-		stx.Player.client.ShowColorizedText("Incorrect format for room edit. Use [area],[x],[y],[z].", ColorError)
-		return
-	}
-
-	a := Armeria.worldManager.AreaByName(loc[0])
-
-	if a == nil {
-		stx.Player.client.ShowColorizedText("That is not a valid area.", ColorError)
+	if len(args) != 3 {
+		stx.Player.client.ShowColorizedText("Incorrect format for room edit. Use [x],[y],[z].", ColorError)
 		return
 	}
 
-	x, xerr := strconv.Atoi(loc[1])
-	y, yerr := strconv.Atoi(loc[2])
-	z, zerr := strconv.Atoi(loc[3])
+	x, xerr := strconv.Atoi(args[0])
+	y, yerr := strconv.Atoi(args[1])
+	z, zerr := strconv.Atoi(args[2])
 	if xerr != nil || yerr != nil || zerr != nil {
 		stx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
 		return
 	}
 
-	ed := a.RoomAt(NewCoords(x, y, z, 0)).EditorData()
+	tr = a.RoomAt(NewCoords(x, y, z, 0))
 
-	stx.Player.client.ShowObjectEditor(ed)
+	stx.Player.client.ShowObjectEditor(tr.EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
