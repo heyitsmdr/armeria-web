@@ -55,8 +55,10 @@ func (m *MobManager) LoadMobs() {
 	}
 
 	for _, mob := range m.UnsafeMobs {
+		mob.Init()
+
 		for _, mi := range mob.Instances() {
-			Armeria.registry.Register(mi, mi.Id(), RegistryTypeMobInstance)
+			mi.Init()
 		}
 	}
 

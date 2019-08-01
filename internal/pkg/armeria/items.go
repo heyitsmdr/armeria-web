@@ -54,8 +54,10 @@ func (m *ItemManager) LoadItems() {
 	}
 
 	for _, i := range m.UnsafeItems {
+		i.Init()
+
 		for _, ii := range i.Instances() {
-			Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
+			ii.Init()
 		}
 	}
 

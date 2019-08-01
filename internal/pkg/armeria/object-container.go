@@ -5,16 +5,17 @@ import (
 	"sync"
 )
 
+// ObjectContainer is a container of game objects that can be persisted to disk. These can be used for
+// things in a room, a character's inventory, a chest, etc.
 type ObjectContainer struct {
 	sync.RWMutex
 	UnsafeItems   []*ObjectContainerDefinition `json:"objects"`
-	UnsafeMaxSize int                          `json:"maxSize"`
+	UnsafeMaxSize int                          `json:"maxSize"` // 0 = unlimited
 }
 
 type ObjectContainerDefinition struct {
-	Id     string `json:"id"`
-	Slot   int    `json:"slot"`
-	Object Object `json:"-"`
+	UUID string `json:"uuid"`
+	Slot int    `json:"slot"`
 }
 
 var (

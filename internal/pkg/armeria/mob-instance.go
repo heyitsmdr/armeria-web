@@ -15,6 +15,11 @@ type MobInstance struct {
 	Parent           *Mob              `json:"-"`
 }
 
+// Init is called when the MobInstance is created or loaded from disk.
+func (mi *MobInstance) Init() {
+	Armeria.registry.Register(mi, mi.Id(), RegistryTypeMobInstance)
+}
+
 // Id returns the UUID of the instance.
 func (mi *MobInstance) Id() string {
 	return mi.UUID

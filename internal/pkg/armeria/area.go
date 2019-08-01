@@ -35,7 +35,12 @@ const (
 	DownDirection  = "down"
 )
 
-// Id returns the UUID of the Area..
+// Init is called when the Area is created or loaded from disk.
+func (a *Area) Init() {
+	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
+}
+
+// Id returns the UUID of the Area.
 func (a *Area) Id() string {
 	return a.UUID
 }

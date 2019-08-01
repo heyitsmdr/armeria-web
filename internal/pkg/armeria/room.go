@@ -16,11 +16,19 @@ import (
 type Room struct {
 	sync.RWMutex
 	UnsafeAttributes map[string]string `json:"attributes"`
-	UnsafeObjects    *ObjectContainer  `json:"objects"`
+	UnsafeHere       *ObjectContainer  `json:"here"`
 	Coords           *Coords           `json:"coords"`
 	objects          []Object
 }
 
+// Init is called when the Room is created or loaded from disk.
+func (r *Room) Init() {
+	if r.UnsafeHere == nil {
+		r.UnsafeHere = NewObjectContainer(0)
+	}
+}
+
+// SetAttribute sets a persistent attribute for the Room.
 func (r *Room) SetAttribute(name string, value string) {
 	r.Lock()
 	defer r.Unlock()
@@ -36,6 +44,7 @@ func (r *Room) SetAttribute(name string, value string) {
 	r.UnsafeAttributes[name] = value
 }
 
+// Attribute retrieves a persistent attribute from the Room.
 func (r *Room) Attribute(name string) string {
 	r.RLock()
 	defer r.RUnlock()

@@ -29,6 +29,9 @@ func ValidateMobAttribute(name string, value string) (bool, string) {
 	return true, ""
 }
 
+// Init is called when the Mob is created or loaded from disk.
+func (m *Mob) Init() {}
+
 // Name returns the name of the Mob.
 func (m *Mob) Name() string {
 	m.RLock()

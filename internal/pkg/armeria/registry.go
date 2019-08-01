@@ -22,6 +22,7 @@ const (
 	RegistryTypeCharacter
 	RegistryTypeItemInstance
 	RegistryTypeMobInstance
+	RegistryTypeArea
 )
 
 // Register registers a unique object instance with the global registry.

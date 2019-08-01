@@ -24,6 +24,11 @@ const (
 	ItemLocationCharacter
 )
 
+// Init is called when the ItemInstance is created or loaded from disk.
+func (ii *ItemInstance) Init() {
+	Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
+}
+
 // Id returns the UUID of the instance.
 func (ii *ItemInstance) Id() string {
 	return ii.UUID

@@ -33,6 +33,9 @@ func ValidateItemAttribute(name string, value string) (bool, string) {
 	return true, ""
 }
 
+// Init is called when the Item is created or loaded from disk.
+func (i *Item) Init() {}
+
 // Name returns the name of the Item.
 func (i *Item) Name() string {
 	i.RLock()

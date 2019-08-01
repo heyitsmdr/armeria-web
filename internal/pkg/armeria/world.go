@@ -53,6 +53,14 @@ func (m *WorldManager) LoadWorld() {
 		)
 	}
 
+	for _, a := range m.UnsafeWorld {
+		a.Init()
+
+		for _, r := range a.UnsafeRooms {
+			r.Init()
+		}
+	}
+
 	Armeria.log.Info("areas loaded",
 		zap.Int("count", len(m.UnsafeWorld)),
 	)
@@ -104,6 +112,8 @@ func (m *WorldManager) CreateArea(name string) *Area {
 		UnsafeName:       name,
 		UnsafeAttributes: make(map[string]string),
 	}
+
+	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
 
 	r := m.CreateRoom(NewCoords(0, 0, 0, 0))
 	a.AddRoom(r)
