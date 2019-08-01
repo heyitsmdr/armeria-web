@@ -250,7 +250,6 @@ func handleRoomEditCommand(stx *CommandContext) {
 
 func handleRoomSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
-	fmt.Println(ctx)
 	if !misc.Contains(ValidRoomAttributes(), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
