@@ -49,10 +49,8 @@ func (m *CharacterManager) LoadCharacters() {
 		)
 	}
 
-	for _, _ = range m.UnsafeCharacters {
-		//if c.UnsafeInventory == nil {
-		//	c.UnsafeInventory = NewItemContainer(35)
-		//}
+	for _, c := range m.UnsafeCharacters {
+		Armeria.registry.Register(c, c.Id(), RegistryTypeCharacter)
 	}
 
 	Armeria.log.Info("characters loaded",

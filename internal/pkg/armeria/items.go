@@ -53,6 +53,12 @@ func (m *ItemManager) LoadItems() {
 		)
 	}
 
+	for _, i := range m.UnsafeItems {
+		for _, ii := range i.Instances() {
+			Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
+		}
+	}
+
 	Armeria.log.Info("items loaded",
 		zap.Int("count", len(m.UnsafeItems)),
 	)

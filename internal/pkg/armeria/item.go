@@ -64,6 +64,8 @@ func (i *Item) CreateInstance() *ItemInstance {
 
 	i.UnsafeInstances = append(i.UnsafeInstances, ii)
 
+	Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
+
 	return ii
 }
 
@@ -71,6 +73,8 @@ func (i *Item) CreateInstance() *ItemInstance {
 func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 	i.Lock()
 	defer i.Unlock()
+
+	Armeria.registry.Unregister(ii.Id())
 
 	for idx, inst := range i.UnsafeInstances {
 		if inst.Id() == ii.Id() {

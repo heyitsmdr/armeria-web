@@ -19,6 +19,7 @@ type GameState struct {
 	worldManager     *WorldManager
 	mobManager       *MobManager
 	itemManager      *ItemManager
+	registry         *Registry
 	publicPath       string
 	dataPath         string
 	objectImagesPath string
@@ -45,6 +46,7 @@ func Init(fileLocation string) {
 	}
 	Armeria.log = logger
 
+	Armeria.registry = NewRegistry()
 	Armeria.commandManager = NewCommandManager()
 	Armeria.playerManager = NewPlayerManager()
 	Armeria.characterManager = NewCharacterManager()

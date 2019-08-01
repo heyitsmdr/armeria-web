@@ -54,6 +54,12 @@ func (m *MobManager) LoadMobs() {
 		)
 	}
 
+	for _, mob := range m.UnsafeMobs {
+		for _, mi := range mob.Instances() {
+			Armeria.registry.Register(mi, mi.Id(), RegistryTypeMobInstance)
+		}
+	}
+
 	Armeria.log.Info("mobs loaded",
 		zap.Int("count", len(m.UnsafeMobs)),
 	)
