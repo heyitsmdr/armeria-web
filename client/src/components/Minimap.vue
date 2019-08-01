@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="area-title">
-            <div class="map-name">{{ areaTitle }}</div>
+            <div class="map-name" @click="handleAreaClick">{{ areaTitle }}</div>
             <div class="room-name">{{ roomTitle }}</div>
         </div>
         <div class="map" ref="map">
@@ -111,6 +111,12 @@ export default {
             }
         },
 
+        handleAreaClick: function(e) {
+            if (e.shiftKey) {
+                this.$socket.sendObj({type: 'command', payload: '/area edit'});
+            }
+        },
+
         onRoomHover(event) {
             if (!event.target.classList.contains('current-location')) {
                 this.$playSound('bloop.wav');
@@ -165,6 +171,7 @@ export default {
     .map-name {
         font-weight: 600;
         font-size: 16px;
+        cursor: pointer;
     }
 
     .room-name {
