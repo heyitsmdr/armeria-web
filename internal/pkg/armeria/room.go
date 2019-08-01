@@ -16,6 +16,7 @@ import (
 type Room struct {
 	sync.RWMutex
 	UnsafeAttributes map[string]string `json:"attributes"`
+	UnsafeObjects    *ObjectContainer  `json:"objects"`
 	Coords           *Coords           `json:"coords"`
 	objects          []Object
 }
