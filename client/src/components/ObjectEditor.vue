@@ -3,7 +3,7 @@
         <div class="header">
             <div class="name">
                 <span class="type">{{ objectEditorData.objectType }}</span>
-                {{ objectEditorData.name }} {{ objectEditorData.textCoords }}
+                {{ objectEditorData.name }} <small>{{ objectEditorData.textCoords }}</small>
             </div>
             <div class="close" @click="handleClose">X</div>
         </div>
@@ -251,6 +251,11 @@
         font-weight: 600;
         font-size: 16px;
         flex-grow: 1;
+    }
+
+    .header .name small {
+        font-size: x-small;
+        vertical-align: middle;
     }
 
     .header .name .type {
