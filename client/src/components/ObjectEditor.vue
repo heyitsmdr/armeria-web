@@ -17,7 +17,7 @@
                         v-if="prop.propType == 'editable'"
                         @click="handleEditablePropClick($event, prop)"
                         @blur="handleEditablePropBlur($event)"
-                        @keydown="handleEditablePropKeyDown($event, prop)"
+                        @keydown="handleEditablePropKeyDown($event, prop, objectEditorData)"
                     >
                         {{ prop.value || "&nbsp;" }}
                     </div>
@@ -103,13 +103,18 @@
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
             },
 
-            handleEditablePropKeyDown: function(e, prop) {
+            handleEditablePropKeyDown: function(e, prop, targetObj) {
                 if (e.key === 'Enter') {
                     e.stopPropagation();
                     e.preventDefault();
                     this.animateDivWithClass(e.target, 'success');
                     e.target.blur();
-                    this.setProperty(prop.name, e.target.innerHTML);
+                    
+                    if (targetObj.objectType == "room") {
+                      this.setProperty(prop.name, e.target.innerHTML, targetObj.textCoords);
+                    } else {
+                      this.setProperty(prop.name, e.target.innerHTML);
+                    }
                 } else if (e.key === 'Escape') {
                     e.stopPropagation();
                     e.preventDefault();
@@ -128,12 +133,12 @@
                 }, 500);
             },
 
-            setProperty: function(propName, propValue) {
+            setProperty: function(propName, propValue, target = ".") {
                 switch(this.objectEditorData.objectType) {
                     case 'room':
                         this.$socket.sendObj({
                             type: 'command',
-                            payload: `/room set ${propName} ${propValue}`
+                            payload: `/room set ${target} ${propName} ${propValue}`
                         });
                         break;
                     case 'character':

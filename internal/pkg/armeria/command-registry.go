@@ -89,8 +89,11 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "set",
-					Help: "Set a room attribute. Leave value empty to revert to default.",
+					Help: "Set attributes for the current, or specified, room. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
+						{
+							Name: "target",
+						},
 						{
 							Name: "property",
 						},
