@@ -292,7 +292,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		)
 	}
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the [b]%s[/b] property of the room.", attr),
+		fmt.Sprintf("You modified the [b]%s[/b] property of the room (%s).", attr, ta),
 		ColorSuccess,
 	)
 
