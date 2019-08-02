@@ -1,7 +1,7 @@
 package armeria
 
-// Registry is the global registry for anything in-game that has a UUID. This registry can act as a quick
-// lookup and retrieval for any game object based on it's UUID. Note that when retrieving an object from
+// Registry is an in-memory global registry for anything in-game that has a UUID. This registry can act as a
+// quick lookup and retrieval for any game object based on it's UUID. Note that when retrieving an object from
 // the registry, you will need to cast it to the appropriate type.
 type Registry struct {
 	entries map[string]interface{}

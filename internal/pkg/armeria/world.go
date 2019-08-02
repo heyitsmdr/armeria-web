@@ -97,10 +97,13 @@ func (m *WorldManager) SaveWorld() {
 }
 
 func (m *WorldManager) CreateRoom(c *Coords) *Room {
-	return &Room{
+	r := &Room{
 		Coords:           CopyCoords(c),
 		UnsafeAttributes: map[string]string{},
+		UnsafeHere:       NewObjectContainer(0),
 	}
+	r.Init()
+	return r
 }
 
 func (m *WorldManager) CreateArea(name string) *Area {

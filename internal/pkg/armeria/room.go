@@ -23,9 +23,11 @@ type Room struct {
 
 // Init is called when the Room is created or loaded from disk.
 func (r *Room) Init() {
+	// convert rooms that don't have UnsafeHere defined
 	if r.UnsafeHere == nil {
 		r.UnsafeHere = NewObjectContainer(0)
 	}
+	r.UnsafeHere.AttachParent(r, ContainerParentTypeRoom)
 }
 
 // SetAttribute sets a persistent attribute for the Room.
