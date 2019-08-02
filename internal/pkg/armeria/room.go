@@ -23,11 +23,14 @@ type Room struct {
 
 // Init is called when the Room is created or loaded from disk.
 func (r *Room) Init() {
-	// convert rooms that don't have UnsafeHere defined
+	// initialize UnsafeHere on rooms that don't have it defined
 	if r.UnsafeHere == nil {
 		r.UnsafeHere = NewObjectContainer(0)
 	}
+	// attach self as container's parent
 	r.UnsafeHere.AttachParent(r, ContainerParentTypeRoom)
+	// register container
+	Armeria.registry.Register(r.UnsafeHere, r.UnsafeHere.Id(), RegistryTypeObjectContainer)
 }
 
 // SetAttribute sets a persistent attribute for the Room.

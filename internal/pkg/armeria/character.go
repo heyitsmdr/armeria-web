@@ -133,6 +133,20 @@ func (c *Character) Location() *Location {
 	return c.UnsafeLocation
 }
 
+// Room returns the character's Room based on the object container it is within.
+func (c *Character) Room() *Room {
+	for _, containerGeneric := range Armeria.registry.GetAllFromType(RegistryTypeObjectContainer) {
+		container := containerGeneric.(*ObjectContainer)
+
+		if cntr, _ := container.Get(c.Id()); cntr != nil {
+			r := container.Parent().(*Room)
+			return r
+		}
+	}
+
+	return nil
+}
+
 // SetLocation is a helper function to set a Character's Location based on a Location object.
 func (c *Character) SetLocation(l *Location) {
 	c.Location().SetAreaUUID(l.AreaUUID())
