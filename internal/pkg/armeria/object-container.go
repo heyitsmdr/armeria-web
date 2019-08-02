@@ -71,16 +71,24 @@ func (oc *ObjectContainer) ParentType() ContainerParentType {
 	return oc.UnsafeParentType
 }
 
+// Contains returns a bool indicating whether the object container contains something with the
+// specified uuid.
+func (oc *ObjectContainer) Contains(uuid string) bool {
+	o, _, _ := oc.Get(uuid)
+	return o != nil
+}
+
 // Get retrieves an object from the object container.
-func (oc *ObjectContainer) Get(uuid string) (interface{}, *ObjectContainerDefinition) {
+func (oc *ObjectContainer) Get(uuid string) (interface{}, *ObjectContainerDefinition, RegistryType) {
 	oc.RLock()
 	defer oc.RUnlock()
 
-	for _, o := range oc.UnsafeObjects {
-		if o.UUID == uuid {
-			return Armeria.registry.Get(o.UUID), o
+	for _, ocd := range oc.UnsafeObjects {
+		if ocd.UUID == uuid {
+			o, ot := Armeria.registry.Get(ocd.UUID)
+			return o, ocd, ot
 		}
 	}
 
-	return nil, nil
+	return nil, nil, RegistryTypeUnknown
 }

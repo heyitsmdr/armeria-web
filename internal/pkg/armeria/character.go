@@ -138,7 +138,7 @@ func (c *Character) Room() *Room {
 	for _, containerGeneric := range Armeria.registry.GetAllFromType(RegistryTypeObjectContainer) {
 		container := containerGeneric.(*ObjectContainer)
 
-		if cntr, _ := container.Get(c.Id()); cntr != nil {
+		if container.Contains(c.Id()) {
 			r := container.Parent().(*Room)
 			return r
 		}
