@@ -3,7 +3,7 @@
         <div class="header">
             <div class="name">
                 <span class="type">{{ objectEditorData.objectType }}</span>
-                {{ objectEditorData.name }}
+                {{ objectEditorData.name }} {{ objectEditorData.textCoords }}
             </div>
             <div class="close" @click="handleClose">X</div>
         </div>
