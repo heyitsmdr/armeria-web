@@ -1,0 +1,4 @@
+dataPath: "./data"
+httpPort: 8081
+production: false
+publicPath: "./client/dist"
