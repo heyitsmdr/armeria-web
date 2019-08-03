@@ -70,6 +70,7 @@ export default {
                 div.setAttribute('y', room.y);
                 div.setAttribute('z', room.z);
                 div.addEventListener('mouseover', this.onRoomHover);
+                div.addEventListener('click', this.handleRoomClick);
                 div.className = 'room';
 
                 if (room.type === 'track') {
@@ -114,6 +115,16 @@ export default {
         handleAreaClick: function(e) {
             if (e.shiftKey) {
                 this.$socket.sendObj({type: 'command', payload: '/area edit'});
+            }
+        },
+
+        handleRoomClick: function(e) {
+            if (e.shiftKey) {
+                var room = e.srcElement;
+                var coords = room.getAttribute('x') +
+                        ',' + room.getAttribute('y') +
+                        ',' + room.getAttribute('z');
+                this.$socket.sendObj({type: 'command', payload: '/room edit ' + coords});
             }
         },
 

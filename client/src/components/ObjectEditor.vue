@@ -110,7 +110,7 @@
                     this.animateDivWithClass(e.target, 'success');
                     e.target.blur();
                     
-                    if (targetObj.objectType == "room") {
+                    if (this.objectEditorData.objectType == "room") {
                       this.setProperty(prop.name, e.target.innerHTML, this.objectEditorData.textCoords);
                     } else {
                       this.setProperty(prop.name, e.target.innerHTML);
