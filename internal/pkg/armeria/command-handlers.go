@@ -244,8 +244,12 @@ func handleRoomEditCommand(stx *CommandContext) {
 	}
 
 	tr = a.RoomAt(NewCoords(x, y, z, 0))
-
-	stx.Player.client.ShowObjectEditor(tr.EditorData())
+	if tr != nil {
+		stx.Player.client.ShowObjectEditor(tr.EditorData())
+	} else {
+		stx.Player.client.ShowColorizedText("The specified room does not exist.", ColorError)
+		return
+	}
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
@@ -254,23 +258,47 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
 	}
+	ta := ctx.Args["target"]
+	tr := ctx.Character.Location().Room()
 
-	ctx.Character.Location().Room().SetAttribute(attr, ctx.Args["value"])
+	if ta != "." {
+		ts := strings.Split(ta, ",")
 
-	for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
+		if len(ts) != 3 {
+			ctx.Player.client.ShowColorizedText("Incorrect format for room set. Use /room set [x],[y],[z].", ColorError)
+			return
+		}
+
+		x, xerr := strconv.Atoi(ts[0])
+		y, yerr := strconv.Atoi(ts[1])
+		z, zerr := strconv.Atoi(ts[2])
+		if xerr != nil || yerr != nil || zerr != nil {
+			ctx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
+			return
+		}
+		tr = ctx.Character.Location().Area().RoomAt(NewCoords(x, y, z, 0))
+	}
+
+	if tr != nil {
+		tr.SetAttribute(attr, ctx.Args["value"])
+	} else {
+		ctx.Player.client.ShowColorizedText("The specified room does not exist.", ColorError)
+		return
+	}
+
+	for _, c := range tr.Characters(ctx.Character) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("%s modified the room.", ctx.Character.FormattedName()),
 		)
 	}
-
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the [b]%s[/b] property of the room.", attr),
+		fmt.Sprintf("You modified the [b]%s[/b] property of the room (%s).", attr, ta),
 		ColorSuccess,
 	)
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
-		ctx.Player.client.ShowObjectEditor(ctx.Character.Location().Room().EditorData())
+		ctx.Player.client.ShowObjectEditor(tr.EditorData())
 	}
 }
 

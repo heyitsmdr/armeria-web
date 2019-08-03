@@ -138,7 +138,7 @@ func (r *Room) EditorData() *ObjectEditorData {
 		})
 	}
 
-	tc := fmt.Sprint(r.Coords.UnsafeX, ",", r.Coords.UnsafeY, ",", r.Coords.UnsafeZ)
+	tc := fmt.Sprintf("%d,%d,%d", r.Coords.UnsafeX, r.Coords.UnsafeY, r.Coords.UnsafeZ)
 
 	return &ObjectEditorData{
 		Name:       r.Attribute(AttributeTitle),
