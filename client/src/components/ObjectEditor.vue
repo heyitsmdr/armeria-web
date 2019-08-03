@@ -17,7 +17,7 @@
                         v-if="prop.propType == 'editable'"
                         @click="handleEditablePropClick($event, prop)"
                         @blur="handleEditablePropBlur($event)"
-                        @keydown="handleEditablePropKeyDown($event, prop, objectEditorData)"
+                        @keydown="handleEditablePropKeyDown($event, prop)"
                     >
                         {{ prop.value || "&nbsp;" }}
                     </div>
@@ -103,7 +103,7 @@
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
             },
 
-            handleEditablePropKeyDown: function(e, prop, targetObj) {
+            handleEditablePropKeyDown: function(e, prop) {
                 if (e.key === 'Enter') {
                     e.stopPropagation();
                     e.preventDefault();
@@ -111,7 +111,7 @@
                     e.target.blur();
                     
                     if (targetObj.objectType == "room") {
-                      this.setProperty(prop.name, e.target.innerHTML, targetObj.textCoords);
+                      this.setProperty(prop.name, e.target.innerHTML, this.objectEditorData.textCoords);
                     } else {
                       this.setProperty(prop.name, e.target.innerHTML);
                     }
