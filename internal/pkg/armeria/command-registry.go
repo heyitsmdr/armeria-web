@@ -76,8 +76,15 @@ func RegisterGameCommands() {
 			},
 			Subcommands: []*Command{
 				{
-					Name:    "edit",
-					Help:    "Open the editor panel for the current room.",
+					Name: "edit",
+					Help: "Open the editor panel for the current, or specified, room.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "target",
+							IncludeRemaining: true,
+							Optional:         true,
+						},
+					},
 					Handler: handleRoomEditCommand,
 				},
 				{

@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 
@@ -137,10 +138,13 @@ func (r *Room) EditorData() *ObjectEditorData {
 		})
 	}
 
+	tc := fmt.Sprint(r.Coords.UnsafeX, ",", r.Coords.UnsafeY, ",", r.Coords.UnsafeZ)
+
 	return &ObjectEditorData{
 		Name:       r.Attribute(AttributeTitle),
 		ObjectType: "room",
 		Properties: props,
+		TextCoords: tc,
 	}
 }
 

@@ -16,6 +16,7 @@ type ObjectEditorData struct {
 	ObjectType string                      `json:"objectType"`
 	Properties []*ObjectEditorDataProperty `json:"properties"`
 	AccessKey  string                      `json:"accessKey"`
+	TextCoords string                      `json:"textCoords"`
 }
 
 type ObjectEditorDataProperty struct {

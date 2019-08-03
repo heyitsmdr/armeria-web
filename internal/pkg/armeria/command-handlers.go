@@ -220,12 +220,36 @@ func handleMoveCommand(ctx *CommandContext) {
 }
 
 func handleRoomEditCommand(stx *CommandContext) {
-	stx.Player.client.ShowObjectEditor(stx.Character.Location().Room().EditorData())
+	t := stx.Args["target"]
+	a := stx.Character.Location().Area()
+	tr := stx.Character.Location().Room()
+
+	args := strings.Split(t, ",")
+
+	if args[0] == "" {
+		stx.Player.client.ShowObjectEditor(tr.EditorData())
+		return
+	}
+	if len(args) != 3 {
+		stx.Player.client.ShowColorizedText("Incorrect format for room edit. Use [x],[y],[z].", ColorError)
+		return
+	}
+
+	x, xerr := strconv.Atoi(args[0])
+	y, yerr := strconv.Atoi(args[1])
+	z, zerr := strconv.Atoi(args[2])
+	if xerr != nil || yerr != nil || zerr != nil {
+		stx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
+		return
+	}
+
+	tr = a.RoomAt(NewCoords(x, y, z, 0))
+
+	stx.Player.client.ShowObjectEditor(tr.EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
-
 	if !misc.Contains(ValidRoomAttributes(), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
