@@ -28,12 +28,15 @@ var (
 	Armeria *GameState
 )
 
-func Init(production bool, publicPath string, dataPath string, httpPort int) {
+func Init(fileLocation string) {
+
+	c := parseConfigFile(fileLocation)
+
 	Armeria = &GameState{
-		production:       production,
-		publicPath:       publicPath,
-		dataPath:         dataPath,
-		objectImagesPath: dataPath + "/object-images",
+		production:       c.Production,
+		publicPath:       c.PublicPath,
+		dataPath:         c.DataPath,
+		objectImagesPath: c.DataPath + "/object-images",
 	}
 
 	logger, err := zap.NewDevelopment()
@@ -53,7 +56,7 @@ func Init(production bool, publicPath string, dataPath string, httpPort int) {
 	Armeria.setupPeriodicSaves()
 
 	RegisterGameCommands()
-	InitWeb(httpPort)
+	InitWeb(c.HTTPPort)
 }
 
 func (gs *GameState) setupGracefulExit() {
