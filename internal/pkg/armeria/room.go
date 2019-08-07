@@ -30,7 +30,7 @@ func (r *Room) Init() {
 	// attach self as container's parent
 	r.UnsafeHere.AttachParent(r, ContainerParentTypeRoom)
 	// register container
-	Armeria.registry.Register(r.UnsafeHere, r.UnsafeHere.Id(), RegistryTypeObjectContainer)
+	r.UnsafeHere.Sync()
 }
 
 // SetAttribute sets a persistent attribute for the Room.
@@ -67,6 +67,14 @@ func (r *Room) Objects() []Object {
 	defer r.RUnlock()
 
 	return r.objects
+}
+
+// Here returns all the objects in the room via the ObjectContainer.
+func (r *Room) Here() *ObjectContainer {
+	r.RLock()
+	defer r.RUnlock()
+
+	return r.UnsafeHere
 }
 
 // ObjectByNameAndType returns an Object that matches a specific name and type.

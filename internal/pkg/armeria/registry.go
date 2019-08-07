@@ -7,8 +7,9 @@ import "sync"
 // the registry, you will need to cast it to the appropriate type.
 type Registry struct {
 	sync.RWMutex
-	entries map[string]interface{}
-	types   map[string]RegistryType
+	entries          map[string]interface{}
+	types            map[string]RegistryType
+	containerEntries map[string]*ObjectContainer
 }
 
 func NewRegistry() *Registry {
@@ -47,6 +48,22 @@ func (r *Registry) Unregister(uuid string) {
 	delete(r.types, uuid)
 }
 
+// RegisterContainerObject registers a unique object instance with the global registry.
+func (r *Registry) RegisterContainerObject(ouuid string, oc *ObjectContainer) {
+	r.Lock()
+	defer r.Unlock()
+
+	r.containerEntries[ouuid] = oc
+}
+
+// RegisterContainerObject registers a unique object instance with the global registry.
+func (r *Registry) UnregisterContainerObject(ouuid string) {
+	r.Lock()
+	defer r.Unlock()
+
+	delete(r.containerEntries, ouuid)
+}
+
 // Get returns a unique object instance from the global registry.
 func (r *Registry) Get(uuid string) (interface{}, RegistryType) {
 	r.RLock()
@@ -73,4 +90,16 @@ func (r *Registry) GetAllFromType(rt RegistryType) []interface{} {
 	}
 
 	return o
+}
+
+// GetObjectContainer returns the ObjectContainer that an Object is within.
+func (r *Registry) GetObjectContainer(ouuid string) *ObjectContainer {
+	r.RLock()
+	defer r.RUnlock()
+
+	if r.containerEntries[ouuid] == nil {
+		return nil
+	}
+
+	return r.containerEntries[ouuid]
 }

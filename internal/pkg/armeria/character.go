@@ -135,16 +135,11 @@ func (c *Character) Location() *Location {
 
 // Room returns the character's Room based on the object container it is within.
 func (c *Character) Room() *Room {
-	for _, containerGeneric := range Armeria.registry.GetAllFromType(RegistryTypeObjectContainer) {
-		container := containerGeneric.(*ObjectContainer)
-
-		if container.Contains(c.Id()) {
-			r := container.Parent().(*Room)
-			return r
-		}
+	oc := Armeria.registry.GetObjectContainer(c.Id())
+	if oc == nil {
+		return nil
 	}
-
-	return nil
+	return oc.ParentRoom()
 }
 
 // SetLocation is a helper function to set a Character's Location based on a Location object.
@@ -344,6 +339,19 @@ func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToN
 	// Trigger character entered / left events on the new and old rooms, respectively
 	newRoom.CharacterEntered(c, false)
 	oldRoom.CharacterLeft(c, false)
+}
+
+func (c *Character) MoveNew(to *Room, msgToChar string, msgToOld string, msgToNew string) {
+	oldRoom := c.Room()
+
+	for _, char := range oldRoom.Here().Characters(nil) {
+		char.Player().client.ShowText(msgToOld)
+	}
+
+	for _, char := range to.Here().Characters(c) {
+		char.Player().client.ShowText(msgToNew)
+	}
+
 }
 
 // EditorData returns the JSON used for the object editor.
