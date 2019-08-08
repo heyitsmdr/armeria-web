@@ -204,5 +204,7 @@ func (oc *ObjectContainer) Add(uuid string) error {
 
 	oc.UnsafeObjects = append(oc.UnsafeObjects, ocd)
 
+	Armeria.registry.RegisterContainerObject(uuid, oc)
+
 	return nil
 }

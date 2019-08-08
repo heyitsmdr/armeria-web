@@ -17,7 +17,6 @@ type Character struct {
 	UUID                 string            `json:"uuid"`
 	UnsafeName           string            `json:"name"`
 	UnsafePassword       string            `json:"password"`
-	UnsafeLocation       *Location         `json:"location"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
