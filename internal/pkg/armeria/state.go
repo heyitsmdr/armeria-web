@@ -55,6 +55,7 @@ func Init(configFilePath string) {
 
 	Armeria.setupGracefulExit()
 	Armeria.setupPeriodicSaves()
+	Armeria.setupAncillaryTasks()
 
 	RegisterGameCommands()
 	InitWeb(c.HTTPPort)
@@ -67,6 +68,17 @@ func (gs *GameState) setupGracefulExit() {
 		<-sigs
 		gs.Save()
 		os.Exit(0)
+	}()
+}
+
+func (gs *GameState) setupAncillaryTasks() {
+	searchForDanglingInstances()
+
+	c := time.Tick(1 * time.Hour)
+	go func() {
+		for range c {
+			searchForDanglingInstances()
+		}
 	}()
 }
 
