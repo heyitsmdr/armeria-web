@@ -49,6 +49,11 @@ func handleLookCommand(ctx *CommandContext) {
 	var objNames []string
 	for _, o := range r.Here().All() {
 		obj := o.(ContainerObject)
+
+		if obj.Type() == ContainerObjectTypeCharacter && obj.(*Character).Player() == nil {
+			continue
+		}
+
 		if obj.Id() != ctx.Character.Id() {
 			objNames = append(objNames, obj.FormattedName())
 		}

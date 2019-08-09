@@ -111,6 +111,11 @@ func (r *Room) RoomTargetData() string {
 
 	for _, obj := range r.Here().All() {
 		o := obj.(ContainerObject)
+
+		if o.Type() == ContainerObjectTypeCharacter && o.(*Character).Player() == nil {
+			continue
+		}
+
 		roomObjects = append(roomObjects, map[string]interface{}{
 			"uuid":    o.Id(),
 			"name":    o.Name(),
