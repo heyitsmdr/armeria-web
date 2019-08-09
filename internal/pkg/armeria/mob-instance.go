@@ -19,14 +19,19 @@ func (mi *MobInstance) Init() {
 	Armeria.registry.Register(mi, mi.Id(), RegistryTypeMobInstance)
 }
 
+// Deinit is called when the MobInstance is deleted.
+func (mi *MobInstance) Deinit() {
+	Armeria.registry.Unregister(mi.Id())
+}
+
 // Id returns the UUID of the instance.
 func (mi *MobInstance) Id() string {
 	return mi.UUID
 }
 
-// Type returns the object type, since Mob implements the Object interface.
-func (mi *MobInstance) Type() ObjectType {
-	return ObjectTypeMob
+// Type returns the object type, since Mob implements the ContainerObject interface.
+func (mi *MobInstance) Type() ContainerObjectType {
+	return ContainerObjectTypeMob
 }
 
 // UnsafeName returns the raw Mob name.

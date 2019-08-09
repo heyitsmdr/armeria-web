@@ -105,7 +105,7 @@ func (m *Mob) CreateInstance() *MobInstance {
 
 	m.UnsafeInstances = append(m.UnsafeInstances, mi)
 
-	Armeria.registry.Register(mi, mi.Id(), RegistryTypeItemInstance)
+	mi.Init()
 
 	return mi
 }
@@ -115,7 +115,7 @@ func (m *Mob) DeleteInstance(mi *MobInstance) bool {
 	m.Lock()
 	defer m.Unlock()
 
-	Armeria.registry.Unregister(mi.Id())
+	mi.Deinit()
 
 	for i, inst := range m.UnsafeInstances {
 		if inst.Id() == mi.Id() {

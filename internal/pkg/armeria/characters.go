@@ -50,7 +50,7 @@ func (m *CharacterManager) LoadCharacters() {
 	}
 
 	for _, c := range m.UnsafeCharacters {
-		Armeria.registry.Register(c, c.Id(), RegistryTypeCharacter)
+		c.Init()
 	}
 
 	Armeria.log.Info("characters loaded",

@@ -23,7 +23,6 @@ func NewItemManager() *ItemManager {
 
 	m.LoadItems()
 	m.AttachParents()
-	m.AddItemInstancesToRooms()
 
 	return m
 }
@@ -105,32 +104,6 @@ func (m *ItemManager) AttachParents() {
 	for _, i := range m.UnsafeItems {
 		for _, ii := range i.Instances() {
 			ii.Parent = i
-		}
-	}
-}
-
-// AddItemInstancesToRooms adds ItemInstance objects that are in Rooms to their
-// respective Room objects.
-func (m *ItemManager) AddItemInstancesToRooms() {
-	m.RLock()
-	defer m.RUnlock()
-
-	for _, i := range m.UnsafeItems {
-		for _, ii := range i.Instances() {
-			if ii.LocationType() != ItemLocationRoom {
-				continue
-			}
-
-			r := ii.Location.Room()
-			if r == nil {
-				Armeria.log.Fatal("item instance in invalid room",
-					zap.String("item", ii.Name()),
-					zap.String("uuid", ii.Id()),
-					zap.String("location", fmt.Sprintf("%v", ii.Location)),
-				)
-				return
-			}
-			r.AddObjectToRoom(ii)
 		}
 	}
 }

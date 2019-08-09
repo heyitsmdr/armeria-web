@@ -23,6 +23,15 @@ type Room struct {
 	ParentArea       *Area             `json:"-"`
 }
 
+type AdjacentRooms struct {
+	North *Room
+	South *Room
+	East  *Room
+	West  *Room
+	Up    *Room
+	Down  *Room
+}
+
 // Id returns the uuid of the room.
 func (r *Room) Id() string {
 	r.RLock()
@@ -44,8 +53,15 @@ func (r *Room) Init(a *Area) {
 	r.ParentArea = a
 	// attach self as container's parent
 	r.UnsafeHere.AttachParent(r, ContainerParentTypeRoom)
-	// register container
+	// sync container
 	r.UnsafeHere.Sync()
+	// register room with registry
+	Armeria.registry.Register(r, r.UUID, RegistryTypeRoom)
+}
+
+// Deinit is called when the Room is deleted.
+func (r *Room) Deinit() {
+	Armeria.registry.Unregister(r.Id())
 }
 
 // SetAttribute sets a persistent attribute for the Room.
@@ -92,7 +108,7 @@ func (r *Room) RoomTargetData() string {
 	var roomObjects []map[string]interface{}
 
 	for _, obj := range r.Here().All() {
-		o := obj.(Object)
+		o := obj.(ContainerObject)
 		roomObjects = append(roomObjects, map[string]interface{}{
 			"uuid":    o.Id(),
 			"name":    o.Name(),
@@ -168,5 +184,17 @@ func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 			"character_left",
 			lua.LString(c.Name()),
 		)
+	}
+}
+
+// AdjacentRooms returns the Room objects that are adjacent to the current room.
+func (r *Room) AdjacentRooms() *AdjacentRooms {
+	return &AdjacentRooms{
+		North: Armeria.worldManager.RoomInDirection(r, NorthDirection),
+		South: Armeria.worldManager.RoomInDirection(r, SouthDirection),
+		East:  Armeria.worldManager.RoomInDirection(r, EastDirection),
+		West:  Armeria.worldManager.RoomInDirection(r, WestDirection),
+		Up:    Armeria.worldManager.RoomInDirection(r, UpDirection),
+		Down:  Armeria.worldManager.RoomInDirection(r, DownDirection),
 	}
 }

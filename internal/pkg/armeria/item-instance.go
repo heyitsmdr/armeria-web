@@ -9,12 +9,10 @@ import (
 
 type ItemInstance struct {
 	sync.RWMutex
-	UUID               string            `json:"uuid"`
-	UnsafeLocationType ItemLocationType  `json:"location_type"`
-	Location           *Location         `json:"location"`
-	UnsafeCharacterId  string            `json:"character"`
-	UnsafeAttributes   map[string]string `json:"attributes"`
-	Parent             *Item             `json:"-"`
+	UUID              string            `json:"uuid"`
+	UnsafeCharacterId string            `json:"character"`
+	UnsafeAttributes  map[string]string `json:"attributes"`
+	Parent            *Item             `json:"-"`
 }
 
 type ItemLocationType int
@@ -29,14 +27,19 @@ func (ii *ItemInstance) Init() {
 	Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
 }
 
+// Deinit is called when the ItemInstance is deleted.
+func (ii *ItemInstance) Deinit() {
+	Armeria.registry.Unregister(ii.Id())
+}
+
 // Id returns the UUID of the instance.
 func (ii *ItemInstance) Id() string {
 	return ii.UUID
 }
 
-// Type returns the object type, since Item implements the Object interface.
-func (ii *ItemInstance) Type() ObjectType {
-	return ObjectTypeItem
+// Type returns the object type, since Item implements the ContainerObject interface.
+func (ii *ItemInstance) Type() ContainerObjectType {
+	return ContainerObjectTypeItem
 }
 
 // UnsafeName returns the raw Item name.
@@ -78,22 +81,6 @@ func (ii *ItemInstance) Attribute(name string) string {
 	return ii.UnsafeAttributes[name]
 }
 
-// LocationType returns the location type (room or character).
-func (ii *ItemInstance) LocationType() ItemLocationType {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	return ii.UnsafeLocationType
-}
-
-// SetLocationType sets the location type of the ItemInstance.
-func (ii *ItemInstance) SetLocationType(t ItemLocationType) {
-	ii.Lock()
-	defer ii.Unlock()
-
-	ii.UnsafeLocationType = t
-}
-
 // Character returns the Character that has the ItemInstance.
 func (ii *ItemInstance) Character() *Character {
 	ii.RLock()
@@ -108,4 +95,13 @@ func (ii *ItemInstance) SetCharacter(c *Character) {
 	defer ii.Unlock()
 
 	ii.UnsafeCharacterId = c.Id()
+}
+
+// ItemInstance returns the ItemInstance's Room based on the object container it is within.
+func (ii *ItemInstance) Room() *Room {
+	oc := Armeria.registry.GetObjectContainer(ii.Id())
+	if oc == nil {
+		return nil
+	}
+	return oc.ParentRoom()
 }

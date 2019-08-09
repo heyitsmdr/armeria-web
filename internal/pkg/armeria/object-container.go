@@ -2,26 +2,41 @@ package armeria
 
 import (
 	"errors"
+	"strings"
 	"sync"
-
-	"github.com/google/uuid"
 )
 
 // ObjectContainer is a container of game objects that can be persisted to disk. These can be used for
 // things in a room, a character's inventory, a chest, etc.
 type ObjectContainer struct {
 	sync.RWMutex
-	UUID             string                       `json:"uuid"`
 	UnsafeObjects    []*ObjectContainerDefinition `json:"objects"`
 	UnsafeMaxSize    int                          `json:"maxSize"` // 0 = unlimited
-	UnsafeParent     interface{}
-	UnsafeParentType ContainerParentType
+	UnsafeParent     interface{}                  `json:"-"`
+	UnsafeParentType ContainerParentType          `json:"-"`
 }
 
 type ObjectContainerDefinition struct {
 	UUID string `json:"uuid"`
 	Slot int    `json:"slot"`
 }
+
+type ContainerObject interface {
+	Id() string
+	Type() ContainerObjectType
+	Name() string
+	FormattedName() string
+	Attribute(name string) string
+	SetAttribute(name string, value string) error
+}
+
+type ContainerObjectType int
+
+const (
+	ContainerObjectTypeCharacter ContainerObjectType = iota
+	ContainerObjectTypeMob
+	ContainerObjectTypeItem
+)
 
 var (
 	ErrContainerNoRoom    = errors.New("no space in container")
@@ -32,19 +47,30 @@ type ContainerParentType int
 
 const (
 	ContainerParentTypeRoom ContainerParentType = iota
+	ContainerParentTypeCharacter
 )
 
+// NewObjectContainer will return a new object container with the specified max size.
 func NewObjectContainer(maxSize int) *ObjectContainer {
 	return &ObjectContainer{
-		UUID:          uuid.New().String(),
 		UnsafeObjects: make([]*ObjectContainerDefinition, 0),
 		UnsafeMaxSize: maxSize,
 	}
 }
 
-// Id returns the uuid of the object container.
-func (oc *ObjectContainer) Id() string {
-	return oc.UUID
+// ObjectSortOrder returns the sort order for each type of ContainerObject. This will affect
+// how it will appear in the client's room list. Sorting is in descending order.
+func ObjectSortOrder(ot ContainerObjectType) int {
+	switch ot {
+	case ContainerObjectTypeMob:
+		return 75
+	case ContainerObjectTypeCharacter:
+		return 50
+	case ContainerObjectTypeItem:
+		return 25
+	}
+
+	return 0
 }
 
 // AttachParent sets the parent object that the object container belongs to.
@@ -76,21 +102,34 @@ func (oc *ObjectContainer) ParentType() ContainerParentType {
 	return oc.UnsafeParentType
 }
 
-// Contains returns a bool indicating whether the object container contains something with the
-// specified uuid.
-func (oc *ObjectContainer) Contains(uuid string) bool {
-	o, _, _ := oc.Get(uuid)
+// UnsafeContains returns a bool indicating whether the object container contains something with the
+// specified uuid. This function assumes you already have a lock on the container.
+func (oc *ObjectContainer) UnsafeContains(uuid string) bool {
+	o, _, _ := oc.UnsafeGet(uuid)
 	return o != nil
 }
 
-// Get retrieves an object from the object container, based on the uuid.
-func (oc *ObjectContainer) Get(uuid string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+// Get retrieves an object from the object container, based on the uuid. This function assumes you already
+// have a lock on the container.
+func (oc *ObjectContainer) UnsafeGet(uuid string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+	for _, ocd := range oc.UnsafeObjects {
+		if ocd.UUID == uuid {
+			o, ot := Armeria.registry.Get(ocd.UUID)
+			return o, ocd, ot
+		}
+	}
+
+	return nil, nil, RegistryTypeUnknown
+}
+
+// GetByName retrieves an object from the object container, based on the name of the object.
+func (oc *ObjectContainer) GetByName(name string) (interface{}, *ObjectContainerDefinition, RegistryType) {
 	oc.RLock()
 	defer oc.RUnlock()
 
 	for _, ocd := range oc.UnsafeObjects {
-		if ocd.UUID == uuid {
-			o, ot := Armeria.registry.Get(ocd.UUID)
+		o, ot := Armeria.registry.Get(ocd.UUID)
+		if strings.ToLower(o.(ContainerObject).Name()) == strings.ToLower(name) {
 			return o, ocd, ot
 		}
 	}
@@ -117,6 +156,15 @@ func (oc *ObjectContainer) AtSlot(slot int) (interface{}, *ObjectContainerDefini
 	return nil, nil, RegistryTypeUnknown
 }
 
+// Count returns the number of objects within the container.
+func (oc *ObjectContainer) Count() int {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	return len(oc.UnsafeObjects)
+}
+
+// All returns all the objects within the container.
 func (oc *ObjectContainer) All() []interface{} {
 	oc.RLock()
 	defer oc.RUnlock()
@@ -215,7 +263,7 @@ func (oc *ObjectContainer) Add(uuid string) error {
 	oc.Lock()
 	defer oc.Unlock()
 
-	if oc.Contains(uuid) {
+	if oc.UnsafeContains(uuid) {
 		return ErrContainerDuplicate
 	}
 

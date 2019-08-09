@@ -103,7 +103,7 @@ func (m *WorldManager) CreateRoom(a *Area, c *Coords) *Room {
 		UnsafeHere:       NewObjectContainer(0),
 		ParentArea:       a,
 	}
-	r.Init(a)
+	a.AddRoom(r)
 	return r
 }
 
@@ -117,10 +117,10 @@ func (m *WorldManager) CreateArea(name string) *Area {
 		UnsafeAttributes: make(map[string]string),
 	}
 
-	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
+	a.Init()
 
-	r := m.CreateRoom(a, NewCoords(0, 0, 0, 0))
-	a.AddRoom(r)
+	_ = m.CreateRoom(a, NewCoords(0, 0, 0, 0))
+
 	m.UnsafeWorld = append(m.UnsafeWorld, a)
 
 	return a

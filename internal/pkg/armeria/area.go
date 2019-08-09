@@ -17,15 +17,6 @@ type Area struct {
 	UnsafeAttributes map[string]string `json:"attributes"`
 }
 
-type AdjacentRooms struct {
-	North *Room
-	South *Room
-	East  *Room
-	West  *Room
-	Up    *Room
-	Down  *Room
-}
-
 const (
 	NorthDirection = "north"
 	SouthDirection = "south"
@@ -35,12 +26,17 @@ const (
 	DownDirection  = "down"
 )
 
-// Init is called when the ParentArea is created or loaded from disk.
+// Init is called when the Area is created or loaded from disk.
 func (a *Area) Init() {
 	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
 }
 
-// Id returns the UUID of the ParentArea.
+// Deinit is called when the Area is deleted.
+func (a *Area) Deinit() {
+	Armeria.registry.Unregister(a.Id())
+}
+
+// Id returns the UUID of the Area.
 func (a *Area) Id() string {
 	return a.UUID
 }
@@ -159,15 +155,19 @@ func (a *Area) AddRoom(r *Room) {
 	a.Lock()
 	defer a.Unlock()
 
+	r.Init(a)
+
 	a.UnsafeRooms = append(a.UnsafeRooms, r)
 }
 
-func (a *Area) RemoveRoom(rm *Room) {
+func (a *Area) RemoveRoom(r *Room) {
 	a.Lock()
 	defer a.Unlock()
 
-	for i, r := range a.UnsafeRooms {
-		if r.Coords.Matches(rm.Coords) {
+	r.Deinit()
+
+	for i, rm := range a.UnsafeRooms {
+		if rm.Id() == r.Id() {
 			a.UnsafeRooms[i] = a.UnsafeRooms[len(a.UnsafeRooms)-1]
 			a.UnsafeRooms = a.UnsafeRooms[:len(a.UnsafeRooms)-1]
 			break
@@ -186,16 +186,4 @@ func (a *Area) Characters(except *Character) []*Character {
 	}
 
 	return c
-}
-
-// AdjacentRooms returns the Room objects that are adjacent to the current room.
-func (a *Area) AdjacentRooms(r *Room) *AdjacentRooms {
-	return &AdjacentRooms{
-		North: Armeria.worldManager.RoomInDirection(r, NorthDirection),
-		South: Armeria.worldManager.RoomInDirection(r, SouthDirection),
-		East:  Armeria.worldManager.RoomInDirection(r, EastDirection),
-		West:  Armeria.worldManager.RoomInDirection(r, WestDirection),
-		Up:    Armeria.worldManager.RoomInDirection(r, UpDirection),
-		Down:  Armeria.worldManager.RoomInDirection(r, DownDirection),
-	}
 }

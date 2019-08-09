@@ -34,14 +34,19 @@ const (
 	ColorCmdHelp   int = 7
 )
 
+// Init is called when the Character is created or loaded from disk.
+func (c *Character) Init() {
+	Armeria.registry.Register(c, c.Id(), RegistryTypeCharacter)
+}
+
 // UUID returns the uuid of the character.
 func (c *Character) Id() string {
 	return c.UUID
 }
 
-// Type returns the object type, since Character implements the Object interface.
-func (c *Character) Type() ObjectType {
-	return ObjectTypeCharacter
+// Type returns the object type, since Character implements the ContainerObject interface.
+func (c *Character) Type() ContainerObjectType {
+	return ContainerObjectTypeCharacter
 }
 
 // UnsafeName returns the raw character name.

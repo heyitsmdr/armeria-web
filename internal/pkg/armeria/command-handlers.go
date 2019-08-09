@@ -30,7 +30,7 @@ func handleLoginCommand(ctx *CommandContext) {
 		return
 	}
 
-	if c.Location().Room() == nil {
+	if c.Room() == nil {
 		ctx.Player.client.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
 		return
 	}
@@ -44,12 +44,13 @@ func handleLoginCommand(ctx *CommandContext) {
 }
 
 func handleLookCommand(ctx *CommandContext) {
-	rm := ctx.Character.Location().Room()
+	r := ctx.Character.Room()
 
 	var objNames []string
-	for _, o := range rm.Objects() {
-		if o.Type() != ObjectTypeCharacter || o.Name() != ctx.Character.Name() {
-			objNames = append(objNames, o.FormattedName())
+	for _, o := range r.Here().All() {
+		obj := o.(ContainerObject)
+		if obj.Id() != ctx.Character.Id() {
+			objNames = append(objNames, obj.FormattedName())
 		}
 	}
 
@@ -58,7 +59,7 @@ func handleLookCommand(ctx *CommandContext) {
 		withYou = fmt.Sprintf("\nHere with you: %s.", strings.Join(objNames, ", "))
 	}
 
-	ar := ctx.Character.Location().Area().AdjacentRooms(rm)
+	ar := r.AdjacentRooms()
 	var validDirs []string
 	if ar.North != nil {
 		validDirs = append(validDirs, "[b]north[/b]")
@@ -93,14 +94,14 @@ func handleLookCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(
-		ctx.Character.Colorize(rm.Attribute("title"), ColorRoomTitle) + "\n" +
-			rm.Attribute("description") +
+		ctx.Character.Colorize(r.Attribute("title"), ColorRoomTitle) + "\n" +
+			r.Attribute("description") +
 			ctx.Character.Colorize(validDirString, ColorRoomDirs) +
 			withYou,
 	)
 
 	if ctx.PlayerInitiated {
-		for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
+		for _, c := range r.Here().Characters(true, ctx.Character) {
 			c.Player().client.ShowText(
 				fmt.Sprintf("%s takes a look around.", ctx.Character.FormattedName()),
 			)
@@ -138,8 +139,8 @@ func handleSayCommand(ctx *CommandContext) {
 		ctx.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\"", verbs[0], normalizedText), ColorSay),
 	)
 
-	room := ctx.Character.Location().Room()
-	for _, c := range room.Characters(ctx.Character) {
+	room := ctx.Character.Room()
+	for _, c := range room.Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
 			c.Player().Character().Colorize(
 				fmt.Sprintf("%s %s, \"%s\"", ctx.Character.FormattedName(), verbs[1], normalizedText),
@@ -148,16 +149,14 @@ func handleSayCommand(ctx *CommandContext) {
 		)
 	}
 
-	for _, o := range room.Objects() {
-		if o.Type() == ObjectTypeMob {
-			go CallMobFunc(
-				ctx.Character,
-				o.(*MobInstance),
-				"character_said",
-				lua.LString(ctx.Character.Name()),
-				lua.LString(ctx.Args["text"]),
-			)
-		}
+	for _, mi := range room.Here().Mobs() {
+		go CallMobFunc(
+			ctx.Character,
+			mi,
+			"character_said",
+			lua.LString(ctx.Character.Name()),
+			lua.LString(ctx.Args["text"]),
+		)
 	}
 }
 
@@ -196,21 +195,15 @@ func handleMoveCommand(ctx *CommandContext) {
 		return
 	}
 
-	loc := ctx.Character.Location()
-	o := misc.DirectionOffsets(d)
-	x := loc.Coords.X() + o["x"]
-	y := loc.Coords.Y() + o["y"]
-	z := loc.Coords.Z() + o["z"]
-
-	newLocation := NewLocation(loc.AreaUUID(), x, y, z)
-	moveAllowed, moveError := ctx.Character.MoveAllowed(newLocation)
+	newRoom := Armeria.worldManager.RoomInDirection(ctx.Character.Room(), d)
+	moveAllowed, moveError := ctx.Character.MoveAllowed(newRoom)
 	if !moveAllowed {
 		ctx.Player.client.ShowColorizedText(moveError, ColorError)
 		return
 	}
 
 	ctx.Character.Move(
-		newLocation,
+		newRoom,
 		ctx.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s walks to %s.", ctx.Character.FormattedName(), walkDir), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), arriveDir), ColorMovement),
@@ -250,6 +243,8 @@ func handleRoomEditCommand(stx *CommandContext) {
 		stx.Player.client.ShowColorizedText("The specified room does not exist.", ColorError)
 		return
 	}
+
+	stx.Player.client.ShowObjectEditor(stx.Character.Room().EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
@@ -286,7 +281,9 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	for _, c := range tr.Characters(ctx.Character) {
+	ctx.Character.Room().SetAttribute(attr, ctx.Args["value"])
+
+	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("%s modified the room.", ctx.Character.FormattedName()),
 		)
@@ -311,21 +308,20 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 		return
 	}
 
-	loc := ctx.Character.Location()
-	x := loc.Coords.X() + o["x"]
-	y := loc.Coords.Y() + o["y"]
-	z := loc.Coords.Z() + o["z"]
+	co := ctx.Character.Room().Coords
+	x := co.X() + o["x"]
+	y := co.Y() + o["y"]
+	z := co.Z() + o["z"]
 
-	newLoc := NewLocation(loc.AreaUUID(), x, y, z)
-	if newLoc.Room() != nil {
+	c := NewCoords(x, y, z, 0)
+	if ctx.Character.Room().ParentArea.RoomAt(c) != nil {
 		ctx.Player.client.ShowColorizedText("There's already a room in that direction.", ColorError)
 		return
 	}
 
-	room := Armeria.worldManager.CreateRoom(NewCoords(x, y, z, loc.Coords.I()))
-	ctx.Character.Location().Area().AddRoom(room)
+	_ = Armeria.worldManager.CreateRoom(ctx.Character.Room().ParentArea, c)
 
-	for _, c := range ctx.Character.Location().Area().Characters(nil) {
+	for _, c := range ctx.Character.Room().ParentArea.Characters(nil) {
 		c.Player().client.RenderMap()
 	}
 
@@ -341,27 +337,26 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 		return
 	}
 
-	loc := ctx.Character.Location()
-	x := loc.Coords.X() + o["x"]
-	y := loc.Coords.Y() + o["y"]
-	z := loc.Coords.Z() + o["z"]
+	co := ctx.Character.Room().Coords
+	x := co.X() + o["x"]
+	y := co.Y() + o["y"]
+	z := co.Z() + o["z"]
 
-	l := NewLocation(loc.AreaUUID(), x, y, z)
-
-	r := l.Room()
+	c := NewCoords(x, y, z, 0)
+	r := ctx.Character.Room().ParentArea.RoomAt(c)
 	if r == nil {
 		ctx.Player.client.ShowColorizedText("There's no room in that direction.", ColorError)
 		return
 	}
 
-	if len(r.Objects()) > 0 {
+	if r.Here().Count() > 0 {
 		ctx.Player.client.ShowColorizedText("There is something in the room you're attempting to destroy.", ColorError)
 		return
 	}
 
-	loc.Area().RemoveRoom(r)
+	r.ParentArea.RemoveRoom(r)
 
-	for _, c := range ctx.Character.Location().Area().Characters(nil) {
+	for _, c := range ctx.Character.Room().ParentArea.Characters(nil) {
 		c.Player().client.RenderMap()
 	}
 
@@ -405,7 +400,7 @@ func handleWhisperCommand(ctx *CommandContext) {
 	c.Player().client.ShowColorizedText(
 		fmt.Sprintf("%s whispers to you from %s, \"%s\"",
 			ctx.Character.FormattedNameWithTitle(),
-			c.Location().Area().Name(),
+			c.Room().ParentArea.Name(),
 			normalizedText,
 		),
 		ColorWhisper,
@@ -631,12 +626,10 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 		return
 	}
 
-	l := ctx.Character.Location()
+	mi := m.CreateInstance()
+	_ = ctx.Character.Room().Here().Add(mi.Id())
 
-	mi := m.CreateInstance(l)
-	ctx.Character.Location().Room().AddObjectToRoom(mi)
-
-	for _, c := range ctx.Character.Location().Room().Characters(nil) {
+	for _, c := range ctx.Character.Room().Here().Characters(true, nil) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mi.FormattedName()),
 		)
@@ -653,7 +646,6 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 
 	var mobLocations []string
 	for i, mi := range m.Instances() {
-		a := mi.Location.Area()
 		mobLocations = append(
 			mobLocations,
 			fmt.Sprintf(
@@ -661,11 +653,11 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 				i+1,
 				mi.FormattedName(),
 				mi.Id(),
-				a.Name(),
-				mi.Location.Coords.X(),
-				mi.Location.Coords.Y(),
-				mi.Location.Coords.Z(),
-				mi.Location.Room().Attribute("title"),
+				mi.Room().ParentArea.Name(),
+				mi.Room().Coords.X(),
+				mi.Room().Coords.Y(),
+				mi.Room().Coords.Z(),
+				mi.Room().Attribute("title"),
 			),
 		)
 	}
@@ -680,24 +672,25 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 }
 
 func handleWipeCommand(ctx *CommandContext) {
-	for _, o := range ctx.Character.Location().Room().Objects() {
-		switch o.Type() {
-		case ObjectTypeMob:
-			m := Armeria.mobManager.MobByName(o.Name())
-			s := ctx.Character.Location().Room().RemoveObjectFromRoom(o)
-			if m != nil && s {
-				m.DeleteInstance(o.(*MobInstance))
+	for _, o := range ctx.Character.Room().Here().All() {
+		obj := o.(ContainerObject)
+		switch obj.Type() {
+		case ContainerObjectTypeMob:
+			m := Armeria.mobManager.MobByName(obj.Name())
+			ctx.Character.Room().Here().Remove(obj.Id())
+			if m != nil {
+				m.DeleteInstance(obj.(*MobInstance))
 			}
-		case ObjectTypeItem:
-			i := Armeria.itemManager.ItemByName(o.Name())
-			s := ctx.Character.Location().Room().RemoveObjectFromRoom(o)
-			if i != nil && s {
-				i.DeleteInstance(o.(*ItemInstance))
+		case ContainerObjectTypeItem:
+			i := Armeria.itemManager.ItemByName(obj.Name())
+			ctx.Character.Room().Here().Remove(obj.Id())
+			if i != nil {
+				i.DeleteInstance(obj.(*ItemInstance))
 			}
 		}
 	}
 
-	for _, c := range ctx.Character.Location().Room().Characters(ctx.Character) {
+	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("%s wiped the room.", ctx.Character.FormattedName()),
 		)
@@ -760,15 +753,10 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 		return
 	}
 
-	l := ctx.Character.Location()
-
 	ii := i.CreateInstance()
-	ii.SetLocationType(ItemLocationRoom)
-	ii.Location.SetAreaUUID(l.AreaUUID())
-	ii.Location.Coords.Set(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I())
-	ctx.Character.Location().Room().AddObjectToRoom(ii)
+	_ = ctx.Character.Room().Here().Add(ii.Id())
 
-	for _, c := range ctx.Character.Location().Room().Characters(nil) {
+	for _, c := range ctx.Character.Room().Here().Characters(true, nil) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", ii.FormattedName()),
 		)
@@ -832,8 +820,8 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 
 	var itemLocations []string
 	for idx, ii := range i.Instances() {
-		if ii.LocationType() == ItemLocationRoom {
-			a := ii.Location.Area()
+		ctr := Armeria.registry.GetObjectContainer(ii.Id())
+		if ctr.ParentType() == ContainerParentTypeRoom {
 			itemLocations = append(
 				itemLocations,
 				fmt.Sprintf(
@@ -841,14 +829,14 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 					idx+1,
 					ii.FormattedName(),
 					ii.Id(),
-					a.Name(),
-					ii.Location.Coords.X(),
-					ii.Location.Coords.Y(),
-					ii.Location.Coords.Z(),
-					ii.Location.Room().Attribute("title"),
+					ii.Room().ParentArea.Name(),
+					ii.Room().Coords.X(),
+					ii.Room().Coords.Y(),
+					ii.Room().Coords.Z(),
+					ii.Room().Attribute("title"),
 				),
 			)
-		} else if ii.LocationType() == ItemLocationCharacter {
+		} else if ctr.ParentType() == ContainerParentTypeCharacter {
 			itemLocations = append(
 				itemLocations,
 				fmt.Sprintf(
@@ -929,7 +917,7 @@ func handleAreaEditCommand(ctx *CommandContext) {
 	area := ctx.Args["area"]
 	var a *Area
 	if len(area) == 0 {
-		a = ctx.Character.Location().Area()
+		a = ctx.Character.Room().ParentArea
 	} else {
 		a = Armeria.worldManager.AreaByName(area)
 		if a == nil {
@@ -950,7 +938,7 @@ func handlePasswordCommand(ctx *CommandContext) {
 func handleTeleportCommand(ctx *CommandContext) {
 	t := ctx.Args["destination"]
 
-	var l *Location
+	var destination *Room
 	var moveMsg string
 	if t[0:1] == "@" {
 		cn := t[1:]
@@ -963,8 +951,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 			return
 		}
 
-		cl := c.Location().Coords
-		l = NewLocation(c.Location().Area().Id(), cl.X(), cl.Y(), cl.Z())
+		destination = c.Room()
 		moveMsg = fmt.Sprintf("You teleported to %s.", c.FormattedName())
 	} else {
 		loc := strings.Split(t, ",")
@@ -988,17 +975,17 @@ func handleTeleportCommand(ctx *CommandContext) {
 			return
 		}
 
-		l = NewLocation(a.Id(), x, y, z)
+		destination = a.RoomAt(NewCoords(x, y, z, 0))
 		moveMsg = fmt.Sprintf("You teleported to [b]%s[/b] at %d, %d, %d.", a.Name(), x, y, z)
 	}
 
-	if l.Room() == nil {
+	if destination == nil {
 		ctx.Player.client.ShowColorizedText("You cannot teleport there!", ColorError)
 		return
 	}
 
 	ctx.Character.Move(
-		l,
+		destination,
 		ctx.Character.Colorize(moveMsg, ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s teleported away!", ctx.Character.FormattedName()), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s teleported here!", ctx.Character.FormattedName()), ColorMovement),
@@ -1048,7 +1035,7 @@ func handleClipboardCopyCommand(ctx *CommandContext) {
 		// validate room (based on "name")
 		var r *Room
 		if n == "." || n == "here" {
-			r = ctx.Character.Location().Room()
+			r = ctx.Character.Room()
 		} else {
 			ctx.Player.client.ShowColorizedText("That room is not valid.", ColorError)
 			return
@@ -1094,7 +1081,7 @@ func handleClipboardPasteCommand(ctx *CommandContext) {
 		// validate room (based on "name")
 		var r *Room
 		if n == "." || n == "here" {
-			r = ctx.Character.Location().Room()
+			r = ctx.Character.Room()
 		} else {
 			ctx.Player.client.ShowColorizedText("That room is not valid.", ColorError)
 			return
@@ -1126,16 +1113,16 @@ func handleClipboardClearCommand(ctx *CommandContext) {
 func handleGetCommand(ctx *CommandContext) {
 	istring := ctx.Args["item"]
 
-	r := ctx.Character.Location().Room()
-	o := r.ObjectByNameAndType(istring, ObjectTypeItem)
+	o, _, rt := ctx.Character.Room().Here().GetByName(istring)
 	if o == nil {
 		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
 		return
+	} else if rt != RegistryTypeItemInstance {
+		ctx.Player.client.ShowColorizedText("You cannot pick that up.", ColorError)
+		return
 	}
 
-	i := o.(*ItemInstance)
-
-	i.SetLocationType(ItemLocationCharacter)
+	// i := o.(*ItemInstance)
 
 	ctx.Player.client.ShowColorizedText("Ok.", ColorSuccess)
 }

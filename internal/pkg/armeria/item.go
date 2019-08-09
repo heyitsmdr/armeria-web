@@ -58,16 +58,14 @@ func (i *Item) CreateInstance() *ItemInstance {
 	defer i.Unlock()
 
 	ii := &ItemInstance{
-		UUID:               uuid.New().String(),
-		UnsafeAttributes:   make(map[string]string),
-		UnsafeLocationType: ItemLocationRoom,
-		Location:           NewLocation("", 0, 0, 0),
-		Parent:             i,
+		UUID:             uuid.New().String(),
+		UnsafeAttributes: make(map[string]string),
+		Parent:           i,
 	}
 
 	i.UnsafeInstances = append(i.UnsafeInstances, ii)
 
-	Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
+	ii.Init()
 
 	return ii
 }
@@ -77,7 +75,7 @@ func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 	i.Lock()
 	defer i.Unlock()
 
-	Armeria.registry.Unregister(ii.Id())
+	ii.Deinit()
 
 	for idx, inst := range i.UnsafeInstances {
 		if inst.Id() == ii.Id() {

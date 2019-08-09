@@ -109,15 +109,3 @@ func (c *Coords) JSON() string {
 
 	return string(j)
 }
-
-// Matches returns a boolean for whether Coords match one another (ignoring instance).
-func (c *Coords) Matches(cc *Coords) bool {
-	c.RLock()
-	defer c.RUnlock()
-
-	if c.UnsafeX == cc.X() && c.UnsafeY == cc.Y() && c.UnsafeZ == cc.Z() {
-		return true
-	}
-
-	return false
-}

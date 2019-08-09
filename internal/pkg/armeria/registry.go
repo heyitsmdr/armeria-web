@@ -14,8 +14,9 @@ type Registry struct {
 
 func NewRegistry() *Registry {
 	return &Registry{
-		entries: make(map[string]interface{}),
-		types:   make(map[string]RegistryType),
+		entries:          make(map[string]interface{}),
+		types:            make(map[string]RegistryType),
+		containerEntries: make(map[string]*ObjectContainer),
 	}
 }
 
@@ -27,6 +28,7 @@ const (
 	RegistryTypeItemInstance
 	RegistryTypeMobInstance
 	RegistryTypeArea
+	RegistryTypeRoom
 )
 
 // Register registers a unique object instance with the global registry.
@@ -91,7 +93,7 @@ func (r *Registry) GetAllFromType(rt RegistryType) []interface{} {
 	return o
 }
 
-// GetObjectContainer returns the ObjectContainer that an Object is within.
+// GetObjectContainer returns the ObjectContainer that an ContainerObject is within.
 func (r *Registry) GetObjectContainer(ouuid string) *ObjectContainer {
 	r.RLock()
 	defer r.RUnlock()
