@@ -98,6 +98,7 @@ func (m *WorldManager) SaveWorld() {
 
 func (m *WorldManager) CreateRoom(a *Area, c *Coords) *Room {
 	r := &Room{
+		UUID:             uuid.New().String(),
 		Coords:           CopyCoords(c),
 		UnsafeAttributes: map[string]string{},
 		UnsafeHere:       NewObjectContainer(0),
