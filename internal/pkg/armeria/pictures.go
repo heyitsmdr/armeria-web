@@ -29,13 +29,13 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 	case "character":
 		c := Armeria.characterManager.CharacterByName(name)
 		oldKey = c.Attribute(AttributePicture)
-		c.SetAttribute(AttributePicture, k)
+		_ = c.SetAttribute(AttributePicture, k)
 		editorData = c.EditorData()
 		p.client.ShowColorizedText(
 			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
 			ColorSuccess,
 		)
-		for _, chars := range p.Character().Location().Room().Characters(nil) {
+		for _, chars := range p.Character().Room().Here().Characters(true, nil) {
 			chars.Player().client.SyncRoomObjects()
 		}
 	case "mob":

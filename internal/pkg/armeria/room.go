@@ -7,18 +7,66 @@ import (
 	"log"
 	"sync"
 
+	"github.com/google/uuid"
+
 	"go.uber.org/zap"
 
 	lua "github.com/yuin/gopher-lua"
 )
 
+// Room is a physical room that exists within an Area.
 type Room struct {
 	sync.RWMutex
+	UUID             string            `json:"uuid"`
 	UnsafeAttributes map[string]string `json:"attributes"`
+	UnsafeHere       *ObjectContainer  `json:"here"`
 	Coords           *Coords           `json:"coords"`
-	objects          []Object
+	ParentArea       *Area             `json:"-"`
 }
 
+// AdjacentRooms holds all of the Room objects that are adjacent to the current room.
+type AdjacentRooms struct {
+	North *Room
+	South *Room
+	East  *Room
+	West  *Room
+	Up    *Room
+	Down  *Room
+}
+
+// Id returns the uuid of the room.
+func (r *Room) Id() string {
+	r.RLock()
+	defer r.RUnlock()
+	return r.UUID
+}
+
+// Init is called when the Room is created or loaded from disk.
+func (r *Room) Init(a *Area) {
+	// initialize uuid
+	if r.UUID == "" {
+		r.UUID = uuid.New().String()
+	}
+	// initialize UnsafeHere on rooms that don't have it defined
+	if r.UnsafeHere == nil {
+		r.UnsafeHere = NewObjectContainer(0)
+	}
+	// attach area
+	r.ParentArea = a
+	// attach self as container's parent
+	r.UnsafeHere.AttachParent(r, ContainerParentTypeRoom)
+	// sync container
+	r.UnsafeHere.Sync()
+	// register room with registry
+	Armeria.registry.Register(r, r.UUID, RegistryTypeRoom)
+}
+
+// Deinit is called when the Room is deleted.
+func (r *Room) Deinit() {
+	Armeria.registry.Unregister(r.Id())
+}
+
+// SetAttribute sets a persistent attribute for the Room.
 func (r *Room) SetAttribute(name string, value string) {
 	r.Lock()
 	defer r.Unlock()
@@ -34,6 +82,7 @@ func (r *Room) SetAttribute(name string, value string) {
 	r.UnsafeAttributes[name] = value
 }
 
+// Attribute retrieves a persistent attribute from the Room.
 func (r *Room) Attribute(name string) string {
 	r.RLock()
 	defer r.RUnlock()
@@ -45,67 +94,23 @@ func (r *Room) Attribute(name string) string {
 	return r.UnsafeAttributes[name]
 }
 
-func (r *Room) Objects() []Object {
+// Here returns all the objects in the room via the ObjectContainer.
+func (r *Room) Here() *ObjectContainer {
 	r.RLock()
 	defer r.RUnlock()
 
-	return r.objects
+	return r.UnsafeHere
 }
 
-// OnlineCharacters returns online characters within the room.
-func (r *Room) Characters(except *Character) []*Character {
-	r.RLock()
-	defer r.RUnlock()
-
-	var returnChars []*Character
-
-	for _, o := range r.objects {
-		if o.Type() == ObjectTypeCharacter {
-			if except == nil || o.Name() != except.Name() {
-				char := o.(*Character)
-				if char.Player() != nil {
-					returnChars = append(returnChars, char)
-				}
-			}
-		}
-	}
-
-	return returnChars
-}
-
-// AddObjectToRoom adds an Object to the Room.
-func (r *Room) AddObjectToRoom(obj Object) {
-	r.Lock()
-	defer r.Unlock()
-
-	r.objects = append(r.objects, obj)
-}
-
-// RemoveObjectFromRoom attempts to remove the Object from the Room, and returns
-// a bool indicating whether it was successful or not.
-func (r *Room) RemoveObjectFromRoom(obj Object) bool {
-	r.Lock()
-	defer r.Unlock()
-
-	for i, o := range r.objects {
-		if o.Id() == obj.Id() {
-			r.objects[i] = r.objects[len(r.objects)-1]
-			r.objects = r.objects[:len(r.objects)-1]
-			return true
-		}
-	}
-
-	return false
-}
-
-// ObjectData returns the JSON used for rendering the room objects on the client.
-func (r *Room) ObjectData() string {
+// RoomTargetData returns the JSON used for rendering the room objects on the client.
+func (r *Room) RoomTargetData() string {
 	r.RLock()
 	defer r.RUnlock()
 
 	var roomObjects []map[string]interface{}
 
-	for _, o := range r.objects {
+	for _, obj := range r.Here().All() {
+		o := obj.(ContainerObject)
 		roomObjects = append(roomObjects, map[string]interface{}{
 			"uuid":    o.Id(),
 			"name":    o.Name(),
@@ -154,36 +159,44 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 	ca.SyncMapLocation()
 	ca.SyncRoomTitle()
 
-	for _, char := range r.Characters(nil) {
+	for _, char := range r.Here().Characters(true, nil) {
 		char.Player().client.SyncRoomObjects()
 	}
 
-	for _, o := range r.Objects() {
-		if o.Type() == ObjectTypeMob {
-			go CallMobFunc(
-				c,
-				o.(*MobInstance),
-				"character_entered",
-				lua.LString(c.Name()),
-			)
-		}
+	for _, mi := range r.Here().Mobs() {
+		go CallMobFunc(
+			c,
+			mi,
+			"character_entered",
+			lua.LString(c.Name()),
+		)
 	}
 }
 
 // CharacterLeft is called when the character left the room (or logged out).
 func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
-	for _, char := range r.Characters(nil) {
+	for _, char := range r.Here().Characters(true, nil) {
 		char.Player().client.SyncRoomObjects()
 	}
 
-	for _, o := range r.Objects() {
-		if o.Type() == ObjectTypeMob {
-			go CallMobFunc(
-				c,
-				o.(*MobInstance),
-				"character_left",
-				lua.LString(c.Name()),
-			)
-		}
+	for _, mi := range r.Here().Mobs() {
+		go CallMobFunc(
+			c,
+			mi,
+			"character_left",
+			lua.LString(c.Name()),
+		)
+	}
+}
+
+// AdjacentRooms returns the Room objects that are adjacent to the current room.
+func (r *Room) AdjacentRooms() *AdjacentRooms {
+	return &AdjacentRooms{
+		North: Armeria.worldManager.RoomInDirection(r, NorthDirection),
+		South: Armeria.worldManager.RoomInDirection(r, SouthDirection),
+		East:  Armeria.worldManager.RoomInDirection(r, EastDirection),
+		West:  Armeria.worldManager.RoomInDirection(r, WestDirection),
+		Up:    Armeria.worldManager.RoomInDirection(r, UpDirection),
+		Down:  Armeria.worldManager.RoomInDirection(r, DownDirection),
 	}
 }

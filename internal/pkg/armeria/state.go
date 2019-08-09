@@ -19,6 +19,7 @@ type GameState struct {
 	worldManager     *WorldManager
 	mobManager       *MobManager
 	itemManager      *ItemManager
+	registry         *Registry
 	publicPath       string
 	dataPath         string
 	objectImagesPath string
@@ -28,9 +29,8 @@ var (
 	Armeria *GameState
 )
 
-func Init(fileLocation string) {
-
-	c := parseConfigFile(fileLocation)
+func Init(configFilePath string) {
+	c := parseConfigFile(configFilePath)
 
 	Armeria = &GameState{
 		production:       c.Production,
@@ -45,6 +45,7 @@ func Init(fileLocation string) {
 	}
 	Armeria.log = logger
 
+	Armeria.registry = NewRegistry()
 	Armeria.commandManager = NewCommandManager()
 	Armeria.playerManager = NewPlayerManager()
 	Armeria.characterManager = NewCharacterManager()

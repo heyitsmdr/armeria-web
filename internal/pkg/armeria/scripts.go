@@ -43,7 +43,7 @@ func LuaMobSay(L *lua.LState) int {
 		verb = "says"
 	}
 
-	for _, c := range mi.Location.Room().Characters(nil) {
+	for _, c := range mi.Room().Here().Characters(true, nil) {
 		c.Player().client.ShowColorizedText(
 			fmt.Sprintf("%s %s, \"%s\"", mi.FormattedName(), verb, normalizedText),
 			ColorSay,

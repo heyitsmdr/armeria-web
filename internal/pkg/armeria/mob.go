@@ -29,6 +29,9 @@ func ValidateMobAttribute(name string, value string) (bool, string) {
 	return true, ""
 }
 
+// Init is called when the Mob is created or loaded from disk.
+func (m *Mob) Init() {}
+
 // Name returns the name of the Mob.
 func (m *Mob) Name() string {
 	m.RLock()
@@ -90,18 +93,19 @@ func (m *Mob) EditorData() *ObjectEditorData {
 
 // CreateInstance creates a new MobInstance, adds it to the Mob
 // and returns the MobInstance.
-func (m *Mob) CreateInstance(l *Location) *MobInstance {
+func (m *Mob) CreateInstance() *MobInstance {
 	m.Lock()
 	defer m.Unlock()
 
 	mi := &MobInstance{
 		UUID:             uuid.New().String(),
-		Location:         CopyLocation(l),
 		UnsafeAttributes: make(map[string]string),
 		Parent:           m,
 	}
 
 	m.UnsafeInstances = append(m.UnsafeInstances, mi)
+
+	mi.Init()
 
 	return mi
 }
@@ -110,6 +114,8 @@ func (m *Mob) CreateInstance(l *Location) *MobInstance {
 func (m *Mob) DeleteInstance(mi *MobInstance) bool {
 	m.Lock()
 	defer m.Unlock()
+
+	mi.Deinit()
 
 	for i, inst := range m.UnsafeInstances {
 		if inst.Id() == mi.Id() {

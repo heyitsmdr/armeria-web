@@ -6,11 +6,9 @@ import (
 )
 
 func main() {
-	var configPath string
-	flag.StringVar(&configPath, "config", "./config/development.yml", "path to the config file")
-	flag.StringVar(&configPath, "c", "./config/development.yml", "path to the config file  (shorthand)")
+	configPath := flag.String("config", "./config/development.yml", "path to the config file")
 
 	flag.Parse()
 
-	armeria.Init(configPath)
+	armeria.Init(*configPath)
 }

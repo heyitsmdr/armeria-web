@@ -1,0 +1,4 @@
+httpPort: 8081
+production: true
+dataPath: "/opt/armeria/data"
+publicPath: "/opt/armeria/client"

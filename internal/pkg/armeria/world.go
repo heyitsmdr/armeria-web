@@ -53,6 +53,14 @@ func (m *WorldManager) LoadWorld() {
 		)
 	}
 
+	for _, a := range m.UnsafeWorld {
+		a.Init()
+
+		for _, r := range a.UnsafeRooms {
+			r.Init(a)
+		}
+	}
+
 	Armeria.log.Info("areas loaded",
 		zap.Int("count", len(m.UnsafeWorld)),
 	)
@@ -88,11 +96,16 @@ func (m *WorldManager) SaveWorld() {
 	)
 }
 
-func (m *WorldManager) CreateRoom(c *Coords) *Room {
-	return &Room{
+func (m *WorldManager) CreateRoom(a *Area, c *Coords) *Room {
+	r := &Room{
+		UUID:             uuid.New().String(),
 		Coords:           CopyCoords(c),
 		UnsafeAttributes: map[string]string{},
+		UnsafeHere:       NewObjectContainer(0),
+		ParentArea:       a,
 	}
+	a.AddRoom(r)
+	return r
 }
 
 func (m *WorldManager) CreateArea(name string) *Area {
@@ -105,24 +118,33 @@ func (m *WorldManager) CreateArea(name string) *Area {
 		UnsafeAttributes: make(map[string]string),
 	}
 
-	r := m.CreateRoom(NewCoords(0, 0, 0, 0))
-	a.AddRoom(r)
+	a.Init()
+
+	_ = m.CreateRoom(a, NewCoords(0, 0, 0, 0))
+
 	m.UnsafeWorld = append(m.UnsafeWorld, a)
 
 	return a
 }
 
-func (m *WorldManager) RoomInDirection(a *Area, r *Room, direction string) *Room {
-	o := misc.DirectionOffsets(direction)
-	if o == nil {
+func (m *WorldManager) RoomInDirection(r *Room, direction string) *Room {
+	offsets := misc.DirectionOffsets(direction)
+	if offsets == nil {
 		Armeria.log.Fatal("invalid direction provided",
 			zap.String("direction", direction),
 		)
 	}
 
-	loc := NewLocation(a.Id(), r.Coords.X()+o["x"], r.Coords.Y()+o["y"], r.Coords.Z()+o["z"])
+	o, _ := Armeria.registry.Get(r.Id())
+	room := o.(*Room)
 
-	return loc.Room()
+	x := room.Coords.X() + offsets["x"]
+	y := room.Coords.Y() + offsets["y"]
+	z := room.Coords.Z() + offsets["z"]
+
+	loc := NewCoords(x, y, z, 0)
+
+	return room.ParentArea.RoomAt(loc)
 }
 
 func (m *WorldManager) AreaByName(name string) *Area {

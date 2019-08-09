@@ -23,7 +23,6 @@ func NewItemManager() *ItemManager {
 
 	m.LoadItems()
 	m.AttachParents()
-	m.AddItemInstancesToRooms()
 
 	return m
 }
@@ -51,6 +50,14 @@ func (m *ItemManager) LoadItems() {
 			zap.String("file", m.dataFile),
 			zap.Error(err),
 		)
+	}
+
+	for _, i := range m.UnsafeItems {
+		i.Init()
+
+		for _, ii := range i.Instances() {
+			ii.Init()
+		}
 	}
 
 	Armeria.log.Info("items loaded",
@@ -101,33 +108,7 @@ func (m *ItemManager) AttachParents() {
 	}
 }
 
-// AddItemInstancesToRooms adds ItemInstance objects that are in Rooms to their
-// respective Room objects.
-func (m *ItemManager) AddItemInstancesToRooms() {
-	m.RLock()
-	defer m.RUnlock()
-
-	for _, i := range m.UnsafeItems {
-		for _, ii := range i.Instances() {
-			if ii.LocationType() != ItemLocationRoom {
-				continue
-			}
-
-			r := ii.Location.Room()
-			if r == nil {
-				Armeria.log.Fatal("item instance in invalid room",
-					zap.String("item", ii.Name()),
-					zap.String("uuid", ii.Id()),
-					zap.String("location", fmt.Sprintf("%v", ii.Location)),
-				)
-				return
-			}
-			r.AddObjectToRoom(ii)
-		}
-	}
-}
-
-// ItemByName returns the matching Item.
+// ItemByName returns the matching Item, by name.
 func (m *ItemManager) ItemByName(name string) *Item {
 	m.RLock()
 	defer m.RUnlock()
@@ -135,6 +116,22 @@ func (m *ItemManager) ItemByName(name string) *Item {
 	for _, i := range m.UnsafeItems {
 		if strings.ToLower(i.Name()) == strings.ToLower(name) {
 			return i
+		}
+	}
+
+	return nil
+}
+
+// ItemInstanceById returns the matching ItemInstance, by uuid.
+func (m *ItemManager) ItemInstanceById(uuid string) *ItemInstance {
+	m.RLock()
+	defer m.RUnlock()
+
+	for _, i := range m.UnsafeItems {
+		for _, ii := range i.Instances() {
+			if ii.Id() == uuid {
+				return ii
+			}
 		}
 	}
 

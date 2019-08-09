@@ -33,6 +33,9 @@ func ValidateItemAttribute(name string, value string) (bool, string) {
 	return true, ""
 }
 
+// Init is called when the Item is created or loaded from disk.
+func (i *Item) Init() {}
+
 // Name returns the name of the Item.
 func (i *Item) Name() string {
 	i.RLock()
@@ -55,14 +58,14 @@ func (i *Item) CreateInstance() *ItemInstance {
 	defer i.Unlock()
 
 	ii := &ItemInstance{
-		UUID:               uuid.New().String(),
-		UnsafeAttributes:   make(map[string]string),
-		UnsafeLocationType: ItemLocationRoom,
-		Location:           NewLocation("", 0, 0, 0),
-		Parent:             i,
+		UUID:             uuid.New().String(),
+		UnsafeAttributes: make(map[string]string),
+		Parent:           i,
 	}
 
 	i.UnsafeInstances = append(i.UnsafeInstances, ii)
+
+	ii.Init()
 
 	return ii
 }
@@ -71,6 +74,8 @@ func (i *Item) CreateInstance() *ItemInstance {
 func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 	i.Lock()
 	defer i.Unlock()
+
+	ii.Deinit()
 
 	for idx, inst := range i.UnsafeInstances {
 		if inst.Id() == ii.Id() {

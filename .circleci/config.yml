@@ -16,6 +16,7 @@ jobs:
           root: workspace
           paths:
             - armeria
+            - config
   build_client:
     docker:
       - image: circleci/node:12
@@ -47,6 +48,10 @@ jobs:
           name: Copy compiled client files to server
           command: |
             scp -o StrictHostKeyChecking=no -r workspace/dist/ root@armeria.mdr.dev:/opt/armeria/client
+      - run:
+          name: Copy config directory to server
+          command: |
+            scp -o StrictHostKeyChecking=no -r workspace/config/ root@armeria.mdr.dev:/opt/armeria/config
       - run:
           name: Copy binary to server
           command: |

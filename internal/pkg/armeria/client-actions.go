@@ -57,25 +57,25 @@ func (ca *ClientActions) ShowRawText(text string) {
 
 // RenderMap displays the current area on the minimap.
 func (ca *ClientActions) RenderMap() {
-	minimap := ca.parent.Character().Location().Area().MinimapJSON()
+	minimap := ca.parent.Character().Room().ParentArea.MinimapJSON()
 	ca.parent.CallClientAction("setMapData", minimap)
 }
 
 // SyncMapLocation sets the character location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
-	loc := ca.parent.Character().Location().Coords.JSON()
+	loc := ca.parent.Character().Room().Coords.JSON()
 	ca.parent.CallClientAction("setCharacterLocation", loc)
 }
 
 // SyncRoomObjects sets the current room objects on the client.
 func (ca *ClientActions) SyncRoomObjects() {
-	obj := ca.parent.Character().Location().Room().ObjectData()
+	obj := ca.parent.Character().Room().RoomTargetData()
 	ca.parent.CallClientAction("setRoomObjects", obj)
 }
 
 // SyncRoomTitle sets the current room title on the client.
 func (ca *ClientActions) SyncRoomTitle() {
-	r := ca.parent.Character().Location().Room()
+	r := ca.parent.Character().Room()
 	if ca.parent.Character().HasPermission("CAN_BUILD") {
 		c := r.Coords
 		ca.parent.CallClientAction("setRoomTitle",

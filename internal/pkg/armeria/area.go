@@ -17,15 +17,6 @@ type Area struct {
 	UnsafeAttributes map[string]string `json:"attributes"`
 }
 
-type AdjacentRooms struct {
-	North *Room
-	South *Room
-	East  *Room
-	West  *Room
-	Up    *Room
-	Down  *Room
-}
-
 const (
 	NorthDirection = "north"
 	SouthDirection = "south"
@@ -35,7 +26,17 @@ const (
 	DownDirection  = "down"
 )
 
-// Id returns the UUID of the Area..
+// Init is called when the Area is created or loaded from disk.
+func (a *Area) Init() {
+	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
+}
+
+// Deinit is called when the Area is deleted.
+func (a *Area) Deinit() {
+	Armeria.registry.Unregister(a.Id())
+}
+
+// Id returns the UUID of the Area.
 func (a *Area) Id() string {
 	return a.UUID
 }
@@ -154,15 +155,19 @@ func (a *Area) AddRoom(r *Room) {
 	a.Lock()
 	defer a.Unlock()
 
+	r.Init(a)
+
 	a.UnsafeRooms = append(a.UnsafeRooms, r)
 }
 
-func (a *Area) RemoveRoom(rm *Room) {
+func (a *Area) RemoveRoom(r *Room) {
 	a.Lock()
 	defer a.Unlock()
 
-	for i, r := range a.UnsafeRooms {
-		if r.Coords.Matches(rm.Coords) {
+	r.Deinit()
+
+	for i, rm := range a.UnsafeRooms {
+		if rm.Id() == r.Id() {
 			a.UnsafeRooms[i] = a.UnsafeRooms[len(a.UnsafeRooms)-1]
 			a.UnsafeRooms = a.UnsafeRooms[:len(a.UnsafeRooms)-1]
 			break
@@ -175,32 +180,10 @@ func (a *Area) Characters(except *Character) []*Character {
 	a.RLock()
 	defer a.RUnlock()
 
-	var returnChars []*Character
-
+	var c []*Character
 	for _, r := range a.UnsafeRooms {
-		for _, o := range r.Objects() {
-			if o.Type() == ObjectTypeCharacter {
-				if except == nil || o.Name() != except.Name() {
-					char := o.(*Character)
-					if char.Player() != nil {
-						returnChars = append(returnChars, char)
-					}
-				}
-			}
-		}
+		c = append(c, r.Here().Characters(true, except)...)
 	}
 
-	return returnChars
-}
-
-// AdjacentRooms returns the Room objects that are adjacent to the current room.
-func (a *Area) AdjacentRooms(r *Room) *AdjacentRooms {
-	return &AdjacentRooms{
-		North: Armeria.worldManager.RoomInDirection(a, r, NorthDirection),
-		South: Armeria.worldManager.RoomInDirection(a, r, SouthDirection),
-		East:  Armeria.worldManager.RoomInDirection(a, r, EastDirection),
-		West:  Armeria.worldManager.RoomInDirection(a, r, WestDirection),
-		Up:    Armeria.worldManager.RoomInDirection(a, r, UpDirection),
-		Down:  Armeria.worldManager.RoomInDirection(a, r, DownDirection),
-	}
+	return c
 }

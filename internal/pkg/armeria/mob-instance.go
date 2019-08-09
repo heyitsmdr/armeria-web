@@ -10,9 +10,18 @@ import (
 type MobInstance struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
-	Location         *Location         `json:"location"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	Parent           *Mob              `json:"-"`
+}
+
+// Init is called when the MobInstance is created or loaded from disk.
+func (mi *MobInstance) Init() {
+	Armeria.registry.Register(mi, mi.Id(), RegistryTypeMobInstance)
+}
+
+// Deinit is called when the MobInstance is deleted.
+func (mi *MobInstance) Deinit() {
+	Armeria.registry.Unregister(mi.Id())
 }
 
 // Id returns the UUID of the instance.
@@ -20,9 +29,9 @@ func (mi *MobInstance) Id() string {
 	return mi.UUID
 }
 
-// Type returns the object type, since Mob implements the Object interface.
-func (mi *MobInstance) Type() int {
-	return ObjectTypeMob
+// Type returns the object type, since Mob implements the ContainerObject interface.
+func (mi *MobInstance) Type() ContainerObjectType {
+	return ContainerObjectTypeMob
 }
 
 // UnsafeName returns the raw Mob name.
@@ -62,4 +71,13 @@ func (mi *MobInstance) Attribute(name string) string {
 	}
 
 	return mi.UnsafeAttributes[name]
+}
+
+// MobInstance returns the MobInstance's Room based on the object container it is within.
+func (mi *MobInstance) Room() *Room {
+	oc := Armeria.registry.GetObjectContainer(mi.Id())
+	if oc == nil {
+		return nil
+	}
+	return oc.ParentRoom()
 }

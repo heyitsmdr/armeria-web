@@ -17,8 +17,8 @@ type Character struct {
 	UUID                 string            `json:"uuid"`
 	UnsafeName           string            `json:"name"`
 	UnsafePassword       string            `json:"password"`
-	UnsafeLocation       *Location         `json:"location"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
+	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	player               *Player           `json:"-"`
 }
@@ -34,14 +34,19 @@ const (
 	ColorCmdHelp   int = 7
 )
 
+// Init is called when the Character is created or loaded from disk.
+func (c *Character) Init() {
+	Armeria.registry.Register(c, c.Id(), RegistryTypeCharacter)
+}
+
 // UUID returns the uuid of the character.
 func (c *Character) Id() string {
 	return c.UUID
 }
 
-// Type returns the object type, since Character implements the Object interface.
-func (c *Character) Type() int {
-	return ObjectTypeCharacter
+// Type returns the object type, since Character implements the ContainerObject interface.
+func (c *Character) Type() ContainerObjectType {
+	return ContainerObjectTypeCharacter
 }
 
 // UnsafeName returns the raw character name.
@@ -124,18 +129,13 @@ func (c *Character) SetPlayer(p *Player) {
 	c.player = p
 }
 
-// UnsafeLocation returns the character's location.
-func (c *Character) Location() *Location {
-	c.RLock()
-	defer c.RUnlock()
-
-	return c.UnsafeLocation
-}
-
-// SetLocation is a helper function to set a Character's Location based on a Location object.
-func (c *Character) SetLocation(l *Location) {
-	c.Location().SetAreaUUID(l.AreaUUID())
-	c.Location().Coords.Set(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I())
+// Room returns the character's Room based on the object container it is within.
+func (c *Character) Room() *Room {
+	oc := Armeria.registry.GetObjectContainer(c.Id())
+	if oc == nil {
+		return nil
+	}
+	return oc.ParentRoom()
 }
 
 // Colorize will color text according to the character's color settings.
@@ -167,8 +167,8 @@ func (c *Character) Colorize(text string, color int) string {
 
 // LoggedIn handles everything that needs to happen when a character enters the game.
 func (c *Character) LoggedIn() {
-	room := c.Location().Room()
-	area := c.Location().Area()
+	room := c.Room()
+	area := c.Room().ParentArea
 
 	// Add character to room
 	if room == nil || area == nil {
@@ -177,14 +177,12 @@ func (c *Character) LoggedIn() {
 		)
 		return
 	}
-	room.AddObjectToRoom(c)
 
 	// Use command: /look
 	Armeria.commandManager.ProcessCommand(c.Player(), "look", false)
 
 	// Show message to others in the same room
-	roomChars := room.Characters(c)
-	for _, char := range roomChars {
+	for _, char := range room.Here().Characters(true, c) {
 		pc := char.Player()
 		pc.client.ShowText(
 			fmt.Sprintf("%s connected and appeared here with you.", c.Name()),
@@ -201,8 +199,8 @@ func (c *Character) LoggedIn() {
 
 // LoggedOut handles everything that needs to happen when a character leaves the game.
 func (c *Character) LoggedOut() {
-	room := c.Location().Room()
-	area := c.Location().Area()
+	room := c.Room()
+	area := c.Room().ParentArea
 
 	// Remove character from room
 	if room == nil || area == nil {
@@ -211,11 +209,9 @@ func (c *Character) LoggedOut() {
 		)
 		return
 	}
-	room.RemoveObjectFromRoom(c)
 
 	// Show message to others in the same room
-	roomChars := room.Characters(nil)
-	for _, char := range roomChars {
+	for _, char := range room.Here().Characters(true, nil) {
 		pc := char.Player()
 		pc.client.ShowText(
 			fmt.Sprintf("%s disconnected and is no longer here with you.", c.Name()),
@@ -282,8 +278,7 @@ func (c *Character) Attribute(name string) string {
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed.
-func (c *Character) MoveAllowed(to *Location) (bool, string) {
-	r := to.Room()
+func (c *Character) MoveAllowed(r *Room) (bool, string) {
 	if r == nil {
 		return false, "You cannot move that way."
 	}
@@ -300,35 +295,33 @@ func (c *Character) MoveAllowed(to *Location) (bool, string) {
 }
 
 // Move will move the character to a new location (no move checks are performed).
-func (c *Character) Move(to *Location, msgToChar string, msgToOld string, msgToNew string) {
-	oldRoom := c.Location().Room()
-	newRoom := to.Room()
-	oldArea := c.Location().Area()
-	newArea := to.Area()
+func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew string) {
+	oldRoom := c.Room()
 
-	oldRoom.RemoveObjectFromRoom(c)
-	newRoom.AddObjectToRoom(c)
+	oldRoom.Here().Remove(c.Id())
+	if err := to.Here().Add(c.Id()); err != nil {
+		Armeria.log.Fatal("error adding character to destination room")
+	}
 
-	for _, char := range oldRoom.Characters(nil) {
+	for _, char := range oldRoom.Here().Characters(true, nil) {
 		char.Player().client.ShowText(msgToOld)
 	}
 
-	for _, char := range newRoom.Characters(c) {
+	for _, char := range to.Here().Characters(true, c) {
 		char.Player().client.ShowText(msgToNew)
 	}
 
 	c.Player().client.ShowText(msgToChar)
 
-	c.SetLocation(to)
-
+	oldArea := oldRoom.ParentArea
+	newArea := to.ParentArea
 	if oldArea.Id() != newArea.Id() {
 		oldArea.CharacterLeft(c, false)
 		newArea.CharacterEntered(c, false)
 	}
 
-	// Trigger character entered / left events on the new and old rooms, respectively
-	newRoom.CharacterEntered(c, false)
-	oldRoom.CharacterLeft(c, false)
+	oldRoom.CharacterEntered(c, false)
+	to.CharacterEntered(c, false)
 }
 
 // EditorData returns the JSON used for the object editor.
