@@ -14,6 +14,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+// Room is a physical room that exists within an Area.
 type Room struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
@@ -23,6 +24,7 @@ type Room struct {
 	ParentArea       *Area             `json:"-"`
 }
 
+// AdjacentRooms holds all of the Room objects that are adjacent to the current room.
 type AdjacentRooms struct {
 	North *Room
 	South *Room
