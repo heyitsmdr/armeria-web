@@ -6,6 +6,7 @@ jobs:
     steps:
       - checkout
       - run: mkdir -p workspace
+      - run: cp -r config workspace/
       - run:
           name: Build binary
           command: go build -o workspace/armeria cmd/armeria/main.go
