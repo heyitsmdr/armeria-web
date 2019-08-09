@@ -24,7 +24,6 @@ func NewMobManager() *MobManager {
 
 	m.LoadMobs()
 	m.AttachParents()
-	m.AddMobInstancesToRooms()
 
 	return m
 }
@@ -106,27 +105,6 @@ func (m *MobManager) AttachParents() {
 	for _, m := range m.UnsafeMobs {
 		for _, mi := range m.Instances() {
 			mi.Parent = m
-		}
-	}
-}
-
-// AddMobInstancesToRooms adds MobInstance objects to their respective Room objects.
-func (m *MobManager) AddMobInstancesToRooms() {
-	m.RLock()
-	defer m.RUnlock()
-
-	for _, m := range m.UnsafeMobs {
-		for _, mi := range m.Instances() {
-			r := mi.Location.Room()
-			if r == nil {
-				Armeria.log.Fatal("mob instance in invalid room",
-					zap.String("mob", mi.Name()),
-					zap.String("uuid", mi.Id()),
-					zap.String("location", fmt.Sprintf("%v", mi.Location)),
-				)
-				return
-			}
-			r.AddObjectToRoom(mi)
 		}
 	}
 }

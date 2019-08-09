@@ -93,13 +93,12 @@ func (m *Mob) EditorData() *ObjectEditorData {
 
 // CreateInstance creates a new MobInstance, adds it to the Mob
 // and returns the MobInstance.
-func (m *Mob) CreateInstance(l *Location) *MobInstance {
+func (m *Mob) CreateInstance() *MobInstance {
 	m.Lock()
 	defer m.Unlock()
 
 	mi := &MobInstance{
 		UUID:             uuid.New().String(),
-		Location:         CopyLocation(l),
 		UnsafeAttributes: make(map[string]string),
 		Parent:           m,
 	}

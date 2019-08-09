@@ -117,6 +117,19 @@ func (oc *ObjectContainer) AtSlot(slot int) (interface{}, *ObjectContainerDefini
 	return nil, nil, RegistryTypeUnknown
 }
 
+func (oc *ObjectContainer) All() []interface{} {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	var everything []interface{}
+	for _, ocd := range oc.UnsafeObjects {
+		o, _ := Armeria.registry.Get(ocd.UUID)
+		everything = append(everything, o)
+	}
+
+	return everything
+}
+
 // Sync will make sure all objects within the container are registered to the global registry. Note that this
 // will NOT remove objects from the global registry that have since been removed from the container. The Remove()
 // function on the ObjectContainer will handle that.
@@ -130,7 +143,7 @@ func (oc *ObjectContainer) Sync() {
 }
 
 // Characters returns all Character objects from the container.
-func (oc *ObjectContainer) Characters(except *Character) []*Character {
+func (oc *ObjectContainer) Characters(onlineOnly bool, except *Character) []*Character {
 	oc.RLock()
 	defer oc.RUnlock()
 
@@ -138,13 +151,31 @@ func (oc *ObjectContainer) Characters(except *Character) []*Character {
 	for _, ocd := range oc.UnsafeObjects {
 		c, ot := Armeria.registry.Get(ocd.UUID)
 		if ot == RegistryTypeCharacter {
-			if except == nil || c.(*Character).Id() != except.Id() {
-				chars = append(chars, c.(*Character))
+			if !onlineOnly || c.(*Character).Player() != nil {
+				if except == nil || c.(*Character).Id() != except.Id() {
+					chars = append(chars, c.(*Character))
+				}
 			}
 		}
 	}
 
 	return chars
+}
+
+// Mobs returns all MobInstance objects from the container.
+func (oc *ObjectContainer) Mobs() []*MobInstance {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	var mobs []*MobInstance
+	for _, ocd := range oc.UnsafeObjects {
+		m, ot := Armeria.registry.Get(ocd.UUID)
+		if ot == RegistryTypeMobInstance {
+			mobs = append(mobs, m.(*MobInstance))
+		}
+	}
+
+	return mobs
 }
 
 // Remove removes an object from the container.

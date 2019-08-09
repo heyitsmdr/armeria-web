@@ -10,7 +10,6 @@ import (
 type MobInstance struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
-	Location         *Location         `json:"location"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	Parent           *Mob              `json:"-"`
 }
@@ -67,4 +66,13 @@ func (mi *MobInstance) Attribute(name string) string {
 	}
 
 	return mi.UnsafeAttributes[name]
+}
+
+// MobInstance returns the MobInstance's Room based on the object container it is within.
+func (mi *MobInstance) Room() *Room {
+	oc := Armeria.registry.GetObjectContainer(mi.Id())
+	if oc == nil {
+		return nil
+	}
+	return oc.ParentRoom()
 }

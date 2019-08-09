@@ -35,12 +35,12 @@ const (
 	DownDirection  = "down"
 )
 
-// Init is called when the Area is created or loaded from disk.
+// Init is called when the ParentArea is created or loaded from disk.
 func (a *Area) Init() {
 	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
 }
 
-// Id returns the UUID of the Area.
+// Id returns the UUID of the ParentArea.
 func (a *Area) Id() string {
 	return a.UUID
 }
@@ -180,32 +180,22 @@ func (a *Area) Characters(except *Character) []*Character {
 	a.RLock()
 	defer a.RUnlock()
 
-	var returnChars []*Character
-
+	var c []*Character
 	for _, r := range a.UnsafeRooms {
-		for _, o := range r.Objects() {
-			if o.Type() == ObjectTypeCharacter {
-				if except == nil || o.Name() != except.Name() {
-					char := o.(*Character)
-					if char.Player() != nil {
-						returnChars = append(returnChars, char)
-					}
-				}
-			}
-		}
+		c = append(c, r.Here().Characters(true, except)...)
 	}
 
-	return returnChars
+	return c
 }
 
 // AdjacentRooms returns the Room objects that are adjacent to the current room.
 func (a *Area) AdjacentRooms(r *Room) *AdjacentRooms {
 	return &AdjacentRooms{
-		North: Armeria.worldManager.RoomInDirection(a, r, NorthDirection),
-		South: Armeria.worldManager.RoomInDirection(a, r, SouthDirection),
-		East:  Armeria.worldManager.RoomInDirection(a, r, EastDirection),
-		West:  Armeria.worldManager.RoomInDirection(a, r, WestDirection),
-		Up:    Armeria.worldManager.RoomInDirection(a, r, UpDirection),
-		Down:  Armeria.worldManager.RoomInDirection(a, r, DownDirection),
+		North: Armeria.worldManager.RoomInDirection(r, NorthDirection),
+		South: Armeria.worldManager.RoomInDirection(r, SouthDirection),
+		East:  Armeria.worldManager.RoomInDirection(r, EastDirection),
+		West:  Armeria.worldManager.RoomInDirection(r, WestDirection),
+		Up:    Armeria.worldManager.RoomInDirection(r, UpDirection),
+		Down:  Armeria.worldManager.RoomInDirection(r, DownDirection),
 	}
 }

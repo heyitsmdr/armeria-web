@@ -7,36 +7,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Coords store positional information relative to an Area.
+// Coords store positional information relative to an ParentArea.
 type Coords struct {
 	sync.RWMutex
 	UnsafeX int `json:"x"`
 	UnsafeY int `json:"y"`
 	UnsafeZ int `json:"z"`
 	UnsafeI int `json:"-"`
-}
-
-// Location stores where something is within the world.
-type Location struct {
-	sync.RWMutex
-	UnsafeAreaUUID string  `json:"area"`
-	Coords         *Coords `json:"coords"`
-}
-
-// NewLocation creates and returns a new Location at instance 0.
-func NewLocation(areaUuid string, x int, y int, z int) *Location {
-	return &Location{
-		UnsafeAreaUUID: areaUuid,
-		Coords:         NewCoords(x, y, z, 0),
-	}
-}
-
-// CopyLocation copies the contents of a Location pointer and returns a fresh Location pointer.
-func CopyLocation(l *Location) *Location {
-	return &Location{
-		UnsafeAreaUUID: l.AreaUUID(),
-		Coords:         NewCoords(l.Coords.X(), l.Coords.Y(), l.Coords.Z(), l.Coords.I()),
-	}
 }
 
 // NewCoords creates and returns a new Coords.
@@ -57,46 +34,6 @@ func CopyCoords(c *Coords) *Coords {
 		UnsafeZ: c.Z(),
 		UnsafeI: c.I(),
 	}
-}
-
-// AreaUUID returns the Area UUID for the Location.
-func (l *Location) AreaUUID() string {
-	l.RLock()
-	defer l.RUnlock()
-
-	return l.UnsafeAreaUUID
-}
-
-// SetAreaUUID sets the Area UUID for the Location.
-func (l *Location) SetAreaUUID(uuid string) {
-	l.Lock()
-	defer l.Unlock()
-
-	l.UnsafeAreaUUID = uuid
-}
-
-// Area returns the Area object referenced by the Location.
-func (l *Location) Area() *Area {
-	l.RLock()
-	defer l.RUnlock()
-
-	for _, a := range Armeria.worldManager.Areas() {
-		if a.Id() == l.UnsafeAreaUUID {
-			return a
-		}
-	}
-
-	return nil
-}
-
-// Room returns the Room object referenced by the Location.
-func (l *Location) Room() *Room {
-	a := l.Area()
-	if a == nil {
-		return nil
-	}
-
-	return a.RoomAt(l.Coords)
 }
 
 // X returns the x-coordinate.
