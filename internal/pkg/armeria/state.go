@@ -29,9 +29,8 @@ var (
 	Armeria *GameState
 )
 
-func Init(fileLocation string) {
-
-	c := parseConfigFile(fileLocation)
+func Init(configFilePath string) {
+	c := parseConfigFile(configFilePath)
 
 	Armeria = &GameState{
 		production:       c.Production,

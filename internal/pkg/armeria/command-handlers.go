@@ -212,19 +212,20 @@ func handleMoveCommand(ctx *CommandContext) {
 	Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
 }
 
-func handleRoomEditCommand(stx *CommandContext) {
-	t := stx.Args["target"]
-	a := stx.Character.Location().Area()
-	tr := stx.Character.Location().Room()
+func handleRoomEditCommand(ctx *CommandContext) {
+	t := ctx.Args["target"]
+	a := ctx.Character.Room().ParentArea
+	tr := ctx.Character.Room()
 
 	args := strings.Split(t, ",")
 
 	if args[0] == "" {
-		stx.Player.client.ShowObjectEditor(tr.EditorData())
+		ctx.Player.client.ShowObjectEditor(tr.EditorData())
 		return
 	}
+
 	if len(args) != 3 {
-		stx.Player.client.ShowColorizedText("Incorrect format for room edit. Use [x],[y],[z].", ColorError)
+		ctx.Player.client.ShowColorizedText("Incorrect format for the target room. Use [x],[y],[z].", ColorError)
 		return
 	}
 
@@ -232,19 +233,19 @@ func handleRoomEditCommand(stx *CommandContext) {
 	y, yerr := strconv.Atoi(args[1])
 	z, zerr := strconv.Atoi(args[2])
 	if xerr != nil || yerr != nil || zerr != nil {
-		stx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
+		ctx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
 		return
 	}
 
 	tr = a.RoomAt(NewCoords(x, y, z, 0))
 	if tr != nil {
-		stx.Player.client.ShowObjectEditor(tr.EditorData())
+		ctx.Player.client.ShowObjectEditor(tr.EditorData())
 	} else {
-		stx.Player.client.ShowColorizedText("The specified room does not exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("The specified room does not exist.", ColorError)
 		return
 	}
 
-	stx.Player.client.ShowObjectEditor(stx.Character.Room().EditorData())
+	ctx.Player.client.ShowObjectEditor(ctx.Character.Room().EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
@@ -254,13 +255,16 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		return
 	}
 	ta := ctx.Args["target"]
-	tr := ctx.Character.Location().Room()
+	tr := ctx.Character.Room()
 
 	if ta != "." {
 		ts := strings.Split(ta, ",")
 
 		if len(ts) != 3 {
-			ctx.Player.client.ShowColorizedText("Incorrect format for room set. Use /room set [x],[y],[z].", ColorError)
+			ctx.Player.client.ShowColorizedText(
+				"Incorrect format for the target room. Use [x],[y],[z] (or \".\" to reference the current room).",
+				ColorError,
+			)
 			return
 		}
 
@@ -271,7 +275,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 			ctx.Player.client.ShowColorizedText("The x, y, and z coordinates must be valid numbers.", ColorError)
 			return
 		}
-		tr = ctx.Character.Location().Area().RoomAt(NewCoords(x, y, z, 0))
+		tr = ctx.Character.Room().ParentArea.RoomAt(NewCoords(x, y, z, 0))
 	}
 
 	if tr != nil {
@@ -505,7 +509,7 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	c.SetAttribute(attr, val)
+	_ = c.SetAttribute(attr, val)
 
 	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You modified the [b]%s[/b] property of the character %s.", attr, c.FormattedName()),
