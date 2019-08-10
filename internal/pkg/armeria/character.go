@@ -211,7 +211,7 @@ func (c *Character) LoggedOut() {
 	}
 
 	// Show message to others in the same room
-	for _, char := range room.Here().Characters(true, nil) {
+	for _, char := range room.Here().Characters(true, c) {
 		pc := char.Player()
 		pc.client.ShowText(
 			fmt.Sprintf("%s disconnected and is no longer here with you.", c.Name()),

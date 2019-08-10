@@ -56,7 +56,17 @@ export default {
       windowWidth: 0,
     }
   },
-  computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen']),
+  computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen', 'isConnected']),
+  watch: {
+    isConnected: function(connected) {
+      let token = this.$store.state.autoLoginToken;
+      if (connected && token.length > 0) {
+        this.$store.dispatch('sendSlashCommand', {
+          command: `/logintoken ${token}`
+        });
+      }
+    }
+  },
   methods: {
     onWindowResize() {
       this.windowHeight = window.innerHeight;
@@ -64,6 +74,7 @@ export default {
 
       document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
     },
+
     onKeyUp(event) {
       if (!this.allowGlobalHotkeys) {
         return;
@@ -105,6 +116,7 @@ export default {
       }
     }
   },
+
   mounted() {
     this.onWindowResize();
 
@@ -118,6 +130,7 @@ export default {
       this.onKeyUp
     );
   },
+
   destroyed() {
     window.removeEventListener(
       'resize',

@@ -11,6 +11,7 @@ type Command struct {
 	Name         string
 	AltNames     []string
 	Help         string
+	Hidden       bool
 	Alias        string
 	Permissions  *CommandPermissions
 	AllowedRoles []int
@@ -40,7 +41,7 @@ type CommandContext struct {
 	Args            map[string]string
 }
 
-// CheckPermissions returns whether or not a parent can use the command
+// CheckPermissions returns whether or not a parent can see/use the command.
 func (cmd *Command) CheckPermissions(p *Player) bool {
 	if cmd.Permissions == nil {
 		return true
@@ -66,7 +67,7 @@ func (cmd *Command) CheckPermissions(p *Player) bool {
 	return true
 }
 
-// ShowSubcommandHelp returns the list of sub-commands that the parent has access to as a string
+// ShowSubcommandHelp returns the list of sub-commands that the parent has access to as a string.
 func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) string {
 	if len(cmd.Subcommands) == 0 {
 		return "There are no sub-commands available."

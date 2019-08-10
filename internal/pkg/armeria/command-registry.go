@@ -27,6 +27,21 @@ func RegisterGameCommands() {
 			Handler: handleLoginCommand,
 		},
 		{
+			Name:   "logintoken",
+			Help:   "Log your character into the game world (with a token).",
+			Hidden: true,
+			Permissions: &CommandPermissions{
+				RequireNoCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:  "token",
+					NoLog: true,
+				},
+			},
+			Handler: handleLoginCommand,
+		},
+		{
 			Name: "look",
 			Help: "Look at something.",
 			Permissions: &CommandPermissions{
@@ -537,7 +552,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "get",
-			Help: "Grabs an item from the ground.",
+			Help: "Grab an item from the ground.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -548,6 +563,14 @@ func RegisterGameCommands() {
 				},
 			},
 			Handler: handleGetCommand,
+		},
+		{
+			Name: "autologin",
+			Help: "Toggle auto-login for your character.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleAutoLoginCommand,
 		},
 	}
 

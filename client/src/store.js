@@ -17,6 +17,7 @@ export default new Vuex.Store({
     objectTarget: '',
     objectEditorOpen: false,
     objectEditorData: {},
+    autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -83,7 +84,17 @@ export default new Vuex.Store({
 
     SET_FORCE_INPUT_FOCUS: (state, force) => {
       state.forceInputFocus = force;
-    }
+    },
+
+    SET_AUTOLOGIN_TOKEN: (state, token) => {
+      state.autoLoginToken = token;
+      window.localStorage.setItem('auto_login_token', token);
+      if (token.length > 0) {
+        state.gameText.push('<br>You will now be automatically logged in to this character.');
+      } else {
+        state.gameText.push('<br>You will no longer be automatically logged in to this character.');
+      }
+    },
   },
   actions: {
     sendSlashCommand: ({ state }, payload) => {
@@ -148,6 +159,14 @@ export default new Vuex.Store({
 
     disconnect: () => {
       Vue.prototype.$socket.close();
+    },
+
+    toggleAutoLogin: ({ state, commit }, payload) => {
+      if (state.autoLoginToken !== '') {
+        commit('SET_AUTOLOGIN_TOKEN', '');
+      } else {
+        commit('SET_AUTOLOGIN_TOKEN', payload.data);
+      }
     }
   }
 })

@@ -3,6 +3,7 @@ package armeria
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -104,4 +105,12 @@ func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 // Disconnect requests that the client disconnects from the server.
 func (ca *ClientActions) Disconnect() {
 	ca.parent.CallClientAction("disconnect", nil)
+}
+
+// ToggleAutologin sets (or disables) auto-login on the client.
+func (ca *ClientActions) ToggleAutologin() {
+	ca.parent.CallClientAction(
+		"toggleAutoLogin",
+		strings.ToLower(ca.parent.Character().Name())+":"+ca.parent.Character().PasswordHash(),
+	)
 }

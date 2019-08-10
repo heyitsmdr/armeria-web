@@ -10,19 +10,34 @@ import (
 )
 
 func handleLoginCommand(ctx *CommandContext) {
-	if len(ctx.Args) != 2 {
-		return
-	}
+	var c *Character
 
-	c := Armeria.characterManager.CharacterByName(ctx.Args["character"])
-	if c == nil {
-		ctx.Player.client.ShowText("Character not found.")
-		return
-	}
+	if len(ctx.Args) == 1 {
+		// token auth
+		sections := strings.Split(ctx.Args["token"], ":")
 
-	if !c.CheckPassword(ctx.Args["password"]) {
-		ctx.Player.client.ShowColorizedText("Password incorrect for that character.", ColorError)
-		return
+		c = Armeria.characterManager.CharacterByName(sections[0])
+		if c == nil {
+			ctx.Player.client.ShowText("Character not found.")
+			return
+		}
+
+		if c.PasswordHash() != sections[1] {
+			ctx.Player.client.ShowColorizedText("Invalid token for that character.", ColorError)
+			return
+		}
+	} else {
+		// basic auth
+		c = Armeria.characterManager.CharacterByName(ctx.Args["character"])
+		if c == nil {
+			ctx.Player.client.ShowText("Character not found.")
+			return
+		}
+
+		if !c.CheckPassword(ctx.Args["password"]) {
+			ctx.Player.client.ShowColorizedText("Password incorrect for that character.", ColorError)
+			return
+		}
 	}
 
 	if c.Player() != nil {
@@ -1007,7 +1022,7 @@ func handleCommandsCommand(ctx *CommandContext) {
 	var valid []*Command
 	var largest int
 	for _, cmd := range Armeria.commandManager.Commands() {
-		if cmd.CheckPermissions(ctx.Player) && len(cmd.Alias) == 0 {
+		if cmd.CheckPermissions(ctx.Player) && len(cmd.Alias) == 0 && !cmd.Hidden {
 			valid = append(valid, cmd)
 
 			if len(cmd.Name) > largest {
@@ -1134,4 +1149,8 @@ func handleGetCommand(ctx *CommandContext) {
 	// i := o.(*ItemInstance)
 
 	ctx.Player.client.ShowColorizedText("Ok.", ColorSuccess)
+}
+
+func handleAutoLoginCommand(ctx *CommandContext) {
+	ctx.Player.client.ToggleAutologin()
 }

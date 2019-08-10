@@ -180,7 +180,7 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 
 // CharacterLeft is called when the character left the room (or logged out).
 func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
-	for _, char := range r.Here().Characters(true, nil) {
+	for _, char := range r.Here().Characters(true, c) {
 		char.Player().client.SyncRoomObjects()
 	}
 
