@@ -69,7 +69,7 @@ func handleLookCommand(ctx *CommandContext) {
 			continue
 		}
 
-		if obj.Id() != ctx.Character.Id() {
+		if obj.ID() != ctx.Character.ID() {
 			objNames = append(objNames, obj.FormattedName())
 		}
 	}
@@ -651,7 +651,7 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 	}
 
 	mi := m.CreateInstance()
-	_ = ctx.Character.Room().Here().Add(mi.Id())
+	_ = ctx.Character.Room().Here().Add(mi.ID())
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, nil) {
 		c.Player().client.ShowText(
@@ -676,7 +676,7 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 				"  %d) %s (%s) is currently at %s,%d,%d,%d (%s).",
 				i+1,
 				mi.FormattedName(),
-				mi.Id(),
+				mi.ID(),
 				mi.Room().ParentArea.Name(),
 				mi.Room().Coords.X(),
 				mi.Room().Coords.Y(),
@@ -701,13 +701,13 @@ func handleWipeCommand(ctx *CommandContext) {
 		switch obj.Type() {
 		case ContainerObjectTypeMob:
 			m := Armeria.mobManager.MobByName(obj.Name())
-			ctx.Character.Room().Here().Remove(obj.Id())
+			ctx.Character.Room().Here().Remove(obj.ID())
 			if m != nil {
 				m.DeleteInstance(obj.(*MobInstance))
 			}
 		case ContainerObjectTypeItem:
 			i := Armeria.itemManager.ItemByName(obj.Name())
-			ctx.Character.Room().Here().Remove(obj.Id())
+			ctx.Character.Room().Here().Remove(obj.ID())
 			if i != nil {
 				i.DeleteInstance(obj.(*ItemInstance))
 			}
@@ -778,7 +778,7 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 	}
 
 	ii := i.CreateInstance()
-	_ = ctx.Character.Room().Here().Add(ii.Id())
+	_ = ctx.Character.Room().Here().Add(ii.ID())
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, nil) {
 		c.Player().client.ShowText(
@@ -844,7 +844,7 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 
 	var itemLocations []string
 	for idx, ii := range i.Instances() {
-		ctr := Armeria.registry.GetObjectContainer(ii.Id())
+		ctr := Armeria.registry.GetObjectContainer(ii.ID())
 		if ctr.ParentType() == ContainerParentTypeRoom {
 			itemLocations = append(
 				itemLocations,
@@ -852,7 +852,7 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 					"  %d) %s (%s) is currently at %s,%d,%d,%d (%s).",
 					idx+1,
 					ii.FormattedName(),
-					ii.Id(),
+					ii.ID(),
 					ii.Room().ParentArea.Name(),
 					ii.Room().Coords.X(),
 					ii.Room().Coords.Y(),
@@ -864,10 +864,11 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 			itemLocations = append(
 				itemLocations,
 				fmt.Sprintf(
-					"  %d) %s (%s) is currently on the character %s.",
+					"  %d) %s (%s) is currently in the inventory (slot %d) of character %s.",
 					idx+1,
 					ii.FormattedName(),
-					ii.Id(),
+					ii.ID(),
+					ii.Character().Inventory().Slot(ii.ID()),
 					ii.Character().FormattedName(),
 				),
 			)
@@ -1137,7 +1138,8 @@ func handleClipboardClearCommand(ctx *CommandContext) {
 func handleGetCommand(ctx *CommandContext) {
 	istring := ctx.Args["item"]
 
-	o, _, rt := ctx.Character.Room().Here().GetByName(istring)
+	roomObjects := ctx.Character.Room().Here()
+	o, _, rt := roomObjects.GetByName(istring)
 	if o == nil {
 		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
 		return
@@ -1146,9 +1148,110 @@ func handleGetCommand(ctx *CommandContext) {
 		return
 	}
 
-	// i := o.(*ItemInstance)
+	item := o.(*ItemInstance)
 
-	ctx.Player.client.ShowColorizedText("Ok.", ColorSuccess)
+	roomObjects.Remove(item.ID())
+	err := ctx.Character.Inventory().Add(item.ID())
+	if err == ErrContainerNoRoom {
+		_ = roomObjects.Add(item.ID())
+		ctx.Player.client.ShowColorizedText("You have no room in your inventory.", ColorError)
+		return
+	} else if err == ErrContainerDuplicate {
+		_ = roomObjects.Add(item.ID())
+		ctx.Player.client.ShowColorizedText("You already have that item instance in your inventory.", ColorError)
+		return
+	}
+
+	ctx.Player.client.SyncRoomObjects()
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You picked up a %s.", item.FormattedName()),
+		ColorSuccess,
+	)
+
+	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
+		c.Player().client.SyncRoomObjects()
+		c.Player().client.ShowColorizedText(
+			fmt.Sprintf("%s picked up a %s.", ctx.Character.FormattedName(), item.FormattedName()),
+			ColorSuccess,
+		)
+	}
+}
+
+func handleDropCommand(ctx *CommandContext) {
+	istring := ctx.Args["item"]
+
+	var item *ItemInstance
+
+	// check using uuid first, followed by item name
+	i, _, _ := ctx.Character.Inventory().Get(istring)
+	if i != nil {
+		item = i.(*ItemInstance)
+	} else {
+		i, _, _ = ctx.Character.Inventory().GetByName(istring)
+		if i != nil {
+			item = i.(*ItemInstance)
+		} else {
+			ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
+			return
+		}
+	}
+
+	ctx.Character.Inventory().Remove(item.ID())
+	_ = ctx.Character.Room().Here().Add(item.ID())
+
+	ctx.Player.client.SyncRoomObjects()
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You dropped a %s.", item.FormattedName()),
+		ColorSuccess,
+	)
+
+	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
+		c.Player().client.SyncRoomObjects()
+		c.Player().client.ShowColorizedText(
+			fmt.Sprintf("%s dropped a %s.", ctx.Character.FormattedName(), item.FormattedName()),
+			ColorSuccess,
+		)
+	}
+}
+
+func handleSwapCommand(ctx *CommandContext) {
+	source := ctx.Args["source"]
+	destination := ctx.Args["destination"]
+
+	snum, err := strconv.Atoi(source)
+	if err != nil {
+		ctx.Player.client.ShowColorizedText("You must enter a valid slot number as the source slot.", ColorError)
+		return
+	}
+
+	dnum, err := strconv.Atoi(destination)
+	if err != nil {
+		ctx.Player.client.ShowColorizedText("You must enter a valid slot number as the destination slot.", ColorError)
+		return
+	}
+
+	if snum >= ctx.Character.Inventory().MaxSize() {
+		ctx.Player.client.ShowColorizedText("Source slot does not exist in your inventory.", ColorError)
+		return
+	}
+
+	if dnum >= ctx.Character.Inventory().MaxSize() {
+		ctx.Player.client.ShowColorizedText("Destination slot does not exist in your inventory.", ColorError)
+		return
+	}
+
+	sitem, _, _ := ctx.Character.Inventory().AtSlot(snum)
+	ditem, _, _ := ctx.Character.Inventory().AtSlot(dnum)
+	if sitem != nil {
+		ctx.Character.Inventory().SetSlot(sitem.(*ItemInstance).ID(), dnum)
+	}
+	if ditem != nil {
+		ctx.Character.Inventory().SetSlot(ditem.(*ItemInstance).ID(), snum)
+	}
+
+	ctx.Player.client.SyncInventory()
 }
 
 func handleAutoLoginCommand(ctx *CommandContext) {

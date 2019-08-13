@@ -129,7 +129,7 @@ func (m *ItemManager) ItemInstanceById(uuid string) *ItemInstance {
 
 	for _, i := range m.UnsafeItems {
 		for _, ii := range i.Instances() {
-			if ii.Id() == uuid {
+			if ii.ID() == uuid {
 				return ii
 			}
 		}

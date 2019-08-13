@@ -1,9 +1,9 @@
 <template>
-    <div class="root">
+    <div class="root" @dragenter="handleDragEnter" @dragleave="handleDragLeave" @dragover.prevent @drop="handleDrop">
         <div class="container" @click="handleClick">
             <Target
                 v-for="obj in sortedRoomObjects"
-                :key="obj.type + '-' + obj.name"
+                :key="obj.uuid"
                 :name="obj.name"
                 :pictureKey="obj.picture"
                 :objectType="obj.type"
@@ -39,18 +39,39 @@ export default {
     methods: {
         handleClick: function() {
             //this.$store.dispatch('setObjectTarget', '');
+        },
+
+        handleDragEnter: function(e) {
+            e.target.classList.add('candrop');
+        },
+
+        handleDragLeave: function(e) {
+            e.target.classList.remove('candrop');
+        },
+
+        handleDrop: function(e) {
+            e.target.classList.remove('candrop');
+            let iuuid = e.dataTransfer.getData("item_uuid");
+            this.$store.dispatch('sendSlashCommand', {
+                command: `/drop ${iuuid}`
+            });
         }
     }
 }
 </script>
 
 <style lang="scss" scoped>
-.root {
-    height: 100%;
-    background-color: #131313;
-}
+    .root {
+        height: 100%;
+        background-color: #131313;
+    }
 
-.container {
-    padding-top: 10px;
-}
+    .root.candrop {
+        background-color: #313131;
+    }
+
+    .container {
+        padding-top: 10px;
+    }
+
 </style>

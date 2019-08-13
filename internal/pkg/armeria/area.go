@@ -36,7 +36,7 @@ func (a *Area) Deinit() {
 	Armeria.registry.Unregister(a.Id())
 }
 
-// Id returns the UUID of the Area.
+// ID returns the UUID of the Area.
 func (a *Area) Id() string {
 	return a.UUID
 }
@@ -167,7 +167,7 @@ func (a *Area) RemoveRoom(r *Room) {
 	r.Deinit()
 
 	for i, rm := range a.UnsafeRooms {
-		if rm.Id() == r.Id() {
+		if rm.ID() == r.ID() {
 			a.UnsafeRooms[i] = a.UnsafeRooms[len(a.UnsafeRooms)-1]
 			a.UnsafeRooms = a.UnsafeRooms[:len(a.UnsafeRooms)-1]
 			break

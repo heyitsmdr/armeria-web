@@ -2,18 +2,21 @@
     <div
         class="item"
         draggable="true"
+        :style="{ backgroundImage: getBackgroundUrl() }"
         @dragstart="handleItemDragStart"
         @dragend="handleItemDragEnd"
         @dragenter="handleItemDragEnter"
         @dragleave="handleItemDragLeave"
+        @dragover.prevent
+        @drop="handleItemDrop"
     >
-
     </div>
 </template>
 
 <script>
 export default {
     name: 'Item',
+    props: ['uuid', 'slotNum', 'pictureKey'],
     methods: {
         handleItemDragEnter: function(e) {
             e.target.classList.add('candrop');
@@ -25,13 +28,32 @@ export default {
 
         handleItemDragStart: function(e) {
             e.target.classList.add('dragging');
-            //e.dataTransfer.setData('is_item', 'true');
-            // And in Drop event: e.dataTransfer.getData("some_data");
+            e.dataTransfer.setData('item_uuid', this.uuid);
+            e.dataTransfer.setData('item_slot', this.slotNum);
         },
 
         handleItemDragEnd: function(e) {
             e.target.classList.remove('dragging');
-        }
+        },
+
+        handleItemDrop: function(e) {
+            e.target.classList.remove('candrop');
+
+            let slot = e.dataTransfer.getData("item_slot");
+            if (slot) {
+                this.$store.dispatch('sendSlashCommand', {
+                    command: `/swap ${slot} ${this.slotNum}`
+                });
+            }
+        },
+
+        getBackgroundUrl() {
+            if (!this.isProduction) {
+                return `url(http://localhost:8081/oi/${this.pictureKey})`;
+            }
+
+            return `url(/oi/${this.pictureKey})`;
+        },
     }
 }
 </script>
@@ -41,6 +63,7 @@ export default {
         width: 40px;
         height: 40px;
         background-color: #000000;
+        background-size: contain;
         border: 1px solid #333;
         margin-right: 4px;
         margin-bottom: 4px;
@@ -59,5 +82,11 @@ export default {
 
     .item.dragging {
         opacity: 0.5;
+    }
+
+    .item .picture {
+        background-size: contain;
+        height: 100%;
+        width: 100%;
     }
 </style>

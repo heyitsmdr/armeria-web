@@ -108,7 +108,7 @@ func (m *CharacterManager) CharacterById(uuid string) *Character {
 	defer m.RUnlock()
 
 	for _, c := range m.UnsafeCharacters {
-		if c.Id() == uuid {
+		if c.ID() == uuid {
 			return c
 		}
 	}

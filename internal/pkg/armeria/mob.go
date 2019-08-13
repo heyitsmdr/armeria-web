@@ -118,7 +118,7 @@ func (m *Mob) DeleteInstance(mi *MobInstance) bool {
 	mi.Deinit()
 
 	for i, inst := range m.UnsafeInstances {
-		if inst.Id() == mi.Id() {
+		if inst.ID() == mi.ID() {
 			m.UnsafeInstances[i] = m.UnsafeInstances[len(m.UnsafeInstances)-1]
 			m.UnsafeInstances = m.UnsafeInstances[:len(m.UnsafeInstances)-1]
 			return true

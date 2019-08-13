@@ -70,7 +70,7 @@ func (ca *ClientActions) SyncMapLocation() {
 
 // SyncRoomObjects sets the current room objects on the client.
 func (ca *ClientActions) SyncRoomObjects() {
-	obj := ca.parent.Character().Room().RoomTargetData()
+	obj := ca.parent.Character().Room().RoomTargetJSON()
 	ca.parent.CallClientAction("setRoomObjects", obj)
 }
 
@@ -85,6 +85,12 @@ func (ca *ClientActions) SyncRoomTitle() {
 	} else {
 		ca.parent.CallClientAction("setRoomTitle", r.Attribute("title"))
 	}
+}
+
+// SyncInventory renders the inventory on the client.
+func (ca *ClientActions) SyncInventory() {
+	inv := ca.parent.Character().InventoryJSON()
+	ca.parent.CallClientAction("setInventory", inv)
 }
 
 // ShowObjectEditor displays the object editor on the client.

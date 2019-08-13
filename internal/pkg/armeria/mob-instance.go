@@ -16,16 +16,16 @@ type MobInstance struct {
 
 // Init is called when the MobInstance is created or loaded from disk.
 func (mi *MobInstance) Init() {
-	Armeria.registry.Register(mi, mi.Id(), RegistryTypeMobInstance)
+	Armeria.registry.Register(mi, mi.ID(), RegistryTypeMobInstance)
 }
 
 // Deinit is called when the MobInstance is deleted.
 func (mi *MobInstance) Deinit() {
-	Armeria.registry.Unregister(mi.Id())
+	Armeria.registry.Unregister(mi.ID())
 }
 
-// Id returns the UUID of the instance.
-func (mi *MobInstance) Id() string {
+// ID returns the UUID of the instance.
+func (mi *MobInstance) ID() string {
 	return mi.UUID
 }
 
@@ -75,7 +75,7 @@ func (mi *MobInstance) Attribute(name string) string {
 
 // MobInstance returns the MobInstance's Room based on the object container it is within.
 func (mi *MobInstance) Room() *Room {
-	oc := Armeria.registry.GetObjectContainer(mi.Id())
+	oc := Armeria.registry.GetObjectContainer(mi.ID())
 	if oc == nil {
 		return nil
 	}

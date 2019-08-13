@@ -16,13 +16,15 @@ type ObjectContainer struct {
 	UnsafeParentType ContainerParentType          `json:"-"`
 }
 
+// ObjectContainerDefinition contains a definition for an object within a container.
 type ObjectContainerDefinition struct {
 	UUID string `json:"uuid"`
 	Slot int    `json:"slot"`
 }
 
+// ContainerObject is an interface that describes an object that can go within an ObjectContainer.
 type ContainerObject interface {
-	Id() string
+	ID() string
 	Type() ContainerObjectType
 	Name() string
 	FormattedName() string
@@ -30,8 +32,10 @@ type ContainerObject interface {
 	SetAttribute(name string, value string) error
 }
 
+// ContainerObjectType is an int representing the object type.
 type ContainerObjectType int
 
+// Constants representing the various object types.
 const (
 	ContainerObjectTypeCharacter ContainerObjectType = iota
 	ContainerObjectTypeMob
@@ -39,12 +43,16 @@ const (
 )
 
 var (
-	ErrContainerNoRoom    = errors.New("no space in container")
+	// ErrContainerNoRoom is an error for when the container is bounded and full.
+	ErrContainerNoRoom = errors.New("no space in container")
+	// ErrContainerDuplicate is an error for when the container already contains a specific uuid.
 	ErrContainerDuplicate = errors.New("object already in container")
 )
 
+// ContainerParentType is an int representing the container's parent type.
 type ContainerParentType int
 
+// Constants representing the various parent types.
 const (
 	ContainerParentTypeRoom ContainerParentType = iota
 	ContainerParentTypeCharacter
@@ -94,6 +102,18 @@ func (oc *ObjectContainer) ParentRoom() *Room {
 	return oc.UnsafeParent.(*Room)
 }
 
+// ParentCharacter returns the parent Character if the object has an appropriate parent type.
+func (oc *ObjectContainer) ParentCharacter() *Character {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	if oc.UnsafeParentType != ContainerParentTypeCharacter {
+		return nil
+	}
+
+	return oc.UnsafeParent.(*Character)
+}
+
 // ParentType returns the ContainerParentType that owns this object container.
 func (oc *ObjectContainer) ParentType() ContainerParentType {
 	oc.RLock()
@@ -102,16 +122,25 @@ func (oc *ObjectContainer) ParentType() ContainerParentType {
 	return oc.UnsafeParentType
 }
 
-// UnsafeContains returns a bool indicating whether the object container contains something with the
-// specified uuid. This function assumes you already have a lock on the container.
-func (oc *ObjectContainer) UnsafeContains(uuid string) bool {
-	o, _, _ := oc.UnsafeGet(uuid)
+func (oc *ObjectContainer) MaxSize() int {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	return oc.UnsafeMaxSize
+}
+
+// Contains returns a bool indicating whether the object container contains something with the
+// specified uuid.
+func (oc *ObjectContainer) Contains(uuid string) bool {
+	o, _, _ := oc.Get(uuid)
 	return o != nil
 }
 
-// Get retrieves an object from the object container, based on the uuid. This function assumes you already
-// have a lock on the container.
-func (oc *ObjectContainer) UnsafeGet(uuid string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+// Get retrieves an object from the object container, based on the uuid.
+func (oc *ObjectContainer) Get(uuid string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+	oc.RLock()
+	defer oc.RUnlock()
+
 	for _, ocd := range oc.UnsafeObjects {
 		if ocd.UUID == uuid {
 			o, ot := Armeria.registry.Get(ocd.UUID)
@@ -120,6 +149,24 @@ func (oc *ObjectContainer) UnsafeGet(uuid string) (interface{}, *ObjectContainer
 	}
 
 	return nil, nil, RegistryTypeUnknown
+}
+
+// Slot returns the slot that the uuid is within. If the uuid does not exist, slot 0 will be returned,
+// which could result in a false positive. Check existance of the uuid before using this function.
+func (oc *ObjectContainer) Slot(uuid string) int {
+	o, ocd, _ := oc.Get(uuid)
+	if o == nil {
+		return 0
+	}
+
+	return ocd.Slot
+}
+
+// SetSlot explicitly sets an item slot without checking if another item already exists in that slot. Use this
+// function carefully and as-needed (ie: swapping items).
+func (oc *ObjectContainer) SetSlot(uuid string, slot int) {
+	_, ocd, _ := oc.Get(uuid)
+	ocd.Slot = slot
 }
 
 // GetByName retrieves an object from the object container, based on the name of the object.
@@ -200,7 +247,7 @@ func (oc *ObjectContainer) Characters(onlineOnly bool, except *Character) []*Cha
 		c, ot := Armeria.registry.Get(ocd.UUID)
 		if ot == RegistryTypeCharacter {
 			if !onlineOnly || c.(*Character).Player() != nil {
-				if except == nil || c.(*Character).Id() != except.Id() {
+				if except == nil || c.(*Character).ID() != except.ID() {
 					chars = append(chars, c.(*Character))
 				}
 			}
@@ -224,6 +271,22 @@ func (oc *ObjectContainer) Mobs() []*MobInstance {
 	}
 
 	return mobs
+}
+
+// Items returns all ItemInstance objects from the container.
+func (oc *ObjectContainer) Items() []*ItemInstance {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	var items []*ItemInstance
+	for _, ocd := range oc.UnsafeObjects {
+		i, ot := Armeria.registry.Get(ocd.UUID)
+		if ot == RegistryTypeItemInstance {
+			items = append(items, i.(*ItemInstance))
+		}
+	}
+
+	return items
 }
 
 // Remove removes an object from the container.
@@ -260,10 +323,7 @@ func (oc *ObjectContainer) NextAvailableSlot() (int, error) {
 // Add attempts to add an object to the container. This can fail if the object already exists within the container
 // or if the container is already at the maximum size.
 func (oc *ObjectContainer) Add(uuid string) error {
-	oc.Lock()
-	defer oc.Unlock()
-
-	if oc.UnsafeContains(uuid) {
+	if oc.Contains(uuid) {
 		return ErrContainerDuplicate
 	}
 
@@ -281,6 +341,8 @@ func (oc *ObjectContainer) Add(uuid string) error {
 		Slot: slot,
 	}
 
+	oc.Lock()
+	defer oc.Unlock()
 	oc.UnsafeObjects = append(oc.UnsafeObjects, ocd)
 
 	Armeria.registry.RegisterContainerObject(uuid, oc)

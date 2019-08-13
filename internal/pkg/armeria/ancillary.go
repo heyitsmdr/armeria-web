@@ -12,11 +12,11 @@ func searchForDanglingInstances() {
 
 	for _, o := range mobsAndItems {
 		obj := o.(ContainerObject)
-		container := Armeria.registry.GetObjectContainer(obj.Id())
+		container := Armeria.registry.GetObjectContainer(obj.ID())
 		if container == nil {
 			Armeria.log.Info(
 				"found dangling object instance",
-				zap.String("uuid", obj.Id()),
+				zap.String("uuid", obj.ID()),
 			)
 
 			if obj.Type() == ContainerObjectTypeMob {
@@ -27,7 +27,7 @@ func searchForDanglingInstances() {
 
 			Armeria.log.Info(
 				"dangling instance deleted",
-				zap.String("uuid", obj.Id()),
+				zap.String("uuid", obj.ID()),
 			)
 		}
 	}

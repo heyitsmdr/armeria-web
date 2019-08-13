@@ -1,12 +1,19 @@
 <template>
     <div class="inventory">
         <div class="item-container">
-            <Item v-for="item in items" />
+            <Item
+                v-for="item in items"
+                :key="item.slot"
+                :uuid="item.uuid"
+                :slotNum="item.slot"
+                :pictureKey="item.picture"
+            />
         </div>
     </div>
 </template>
 
 <script>
+    import { mapState } from 'vuex';
     import Item from '@/components/Item';
 
     export default {
@@ -15,14 +22,24 @@
             Item
         },
         computed: {
+            ...mapState(['inventory']),
             items: function() {
+                let itemDef = {};
+                this.inventory.forEach(item => {
+                    itemDef[item.slot] = item
+                });
+
                 let items = [];
                 for(let i = 0; i < 35; i++) {
-                    items.push('');
+                    if (itemDef[i]) {
+                        items.push(itemDef[i]);
+                    } else {
+                        items.push({ slot: i });
+                    }
                 }
                 return items;
             }
-        }
+        },
     }
 </script>
 

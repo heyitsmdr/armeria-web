@@ -78,7 +78,7 @@ func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 	ii.Deinit()
 
 	for idx, inst := range i.UnsafeInstances {
-		if inst.Id() == ii.Id() {
+		if inst.ID() == ii.ID() {
 			i.UnsafeInstances[idx] = i.UnsafeInstances[len(i.UnsafeInstances)-1]
 			i.UnsafeInstances = i.UnsafeInstances[:len(i.UnsafeInstances)-1]
 			return true

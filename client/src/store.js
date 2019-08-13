@@ -18,6 +18,7 @@ export default new Vuex.Store({
     objectEditorOpen: false,
     objectEditorData: {},
     autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
+    inventory: [],
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -95,6 +96,10 @@ export default new Vuex.Store({
         state.gameText.push('<br>You will no longer be automatically logged in to this character.');
       }
     },
+
+    SET_INVENTORY: (state, inventory) => {
+      state.inventory = inventory;
+    }
   },
   actions: {
     sendSlashCommand: ({ state }, payload) => {
@@ -167,6 +172,10 @@ export default new Vuex.Store({
       } else {
         commit('SET_AUTOLOGIN_TOKEN', payload.data);
       }
+    },
+
+    setInventory: ({ commit }, payload) => {
+      commit('SET_INVENTORY', JSON.parse(payload.data) || []);
     }
   }
 })

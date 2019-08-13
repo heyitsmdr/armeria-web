@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"crypto/md5"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -36,11 +37,20 @@ const (
 
 // Init is called when the Character is created or loaded from disk.
 func (c *Character) Init() {
-	Armeria.registry.Register(c, c.Id(), RegistryTypeCharacter)
+	// initialize UnsafeInventory on characters that don't have it defined
+	if c.UnsafeInventory == nil {
+		c.UnsafeInventory = NewObjectContainer(35)
+	}
+	// attach self as container's parent
+	c.UnsafeInventory.AttachParent(c, ContainerParentTypeCharacter)
+	// sync container
+	c.UnsafeInventory.Sync()
+	// register the character with registry
+	Armeria.registry.Register(c, c.ID(), RegistryTypeCharacter)
 }
 
 // UUID returns the uuid of the character.
-func (c *Character) Id() string {
+func (c *Character) ID() string {
 	return c.UUID
 }
 
@@ -113,6 +123,13 @@ func (c *Character) PasswordHash() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
+func (c *Character) Inventory() *ObjectContainer {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.UnsafeInventory
+}
+
 // Player returns the parent that is playing the character.
 func (c *Character) Player() *Player {
 	c.RLock()
@@ -131,7 +148,7 @@ func (c *Character) SetPlayer(p *Player) {
 
 // Room returns the character's Room based on the object container it is within.
 func (c *Character) Room() *Room {
-	oc := Armeria.registry.GetObjectContainer(c.Id())
+	oc := Armeria.registry.GetObjectContainer(c.ID())
 	if oc == nil {
 		return nil
 	}
@@ -191,6 +208,8 @@ func (c *Character) LoggedIn() {
 
 	area.CharacterEntered(c, true)
 	room.CharacterEntered(c, true)
+
+	c.Player().client.SyncInventory()
 
 	Armeria.log.Info("character entered the game",
 		zap.String("character", c.Name()),
@@ -298,8 +317,8 @@ func (c *Character) MoveAllowed(r *Room) (bool, string) {
 func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.Room()
 
-	oldRoom.Here().Remove(c.Id())
-	if err := to.Here().Add(c.Id()); err != nil {
+	oldRoom.Here().Remove(c.ID())
+	if err := to.Here().Add(c.ID()); err != nil {
 		Armeria.log.Fatal("error adding character to destination room")
 	}
 
@@ -354,4 +373,27 @@ func (c *Character) HasPermission(p string) bool {
 
 	perms := strings.Split(c.UnsafeAttributes["permissions"], " ")
 	return misc.Contains(perms, p)
+}
+
+// InventoryJSON returns the JSON used for rendering the inventory on the client.
+func (c *Character) InventoryJSON() string {
+	var inventory []map[string]interface{}
+
+	for _, ii := range c.Inventory().Items() {
+		inventory = append(inventory, map[string]interface{}{
+			"uuid":    ii.ID(),
+			"picture": ii.Attribute(AttributePicture),
+			"slot":    c.Inventory().Slot(ii.ID()),
+		})
+	}
+
+	inventoryJSON, err := json.Marshal(inventory)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal inventory data",
+			zap.String("character", c.UUID),
+			zap.Error(err),
+		)
+	}
+
+	return string(inventoryJSON)
 }

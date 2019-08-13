@@ -135,7 +135,7 @@ func (m *WorldManager) RoomInDirection(r *Room, direction string) *Room {
 		)
 	}
 
-	o, _ := Armeria.registry.Get(r.Id())
+	o, _ := Armeria.registry.Get(r.ID())
 	room := o.(*Room)
 
 	x := room.Coords.X() + offsets["x"]

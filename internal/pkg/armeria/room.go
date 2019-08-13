@@ -34,8 +34,8 @@ type AdjacentRooms struct {
 	Down  *Room
 }
 
-// Id returns the uuid of the room.
-func (r *Room) Id() string {
+// ID returns the uuid of the room.
+func (r *Room) ID() string {
 	r.RLock()
 	defer r.RUnlock()
 	return r.UUID
@@ -63,7 +63,7 @@ func (r *Room) Init(a *Area) {
 
 // Deinit is called when the Room is deleted.
 func (r *Room) Deinit() {
-	Armeria.registry.Unregister(r.Id())
+	Armeria.registry.Unregister(r.ID())
 }
 
 // SetAttribute sets a persistent attribute for the Room.
@@ -102,8 +102,8 @@ func (r *Room) Here() *ObjectContainer {
 	return r.UnsafeHere
 }
 
-// RoomTargetData returns the JSON used for rendering the room objects on the client.
-func (r *Room) RoomTargetData() string {
+// RoomTargetJSON returns the JSON used for rendering the room objects on the client.
+func (r *Room) RoomTargetJSON() string {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -117,7 +117,7 @@ func (r *Room) RoomTargetData() string {
 		}
 
 		roomObjects = append(roomObjects, map[string]interface{}{
-			"uuid":    o.Id(),
+			"uuid":    o.ID(),
 			"name":    o.Name(),
 			"type":    o.Type(),
 			"sort":    ObjectSortOrder(o.Type()),
@@ -127,14 +127,15 @@ func (r *Room) RoomTargetData() string {
 		})
 	}
 
-	roomObjectJson, err := json.Marshal(roomObjects)
+	roomObjectJSON, err := json.Marshal(roomObjects)
 	if err != nil {
 		Armeria.log.Fatal("failed to marshal room object data",
+			zap.String("room", r.UUID),
 			zap.Error(err),
 		)
 	}
 
-	return string(roomObjectJson)
+	return string(roomObjectJSON)
 }
 
 // EditorData returns the JSON used for the object editor.

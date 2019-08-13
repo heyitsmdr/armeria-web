@@ -565,6 +565,36 @@ func RegisterGameCommands() {
 			Handler: handleGetCommand,
 		},
 		{
+			Name: "drop",
+			Help: "Drop an item onto the ground.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "item",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleDropCommand,
+		},
+		{
+			Name: "swap",
+			Help: "Swap items in your inventory.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "source",
+				},
+				{
+					Name: "destination",
+				},
+			},
+			Handler: handleSwapCommand,
+		},
+		{
 			Name: "autologin",
 			Help: "Toggle auto-login for your character.",
 			Permissions: &CommandPermissions{

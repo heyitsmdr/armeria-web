@@ -9,10 +9,9 @@ import (
 
 type ItemInstance struct {
 	sync.RWMutex
-	UUID              string            `json:"uuid"`
-	UnsafeCharacterId string            `json:"character"`
-	UnsafeAttributes  map[string]string `json:"attributes"`
-	Parent            *Item             `json:"-"`
+	UUID             string            `json:"uuid"`
+	UnsafeAttributes map[string]string `json:"attributes"`
+	Parent           *Item             `json:"-"`
 }
 
 type ItemLocationType int
@@ -24,16 +23,16 @@ const (
 
 // Init is called when the ItemInstance is created or loaded from disk.
 func (ii *ItemInstance) Init() {
-	Armeria.registry.Register(ii, ii.Id(), RegistryTypeItemInstance)
+	Armeria.registry.Register(ii, ii.ID(), RegistryTypeItemInstance)
 }
 
 // Deinit is called when the ItemInstance is deleted.
 func (ii *ItemInstance) Deinit() {
-	Armeria.registry.Unregister(ii.Id())
+	Armeria.registry.Unregister(ii.ID())
 }
 
-// Id returns the UUID of the instance.
-func (ii *ItemInstance) Id() string {
+// ID returns the UUID of the instance.
+func (ii *ItemInstance) ID() string {
 	return ii.UUID
 }
 
@@ -83,23 +82,16 @@ func (ii *ItemInstance) Attribute(name string) string {
 
 // Character returns the Character that has the ItemInstance.
 func (ii *ItemInstance) Character() *Character {
-	ii.RLock()
-	defer ii.RUnlock()
-
-	return Armeria.characterManager.CharacterById(ii.UnsafeCharacterId)
-}
-
-// SetCharacter sets the character that has the ItemInstance.
-func (ii *ItemInstance) SetCharacter(c *Character) {
-	ii.Lock()
-	defer ii.Unlock()
-
-	ii.UnsafeCharacterId = c.Id()
+	oc := Armeria.registry.GetObjectContainer(ii.ID())
+	if oc == nil {
+		return nil
+	}
+	return oc.ParentCharacter()
 }
 
 // ItemInstance returns the ItemInstance's Room based on the object container it is within.
 func (ii *ItemInstance) Room() *Room {
-	oc := Armeria.registry.GetObjectContainer(ii.Id())
+	oc := Armeria.registry.GetObjectContainer(ii.ID())
 	if oc == nil {
 		return nil
 	}
