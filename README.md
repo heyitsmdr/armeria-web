@@ -12,6 +12,7 @@ and [Vue.js](https://vuejs.org/).
     * [Publishing Features](#publishing-features)
     * [CI/CD](#cicd)
     * [Releasing](#releasing)
+    * [Discord](#discord)
 
 ## Contributing
 
@@ -66,9 +67,8 @@ You can load the client here: [http://localhost:8080/](http://localhost:8080/).
 
 You should now be able to login using the command: `/login admin admin`.
 
-While running `yarn serve`, you can
-make changes to the client files and the changes will be hot reloaded immediately within the browser. Some of these
-changes may terminate your connection to the game server and require you to re-login.
+While running `yarn serve`, you can make changes to the client files and the changes will be hot reloaded immediately
+within the browser. Some of these changes may terminate your connection to the game server and require you to re-login.
 
 ### Upgrading Dependencies
 
@@ -119,6 +119,11 @@ notified via the open PR.
 
 The main repo has a `master` branch and `release` branch. The former is a development branch that will contain squashed
 merges from contributors that are feature-complete (and ready to be released at any time). Once we've deemed it
-necessary to cut a release, we will create a Pull Request to merge `master` into `release`. Once merged, CircleCI will
-deploy the code to the production server and trigger a server restart. Characters on the game will be kicked off for
-a few seconds while the new server instance starts back up.
+necessary to cut a release, we will rebase `release` with `master`. Once rebased, CircleCI will deploy the code to the
+production server and trigger a server restart. Characters on the game will be kicked off for a few seconds while the
+new server instance starts back up.
+
+### Discord
+
+If you plan to develop for Armeria, it's strongly encouraged that you join our community Discord
+at: https://discord.gg/hMzjH6n
