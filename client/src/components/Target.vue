@@ -2,7 +2,7 @@
     <div>
         <div
                 class="container"
-                :class="{'selected': objectTarget == name, 'is-character': objectType == 0,  'is-mob': objectType == 1, 'is-item': objectType == 2 }"
+                :class="{'selected': objectTarget === name, 'is-character': objectType === 0,  'is-mob': objectType == 1, 'is-item': objectType == 2 }"
                 ref="container"
                 @mousedown="handleMouseDown"
                 @mouseup="handleMouseUp"
@@ -53,11 +53,11 @@ export default {
         handleMouseUp: function(e) {
             this.$refs['container'].classList.remove('mouse-down');
             if (e.shiftKey) {
-                if (this.objectType == 0) {
+                if (this.objectType === 0) {
                     this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
-                } else if (this.objectType == 1) {
+                } else if (this.objectType === 1) {
                     this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
-                } else if (this.objectType == 2) {
+                } else if (this.objectType === 2) {
                     this.$socket.sendObj({ type: 'command',  payload: '/item edit ' + this.name });
                 }
             } else {
@@ -66,7 +66,7 @@ export default {
         },
 
         handleDoubleClick: function() {
-            if (this.objectType == 2) {
+            if (this.objectType === 2) {
                 this.$socket.sendObj({ type: 'command', payload: '/get ' + this.name });
                 this.$store.dispatch('setObjectTarget', '');
             }
