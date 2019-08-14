@@ -68,6 +68,7 @@ export default {
         handleDoubleClick: function() {
             if (this.objectType == 2) {
                 this.$socket.sendObj({ type: 'command', payload: '/get ' + this.name });
+                this.$store.dispatch('setObjectTarget', '');
             }
         },
 
