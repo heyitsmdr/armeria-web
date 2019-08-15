@@ -1,6 +1,7 @@
 package armeria
 
 const (
+	AttributeChannels    string = "channels"
 	AttributeColor       string = "color"
 	AttributeDescription string = "description"
 	AttributePermissions string = "permissions"
@@ -28,6 +29,7 @@ func ValidCharacterAttributes() []string {
 		AttributePicture,
 		AttributeTitle,
 		AttributePermissions,
+		AttributeChannels,
 	}
 }
 

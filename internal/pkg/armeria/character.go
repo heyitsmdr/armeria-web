@@ -25,14 +25,16 @@ type Character struct {
 }
 
 const (
-	ColorRoomTitle int = 0
-	ColorSay       int = 1
-	ColorMovement  int = 2
-	ColorError     int = 3
-	ColorRoomDirs  int = 4
-	ColorWhisper   int = 5
-	ColorSuccess   int = 6
-	ColorCmdHelp   int = 7
+	ColorRoomTitle int = iota
+	ColorSay
+	ColorMovement
+	ColorError
+	ColorRoomDirs
+	ColorWhisper
+	ColorSuccess
+	ColorCmdHelp
+	ColorChannelGeneral
+	ColorChannelCore
 )
 
 // Init is called when the Character is created or loaded from disk.
@@ -177,6 +179,10 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#8ee22b'>%s</span>", text)
 	case ColorCmdHelp:
 		return fmt.Sprintf("<span style='color:#e9761e'>%s</span>", text)
+	case ColorChannelGeneral:
+		return fmt.Sprintf("<span style='color:#3bffdc'>%s</span>", text)
+	case ColorChannelCore:
+		return fmt.Sprintf("<span style='color:#ff5722'>%s</span>", text)
 	default:
 		return text
 	}
@@ -371,8 +377,43 @@ func (c *Character) HasPermission(p string) bool {
 	c.RLock()
 	defer c.RUnlock()
 
-	perms := strings.Split(c.UnsafeAttributes["permissions"], " ")
+	perms := strings.Split(c.UnsafeAttributes[AttributePermissions], " ")
 	return misc.Contains(perms, p)
+}
+
+// Channels returns the Channel objects for the channels this character is within.
+func (c *Character) Channels() []*Channel {
+	var channels []*Channel
+
+	for _, channel := range strings.Split(c.Attribute(AttributeChannels), ",") {
+		ch := ChannelByName(channel)
+		if ch != nil {
+			channels = append(channels, ch)
+		}
+	}
+
+	return channels
+}
+
+// InChannel returns true if the Character is in a particular channel.
+func (c *Character) InChannel(ch *Channel) bool {
+	c.RLock()
+	defer c.RUnlock()
+
+	channelsString := c.UnsafeAttributes[AttributeChannels]
+	return misc.Contains(strings.Split(strings.ToLower(channelsString), ","), strings.ToLower(ch.Name))
+}
+
+// JoinChannel adds a channel to the Character's channel list so that they will receive messages
+// on that channel.
+func (c *Character) JoinChannel(ch *Channel) {
+	chs := strings.Split(c.Attribute(AttributeChannels), ",")
+	if len(chs[0]) == 0 {
+		chs[0] = ch.Name
+	} else {
+		chs = append(chs, ch.Name)
+	}
+	_ = c.SetAttribute(AttributeChannels, strings.Join(chs, ","))
 }
 
 // InventoryJSON returns the JSON used for rendering the inventory on the client.

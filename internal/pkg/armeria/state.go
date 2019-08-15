@@ -20,6 +20,7 @@ type GameState struct {
 	mobManager       *MobManager
 	itemManager      *ItemManager
 	registry         *Registry
+	channels         map[string]*Channel
 	publicPath       string
 	dataPath         string
 	objectImagesPath string
@@ -52,6 +53,7 @@ func Init(configFilePath string) {
 	Armeria.worldManager = NewWorldManager()
 	Armeria.mobManager = NewMobManager()
 	Armeria.itemManager = NewItemManager()
+	Armeria.channels = NewChannels()
 
 	Armeria.setupGracefulExit()
 	Armeria.setupPeriodicSaves()

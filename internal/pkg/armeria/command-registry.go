@@ -2,6 +2,7 @@ package armeria
 
 import "go.uber.org/zap"
 
+// RegisterGameCommands registers all of the slash commands with the command manager.
 func RegisterGameCommands() {
 	commands := []*Command{
 		{
@@ -601,6 +602,44 @@ func RegisterGameCommands() {
 				RequireCharacter: true,
 			},
 			Handler: handleAutoLoginCommand,
+		},
+		{
+			Name: "channel",
+			Help: "Join, leave or list talking channels you can participate in.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Subcommands: []*Command{
+				{
+					Name:    "list",
+					Help:    "List channels you can join and participate in.",
+					Handler: handleChannelListCommand,
+				},
+				{
+					Name: "join",
+					Help: "Join a channel.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "channel",
+						},
+					},
+					Handler: handleChannelJoinCommand,
+				},
+				{
+					Name: "say",
+					Help: "Say someting to a channel.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "channel",
+						},
+						{
+							Name:             "text",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleChannelSayCommand,
+				},
+			},
 		},
 	}
 

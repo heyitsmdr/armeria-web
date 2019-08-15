@@ -1257,3 +1257,64 @@ func handleSwapCommand(ctx *CommandContext) {
 func handleAutoLoginCommand(ctx *CommandContext) {
 	ctx.Player.client.ToggleAutologin()
 }
+
+func handleChannelListCommand(ctx *CommandContext) {
+	ctx.Player.client.ShowText("You are able to participate in the following channels:")
+
+	var lines []string
+	for _, c := range Armeria.channels {
+		if c.HasPermission(ctx.Character) {
+			if ctx.Character.InChannel(c) {
+				lines = append(lines, " [ JOINED ] "+c.Name+": "+c.Description)
+			} else {
+				lines = append(lines, " [        ] "+c.Name+": "+c.Description)
+			}
+		}
+	}
+
+	ctx.Player.client.ShowText(
+		TextStyle(
+			strings.Join(lines, "\n"),
+			TextStyleMonospace,
+		),
+	)
+}
+
+func handleChannelJoinCommand(ctx *CommandContext) {
+	channelName := ctx.Args["channel"]
+
+	ch := ChannelByName(channelName)
+	if ch == nil {
+		ctx.Player.client.ShowColorizedText("You must enter a valid channel name to join.", ColorError)
+		return
+	}
+
+	if ctx.Character.InChannel(ch) {
+		ctx.Player.client.ShowColorizedText("You are already in that channel!", ColorError)
+		return
+	}
+
+	ctx.Character.JoinChannel(ch)
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You joined the [b]%s[/b] channel. You can use [b]%s[/b] to communicate.", ch.Name, ch.SlashCommand),
+		ColorSuccess,
+	)
+}
+
+func handleChannelSayCommand(ctx *CommandContext) {
+	channelName := ctx.Args["channel"]
+	sayText := ctx.Args["text"]
+
+	ch := ChannelByName(channelName)
+	if ch == nil {
+		ctx.Player.client.ShowColorizedText("You must enter a valid channel name to talk to.", ColorError)
+		return
+	}
+
+	if !ctx.Character.InChannel(ch) {
+		ctx.Player.client.ShowColorizedText("You are not in that channel.", ColorError)
+		return
+	}
+
+	ch.Broadcast(ctx.Character, sayText)
+}
