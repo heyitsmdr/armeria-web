@@ -10,6 +10,12 @@ const (
 	AttributeScript      string = "script"
 	AttributeTitle       string = "title"
 	AttributeType        string = "type"
+	AttributeNorth       string = "north"
+	AttributeEast        string = "east"
+	AttributeSouth       string = "south"
+	AttributeWest        string = "west"
+	AttributeUp          string = "up"
+	AttributeDown        string = "down"
 )
 
 const (
@@ -56,6 +62,12 @@ func ValidRoomAttributes() []string {
 		AttributeDescription,
 		AttributeColor,
 		AttributeType,
+		AttributeNorth,
+		AttributeEast,
+		AttributeSouth,
+		AttributeWest,
+		AttributeUp,
+		AttributeDown,
 	}
 }
 

@@ -182,7 +182,6 @@ func handleSayCommand(ctx *CommandContext) {
 
 func handleMoveCommand(ctx *CommandContext) {
 	d := ctx.Args["direction"]
-
 	walkDir := ""
 	arriveDir := ""
 	switch strings.ToLower(d) {
@@ -211,11 +210,34 @@ func handleMoveCommand(ctx *CommandContext) {
 		walkDir = "down"
 		arriveDir = "above"
 	default:
-		ctx.Player.client.ShowText("That's not a valid direction to move in.")
+		ctx.Player.client.ShowColorizedText("That's not a valid direction to move in.", ColorError)
 		return
 	}
 
 	newRoom := Armeria.worldManager.RoomInDirection(ctx.Character.Room(), d)
+
+	areaLink := ctx.Character.Room().Attribute(d)
+	if areaLink != "" {
+		na := strings.Split(areaLink, ",")
+		if len(na) != 4 {
+			ctx.Player.client.ShowColorizedText("Area Link Error - Not enough arguments.", ColorError)
+			return
+		}
+		ta := Armeria.worldManager.AreaByName(na[0])
+		if ta == nil {
+			ctx.Player.client.ShowColorizedText("Area Link Error - The specified area does not exist.", ColorError)
+			return
+		}
+		x, xerr := strconv.Atoi(na[1])
+		y, yerr := strconv.Atoi(na[2])
+		z, zerr := strconv.Atoi(na[3])
+		if xerr != nil || yerr != nil || zerr != nil {
+			ctx.Player.client.ShowColorizedText("Area Link Error - The provided coordinates are invalid.", ColorError)
+			return
+		}
+		newRoom = ta.RoomAt(NewCoords(x, y, z, 0))
+	}
+
 	moveAllowed, moveError := ctx.Character.MoveAllowed(newRoom)
 	if !moveAllowed {
 		ctx.Player.client.ShowColorizedText(moveError, ColorError)
@@ -306,6 +328,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 	}
 
 	ctx.Character.Room().SetAttribute(attr, ctx.Args["value"])
+	ctx.Player.client.RenderMap()
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
