@@ -182,7 +182,6 @@ func handleSayCommand(ctx *CommandContext) {
 
 func handleMoveCommand(ctx *CommandContext) {
 	d := ctx.Args["direction"]
-	fmt.Println(d)
 	walkDir := ""
 	arriveDir := ""
 	switch strings.ToLower(d) {
