@@ -78,6 +78,12 @@ func (a *Area) MinimapJSON() string {
 			"x":     r.Coords.X(),
 			"y":     r.Coords.Y(),
 			"z":     r.Coords.Z(),
+			"north": r.Attribute("north"),
+			"east":  r.Attribute("east"),
+			"south": r.Attribute("south"),
+			"west":  r.Attribute("west"),
+			"up":    r.Attribute("up"),
+			"down":  r.Attribute("down"),
 		})
 	}
 
