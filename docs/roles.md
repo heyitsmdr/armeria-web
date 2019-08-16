@@ -16,16 +16,24 @@ the production version of Armeria.
 ## Core Contributor
 
 A core contributor is someone who is deeply invested in the development of
-Armeria. This person will need to help maintain the code base, be involved with
-game decisions, feature planning, and testing. They may also be given a
-privileged character on the production version of Armeria to help with in-game
-content (ie: building areas) and help maintain the community as a whole.
+Armeria. This person will need to help maintain the code base (if they want to
+help with code), be involved with game decisions, feature planning, and testing.
+They may also be given a privileged character on the production version of
+Armeria to help with in-game content (ie: building areas) and help maintain the
+community as a whole. This person will likely be added as a contributor to the
+main repo as well, so you won't have to work out of a forked version.
 
 ### How do I become a core contributor?
 
 First and foremost, this game is open-source and can be ran locally with an
 abundance of example data. Anyone can contribute to the game, so long as you
-adhere to the [Contribution](docs/contributing.md) rules and [Code of
-Conduct](docs/code-of-conduct.md). If you would like to have a deeper
-investiment in the development of Armeria and/or would like to help with
+adhere to the [License](../LICENSE), [Contributing](docs/contributing.md), and
+[Code of Conduct](docs/code-of-conduct.md) docs. If you would like to have a
+deeper involvement with the development of Armeria and/or would like to help with
 building in-game content, you can join our community Discord and let us know!
+
+### Will all core contributors be given a priviledged character?
+
+Yes, you will be given a priviledged character so that you can help curate
+in-game content and help maintain the community both inside and outside of the
+game.
