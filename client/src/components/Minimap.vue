@@ -73,10 +73,10 @@ export default {
                 div.addEventListener('click', this.handleRoomClick);
                 div.className = 'room';
 
-                if (room.north != "") div.style.borderTop = "dashed";
-                if (room.east != "") div.style.borderRight = "dashed";
-                if (room.south != "") div.style.borderBottom = "dashed";
-                if (room.west != "") div.style.borderLeft = "dashed";
+                if (room.north !== "") div.style.borderTop = "dashed";
+                if (room.east !== "") div.style.borderRight = "dashed";
+                if (room.south !== "") div.style.borderBottom = "dashed";
+                if (room.west !== "") div.style.borderLeft = "dashed";
 
                 if (room.type === 'track') {
                     div.style.opacity = '0.3';
@@ -125,7 +125,7 @@ export default {
 
         handleRoomClick: function(e) {
             if (e.shiftKey) {
-                var room = e.srcElement;
+                var room = e.target;
                 var coords = room.getAttribute('x') +
                         ',' + room.getAttribute('y') +
                         ',' + room.getAttribute('z');

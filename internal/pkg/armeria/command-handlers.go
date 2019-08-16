@@ -280,14 +280,12 @@ func handleRoomEditCommand(ctx *CommandContext) {
 	}
 
 	tr = a.RoomAt(NewCoords(x, y, z, 0))
-	if tr != nil {
-		ctx.Player.client.ShowObjectEditor(tr.EditorData())
-	} else {
+	if tr == nil {
 		ctx.Player.client.ShowColorizedText("The specified room does not exist.", ColorError)
 		return
 	}
 
-	ctx.Player.client.ShowObjectEditor(ctx.Character.Room().EditorData())
+	ctx.Player.client.ShowObjectEditor(tr.EditorData())
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
