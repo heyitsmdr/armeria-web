@@ -223,22 +223,19 @@ func handleMoveCommand(ctx *CommandContext) {
 			ctx.Player.client.ShowColorizedText("Area Link Error - Not enough arguments.", ColorError)
 			return
 		}
-		fmt.Println(na)
-		if na != nil {
-			ta := Armeria.worldManager.AreaByName(na[0])
-			if ta == nil {
-				ctx.Player.client.ShowColorizedText("Area Link Error - The specified area does not exist.", ColorError)
-				return
-			}
-			x, xerr := strconv.Atoi(na[1])
-			y, yerr := strconv.Atoi(na[2])
-			z, zerr := strconv.Atoi(na[3])
-			if xerr != nil || yerr != nil || zerr != nil {
-				ctx.Player.client.ShowColorizedText("Area Link Error - The provided coordinates are invalid.", ColorError)
-				return
-			}
-			newRoom = ta.RoomAt(NewCoords(x, y, z, 0))
+		ta := Armeria.worldManager.AreaByName(na[0])
+		if ta == nil {
+			ctx.Player.client.ShowColorizedText("Area Link Error - The specified area does not exist.", ColorError)
+			return
 		}
+		x, xerr := strconv.Atoi(na[1])
+		y, yerr := strconv.Atoi(na[2])
+		z, zerr := strconv.Atoi(na[3])
+		if xerr != nil || yerr != nil || zerr != nil {
+			ctx.Player.client.ShowColorizedText("Area Link Error - The provided coordinates are invalid.", ColorError)
+			return
+		}
+		newRoom = ta.RoomAt(NewCoords(x, y, z, 0))
 	}
 
 	moveAllowed, moveError := ctx.Character.MoveAllowed(newRoom)
@@ -331,6 +328,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 	}
 
 	ctx.Character.Room().SetAttribute(attr, ctx.Args["value"])
+	ctx.Player.client.RenderMap()
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
