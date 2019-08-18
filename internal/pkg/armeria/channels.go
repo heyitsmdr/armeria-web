@@ -69,10 +69,10 @@ func (c *Channel) Broadcast(from *Character, text string) {
 		default:
 			verbs = []string{"say", "says"}
 		}
-		msgToOthers = fmt.Sprintf("[[b]%s[/b]] %s %s, \"%s\"", c.Name, from.FormattedNameWithTitle(), verbs[1], normalizedText)
-		msgToFrom = fmt.Sprintf("[[b]%s[/b]] You %s, \"%s\"", c.Name, verbs[0], normalizedText)
+		msgToOthers = fmt.Sprintf("[%s] %s %s, \"%s\"", TextStyle(c.Name, TextStyleBold), from.FormattedNameWithTitle(), verbs[1], normalizedText)
+		msgToFrom = fmt.Sprintf("[%s] You %s, \"%s\"", TextStyle(c.Name, TextStyleBold), verbs[0], normalizedText)
 	} else {
-		msgToOthers = fmt.Sprintf("[[b]%s[/b]] %s", c.Name, text)
+		msgToOthers = fmt.Sprintf("[%s] %s", TextStyle(c.Name, TextStyleBold), text)
 	}
 
 	for _, char := range Armeria.characterManager.OnlineCharacters() {

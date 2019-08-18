@@ -82,22 +82,22 @@ func handleLookCommand(ctx *CommandContext) {
 	ar := r.AdjacentRooms()
 	var validDirs []string
 	if ar.North != nil {
-		validDirs = append(validDirs, "[b]north[/b]")
+		validDirs = append(validDirs, TextStyle("north", TextStyleBold))
 	}
 	if ar.South != nil {
-		validDirs = append(validDirs, "[b]south[/b]")
+		validDirs = append(validDirs, TextStyle("south", TextStyleBold))
 	}
 	if ar.East != nil {
-		validDirs = append(validDirs, "[b]east[/b]")
+		validDirs = append(validDirs, TextStyle("east", TextStyleBold))
 	}
 	if ar.West != nil {
-		validDirs = append(validDirs, "[b]west[/b]")
+		validDirs = append(validDirs, TextStyle("west", TextStyleBold))
 	}
 	if ar.Up != nil {
-		validDirs = append(validDirs, "[b]up[/b]")
+		validDirs = append(validDirs, TextStyle("up", TextStyleBold))
 	}
 	if ar.Down != nil {
-		validDirs = append(validDirs, "[b]down[/b]")
+		validDirs = append(validDirs, TextStyle("down", TextStyleBold))
 	}
 	var validDirString string
 	for i, d := range validDirs {
@@ -334,7 +334,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		)
 	}
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the [b]%s[/b] property of the room (%s).", attr, ta),
+		fmt.Sprintf("You modified the %s property of the room (%s).", TextStyle(attr, TextStyleBold), ta),
 		ColorSuccess,
 	)
 
@@ -530,7 +530,7 @@ func handleCharacterListCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are [b]%d[/b] characters%s: %s.", len(chars), matchingText, strings.Join(chars, ", ")),
+		fmt.Sprintf("There are %s characters%s: %s.", TextStyle(len(chars), TextStyleBold), matchingText, strings.Join(chars, ", ")),
 	)
 }
 
@@ -553,7 +553,7 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 	_ = c.SetAttribute(attr, val)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the [b]%s[/b] property of the character %s.", attr, c.FormattedName()),
+		fmt.Sprintf("You modified the %s property of the character %s.", TextStyle(attr, TextStyleBold), c.FormattedName()),
 		ColorSuccess,
 	)
 
@@ -594,7 +594,7 @@ func handleMobListCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are [b]%d[/b] mobs%s: %s.", len(mobs), matchingText, strings.Join(mobs, ", ")),
+		fmt.Sprintf("There are %s mobs%s: %s.", TextStyle(len(mobs), TextStyleBold), matchingText, strings.Join(mobs, ", ")),
 	)
 }
 
@@ -610,7 +610,7 @@ func handleMobCreateCommand(ctx *CommandContext) {
 	Armeria.mobManager.AddMob(m)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("A mob named [b]%s[/b] has been created.", n),
+		fmt.Sprintf("A mob named %s has been created.", TextStyle(n, TextStyleBold)),
 		ColorSuccess,
 	)
 }
@@ -654,7 +654,10 @@ func handleMobSetCommand(ctx *CommandContext) {
 	m.SetAttribute(attr, val)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the [b]%s[/b] property of the mob [b]%s[/b].", attr, m.UnsafeName),
+		fmt.Sprintf("You modified the %s property of the mob %s.",
+			TextStyle(attr, TextStyleBold),
+			TextStyle(m.UnsafeName, TextStyleBold),
+		),
 		ColorSuccess,
 	)
 
@@ -758,7 +761,7 @@ func handleItemCreateCommand(ctx *CommandContext) {
 	Armeria.itemManager.AddItem(i)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("An item named [b]%s[/b] has been created.", n),
+		fmt.Sprintf("An item named %s has been created.", TextStyle(n, TextStyleBold)),
 		ColorSuccess,
 	)
 }
@@ -787,7 +790,7 @@ func handleItemListCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are [b]%d[/b] items%s: %s.", len(items), matchingText, strings.Join(items, ", ")),
+		fmt.Sprintf("There are %s items%s: %s.", TextStyle(len(items), TextStyleBold), matchingText, strings.Join(items, ", ")),
 	)
 }
 
@@ -846,7 +849,10 @@ func handleItemSetCommand(ctx *CommandContext) {
 	i.SetAttribute(attr, val)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the [b]%s[/b] property of the item [b]%s[/b].", attr, i.Name()),
+		fmt.Sprintf("You modified the %s property of the item %s.",
+			TextStyle(attr, TextStyleBold),
+			TextStyle(i.Name(), TextStyleBold),
+		),
 		ColorSuccess,
 	)
 
@@ -926,7 +932,7 @@ func handleAreaCreateCommand(ctx *CommandContext) {
 	a := Armeria.worldManager.CreateArea(n)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("An area named [b]%s[/b] has been created!", a.Name()),
+		fmt.Sprintf("An area named %s has been created!", TextStyle(a.Name(), TextStyleBold)),
 		ColorSuccess,
 	)
 }
@@ -955,7 +961,7 @@ func handleAreaListCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are [b]%d[/b] areas%s: %s.", len(areas), matchingText, strings.Join(areas, ", ")),
+		fmt.Sprintf("There are %s areas%s: %s.", TextStyle(len(areas), TextStyleBold), matchingText, strings.Join(areas, ", ")),
 	)
 }
 
@@ -1022,7 +1028,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 		}
 
 		destination = a.RoomAt(NewCoords(x, y, z, 0))
-		moveMsg = fmt.Sprintf("You teleported to [b]%s[/b] at %d, %d, %d.", a.Name(), x, y, z)
+		moveMsg = fmt.Sprintf("You teleported to %s at %d, %d, %d.", TextStyle(a.Name(), TextStyleBold), x, y, z)
 	}
 
 	if destination == nil {
@@ -1062,7 +1068,7 @@ func handleCommandsCommand(ctx *CommandContext) {
 
 	ctx.Player.client.ShowColorizedText(
 		TextStyle(
-			fmt.Sprintf("[b]Commands you can use:[/b]\n%s", strings.Join(list, "\n")),
+			fmt.Sprintf(TextStyle("Commands you can use:", TextStyleBold)+"\n%s", strings.Join(list, "\n")),
 			TextStyleMonospace,
 		),
 		ColorCmdHelp,
@@ -1317,7 +1323,10 @@ func handleChannelJoinCommand(ctx *CommandContext) {
 
 	ctx.Character.JoinChannel(ch)
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You joined the [b]%s[/b] channel. You can use [b]%s[/b] to communicate.", ch.Name, ch.SlashCommand),
+		fmt.Sprintf("You joined the %s channel. You can use %s to communicate.",
+			TextStyle(ch.Name, TextStyleBold),
+			TextStyle(ch.SlashCommand, TextStyleBold),
+		),
 		ColorSuccess,
 	)
 }

@@ -44,7 +44,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		m.SetAttribute(AttributePicture, k)
 		editorData = m.EditorData()
 		p.client.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for mob [b]%s[/b].", m.Name()),
+			fmt.Sprintf("A picture has been uploaded and set for mob %s.", TextStyle(m.Name(), TextStyleBold)),
 			ColorSuccess,
 		)
 	case "item":
@@ -53,7 +53,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		i.SetAttribute(AttributePicture, k)
 		editorData = i.EditorData()
 		p.client.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for item [b]%s[/b].", i.Name()),
+			fmt.Sprintf("A picture has been uploaded and set for item %s.", TextStyle(i.Name(), TextStyleBold)),
 			ColorSuccess,
 		)
 	default:

@@ -74,10 +74,13 @@ func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) stri
 	}
 
 	output := []string{
-		"[b]Help:[/b]",
+		TextStyle("Help:", TextStyleBold),
 		"  " + cmd.Help,
-		fmt.Sprintf("  [b]Syntax:[/b] /%s &lt;sub-command&gt;\n", strings.Join(commandsEntered, " ")),
-		"[b]Sub-commands:[/b]",
+		fmt.Sprintf("  %s /%s &lt;sub-command&gt;\n",
+			TextStyle("Syntax:", TextStyleBold),
+			strings.Join(commandsEntered, " "),
+		),
+		TextStyle("Sub-commands", TextStyleBold),
 	}
 
 	var allowedSubCommands []*Command
@@ -114,10 +117,11 @@ func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string
 	}
 
 	output := []string{
-		"[b]Help:[/b]",
+		TextStyle("Help:", TextStyleBold),
 		"  " + cmd.Help,
 		fmt.Sprintf(
-			"  [b]Syntax:[/b] /%s %s\n",
+			"  %s /%s %s\n",
+			TextStyle("Syntax:", TextStyleBold),
 			strings.Join(commandsEntered, " "),
 			strings.Join(argumentStrings, " "),
 		),

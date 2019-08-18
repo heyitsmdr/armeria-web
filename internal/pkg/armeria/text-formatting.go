@@ -14,15 +14,15 @@ const (
 )
 
 // TextStyle will style text according to one or more styling options.
-func TextStyle(text string, opts ...int) string {
+func TextStyle(text interface{}, opts ...int) string {
 	t := text
 
 	for _, o := range opts {
 		switch o {
 		case TextStyleBold:
-			t = fmt.Sprintf("<span style='font-weight:600'>%s</span>", t)
+			t = fmt.Sprintf("<span style='font-weight:600'>%v</span>", t)
 		case TextStyleMonospace:
-			t = fmt.Sprintf("<span class='monospace'>%s</span>", t)
+			t = fmt.Sprintf("<span class='monospace'>%v</span>", t)
 		}
 	}
 
