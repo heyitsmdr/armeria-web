@@ -14,9 +14,12 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
     name: 'Item',
     props: ['uuid', 'slotNum', 'pictureKey'],
+    computed: mapState(['isProduction']),
     methods: {
         handleItemDragEnter: function(e) {
             e.target.classList.add('candrop');
