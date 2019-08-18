@@ -72,7 +72,7 @@ func (c *Character) Name() string {
 func (c *Character) FormattedName() string {
 	c.RLock()
 	defer c.RUnlock()
-	return fmt.Sprintf("[b]%s[/b]", c.UnsafeName)
+	return TextStyle(c.UnsafeName, TextStyleBold)
 }
 
 // FormattedNameWithTitle returns the formatted character name including the character's title (if set).
@@ -82,9 +82,10 @@ func (c *Character) FormattedNameWithTitle() string {
 
 	title := c.UnsafeAttributes["title"]
 	if title != "" {
-		return fmt.Sprintf("[b]%s[/b] (%s)", c.UnsafeName, title)
+		return fmt.Sprintf("%s (%s)", TextStyle(c.UnsafeName, TextStyleBold), title)
 	}
-	return fmt.Sprintf("[b]%s[/b]", c.UnsafeName)
+
+	return TextStyle(c.UnsafeName, TextStyleBold)
 }
 
 // CheckPassword returns a bool indicating whether the password is correct or not.

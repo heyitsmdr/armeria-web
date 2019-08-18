@@ -3,13 +3,14 @@ package armeria
 import "fmt"
 
 const (
-	TextStyleMonospace int = 0
+	TextStyleMonospace int = iota
+	TextStyleBold
 )
 
 const (
-	TextStatement int = 0
-	TextQuestion  int = 1
-	TextExclaim   int = 2
+	TextStatement int = iota
+	TextQuestion
+	TextExclaim
 )
 
 // TextStyle will style text according to one or more styling options.
@@ -17,7 +18,10 @@ func TextStyle(text string, opts ...int) string {
 	t := text
 
 	for _, o := range opts {
-		if o == TextStyleMonospace {
+		switch o {
+		case TextStyleBold:
+			t = fmt.Sprintf("<span style='font-weight:600'>%s</span>", t)
+		case TextStyleMonospace:
 			t = fmt.Sprintf("<span class='monospace'>%s</span>", t)
 		}
 	}

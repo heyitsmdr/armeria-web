@@ -3,7 +3,6 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -41,7 +40,7 @@ func (mi *MobInstance) Name() string {
 
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
-	return fmt.Sprintf("[b]%s[/b]", mi.Parent.Name())
+	return TextStyle(mi.Parent.Name(), TextStyleBold)
 }
 
 // SetAttribute sets a permanent attribute on the MobInstance.

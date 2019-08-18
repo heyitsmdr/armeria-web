@@ -3,7 +3,6 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -48,7 +47,7 @@ func (ii *ItemInstance) Name() string {
 
 // FormattedName returns the formatted Item name.
 func (ii *ItemInstance) FormattedName() string {
-	return fmt.Sprintf("[b]%s[/b]", ii.Parent.Name())
+	return TextStyle(ii.Parent.Name(), TextStyleBold)
 }
 
 // SetAttribute sets a permanent attribute on the ItemInstance.
