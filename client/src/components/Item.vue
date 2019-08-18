@@ -57,7 +57,7 @@ export default {
             if (!this.pictureKey) {
                 return '';
             }
-            
+
             if (!this.isProduction) {
                 return `url(http://localhost:8081/oi/${this.pictureKey})`;
             }
