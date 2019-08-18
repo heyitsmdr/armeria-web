@@ -32,6 +32,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import {PICKUP_ITEM} from "../plugins/SFX";
 
 export default {
     name: 'Target',
@@ -69,6 +70,7 @@ export default {
             if (this.objectType === 2) {
                 this.$socket.sendObj({ type: 'command', payload: '/get ' + this.name });
                 this.$store.dispatch('setObjectTarget', '');
+                this.$soundEvent(PICKUP_ITEM);
             }
         },
 

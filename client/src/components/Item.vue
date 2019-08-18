@@ -15,6 +15,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "../plugins/SFX";
 
 export default {
     name: 'Item',
@@ -33,10 +34,12 @@ export default {
             e.target.classList.add('dragging');
             e.dataTransfer.setData('item_uuid', this.uuid);
             e.dataTransfer.setData('item_slot', this.slotNum);
+            this.$soundEvent(INVENTORY_DRAG_START)
         },
 
         handleItemDragEnd: function(e) {
             e.target.classList.remove('dragging');
+            this.$soundEvent(INVENTORY_DRAG_STOP)
         },
 
         handleItemDrop: function(e) {

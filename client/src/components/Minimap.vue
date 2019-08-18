@@ -69,7 +69,6 @@ export default {
                 div.setAttribute('x', room.x);
                 div.setAttribute('y', room.y);
                 div.setAttribute('z', room.z);
-                div.addEventListener('mouseover', this.onRoomHover);
                 div.addEventListener('click', this.handleRoomClick);
                 div.className = 'room';
 
@@ -130,12 +129,6 @@ export default {
                         ',' + room.getAttribute('y') +
                         ',' + room.getAttribute('z');
                 this.$socket.sendObj({type: 'command', payload: '/room edit ' + coords});
-            }
-        },
-
-        onRoomHover(event) {
-            if (!event.target.classList.contains('current-location')) {
-                this.$playSound('bloop.wav');
             }
         }
     },

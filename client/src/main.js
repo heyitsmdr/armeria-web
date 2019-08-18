@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueNativeSock from 'vue-native-websocket'
 import App from './App.vue'
 import store from './store'
-import Howler from './plugins/Howler'
+import SFX from './plugins/SFX'
 
 Vue.config.productionTip = false
 
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 Vue.use(VueNativeSock, connectionString, { store: store, format: 'json' })
-Vue.use(Howler)
+Vue.use(SFX)
 
 new Vue({
   store,
