@@ -15,8 +15,7 @@ const (
 
 // TextStyle will style text according to one or more styling options.
 func TextStyle(text interface{}, opts ...int) string {
-	t := text
-
+	t := fmt.Sprintf("%v", text)
 	for _, o := range opts {
 		switch o {
 		case TextStyleBold:
