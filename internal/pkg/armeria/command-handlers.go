@@ -16,6 +16,11 @@ func handleLoginCommand(ctx *CommandContext) {
 		// token auth
 		sections := strings.Split(ctx.Args["token"], ":")
 
+		if len(sections) != 2 {
+			ctx.Player.client.ShowText("Token formatted incorrectly.")
+			return
+		}
+
 		c = Armeria.characterManager.CharacterByName(sections[0])
 		if c == nil {
 			ctx.Player.client.ShowText("Character not found.")
