@@ -5,6 +5,7 @@ import "fmt"
 const (
 	TextStyleMonospace int = iota
 	TextStyleBold
+	TextStyleColor
 )
 
 const (
@@ -16,12 +17,21 @@ const (
 // TextStyle will style text according to one or more styling options.
 func TextStyle(text interface{}, opts ...int) string {
 	t := fmt.Sprintf("%v", text)
+
+	var color string
+	if t[0:1] == "#" && len(t) > 6 {
+		color = t[1:7]
+		t = t[7:]
+	}
+
 	for _, o := range opts {
 		switch o {
 		case TextStyleBold:
 			t = fmt.Sprintf("<span style='font-weight:600'>%v</span>", t)
 		case TextStyleMonospace:
 			t = fmt.Sprintf("<span class='monospace'>%v</span>", t)
+		case TextStyleColor:
+			t = fmt.Sprintf("<span style='color:#%s'>%v</span>", color, t)
 		}
 	}
 

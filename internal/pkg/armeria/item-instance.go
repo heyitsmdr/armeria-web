@@ -47,7 +47,11 @@ func (ii *ItemInstance) Name() string {
 
 // FormattedName returns the formatted Item name.
 func (ii *ItemInstance) FormattedName() string {
-	return TextStyle(ii.Parent.Name(), TextStyleBold)
+	return TextStyle(
+		ii.RarityColor()+"["+ii.Parent.Name()+"]",
+		TextStyleBold,
+		TextStyleColor,
+	)
 }
 
 // SetAttribute sets a permanent attribute on the ItemInstance.
@@ -95,4 +99,14 @@ func (ii *ItemInstance) Room() *Room {
 		return nil
 	}
 	return oc.ParentRoom()
+}
+
+// RarityColor returns the HTML color code that represents the rarity of the item.
+func (ii *ItemInstance) RarityColor() string {
+	switch ii.Attribute(AttributeRarity) {
+	case "0":
+		return "#ffffff"
+	default:
+		return "#ffffff"
+	}
 }
