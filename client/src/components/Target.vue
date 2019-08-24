@@ -93,34 +93,16 @@ export default {
             }
         },
 
-        onPictureDragEnter: function(event) {
+        onPictureDragEnter: function() {
             // TODO: add class to make it obvious you can drop something here
         },
 
-        onPictureDragDrop: function(event) {
-            const files = event.dataTransfer.files;
-
-            if (files.length > 1) {
-                this.$store.dispatch('showText', { data: '\nYou can only upload one image at a time.' });
-                return;
-            }
-
-            const file = files[0];
-
-            console.log(file);
-
-            console.log('drag drop',event.dataTransfer.files);
-            [...event.dataTransfer.files].forEach(f => {
-                const reader = new FileReader()
-                reader.readAsBinaryString(f)
-                reader.onload = function() {
-                    console.log(btoa(reader.result));
-                }
-            });
+        onPictureDragDrop: function() {
+            // TODO: maybe allow uploading images here?
         },
 
-        onContextMenu: function(event) {
-            // TODO: Add a custom right-click menu
+        onContextMenu: function() {
+            // TODO: add a custom right-click menu
             // https://dev.to/iamafro/how-to-create-a-custom-context-menu--5d7p
         }
     }

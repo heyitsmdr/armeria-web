@@ -38,7 +38,7 @@ export default {
     computed: {
         ...mapState(['roomObjects', 'itemBeingDragged']),
         sortedRoomObjects: function() {
-            return this.roomObjects.sort((a, b) => {
+            return this.roomObjects.slice().sort((a, b) => {
                 if (b.sort > a.sort) {
                     return 1;
                 } else if (a.sort > b.sort) {
