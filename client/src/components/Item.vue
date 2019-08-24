@@ -42,11 +42,13 @@ export default {
             e.dataTransfer.setData('item_uuid', this.uuid);
             e.dataTransfer.setData('item_slot', this.slotNum);
             this.hideTooltip();
+            this.$store.dispatch('setItemBeingDragged', true);
             this.$soundEvent(INVENTORY_DRAG_START);
         },
 
         handleItemDragEnd: function(e) {
             e.target.classList.remove('dragging');
+            this.$store.dispatch('setItemBeingDragged', false);
             this.$soundEvent(INVENTORY_DRAG_STOP);
         },
 

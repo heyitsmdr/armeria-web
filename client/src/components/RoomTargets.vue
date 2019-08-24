@@ -1,5 +1,8 @@
 <template>
     <div class="root" @dragenter="handleDragEnter" @dragleave="handleDragLeave" @dragover.prevent @drop="handleDrop">
+        <div class="drop-overlay" ref="overlay">
+            Drop the item here to place the item into the room.
+        </div>
         <div class="container" @click="handleClick">
             <Target
                 v-for="obj in sortedRoomObjects"
@@ -23,8 +26,17 @@ export default {
     components: {
         Target
     },
+    watch: {
+        itemBeingDragged: function(being_dragged) {
+            if (being_dragged) {
+                this.$refs['overlay'].classList.add('visible');
+            } else {
+                this.$refs['overlay'].classList.remove('visible');
+            }
+        },
+    },
     computed: {
-        ...mapState(['roomObjects']),
+        ...mapState(['roomObjects', 'itemBeingDragged']),
         sortedRoomObjects: function() {
             return this.roomObjects.sort((a, b) => {
                 if (b.sort > a.sort) {
@@ -42,16 +54,16 @@ export default {
             //this.$store.dispatch('setObjectTarget', '');
         },
 
-        handleDragEnter: function(e) {
-            e.target.classList.add('candrop');
+        handleDragEnter: function() {
+            this.$refs['overlay'].classList.add('highlight');
         },
 
-        handleDragLeave: function(e) {
-            e.target.classList.remove('candrop');
+        handleDragLeave: function() {
+            this.$refs['overlay'].classList.remove('highlight');
         },
 
         handleDrop: function(e) {
-            e.target.classList.remove('candrop');
+            this.$refs['overlay'].classList.remove('highlight');
             let iuuid = e.dataTransfer.getData("item_uuid");
             this.$store.dispatch('sendSlashCommand', {
                 command: `/drop ${iuuid}`
@@ -67,12 +79,35 @@ export default {
         background-color: #131313;
     }
 
-    .root.candrop {
-        background-color: #313131;
-    }
-
     .container {
         padding-top: 10px;
     }
 
+    .drop-overlay {
+        display: flex;
+        opacity: 0;
+        position: absolute;
+        z-index: 10;
+        width: 245px;
+        height: 549px;
+        left: -1000px;
+        background-color: rgba(0, 0, 0, 0.72);
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #353535;
+        transition: opacity 0.1s ease-in-out;
+        text-align: center;
+        font-size: 18px;
+        color: #777;
+    }
+
+    .drop-overlay.visible {
+        left: 0px;
+        opacity: 1;
+    }
+
+    .drop-overlay.highlight {
+        border: 2px dashed #fff;
+        color: #bbb;
+    }
 </style>

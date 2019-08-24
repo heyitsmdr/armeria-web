@@ -19,6 +19,7 @@ export default new Vuex.Store({
     objectEditorData: {},
     autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
     inventory: [],
+    itemBeingDragged: false,
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -99,6 +100,10 @@ export default new Vuex.Store({
 
     SET_INVENTORY: (state, inventory) => {
       state.inventory = inventory;
+    },
+
+    SET_ITEM_BEING_DRAGGED: (state, being_dragged) => {
+      state.itemBeingDragged = being_dragged;
     }
   },
   actions: {
@@ -131,6 +136,10 @@ export default new Vuex.Store({
 
     setForceInputFocus: ({ commit }, payload) => {
       commit('SET_FORCE_INPUT_FOCUS', payload);
+    },
+
+    setItemBeingDragged: ({ commit }, payload) => {
+      commit('SET_ITEM_BEING_DRAGGED', payload);
     },
 
     //
