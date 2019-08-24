@@ -8,6 +8,7 @@
                 :pictureKey="obj.picture"
                 :objectType="obj.type"
                 :title="obj.title"
+                :color="obj.color"
             />
         </div>
     </div>

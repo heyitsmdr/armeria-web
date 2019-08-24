@@ -2,7 +2,7 @@
     <div>
         <div
                 class="container"
-                :class="{'selected': objectTarget === name, 'is-character': objectType === 0,  'is-mob': objectType == 1, 'is-item': objectType == 2 }"
+                :class="{ 'selected': objectTarget === name }"
                 ref="container"
                 @mousedown="handleMouseDown"
                 @mouseup="handleMouseUp"
@@ -31,13 +31,32 @@
 </template>
 
 <script>
+const OBJECT_TYPE_CHARACTER = 0;
+const OBJECT_TYPE_MOB = 1;
+const OBJECT_TYPE_ITEM = 2;
 import { mapState } from 'vuex';
 import {PICKUP_ITEM} from "../plugins/SFX";
 
 export default {
     name: 'Target',
-    props: ['name', 'objectType', 'pictureKey', 'title'],
+    props: ['name', 'objectType', 'pictureKey', 'title', 'color'],
     computed: mapState(['isProduction', 'objectTarget']),
+    mounted() {
+        switch(this.objectType) {
+            case OBJECT_TYPE_CHARACTER:
+                this.$refs['container'].classList.add('is-character');
+                break;
+            case OBJECT_TYPE_MOB:
+                this.$refs['container'].classList.add('is-mob');
+                break;
+            case OBJECT_TYPE_ITEM:
+                this.$refs['container'].classList.add('is-item');
+                if (this.color.length > 0) {
+                    this.$refs['container'].style.borderColor = this.color;
+                }
+                break;
+        }
+    },
     methods: {
         getBackgroundUrl() {
             if (!this.isProduction) {

@@ -116,13 +116,18 @@ func (r *Room) RoomTargetJSON() string {
 			continue
 		}
 
+		rarityColor := ""
+		if o.Type() == ContainerObjectTypeItem {
+			rarityColor = o.(*ItemInstance).RarityColor()
+		}
+
 		roomObjects = append(roomObjects, map[string]interface{}{
 			"uuid":    o.ID(),
 			"name":    o.Name(),
 			"type":    o.Type(),
 			"sort":    ObjectSortOrder(o.Type()),
 			"picture": o.Attribute(AttributePicture),
-			"rarity":  o.Attribute(AttributeRarity),
+			"color":   rarityColor,
 			"title":   o.Attribute(AttributeTitle),
 		})
 	}

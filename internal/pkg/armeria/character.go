@@ -426,6 +426,7 @@ func (c *Character) InventoryJSON() string {
 			"uuid":    ii.ID(),
 			"picture": ii.Attribute(AttributePicture),
 			"slot":    c.Inventory().Slot(ii.ID()),
+			"color":   ii.RarityColor(),
 		})
 	}
 

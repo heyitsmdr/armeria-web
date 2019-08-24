@@ -7,6 +7,8 @@
                 :uuid="item.uuid"
                 :slotNum="item.slot"
                 :pictureKey="item.picture"
+                :color="item.color"
+                tooltipData="This is my tooltip."
             />
         </div>
     </div>
