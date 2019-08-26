@@ -8,10 +8,10 @@ jobs:
       - run: mkdir -p workspace
       - run: cp -r config workspace/
       - run:
-          name: Build binary
+          name: build binary
           command: go build -o workspace/armeria cmd/armeria/main.go
       - run:
-          name: Run unit tests
+          name: run unit tests
           command: go test -race ./...
       - persist_to_workspace:
           root: workspace
@@ -26,10 +26,10 @@ jobs:
       - checkout:
           path: /tmp/armeria
       - run:
-          name: Install dependencies
+          name: install dependencies
           command: yarn install
       - run:
-          name: Build client
+          name: build client
           command: yarn build
       - persist_to_workspace:
           root: /tmp/armeria/client
@@ -42,29 +42,37 @@ jobs:
       - attach_workspace:
           at: workspace
       - run:
-          name: Clear out client directory
+          name: clear out client directory
           command: |
             ssh -o StrictHostKeyChecking=no root@armeria.io rm -rf /opt/armeria/client
       - run:
-          name: Copy compiled client files to server
+          name: copy compiled client files to server
           command: |
             scp -o StrictHostKeyChecking=no -r workspace/dist/ root@armeria.io:/opt/armeria/client
       - run:
-          name: Copy config directory to server
+          name: copy config directory to server
           command: |
             scp -o StrictHostKeyChecking=no -r workspace/config/ root@armeria.io:/opt/armeria/config
       - run:
-          name: Copy binary to server
+          name: copy binary to server
           command: |
             scp -o StrictHostKeyChecking=no workspace/armeria root@armeria.io:/opt/armeria/armeria-$CIRCLE_BUILD_NUM
       - run:
-          name: Symlink to the new binary
+          name: symlink to the new binary
           command: |
             ssh -o StrictHostKeyChecking=no root@armeria.io ln -s -f /opt/armeria/armeria-$CIRCLE_BUILD_NUM /opt/armeria/armeria
       - run:
-          name: Restart armeria
+          name: stop armeria
           command: |
-            ssh -o StrictHostKeyChecking=no root@armeria.io systemctl restart armeria
+            ssh -o StrictHostKeyChecking=no root@armeria.io systemctl stop armeria
+      - run:
+          name: run migrations
+          command: |
+            ssh -o StrictHostKeyChecking=no root@armeria.io /opt/armeria/armeria -config=/opt/armeria/config/production.yml -migrate
+      - run:
+          name: start armeria
+          command: |
+            ssh -o StrictHostKeyChecking=no root@armeria.io systemctl start armeria
 workflows:
   version: 2
   build_test_deploy:
