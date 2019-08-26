@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// GameState stores the manager singletons and any other global state.
 type GameState struct {
 	log              *zap.Logger
 	production       bool
@@ -27,10 +28,12 @@ type GameState struct {
 }
 
 var (
+	// Armeria contains the global state for the game server.
 	Armeria *GameState
 )
 
-func Init(configFilePath string) {
+// Init loads the Armeria game server and starts serving requests.
+func Init(configFilePath string, serveTraffic bool) {
 	c := parseConfigFile(configFilePath)
 
 	Armeria = &GameState{
@@ -46,6 +49,12 @@ func Init(configFilePath string) {
 	}
 	Armeria.log = logger
 
+	if !serveTraffic {
+		return
+	}
+
+	verifySchemaVersion()
+
 	Armeria.registry = NewRegistry()
 	Armeria.commandManager = NewCommandManager()
 	Armeria.playerManager = NewPlayerManager()
@@ -60,6 +69,7 @@ func Init(configFilePath string) {
 	Armeria.setupAncillaryTasks()
 
 	RegisterGameCommands()
+
 	InitWeb(c.HTTPPort)
 }
 
@@ -93,6 +103,7 @@ func (gs *GameState) setupPeriodicSaves() {
 	}()
 }
 
+// Save writes the in-memory data to disk.
 func (gs *GameState) Save() {
 	gs.characterManager.SaveCharacters()
 	gs.worldManager.SaveWorld()
