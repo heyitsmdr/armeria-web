@@ -11,6 +11,9 @@ jobs:
           name: build binary
           command: go build -o workspace/armeria cmd/armeria/main.go
       - run:
+          name: vet code
+          command: go vet ./...
+      - run:
           name: run unit tests
           command: go test -race ./...
       - persist_to_workspace:
@@ -29,8 +32,9 @@ jobs:
           name: install dependencies
           command: yarn install
       - run:
-          name: link client
+          name: lint client
           command: yarn lint
+
       - run:
           name: build client
           command: yarn build

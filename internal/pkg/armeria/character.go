@@ -21,7 +21,7 @@ type Character struct {
 	UnsafeAttributes     map[string]string `json:"attributes"`
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
-	player               *Player           `json:"-"`
+	player               *Player
 }
 
 const (
