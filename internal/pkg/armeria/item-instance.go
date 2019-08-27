@@ -7,19 +7,13 @@ import (
 	"sync"
 )
 
+// ItemInstance is an instance of an Item.
 type ItemInstance struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	Parent           *Item             `json:"-"`
 }
-
-type ItemLocationType int
-
-const (
-	ItemLocationRoom ItemLocationType = iota
-	ItemLocationCharacter
-)
 
 // Init is called when the ItemInstance is created or loaded from disk.
 func (ii *ItemInstance) Init() {
@@ -41,7 +35,7 @@ func (ii *ItemInstance) Type() ContainerObjectType {
 	return ContainerObjectTypeItem
 }
 
-// UnsafeName returns the raw Item name.
+// Name returns the raw Item name.
 func (ii *ItemInstance) Name() string {
 	return ii.Parent.Name()
 }
@@ -93,7 +87,7 @@ func (ii *ItemInstance) Character() *Character {
 	return oc.ParentCharacter()
 }
 
-// ItemInstance returns the ItemInstance's Room based on the object container it is within.
+// Room returns the ItemInstance's Room based on the object container it is within.
 func (ii *ItemInstance) Room() *Room {
 	oc := Armeria.registry.GetObjectContainer(ii.ID())
 	if oc == nil {
@@ -112,6 +106,7 @@ func (ii *ItemInstance) RarityColor() string {
 	}
 }
 
+// TooltipHTML generates the HTML string to be sent to the game client for rendering the associated tooltip.
 func (ii *ItemInstance) TooltipHTML() string {
 	return fmt.Sprintf(
 		`
