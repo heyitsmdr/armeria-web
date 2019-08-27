@@ -14,9 +14,7 @@
                 @mouseleave="handleMouseLeave"
         >
         </div>
-        <div class="tooltip" ref="tooltip">
-            {{ tooltipData }}
-        </div>
+        <div class="tooltip" ref="tooltip" v-html="tooltipData"></div>
     </div>
 </template>
 
@@ -112,6 +110,12 @@ export default {
 }
 </script>
 
+<style>
+    .tooltip .name {
+        font-size: 20px;
+        font-weight: 600;
+    }
+</style>
 <style scoped>
     .item {
         width: 40px;

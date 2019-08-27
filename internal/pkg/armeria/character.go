@@ -433,6 +433,7 @@ func (c *Character) InventoryJSON() string {
 			"picture": ii.Attribute(AttributePicture),
 			"slot":    c.Inventory().Slot(ii.ID()),
 			"color":   ii.RarityColor(),
+			"tooltip": ii.TooltipHTML(),
 		})
 	}
 

@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -109,4 +110,14 @@ func (ii *ItemInstance) RarityColor() string {
 	default:
 		return "#ffffff"
 	}
+}
+
+func (ii *ItemInstance) TooltipHTML() string {
+	return fmt.Sprintf(
+		`
+			<div class="name">%s</div>
+			<div class="type">Item</div>
+		`,
+		ii.Name(),
+	)
 }

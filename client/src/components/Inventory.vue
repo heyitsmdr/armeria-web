@@ -8,7 +8,7 @@
                 :slotNum="item.slot"
                 :pictureKey="item.picture"
                 :color="item.color"
-                tooltipData="This is my tooltip."
+                :tooltipData="item.tooltip"
             />
         </div>
     </div>
