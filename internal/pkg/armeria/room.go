@@ -211,3 +211,9 @@ func (r *Room) AdjacentRooms() *AdjacentRooms {
 		Down:  Armeria.worldManager.RoomInDirection(r, DownDirection),
 	}
 }
+
+// LocationString returns the location of the room within the game world as a string.
+func (r *Room) LocationString() string {
+	a := r.ParentArea
+	return fmt.Sprintf("%s,%d,%d,%d", a.Name(), r.Coords.X(), r.Coords.Y(), r.Coords.Z())
+}

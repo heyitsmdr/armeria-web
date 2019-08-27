@@ -225,19 +225,31 @@ func handleMoveCommand(ctx *CommandContext) {
 	if areaLink != "" {
 		na := strings.Split(areaLink, ",")
 		if len(na) != 4 {
-			ctx.Player.client.ShowColorizedText("Area Link Error - Not enough arguments.", ColorError)
+			ctx.Player.client.ShowColorizedText("You cannot go that way.", ColorError)
+			Armeria.channels[ChannelBuilders].Broadcast(
+				nil,
+				fmt.Sprintf("ERROR: Invalid area link at %s (%s) due to using an invalid format.", ctx.Character.Room().LocationString(), d),
+			)
 			return
 		}
 		ta := Armeria.worldManager.AreaByName(na[0])
 		if ta == nil {
-			ctx.Player.client.ShowColorizedText("Area Link Error - The specified area does not exist.", ColorError)
+			ctx.Player.client.ShowColorizedText("You cannot go that way.", ColorError)
+			Armeria.channels[ChannelBuilders].Broadcast(
+				nil,
+				fmt.Sprintf("ERROR: Invalid area link at %s (%s) due to the area not existing.", ctx.Character.Room().LocationString(), d),
+			)
 			return
 		}
 		x, xerr := strconv.Atoi(na[1])
 		y, yerr := strconv.Atoi(na[2])
 		z, zerr := strconv.Atoi(na[3])
 		if xerr != nil || yerr != nil || zerr != nil {
-			ctx.Player.client.ShowColorizedText("Area Link Error - The provided coordinates are invalid.", ColorError)
+			ctx.Player.client.ShowColorizedText("You cannot go that way.", ColorError)
+			Armeria.channels[ChannelBuilders].Broadcast(
+				nil,
+				fmt.Sprintf("ERROR: Invalid area link at %s (%s) due to the coords not existing within the target area.", ctx.Character.Room().LocationString(), d),
+			)
 			return
 		}
 		newRoom = ta.RoomAt(NewCoords(x, y, z, 0))
@@ -249,12 +261,20 @@ func handleMoveCommand(ctx *CommandContext) {
 		return
 	}
 
+	oldRoomUUID := ctx.Character.Room().ParentArea.Id()
 	ctx.Character.Move(
 		newRoom,
 		ctx.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s walks to %s.", ctx.Character.FormattedName(), walkDir), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), arriveDir), ColorMovement),
 	)
+
+	if newRoom.ParentArea.Id() != oldRoomUUID {
+		ctx.Player.client.ShowColorizedText(
+			fmt.Sprintf("You've just entered %s.", TextStyle(newRoom.ParentArea.Name(), TextStyleBold)),
+			ColorMovementAlt,
+		)
+	}
 
 	Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
 }

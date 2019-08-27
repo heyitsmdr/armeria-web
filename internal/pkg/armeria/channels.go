@@ -14,21 +14,34 @@ type Channel struct {
 	RequirePermission string
 }
 
+const (
+	ChannelGeneral  string = "general"
+	ChannelCore     string = "core"
+	ChannelBuilders string = "builders"
+)
+
 // NewChannels returns a map containing an instance of each talking channel.
 func NewChannels() map[string]*Channel {
 	return map[string]*Channel{
-		"general": {
+		ChannelGeneral: {
 			Name:         "General",
 			Description:  "Chat about anything game-related.",
 			Color:        ColorChannelGeneral,
 			SlashCommand: "/general",
 		},
-		"core": {
+		ChannelCore: {
 			Name:              "Core",
 			Description:       "Chat with other Armeria Core developers.",
 			SlashCommand:      "/core",
 			Color:             ColorChannelCore,
 			RequirePermission: "CAN_SYSOP",
+		},
+		ChannelBuilders: {
+			Name:              "Builders",
+			Description:       "Chat with other Armeria builders.",
+			SlashCommand:      "/builders",
+			Color:             ColorChannelCore,
+			RequirePermission: "CAN_BUILD",
 		},
 	}
 }

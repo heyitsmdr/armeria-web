@@ -28,6 +28,7 @@ const (
 	ColorRoomTitle int = iota
 	ColorSay
 	ColorMovement
+	ColorMovementAlt
 	ColorError
 	ColorRoomDirs
 	ColorWhisper
@@ -35,6 +36,7 @@ const (
 	ColorCmdHelp
 	ColorChannelGeneral
 	ColorChannelCore
+	ColorChannelBuilders
 )
 
 // Init is called when the Character is created or loaded from disk.
@@ -170,6 +172,8 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#ffeb3b'>%s</span>", text)
 	case ColorMovement:
 		return fmt.Sprintf("<span style='color:#00bcd4'>%s</span>", text)
+	case ColorMovementAlt:
+		return fmt.Sprintf("<span style='color:#00ffc6'>%s</span>", text)
 	case ColorError:
 		return fmt.Sprintf("<span style='color:#e91e63'>%s</span>", text)
 	case ColorRoomDirs:
@@ -184,6 +188,8 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#3bffdc'>%s</span>", text)
 	case ColorChannelCore:
 		return fmt.Sprintf("<span style='color:#ff5722'>%s</span>", text)
+	case ColorChannelBuilders:
+		return fmt.Sprintf("<span style='color:#007cff'>%s</span>", text)
 	default:
 		return text
 	}
