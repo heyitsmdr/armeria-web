@@ -13,6 +13,7 @@ type ClientActions struct {
 }
 
 type ObjectEditorData struct {
+	UUID       string                      `json:"uuid"`
 	Name       string                      `json:"name"`
 	ObjectType string                      `json:"objectType"`
 	Properties []*ObjectEditorDataProperty `json:"properties"`
@@ -21,9 +22,10 @@ type ObjectEditorData struct {
 }
 
 type ObjectEditorDataProperty struct {
-	Name     string `json:"name"`
-	Value    string `json:"value"`
-	PropType string `json:"propType"`
+	Name        string `json:"name"`
+	Value       string `json:"value"`
+	ParentValue string `json:"parentValue"`
+	PropType    string `json:"propType"`
 }
 
 func NewClientActions(p *Player) ClientActions {

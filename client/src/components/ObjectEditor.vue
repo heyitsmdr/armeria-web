@@ -3,7 +3,8 @@
         <div class="header">
             <div class="name">
                 <span class="type">{{ objectEditorData.objectType }}</span>
-                {{ objectEditorData.name }} <small>{{ objectEditorData.textCoords }}</small>
+                {{ objectEditorData.name }}
+                <small>{{ objectEditorData.textCoords }}</small>
             </div>
             <div class="close" @click="handleClose">X</div>
         </div>
@@ -14,9 +15,10 @@
                     <!-- editable type -->
                     <div
                         class="editable"
-                        v-if="prop.propType == 'editable'"
+                        :class="{ inherited: prop.value.length === 0 && prop.parentValue.length > 0 }"
+                        v-if="prop.propType === 'editable'"
                         @click="handleEditablePropClick($event, prop)"
-                        @blur="handleEditablePropBlur($event)"
+                        @blur="handleEditablePropBlur($event, prop)"
                         @keydown="handleEditablePropKeyDown($event, prop)"
                     >
                         {{ prop.value || "&nbsp;" }}
@@ -26,7 +28,7 @@
                             class="picture"
                             ref="picture"
                             :style="{ backgroundImage: getBackgroundUrl(prop.value) }"
-                            v-if="prop.propType == 'picture'"
+                            v-if="prop.propType === 'picture'"
                             @dragenter.stop.prevent="handlePictureDragEnter"
                             @drop.stop.prevent="handlePictureDragDrop"
                             @dragleave.stop.prevent="handlePictureDragLeave"
@@ -36,10 +38,18 @@
                     <!-- script type -->
                     <div
                             class="script"
-                            v-if="prop.propType == 'script'"
+                            v-if="prop.propType === 'script'"
                             @click="handleScriptEditClick"
                     >
                         Edit Script
+                    </div>
+                    <!-- parent type -->
+                    <div
+                            class="script"
+                            v-if="prop.propType === 'parent'"
+                            @click="handleParentClick(prop.name, prop.value)"
+                    >
+                        {{ prop.value }}
                     </div>
                 </div>
             </div>
@@ -83,14 +93,16 @@
                 const editableDiv = e.target;
                 editableDiv.contentEditable = 'true';
                 editableDiv.focus();
+
                 document.execCommand('selectAll', false, null);
                 editableDiv.classList.add('editing');
+                editableDiv.classList.remove('inherited');
 
                 this.propOriginal = prop.value;
                 this.$store.dispatch('setAllowGlobalHotkeys', false);
             },
 
-            handleEditablePropBlur: function(e) {
+            handleEditablePropBlur: function(e, prop) {
                 const editableDiv = e.target;
                 editableDiv.contentEditable = 'false';
                 editableDiv.classList.remove('editing');
@@ -98,6 +110,10 @@
                 if (!editableDiv.classList.contains('success')) {
                     this.animateDivWithClass(e.target, 'failure');
                     editableDiv.innerHTML = this.propOriginal;
+
+                    if (prop.value.length === 0 && prop.parentValue.length > 0) {
+                        editableDiv.classList.add('inherited');
+                    }
                 }
 
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
@@ -157,6 +173,12 @@
                         this.$socket.sendObj({
                             type: 'command',
                             payload: `/item set "${this.objectEditorData.name}" ${propName} ${propValue}`
+                        });
+                        break;
+                    case 'specific-item':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/item iset ${this.objectEditorData.uuid} ${propName} ${propValue}`
                         });
                         break;
                 }
@@ -222,7 +244,14 @@
                     'scripteditor',
                     'width=800,height=600'
                 );
-            }
+            },
+
+            handleParentClick: function(parentType, parentName) {
+                this.$socket.sendObj({
+                    type: 'command',
+                    payload: `/${parentType} edit "${parentName}"`
+                });
+            },
         }
     }
 </script>
@@ -315,6 +344,7 @@
         overflow: hidden;
         white-space: nowrap;
         max-width: 166px;
+        min-height: 15px;
     }
 
     .prop-value .editable.anim {
@@ -333,6 +363,15 @@
 
     .prop-value .editable.failure {
         background-color: #7b2a2a !important;
+    }
+
+    .prop-value .editable.inherited:before {
+        content: 'inherited';
+    }
+
+    .prop-value .editable.inherited {
+        color: #616161;
+        font-style: italic;
     }
 
     .prop-value .editable:hover {

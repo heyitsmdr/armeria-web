@@ -430,6 +430,16 @@ func RegisterGameCommands() {
 					Handler: handleItemEditCommand,
 				},
 				{
+					Name: "iedit",
+					Help: "Open the editor panel for the specified item instance.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "uuid",
+						},
+					},
+					Handler: handleItemInstanceEditCommand,
+				},
+				{
 					Name: "set",
 					Help: "Set an item attribute. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{

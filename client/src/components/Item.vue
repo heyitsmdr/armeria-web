@@ -156,6 +156,7 @@ export default {
         top: 50px;
         background-color: #111;
         border: 2px solid #ccc;
+        border-radius: 5px;
         padding: 5px;
         box-shadow: 0px 0px 10px #000;
     }

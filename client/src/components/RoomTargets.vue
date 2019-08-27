@@ -7,6 +7,7 @@
             <Target
                 v-for="obj in sortedRoomObjects"
                 :key="obj.uuid"
+                :uuid="obj.uuid"
                 :name="obj.name"
                 :pictureKey="obj.picture"
                 :objectType="obj.type"

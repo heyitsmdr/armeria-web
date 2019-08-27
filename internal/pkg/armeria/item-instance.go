@@ -78,6 +78,14 @@ func (ii *ItemInstance) Attribute(name string) string {
 	return ii.UnsafeAttributes[name]
 }
 
+// InstanceAttribute returns an attribute on the ItemInstance, with no fall back to the parent Item.
+func (ii *ItemInstance) InstanceAttribute(name string) string {
+	ii.RLock()
+	defer ii.RUnlock()
+
+	return ii.UnsafeAttributes[name]
+}
+
 // Character returns the Character that has the ItemInstance.
 func (ii *ItemInstance) Character() *Character {
 	oc := Armeria.registry.GetObjectContainer(ii.ID())
@@ -103,6 +111,29 @@ func (ii *ItemInstance) RarityColor() string {
 		return "#ffffff"
 	default:
 		return "#ffffff"
+	}
+}
+
+// EditorData returns the JSON used for the object editor.
+func (ii *ItemInstance) EditorData() *ObjectEditorData {
+	props := []*ObjectEditorDataProperty{
+		{PropType: "parent", Name: "item", Value: ii.Name()},
+	}
+
+	for _, attrName := range ValidItemInstanceAttributes() {
+		props = append(props, &ObjectEditorDataProperty{
+			PropType:    "editable",
+			Name:        attrName,
+			Value:       ii.InstanceAttribute(attrName),
+			ParentValue: ii.Attribute(attrName),
+		})
+	}
+
+	return &ObjectEditorData{
+		UUID:       ii.ID(),
+		Name:       ii.Name(),
+		ObjectType: "specific-item",
+		Properties: props,
 	}
 }
 

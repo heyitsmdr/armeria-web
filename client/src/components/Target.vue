@@ -39,7 +39,7 @@ import {PICKUP_ITEM} from "../plugins/SFX";
 
 export default {
     name: 'Target',
-    props: ['name', 'objectType', 'pictureKey', 'title', 'color'],
+    props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color'],
     computed: mapState(['isProduction', 'objectTarget']),
     mounted() {
         switch(this.objectType) {
@@ -73,12 +73,12 @@ export default {
         handleMouseUp: function(e) {
             this.$refs['container'].classList.remove('mouse-down');
             if (e.shiftKey) {
-                if (this.objectType === 0) {
+                if (this.objectType === OBJECT_TYPE_CHARACTER) {
                     this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
-                } else if (this.objectType === 1) {
+                } else if (this.objectType === OBJECT_TYPE_MOB) {
                     this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
-                } else if (this.objectType === 2) {
-                    this.$socket.sendObj({ type: 'command',  payload: '/item edit ' + this.name });
+                } else if (this.objectType === OBJECT_TYPE_ITEM) {
+                    this.$socket.sendObj({ type: 'command',  payload: '/item iedit ' + this.uuid });
                 }
             } else {
                 this.$store.dispatch('setObjectTarget', this.name);

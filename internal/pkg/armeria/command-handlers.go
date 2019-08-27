@@ -848,6 +848,18 @@ func handleItemEditCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowObjectEditor(i.EditorData())
 }
 
+func handleItemInstanceEditCommand(ctx *CommandContext) {
+	o, rt := Armeria.registry.Get(ctx.Args["uuid"])
+	if rt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("That specific item uuid doesn't exist.", ColorError)
+		return
+	}
+
+	ii := o.(*ItemInstance)
+
+	ctx.Player.client.ShowObjectEditor(ii.EditorData())
+}
+
 func handleItemSetCommand(ctx *CommandContext) {
 	item := strings.ToLower(ctx.Args["item"])
 	attr := strings.ToLower(ctx.Args["property"])
