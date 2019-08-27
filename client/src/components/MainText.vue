@@ -3,7 +3,7 @@
         <ObjectEditor :style="{ height: containerHeight }"></ObjectEditor>
         <div class="scrollable-container" ref="mainTextContainer">
             <div class="lines">
-                <div class="line" v-for="line in gameText" v-html="line"></div>
+                <div class="line" v-for="line in gameText" v-html="line.html" :key="line.id"></div>
             </div>
         </div>
     </div>

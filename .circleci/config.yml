@@ -29,6 +29,9 @@ jobs:
           name: install dependencies
           command: yarn install
       - run:
+          name: link client
+          command: yarn lint
+      - run:
           name: build client
           command: yarn build
       - persist_to_workspace:

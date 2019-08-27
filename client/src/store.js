@@ -33,9 +33,9 @@ export default new Vuex.Store({
     SOCKET_ONCLOSE: (state) => {
       if (state.isConnected) {
         state.isConnected = false;
-        state.gameText.push('<br>Connection to the game server has been closed.');
+        state.gameText.push({ id: state.gameText.length, html: '<br>Connection to the game server has been closed.' });
       } else {
-        state.gameText.push('A connection to the game server could not be established.');
+        state.gameText.push({ id: state.gameText.length, html: 'A connection to the game server could not be established.' });
       }
     },
 
@@ -44,12 +44,13 @@ export default new Vuex.Store({
     },
 
     ADD_GAME_TEXT: (state, text) => {
-      state.gameText.push(
-        text
+      state.gameText.push({
+        id: state.gameText.length,
+        html: text
           .replace(/\n/g, "<br>")
           .replace(/\[b\]/g, "<span style='font-weight:600'>")
           .replace(/\[\/b\]/g, "</span>")
-      );
+      });
     },
 
     SET_ALLOW_GLOBAL_HOTKEYS: (state, allow) => {
