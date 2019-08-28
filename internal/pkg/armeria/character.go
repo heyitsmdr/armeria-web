@@ -373,6 +373,7 @@ func (c *Character) EditorData() *ObjectEditorData {
 	}
 
 	return &ObjectEditorData{
+		UUID:       c.ID(),
 		Name:       c.Name(),
 		ObjectType: "character",
 		Properties: props,
@@ -409,6 +410,10 @@ func (c *Character) InChannel(ch *Channel) bool {
 
 	channelsString := c.UnsafeAttributes[AttributeChannels]
 	return misc.Contains(strings.Split(strings.ToLower(channelsString), ","), strings.ToLower(ch.Name))
+}
+
+func (c *Character) Online() bool {
+	return c.Player() != nil
 }
 
 // JoinChannel adds a channel to the Character's channel list so that they will receive messages

@@ -35,8 +35,10 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
 			ColorSuccess,
 		)
-		for _, chars := range p.Character().Room().Here().Characters(true, nil) {
-			chars.Player().client.SyncRoomObjects()
+		if c.Online() {
+			for _, chars := range c.Room().Here().Characters(true, nil) {
+				chars.Player().client.SyncRoomObjects()
+			}
 		}
 	case "mob":
 		m := Armeria.mobManager.MobByName(name)
@@ -47,6 +49,11 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 			fmt.Sprintf("A picture has been uploaded and set for mob %s.", TextStyle(m.Name(), TextStyleBold)),
 			ColorSuccess,
 		)
+		for _, mi := range m.Instances() {
+			for _, chars := range mi.Room().Here().Characters(true, nil) {
+				chars.Player().client.SyncRoomObjects()
+			}
+		}
 	case "item":
 		i := Armeria.itemManager.ItemByName(name)
 		oldKey = i.Attribute(AttributePicture)
@@ -56,6 +63,18 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 			fmt.Sprintf("A picture has been uploaded and set for item %s.", TextStyle(i.Name(), TextStyleBold)),
 			ColorSuccess,
 		)
+		for _, ii := range i.Instances() {
+			ctr := Armeria.registry.GetObjectContainer(ii.ID())
+			if ctr.ParentType() == ContainerParentTypeRoom {
+				for _, chars := range ii.Room().Here().Characters(true, nil) {
+					chars.Player().client.SyncRoomObjects()
+				}
+			} else if ctr.ParentType() == ContainerParentTypeCharacter {
+				if ii.Character().Online() {
+					ii.Character().Player().client.SyncInventory()
+				}
+			}
+		}
 	default:
 		p.client.ShowColorizedText("The picture was uploaded as an invalid type.", ColorError)
 		DeleteObjectPictureFromDisk(k)

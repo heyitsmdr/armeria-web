@@ -157,6 +157,7 @@ func (r *Room) EditorData() *ObjectEditorData {
 	tc := fmt.Sprintf("%d,%d,%d", r.Coords.UnsafeX, r.Coords.UnsafeY, r.Coords.UnsafeZ)
 
 	return &ObjectEditorData{
+		UUID:       r.ID(),
 		Name:       r.Attribute(AttributeTitle),
 		ObjectType: "room",
 		Properties: props,

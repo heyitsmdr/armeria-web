@@ -113,6 +113,7 @@ func (a *Area) EditorData() *ObjectEditorData {
 	}
 
 	return &ObjectEditorData{
+		UUID:       a.Id(),
 		Name:       a.Name(),
 		ObjectType: "area",
 		Properties: props,

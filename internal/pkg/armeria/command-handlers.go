@@ -900,6 +900,47 @@ func handleItemSetCommand(ctx *CommandContext) {
 	}
 }
 
+func handleItemInstanceSetCommand(ctx *CommandContext) {
+	o, rt := Armeria.registry.Get(ctx.Args["uuid"])
+	if rt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("That specific item uuid doesn't exist.", ColorError)
+		return
+	}
+
+	ii := o.(*ItemInstance)
+	attr := strings.ToLower(ctx.Args["property"])
+	val := strings.ToLower(ctx.Args["value"])
+
+	if !misc.Contains(ValidItemAttributes(), attr) {
+		ctx.Player.client.ShowColorizedText("That's not a valid item attribute.", ColorError)
+		return
+	}
+
+	if len(val) > 0 {
+		valid, why := ValidateItemAttribute(attr, val)
+		if !valid {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			return
+		}
+	}
+
+	_ = ii.SetAttribute(attr, val)
+
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You modified the %s property of the item instace %s (%s).",
+			TextStyle(attr, TextStyleBold),
+			TextStyle(ii.Name(), TextStyleBold),
+			ii.ID(),
+		),
+		ColorSuccess,
+	)
+
+	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
+	if editorOpen == "true" {
+		ctx.Player.client.ShowObjectEditor(ii.EditorData())
+	}
+}
+
 func handleItemInstancesCommand(ctx *CommandContext) {
 	i := Armeria.itemManager.ItemByName(ctx.Args["item"])
 	if i == nil {

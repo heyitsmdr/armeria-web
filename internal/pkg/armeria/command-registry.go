@@ -420,7 +420,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Open the editor panel for the specified item.",
+					Help: "Edit an item within the object editor.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "item",
@@ -428,16 +428,6 @@ func RegisterGameCommands() {
 						},
 					},
 					Handler: handleItemEditCommand,
-				},
-				{
-					Name: "iedit",
-					Help: "Open the editor panel for the specified item instance.",
-					Arguments: []*CommandArgument{
-						{
-							Name: "uuid",
-						},
-					},
-					Handler: handleItemInstanceEditCommand,
 				},
 				{
 					Name: "set",
@@ -458,8 +448,36 @@ func RegisterGameCommands() {
 					Handler: handleItemSetCommand,
 				},
 				{
+					Name: "iedit",
+					Help: "Edit a specific item instance within the object editor.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "uuid",
+						},
+					},
+					Handler: handleItemInstanceEditCommand,
+				},
+				{
+					Name: "iset",
+					Help: "Set an item instance attribute. Leave value empty to revert to default.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "uuid",
+						},
+						{
+							Name: "property",
+						},
+						{
+							Name:             "value",
+							IncludeRemaining: true,
+							Optional:         true,
+						},
+					},
+					Handler: handleItemInstanceSetCommand,
+				},
+				{
 					Name: "instances",
-					Help: "View the locations of the specified item.",
+					Help: "View the locations of an item.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "item",

@@ -9,7 +9,7 @@
             <div class="close" @click="handleClose">X</div>
         </div>
         <div class="properties">
-            <div class="prop-container" v-for="prop in objectEditorData.properties" :key="prop.name">
+            <div class="prop-container" v-for="prop in objectEditorData.properties" :key="objectEditorData.uuid+'-'+prop.name">
                 <div class="prop-name">{{ prop.name }}</div>
                 <div class="prop-value">
                     <!-- editable type -->
@@ -47,7 +47,7 @@
                     <div
                             class="script"
                             v-if="prop.propType === 'parent'"
-                            @click="handleParentClick(prop.name, prop.value)"
+                            @click="handleParentClick(prop.value)"
                     >
                         {{ prop.value }}
                     </div>
@@ -246,11 +246,13 @@
                 );
             },
 
-            handleParentClick: function(parentType, parentName) {
-                this.$socket.sendObj({
-                    type: 'command',
-                    payload: `/${parentType} edit "${parentName}"`
-                });
+            handleParentClick: function(parentName) {
+                if (this.objectEditorData.objectType === 'specific-item') {
+                    this.$socket.sendObj({
+                        type: 'command',
+                        payload: `/item edit "${parentName}"`
+                    });
+                }
             },
         }
     }

@@ -117,7 +117,7 @@ func (ii *ItemInstance) RarityColor() string {
 // EditorData returns the JSON used for the object editor.
 func (ii *ItemInstance) EditorData() *ObjectEditorData {
 	props := []*ObjectEditorDataProperty{
-		{PropType: "parent", Name: "item", Value: ii.Name()},
+		{PropType: "parent", Name: "parent", Value: ii.Name()},
 	}
 
 	for _, attrName := range ValidItemInstanceAttributes() {
@@ -125,7 +125,7 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 			PropType:    "editable",
 			Name:        attrName,
 			Value:       ii.InstanceAttribute(attrName),
-			ParentValue: ii.Attribute(attrName),
+			ParentValue: ii.Parent.Attribute(attrName),
 		})
 	}
 
