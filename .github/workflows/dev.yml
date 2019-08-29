@@ -1,6 +1,8 @@
 name: Development
 on:
   push:
+    branches:
+      - '*'
     tags:
       - '!*'
 jobs:
