@@ -2,7 +2,7 @@ name: Development
 on: [push]
 jobs:
   build_server:
-    name: Build Server
+    name: Build Server (Golang)
     runs-on: ubuntu-latest
     steps:
       - name: Set up go 1.12
@@ -11,7 +11,7 @@ jobs:
           go-version: 1.12
         id: go
 
-      - name: Check out code into the Go module directory
+      - name: Checkout source code
         uses: actions/checkout@v1
 
       - name: Run unit tests
@@ -22,3 +22,27 @@ jobs:
 
       - name: Build server binary
         run: go build -o armeria cmd/armeria/main.go
+  build_client:
+    name: Build Client (Node.js/Vue)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+        id: node
+
+      - name: Checkout source code
+        uses: actions/checkout@v1
+
+      - name: Install dependencies
+        run: yarn install
+        working-directory: client
+
+      - name: Run linter
+        run: yarn lint
+        working-directory: client
+
+      - name: Build client
+        run: yarn build
+        working-directory: client
