@@ -10,5 +10,5 @@ jobs:
         env:
           HOST: armeria.io
           USERNAME: root
-          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SCRIPT: rm -rf /opt/armeria/client
