@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: Clear out client directory
         uses: appleboy/ssh-action@master
-        with:
+        args:
           HOST: armeria.io
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
