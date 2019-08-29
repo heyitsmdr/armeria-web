@@ -1,8 +1,8 @@
 name: Deploy
 on: release
 jobs:
-  prepare:
-    name: Prepare armeria.io
+  filter:
+    name: Filter only published releases
     runs-on: ubuntu-latest
     steps:
       - name: Filter release events
@@ -10,6 +10,10 @@ jobs:
         with:
           args: action published
 
+  prepare:
+    name: Prepare armeria.io
+    runs-on: ubuntu-latest
+    steps:
 #      - name: Dump GitHub context
 #        env:
 #          GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -39,6 +43,7 @@ jobs:
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SCRIPT: rm -f /opt/armeria/armeria
+
   deploy_server:
     name: Build and deploy server
     needs: prepare
@@ -73,6 +78,7 @@ jobs:
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SOURCE: config/*
           TARGET: /opt/armeria
+
   deploy_client:
     name: Build and deploy client
     runs-on: ubuntu-latest
@@ -103,6 +109,7 @@ jobs:
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SOURCE: client/dist/*
           TARGET: /opt/armeria
+
   roll_server:
     name: Roll server
     needs: [deploy_server, deploy_client]
