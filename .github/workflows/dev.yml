@@ -1,8 +1,5 @@
 name: Development
-on:
-  push:
-    branches:
-      - '!master'
+on: [push]
 jobs:
   build_server:
     name: Build Server
