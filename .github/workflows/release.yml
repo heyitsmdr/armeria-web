@@ -54,6 +54,9 @@ jobs:
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SCRIPT: rm -rf /opt/armeria/client/*
 
+      - name: List contents
+        run: ls -lah
+  
       - name: Copy client files to armeria.io
         uses: appleboy/scp-action@master
         env:
