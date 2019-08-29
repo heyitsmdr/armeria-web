@@ -1,4 +1,4 @@
-name: Development
+name: Deploy
 on: [release]
 jobs:
   deploy:
@@ -7,8 +7,8 @@ jobs:
     steps:
       - name: Clear out client directory
         uses: appleboy/ssh-action@master
-        env:
+        with:
           HOST: armeria.io
           USERNAME: root
-          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SCRIPT: rm -rf /opt/armeria/client
