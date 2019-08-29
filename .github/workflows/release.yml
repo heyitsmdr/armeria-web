@@ -55,10 +55,10 @@ jobs:
           SCRIPT: rm -rf /opt/armeria/client/*
 
       - name: Copy client files to armeria.io
-          uses: appleboy/scp-action@master
-          env:
-            HOST: armeria.io
-            USERNAME: root
-            KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
-            SOURCE: client/dist/*
-            TARGET: /opt/armeria/client
+        uses: appleboy/scp-action@master
+        env:
+          HOST: armeria.io
+          USERNAME: root
+          KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
+          SOURCE: client/dist/*
+          TARGET: /opt/armeria/client
