@@ -1,8 +1,49 @@
 name: Deploy
-on: [release]
+on:
+  release:
+    branches:
+      - '*'
+    tags:
+      - '!*'
 jobs:
+  build_server:
+    name: Build Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up go 1.12
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.12
+        id: go
+
+      - name: Checkout source code
+        uses: actions/checkout@v1
+
+      - name: Build server binary
+        run: go build -o armeria cmd/armeria/main.go
+  build_client:
+    name: Build Client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+        id: node
+
+      - name: Checkout source code
+        uses: actions/checkout@v1
+
+      - name: Install dependencies
+        run: yarn install
+        working-directory: client
+
+      - name: Build client
+        run: yarn build
+        working-directory: client
   deploy:
     name: Deploy Armeria
+    needs: [build_server, build_client]
     runs-on: ubuntu-latest
     steps:
       - name: Clear out client directory
@@ -11,4 +52,13 @@ jobs:
           HOST: armeria.io
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
-          SCRIPT: rm -rf /opt/armeria/client
+          SCRIPT: rm -rf /opt/armeria/client/*
+
+      - name: Copy client files to armeria.io
+          uses: appleboy/scp-action@master
+          env:
+            HOST: armeria.io
+            USERNAME: root
+            KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
+            SOURCE: client/dist/*
+            TARGET: /opt/armeria/client
