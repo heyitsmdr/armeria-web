@@ -1,4 +1,4 @@
-name: Development
+name: Lint & Build
 on:
   push:
     branches:

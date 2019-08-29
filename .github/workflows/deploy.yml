@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Tagged Commit
 on:
   push:
     tags:
@@ -124,7 +124,7 @@ jobs:
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SCRIPT: systemctl start armeria
 
-      - name: Discord notification
+      - name: Discord notification in announcements room
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
