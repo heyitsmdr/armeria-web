@@ -14,7 +14,6 @@ jobs:
 #        run: echo "$GITHUB_CONTEXT"
 
       - name: Clear out client directory
-        if: github.event.action == 'published'
         uses: appleboy/ssh-action@master
         env:
           HOST: armeria.io
@@ -124,3 +123,10 @@ jobs:
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SCRIPT: systemctl start armeria
+
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "Armeria.io has been successfully updated to ${{ github.ref }}!"
