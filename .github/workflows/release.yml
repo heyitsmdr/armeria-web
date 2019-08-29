@@ -6,9 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clear out client directory
-        uses: maddox/actions/ssh@master
-        args: rm -rf /opt/armeria/client
+        uses: appleboy/ssh-action@master
         env:
           HOST: armeria.io
-          USER: root
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          USERNAME: root
+          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SCRIPT: rm -rf /opt/armeria/client
