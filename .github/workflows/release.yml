@@ -1,10 +1,5 @@
 name: Deploy
-on:
-  release:
-    branches:
-      - '*'
-    tags:
-      - '!*'
+on: release
 jobs:
   prepare:
     name: Prepare armeria.io
@@ -57,7 +52,7 @@ jobs:
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SOURCE: armeria
-          TARGET: /opt/armeria/armeria
+          TARGET: /opt/armeria
 
       - name: Copy config files to armeria.io
         uses: appleboy/scp-action@master
@@ -66,7 +61,7 @@ jobs:
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SOURCE: config/*
-          TARGET: /opt/armeria/config
+          TARGET: /opt/armeria
   deploy_client:
     name: Build and deploy client
     runs-on: ubuntu-latest
@@ -96,7 +91,7 @@ jobs:
           USERNAME: root
           KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
           SOURCE: client/dist/*
-          TARGET: /opt/armeria/client
+          TARGET: /opt/armeria
   roll_server:
     name: Roll server
     needs: [deploy_server, deploy_client]
