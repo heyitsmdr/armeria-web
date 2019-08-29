@@ -1,0 +1,14 @@
+name: Development
+on: [release]
+jobs:
+  deploy:
+    name: Deploy Armeria
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear out client directory
+        uses: maddox/actions/ssh@master
+        args: rm -rf /opt/armeria/client
+        env:
+          HOST: armeria.io
+          USER: root
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
