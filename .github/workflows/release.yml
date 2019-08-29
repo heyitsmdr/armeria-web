@@ -12,6 +12,7 @@ jobs:
 
   prepare:
     name: Prepare armeria.io
+    needs: filter
     runs-on: ubuntu-latest
     steps:
 #      - name: Dump GitHub context
