@@ -99,7 +99,7 @@ jobs:
           TARGET: /opt/armeria/client
   roll_server:
     name: Roll server
-    needs: [build_server, build_client]
+    needs: [deploy_server, deploy_client]
     runs-on: ubuntu-latest
     steps:
       - name: Run migrations (if any)
