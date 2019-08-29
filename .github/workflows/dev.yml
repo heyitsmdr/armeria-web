@@ -1,5 +1,8 @@
 name: Development
-on: [push]
+on:
+  push:
+    tags:
+      - '!*'
 jobs:
   build_server:
     name: Build Server
