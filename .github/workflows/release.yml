@@ -5,7 +5,18 @@ jobs:
     name: Prepare armeria.io
     runs-on: ubuntu-latest
     steps:
+      - name: Filter release events
+        uses: actions/bin/filter@master
+        with:
+          args: action published
+
+#      - name: Dump GitHub context
+#        env:
+#          GITHUB_CONTEXT: ${{ toJson(github) }}
+#        run: echo "$GITHUB_CONTEXT"
+
       - name: Clear out client directory
+        if: github.event.action == 'published'
         uses: appleboy/ssh-action@master
         env:
           HOST: armeria.io
