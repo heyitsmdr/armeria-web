@@ -3,6 +3,8 @@
 Armeria is an open-source web-based online role-playing game being written in [Golang](https://golang.org/)
 and [Vue.js](https://vuejs.org/).
 
+You can access the public/production version here: https://armeria.io
+
 ## Documentation
 
 * [Contributing](docs/contributing.md)
