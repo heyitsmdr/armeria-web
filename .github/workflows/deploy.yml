@@ -1,18 +1,11 @@
 name: Deploy
-on: release
+on:
+  push:
+    tags:
+      - 'v*'
 jobs:
-  filter:
-    name: Filter only published releases
-    runs-on: ubuntu-latest
-    steps:
-      - name: Filter release events
-        uses: actions/bin/filter@master
-        with:
-          args: action published
-
   prepare:
     name: Prepare armeria.io
-    needs: filter
     runs-on: ubuntu-latest
     steps:
 #      - name: Dump GitHub context
