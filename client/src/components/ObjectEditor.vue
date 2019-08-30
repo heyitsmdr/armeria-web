@@ -135,9 +135,9 @@
                     e.target.blur();
                     
                     if (this.objectEditorData.objectType == "room") {
-                      this.setProperty(prop.name, e.target.innerHTML, this.objectEditorData.textCoords);
+                      this.setProperty(prop.name, e.target.textContent, this.objectEditorData.textCoords);
                     } else {
-                      this.setProperty(prop.name, e.target.innerHTML);
+                      this.setProperty(prop.name, e.target.textContent);
                     }
                 } else if (e.key === 'Escape') {
                     e.stopPropagation();
