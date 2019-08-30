@@ -1138,20 +1138,15 @@ func handleCommandsCommand(ctx *CommandContext) {
 		}
 	}
 
-	var list []string
+	var rows []string
 	for _, cmd := range valid {
-		list = append(list,
-			fmt.Sprintf("  /%-"+strconv.Itoa(largest)+"v %s", cmd.Name, cmd.Help),
-		)
+		rows = append(rows, TableRow(
+			TableCell{TextStyle("/"+cmd.Name, TextStyleBold), "padding:0px 2px"},
+			TableCell{cmd.Help, ""},
+		))
 	}
 
-	ctx.Player.client.ShowColorizedText(
-		TextStyle(
-			fmt.Sprintf(TextStyle("Commands you can use:", TextStyleBold)+"\n%s", strings.Join(list, "\n")),
-			TextStyleMonospace,
-		),
-		ColorCmdHelp,
-	)
+	ctx.Player.client.ShowColorizedText(TextTable(rows...), ColorCmdHelp)
 }
 
 func handleClipboardCopyCommand(ctx *CommandContext) {
@@ -1365,25 +1360,25 @@ func handleAutoLoginCommand(ctx *CommandContext) {
 }
 
 func handleChannelListCommand(ctx *CommandContext) {
-	ctx.Player.client.ShowText("You are able to participate in the following channels:")
-
-	var lines []string
+	var rows []string
 	for _, c := range Armeria.channels {
 		if c.HasPermission(ctx.Character) {
 			if ctx.Character.InChannel(c) {
-				lines = append(lines, " [ JOINED ] "+c.Name+": "+c.Description)
+				rows = append(rows, TableRow(
+					TableCell{TextStyle(c.Name, TextStyleBold), "padding:0px 2px"},
+					TableCell{c.Description, ""},
+				))
 			} else {
-				lines = append(lines, " [        ] "+c.Name+": "+c.Description)
+				rows = append(rows, TableRow(
+					TableCell{c.Name, "padding:0px 2px"},
+					TableCell{c.Description, ""},
+				))
 			}
 		}
 	}
 
-	ctx.Player.client.ShowText(
-		TextStyle(
-			strings.Join(lines, "\n"),
-			TextStyleMonospace,
-		),
-	)
+	ctx.Player.client.ShowText("You are able to participate in the following channels:\n\n" + TextTable(rows...))
+	ctx.Player.client.ShowText("** " + TextStyle("Bold", TextStyleBold) + " channel names are already joined.")
 }
 
 func handleChannelJoinCommand(ctx *CommandContext) {
