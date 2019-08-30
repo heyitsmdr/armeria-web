@@ -357,7 +357,7 @@ func RegisterGameCommands() {
 							Optional:         true,
 						},
 					},
-					Handler: nil,
+					Handler: handleMobInstanceSetCommand,
 				},
 			},
 		},
