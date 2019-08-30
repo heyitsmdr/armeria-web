@@ -114,14 +114,13 @@
                 const editableDiv = e.target;
                 editableDiv.contentEditable = 'false';
                 editableDiv.classList.remove('editing');
+                if (prop.value.length === 0 && prop.parentValue.length > 0) {
+                    editableDiv.classList.add('inherited');
+                }
 
                 if (!editableDiv.classList.contains('success')) {
                     this.animateDivWithClass(e.target, 'failure');
                     editableDiv.innerHTML = this.propOriginal;
-
-                    if (prop.value.length === 0 && prop.parentValue.length > 0) {
-                        editableDiv.classList.add('inherited');
-                    }
                 }
 
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
@@ -134,7 +133,7 @@
                     this.animateDivWithClass(e.target, 'success');
                     e.target.blur();
                     
-                    if (this.objectEditorData.objectType == "room") {
+                    if (this.objectEditorData.objectType === "room") {
                       this.setProperty(prop.name, e.target.textContent, this.objectEditorData.textCoords);
                     } else {
                       this.setProperty(prop.name, e.target.textContent);
