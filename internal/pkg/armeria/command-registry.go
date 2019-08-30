@@ -282,7 +282,7 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Open the editor panel for a mob.",
+					Help: "Edit a mob within the object editor.",
 					Arguments: []*CommandArgument{
 						{
 							Name:             "mob",
@@ -330,6 +330,34 @@ func RegisterGameCommands() {
 						},
 					},
 					Handler: handleMobInstancesCommand,
+				},
+				{
+					Name: "iedit",
+					Help: "Edit a specific mob instance within the object editor.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "uuid",
+						},
+					},
+					Handler: handleMobInstanceEditCommand,
+				},
+				{
+					Name: "iset",
+					Help: "Set a mob instance attribute. Leave value empty to revert to default.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "uuid",
+						},
+						{
+							Name: "property",
+						},
+						{
+							Name:             "value",
+							IncludeRemaining: true,
+							Optional:         true,
+						},
+					},
+					Handler: nil,
 				},
 			},
 		},

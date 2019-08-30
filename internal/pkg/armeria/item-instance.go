@@ -78,7 +78,7 @@ func (ii *ItemInstance) Attribute(name string) string {
 	return ii.UnsafeAttributes[name]
 }
 
-// InstanceAttribute returns an attribute on the ItemInstance, with no fall back to the parent Item.
+// InstanceAttribute returns an attribute on the ItemInstance, with no fallback to the parent Item.
 func (ii *ItemInstance) InstanceAttribute(name string) string {
 	ii.RLock()
 	defer ii.RUnlock()

@@ -72,6 +72,14 @@ func (mi *MobInstance) Attribute(name string) string {
 	return mi.UnsafeAttributes[name]
 }
 
+// InstanceAttribute returns an attribute on the MobInstance, with no fallback to the parent Mob.
+func (mi *MobInstance) InstanceAttribute(name string) string {
+	mi.RLock()
+	defer mi.RUnlock()
+
+	return mi.UnsafeAttributes[name]
+}
+
 // MobInstance returns the MobInstance's Room based on the object container it is within.
 func (mi *MobInstance) Room() *Room {
 	oc := Armeria.registry.GetObjectContainer(mi.ID())
@@ -79,4 +87,27 @@ func (mi *MobInstance) Room() *Room {
 		return nil
 	}
 	return oc.ParentRoom()
+}
+
+// EditorData returns the JSON used for the object editor.
+func (mi *MobInstance) EditorData() *ObjectEditorData {
+	props := []*ObjectEditorDataProperty{
+		{PropType: "parent", Name: "parent", Value: mi.Name()},
+	}
+
+	for _, attrName := range ValidMobInstanceAttributes() {
+		props = append(props, &ObjectEditorDataProperty{
+			PropType:    "editable",
+			Name:        attrName,
+			Value:       mi.InstanceAttribute(attrName),
+			ParentValue: mi.Parent.Attribute(attrName),
+		})
+	}
+
+	return &ObjectEditorData{
+		UUID:       mi.ID(),
+		Name:       mi.Name(),
+		ObjectType: "specific-mob",
+		Properties: props,
+	}
 }

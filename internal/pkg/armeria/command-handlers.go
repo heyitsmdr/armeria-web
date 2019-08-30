@@ -654,6 +654,21 @@ func handleMobEditCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowObjectEditor(m.EditorData())
 }
 
+func handleMobInstanceEditCommand(ctx *CommandContext) {
+	o, rt := Armeria.registry.Get(ctx.Args["uuid"])
+	if rt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("That uuid doesn't exist.", ColorError)
+		return
+	} else if rt != RegistryTypeMobInstance {
+		ctx.Player.client.ShowColorizedText("That uuid is not a mob.", ColorError)
+		return
+	}
+
+	mi := o.(*MobInstance)
+
+	ctx.Player.client.ShowObjectEditor(mi.EditorData())
+}
+
 func handleMobSetCommand(ctx *CommandContext) {
 	mob := strings.ToLower(ctx.Args["mob"])
 	attr := strings.ToLower(ctx.Args["property"])
@@ -691,6 +706,53 @@ func handleMobSetCommand(ctx *CommandContext) {
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		ctx.Player.client.ShowObjectEditor(m.EditorData())
+	}
+}
+
+func handleMobInstanceSetCommand(ctx *CommandContext) {
+	o, rt := Armeria.registry.Get(ctx.Args["uuid"])
+	if rt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("That uuid doesn't exist.", ColorError)
+		return
+	} else if rt != RegistryTypeMobInstance {
+		ctx.Player.client.ShowColorizedText("That uuid is not a mob.", ColorError)
+		return
+	}
+
+	mi := o.(*MobInstance)
+	attr := strings.ToLower(ctx.Args["property"])
+	val := strings.ToLower(ctx.Args["value"])
+
+	if !misc.Contains(ValidMobAttributes(), attr) {
+		ctx.Player.client.ShowColorizedText("That's not a valid mob attribute.", ColorError)
+		return
+	} else if !misc.Contains(ValidMobInstanceAttributes(), attr) {
+		ctx.Player.client.ShowColorizedText("That's not an attribute you can set on a mob instance.", ColorError)
+		return
+	}
+
+	if len(val) > 0 {
+		valid, why := ValidateMobAttribute(attr, val)
+		if !valid {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			return
+		}
+	}
+
+	_ = mi.SetAttribute(attr, val)
+
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You modified the %s property of the mob instace %s (%s).",
+			TextStyle(attr, TextStyleBold),
+			TextStyle(mi.Name(), TextStyleBold),
+			mi.ID(),
+		),
+		ColorSuccess,
+	)
+
+	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
+	if editorOpen == "true" {
+		ctx.Player.client.ShowObjectEditor(mi.EditorData())
 	}
 }
 
@@ -842,7 +904,10 @@ func handleItemEditCommand(ctx *CommandContext) {
 func handleItemInstanceEditCommand(ctx *CommandContext) {
 	o, rt := Armeria.registry.Get(ctx.Args["uuid"])
 	if rt == RegistryTypeUnknown {
-		ctx.Player.client.ShowColorizedText("That specific item uuid doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That uuid doesn't exist.", ColorError)
+		return
+	} else if rt != RegistryTypeItemInstance {
+		ctx.Player.client.ShowColorizedText("That uuid is not an item.", ColorError)
 		return
 	}
 
@@ -894,7 +959,10 @@ func handleItemSetCommand(ctx *CommandContext) {
 func handleItemInstanceSetCommand(ctx *CommandContext) {
 	o, rt := Armeria.registry.Get(ctx.Args["uuid"])
 	if rt == RegistryTypeUnknown {
-		ctx.Player.client.ShowColorizedText("That specific item uuid doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That uuid doesn't exist.", ColorError)
+		return
+	} else if rt != RegistryTypeItemInstance {
+		ctx.Player.client.ShowColorizedText("That uuid is not an item.", ColorError)
 		return
 	}
 
@@ -904,6 +972,9 @@ func handleItemInstanceSetCommand(ctx *CommandContext) {
 
 	if !misc.Contains(ValidItemAttributes(), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid item attribute.", ColorError)
+		return
+	} else if !misc.Contains(ValidItemInstanceAttributes(), attr) {
+		ctx.Player.client.ShowColorizedText("That's not an attribute you can set on an item instance.", ColorError)
 		return
 	}
 

@@ -85,7 +85,7 @@ export default {
                     if (this.objectType === OBJECT_TYPE_CHARACTER) {
                         this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
                     } else if (this.objectType === OBJECT_TYPE_MOB) {
-                        this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
+                        this.$socket.sendObj({ type: 'command',  payload: '/mob iedit ' + this.uuid });
                     } else if (this.objectType === OBJECT_TYPE_ITEM) {
                         this.$socket.sendObj({ type: 'command',  payload: '/item iedit ' + this.uuid });
                     }

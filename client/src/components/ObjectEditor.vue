@@ -188,6 +188,12 @@
                             payload: `/item iset ${this.objectEditorData.uuid} ${propName} ${propValue}`
                         });
                         break;
+                    case 'specific-mob':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/mob iset ${this.objectEditorData.uuid} ${propName} ${propValue}`
+                        });
+                        break;
                 }
             },
 
@@ -254,11 +260,19 @@
             },
 
             handleParentClick: function(parentName) {
-                if (this.objectEditorData.objectType === 'specific-item') {
-                    this.$socket.sendObj({
-                        type: 'command',
-                        payload: `/item edit "${parentName}"`
-                    });
+                switch(this.objectEditorData.objectType) {
+                    case 'specific-item':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/item edit "${parentName}"`
+                        });
+                        break;
+                    case 'specific-mob':
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/mob edit "${parentName}"`
+                        });
+                        break;
                 }
             },
         }
