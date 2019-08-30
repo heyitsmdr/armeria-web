@@ -89,12 +89,20 @@
                 this.$store.dispatch('setObjectEditorOpen', false);
             },
 
+            selectElementContents: function(el) {
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            },
+
             handleEditablePropClick: function(e, prop) {
                 const editableDiv = e.target;
                 editableDiv.contentEditable = 'true';
                 editableDiv.focus();
 
-                document.execCommand('selectAll', false, null);
+                this.selectElementContents(editableDiv);
                 editableDiv.classList.add('editing');
                 editableDiv.classList.remove('inherited');
 
