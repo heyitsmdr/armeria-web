@@ -1120,7 +1120,11 @@ func handleCommandsCommand(ctx *CommandContext) {
 		}
 	}
 
-	var rows []string
+	rows := []string{TableRow(
+		TableCell{content: "Command", header: true},
+		TableCell{content: "Description", header: true},
+	)}
+
 	for _, cmd := range valid {
 		rows = append(rows, TableRow(
 			TableCell{content: TextStyle("/"+cmd.Name, TextStyleBold), styling: "padding:0px 2px"},
