@@ -109,14 +109,7 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
-		if errorMsg != CommandErrInvalid && errorMsg != CommandErrNoPerms {
-			p.client.ShowColorizedText(
-				TextStyle(errorMsg, TextStyleMonospace),
-				ColorCmdHelp,
-			)
-		} else {
-			p.client.ShowColorizedText(errorMsg, ColorCmdHelp)
-		}
+		p.client.ShowColorizedText(errorMsg, ColorCmdHelp)
 		return
 	}
 

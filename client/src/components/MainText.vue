@@ -54,7 +54,7 @@
     }
 
     .line table tr td {
-        padding: 3px;
+        padding: 0px 3px;
     }
 </style>
 <style scoped>

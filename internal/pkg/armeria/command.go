@@ -74,29 +74,25 @@ func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) stri
 	}
 
 	output := []string{
-		TextStyle("Help:", TextStyleBold),
-		"  " + cmd.Help,
-		fmt.Sprintf("  %s /%s &lt;sub-command&gt;\n",
+		cmd.Help,
+		fmt.Sprintf("%s /%s &lt;sub-command&gt;\n",
 			TextStyle("Syntax:", TextStyleBold),
 			strings.Join(commandsEntered, " "),
 		),
-		TextStyle("Sub-commands", TextStyleBold),
+		TextStyle("Sub-commands:", TextStyleBold),
 	}
 
-	var allowedSubCommands []*Command
-	var longestCommandSize int
+	var rows []string
 	for _, scmd := range cmd.Subcommands {
 		if cmd.CheckPermissions(p) {
-			if len(scmd.Name) > longestCommandSize {
-				longestCommandSize = len(scmd.Name)
-			}
-			allowedSubCommands = append(allowedSubCommands, scmd)
+			rows = append(rows, TableRow(
+				TableCell{content: TextStyle(scmd.Name, TextStyleBold)},
+				TableCell{content: scmd.Help},
+			))
 		}
 	}
 
-	for _, scmd := range allowedSubCommands {
-		output = append(output, fmt.Sprintf("  %-10v %s", scmd.Name, scmd.Help))
-	}
+	output = append(output, TextTable(rows...))
 
 	return strings.Join(output, "\n")
 }
@@ -117,10 +113,9 @@ func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string
 	}
 
 	output := []string{
-		TextStyle("Help:", TextStyleBold),
-		"  " + cmd.Help,
+		cmd.Help,
 		fmt.Sprintf(
-			"  %s /%s %s\n",
+			"%s /%s %s\n",
 			TextStyle("Syntax:", TextStyleBold),
 			strings.Join(commandsEntered, " "),
 			strings.Join(argumentStrings, " "),
