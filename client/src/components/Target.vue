@@ -2,7 +2,6 @@
     <div>
         <div
                 class="container"
-                :class="{ 'selected': objectTarget === name }"
                 ref="container"
                 @mousedown="handleMouseDown"
                 @mouseup="handleMouseUp"
@@ -40,7 +39,16 @@ import {PICKUP_ITEM} from "../plugins/SFX";
 export default {
     name: 'Target',
     props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color'],
-    computed: mapState(['isProduction', 'objectTarget']),
+    computed: mapState(['isProduction', 'objectTargetUUID']),
+    watch: {
+        objectTargetUUID: function(target) {
+            if (this.uuid === target) {
+                this.$refs['container'].classList.add('selected');
+            } else {
+                this.$refs['container'].classList.remove('selected');
+            }
+        },
+    },
     mounted() {
         switch(this.objectType) {
             case OBJECT_TYPE_CHARACTER:
@@ -85,11 +93,11 @@ export default {
                 }
             }
 
-            this.$store.dispatch('setObjectTarget', this.name);
+            this.$store.dispatch('setObjectTarget', this.uuid);
         },
 
         handleDoubleClick: function() {
-            if (this.objectType === 2) {
+            if (this.objectType === OBJECT_TYPE_ITEM) {
                 this.$socket.sendObj({ type: 'command', payload: '/get ' + this.name });
                 this.$store.dispatch('setObjectTarget', '');
                 this.$soundEvent(PICKUP_ITEM);

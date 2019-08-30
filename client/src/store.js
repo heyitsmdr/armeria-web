@@ -14,7 +14,7 @@ export default new Vuex.Store({
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
     roomTitle: 'Unknown',
-    objectTarget: '',
+    objectTargetUUID: '',
     objectEditorOpen: false,
     objectEditorData: {},
     autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
@@ -74,8 +74,8 @@ export default new Vuex.Store({
       state.roomTitle = title;
     },
 
-    SET_OBJECT_TARGET: (state, target) => {
-      state.objectTarget = target;
+    SET_OBJECT_TARGET: (state, targetUUID) => {
+      state.objectTargetUUID = targetUUID;
     },
 
     SET_OBJECT_EDITOR_OPEN: (state, open) => {
