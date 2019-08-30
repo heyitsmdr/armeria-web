@@ -719,31 +719,21 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 		return
 	}
 
-	var mobLocations []string
-	for i, mi := range m.Instances() {
-		mobLocations = append(
-			mobLocations,
-			fmt.Sprintf(
-				"  %d) %s (%s) is currently at %s,%d,%d,%d (%s).",
-				i+1,
-				mi.FormattedName(),
-				mi.ID(),
-				mi.Room().ParentArea.Name(),
-				mi.Room().Coords.X(),
-				mi.Room().Coords.Y(),
-				mi.Room().Coords.Z(),
-				mi.Room().Attribute("title"),
-			),
-		)
+	rows := []string{TableRow(
+		TableCell{content: "Mob", header: true},
+		TableCell{content: "UUID", header: true},
+		TableCell{content: "Location", header: true},
+	)}
+
+	for _, mi := range m.Instances() {
+		rows = append(rows, TableRow(
+			TableCell{content: mi.FormattedName()},
+			TableCell{content: mi.ID()},
+			TableCell{content: fmt.Sprintf("%s (%s)", mi.Room().LocationString(), mi.Room().Attribute("title"))},
+		))
 	}
 
-	ctx.Player.client.ShowText(
-		fmt.Sprintf(
-			"Instances of %s:\n%s",
-			m.Name(),
-			strings.Join(mobLocations, "\n"),
-		),
-	)
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleWipeCommand(ctx *CommandContext) {
@@ -949,46 +939,37 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 		return
 	}
 
-	var itemLocations []string
-	for idx, ii := range i.Instances() {
+	rows := []string{TableRow(
+		TableCell{content: "Item", header: true},
+		TableCell{content: "UUID", header: true},
+		TableCell{content: "Location", header: true},
+	)}
+
+	for _, ii := range i.Instances() {
 		ctr := Armeria.registry.GetObjectContainer(ii.ID())
 		if ctr.ParentType() == ContainerParentTypeRoom {
-			itemLocations = append(
-				itemLocations,
-				fmt.Sprintf(
-					"  %d) %s (%s) is currently at %s,%d,%d,%d (%s).",
-					idx+1,
-					ii.FormattedName(),
-					ii.ID(),
-					ii.Room().ParentArea.Name(),
-					ii.Room().Coords.X(),
-					ii.Room().Coords.Y(),
-					ii.Room().Coords.Z(),
-					ii.Room().Attribute("title"),
-				),
-			)
+			rows = append(rows, TableRow(
+				TableCell{content: ii.FormattedName()},
+				TableCell{content: ii.ID()},
+				TableCell{content: fmt.Sprintf("%s (%s)", ii.Room().LocationString(), ii.Room().Attribute("title"))},
+			))
 		} else if ctr.ParentType() == ContainerParentTypeCharacter {
-			itemLocations = append(
-				itemLocations,
-				fmt.Sprintf(
-					"  %d) %s (%s) is currently in the inventory (slot %d) of character %s.",
-					idx+1,
-					ii.FormattedName(),
-					ii.ID(),
-					ii.Character().Inventory().Slot(ii.ID()),
-					ii.Character().FormattedName(),
-				),
-			)
+			rows = append(rows, TableRow(
+				TableCell{content: ii.FormattedName()},
+				TableCell{content: ii.ID()},
+				TableCell{
+					content: fmt.Sprintf(
+						"%s (slot %d)",
+						ii.Character().FormattedName(),
+						ii.Character().Inventory().Slot(ii.ID()),
+					),
+					styling: "",
+				},
+			))
 		}
 	}
 
-	ctx.Player.client.ShowText(
-		fmt.Sprintf(
-			"Instances of %s:\n%s",
-			i.Name(),
-			strings.Join(itemLocations, "\n"),
-		),
-	)
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleGhostCommand(ctx *CommandContext) {
@@ -1142,8 +1123,8 @@ func handleCommandsCommand(ctx *CommandContext) {
 	var rows []string
 	for _, cmd := range valid {
 		rows = append(rows, TableRow(
-			TableCell{TextStyle("/"+cmd.Name, TextStyleBold), "padding:0px 2px"},
-			TableCell{cmd.Help, ""},
+			TableCell{content: TextStyle("/"+cmd.Name, TextStyleBold), styling: "padding:0px 2px"},
+			TableCell{content: cmd.Help},
 		))
 	}
 
@@ -1361,25 +1342,31 @@ func handleAutoLoginCommand(ctx *CommandContext) {
 }
 
 func handleChannelListCommand(ctx *CommandContext) {
-	var rows []string
+	rows := []string{TableRow(
+		TableCell{content: "Channel", header: true},
+		TableCell{content: "Description", header: true},
+		TableCell{content: "Joined", header: true},
+	)}
+
 	for _, c := range Armeria.channels {
 		if c.HasPermission(ctx.Character) {
 			if ctx.Character.InChannel(c) {
 				rows = append(rows, TableRow(
-					TableCell{TextStyle(c.Name, TextStyleBold), "padding:0px 2px"},
-					TableCell{c.Description, ""},
+					TableCell{content: TextStyle(c.Name, TextStyleBold)},
+					TableCell{content: c.Description},
+					TableCell{content: "Yes"},
 				))
 			} else {
 				rows = append(rows, TableRow(
-					TableCell{c.Name, "padding:0px 2px"},
-					TableCell{c.Description, ""},
+					TableCell{content: TextStyle(c.Name, TextStyleBold)},
+					TableCell{content: c.Description},
+					TableCell{content: ""},
 				))
 			}
 		}
 	}
 
-	ctx.Player.client.ShowText("You are able to participate in the following channels:\n\n" + TextTable(rows...))
-	ctx.Player.client.ShowText("** " + TextStyle("Bold", TextStyleBold) + " channel names are already joined.")
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleChannelJoinCommand(ctx *CommandContext) {

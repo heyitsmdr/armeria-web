@@ -46,6 +46,16 @@
         font-size: 16px;
         white-space: pre;
     }
+
+    .line table tr th {
+        text-align: left;
+        background: linear-gradient(to bottom, #111111 0%,#232323 100%);
+        padding: 3px;
+    }
+
+    .line table tr td {
+        padding: 3px;
+    }
 </style>
 <style scoped>
     .main-text-container {

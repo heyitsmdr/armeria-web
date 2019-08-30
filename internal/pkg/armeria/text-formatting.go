@@ -17,6 +17,7 @@ const (
 type TableCell struct {
 	content string
 	styling string
+	header  bool
 }
 
 // TextStyle will style text according to one or more styling options.
@@ -71,7 +72,11 @@ func TextTable(rows ...string) string {
 func TableRow(cells ...TableCell) string {
 	cellString := ""
 	for _, cell := range cells {
-		cellString = fmt.Sprintf("%s<td style='%s'>%s</td>", cellString, cell.styling, cell.content)
+		if cell.header {
+			cellString = fmt.Sprintf("%s<th style='%s'>%s</th>", cellString, cell.styling, cell.content)
+		} else {
+			cellString = fmt.Sprintf("%s<td style='%s'>%s</td>", cellString, cell.styling, cell.content)
+		}
 	}
 	return "<tr>" + cellString + "</tr>"
 }
