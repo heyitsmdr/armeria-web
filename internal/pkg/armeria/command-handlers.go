@@ -351,7 +351,7 @@ func handleRoomSetCommand(ctx *CommandContext) {
 	}
 
 	ctx.Character.Room().SetAttribute(attr, ctx.Args["value"])
-	ctx.Player.client.RenderMap()
+	ctx.Player.client.SyncMap()
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
@@ -392,7 +392,7 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 	_ = Armeria.worldManager.CreateRoom(ctx.Character.Room().ParentArea, c)
 
 	for _, c := range ctx.Character.Room().ParentArea.Characters(nil) {
-		c.Player().client.RenderMap()
+		c.Player().client.SyncMap()
 	}
 
 	ctx.Player.client.ShowText("A new room has been created.")
@@ -427,7 +427,7 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 	r.ParentArea.RemoveRoom(r)
 
 	for _, c := range ctx.Character.Room().ParentArea.Characters(nil) {
-		c.Player().client.RenderMap()
+		c.Player().client.SyncMap()
 	}
 
 	ctx.Player.client.ShowColorizedText("The room has been destroyed.", ColorSuccess)
@@ -439,7 +439,7 @@ func handleSaveCommand(ctx *CommandContext) {
 }
 
 func handleRefreshCommand(ctx *CommandContext) {
-	ctx.Player.client.RenderMap()
+	ctx.Player.client.SyncMap()
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncRoomTitle()
 	ctx.Player.client.SyncInventory()

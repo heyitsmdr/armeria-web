@@ -149,7 +149,7 @@ func (a *Area) Attribute(name string) string {
 
 // CharacterEntered is called when the character is moved into the area (or logged in).
 func (a *Area) CharacterEntered(c *Character, causedByLogin bool) {
-	c.Player().client.RenderMap()
+	c.Player().client.SyncMap()
 }
 
 // CharacterLeft is called when the character left the area (or logged out).

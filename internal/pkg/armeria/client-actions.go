@@ -58,8 +58,8 @@ func (ca *ClientActions) ShowRawText(text string) {
 	ca.parent.CallClientAction("showText", text)
 }
 
-// RenderMap displays the current area on the minimap.
-func (ca *ClientActions) RenderMap() {
+// SyncMap displays the current area on the minimap.
+func (ca *ClientActions) SyncMap() {
 	minimap := ca.parent.Character().Room().ParentArea.MinimapJSON()
 	ca.parent.CallClientAction("setMapData", minimap)
 }
