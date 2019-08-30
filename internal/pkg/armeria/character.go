@@ -223,6 +223,7 @@ func (c *Character) LoggedIn() {
 	room.CharacterEntered(c, true)
 
 	c.Player().client.SyncInventory()
+	c.Player().client.SyncPermissions()
 
 	Armeria.log.Info("character entered the game",
 		zap.String("character", c.Name()),

@@ -85,7 +85,7 @@ func (ca *ClientActions) SyncRoomTitle() {
 			fmt.Sprintf("%s (%d,%d,%d)", r.Attribute("title"), c.X(), c.Y(), c.Z()),
 		)
 	} else {
-		ca.parent.CallClientAction("setRoomTitle", r.Attribute("title"))
+		ca.parent.CallClientAction("setRoomTitle", r.Attribute(AttributeTitle))
 	}
 }
 
@@ -93,6 +93,11 @@ func (ca *ClientActions) SyncRoomTitle() {
 func (ca *ClientActions) SyncInventory() {
 	inv := ca.parent.Character().InventoryJSON()
 	ca.parent.CallClientAction("setInventory", inv)
+}
+
+// SyncPermissions sets the character permissions on the client (to allow/disallow certain client actions / UI tweaks).
+func (ca *ClientActions) SyncPermissions() {
+	ca.parent.CallClientAction("setPermissions", ca.parent.Character().Attribute(AttributePermissions))
 }
 
 // ShowObjectEditor displays the object editor on the client.

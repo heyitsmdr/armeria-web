@@ -20,6 +20,7 @@ export default new Vuex.Store({
     autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
     inventory: [],
     itemBeingDragged: false,
+    permissions: [],
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -105,7 +106,11 @@ export default new Vuex.Store({
 
     SET_ITEM_BEING_DRAGGED: (state, being_dragged) => {
       state.itemBeingDragged = being_dragged;
-    }
+    },
+
+    SET_PERMISSIONS: (state, permissions) => {
+      state.permissions = permissions.split(' ')
+    },
   },
   actions: {
     sendSlashCommand: ({ state }, payload) => {
@@ -186,6 +191,10 @@ export default new Vuex.Store({
 
     setInventory: ({ commit }, payload) => {
       commit('SET_INVENTORY', JSON.parse(payload.data) || []);
+    },
+
+    setPermissions: ({ commit }, payload) => {
+      commit('SET_PERMISSIONS', payload.data);
     }
   }
 })

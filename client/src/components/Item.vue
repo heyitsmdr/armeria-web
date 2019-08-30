@@ -12,6 +12,7 @@
                 @drop="handleItemDrop"
                 @mousemove="handleMouseMove"
                 @mouseleave="handleMouseLeave"
+                @click="handleClick"
         >
         </div>
         <div class="tooltip" ref="tooltip" v-html="tooltipData"></div>
@@ -88,6 +89,17 @@ export default {
 
         handleMouseLeave: function() {
             this.hideTooltip();
+        },
+
+        handleClick: function(e) {
+            if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                if (e.shiftKey) {
+                    this.$socket.sendObj({
+                        type: 'command',
+                        payload: `/item iedit ${this.uuid}`
+                    });
+                }
+            }
         },
 
         hideTooltip: function() {

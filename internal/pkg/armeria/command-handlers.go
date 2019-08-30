@@ -443,6 +443,7 @@ func handleRefreshCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncRoomTitle()
 	ctx.Player.client.SyncInventory()
+	ctx.Player.client.SyncPermissions()
 	ctx.Player.client.ShowText("Client data has been refreshed.")
 }
 

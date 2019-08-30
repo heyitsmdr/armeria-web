@@ -117,13 +117,13 @@ export default {
         },
 
         handleAreaClick: function(e) {
-            if (e.shiftKey) {
+            if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                 this.$socket.sendObj({type: 'command', payload: '/area edit'});
             }
         },
 
         handleRoomClick: function(e) {
-            if (e.shiftKey) {
+            if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                 var room = e.target;
                 var coords = room.getAttribute('x') +
                         ',' + room.getAttribute('y') +

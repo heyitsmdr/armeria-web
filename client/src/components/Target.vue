@@ -72,17 +72,20 @@ export default {
 
         handleMouseUp: function(e) {
             this.$refs['container'].classList.remove('mouse-down');
-            if (e.shiftKey) {
-                if (this.objectType === OBJECT_TYPE_CHARACTER) {
-                    this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
-                } else if (this.objectType === OBJECT_TYPE_MOB) {
-                    this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
-                } else if (this.objectType === OBJECT_TYPE_ITEM) {
-                    this.$socket.sendObj({ type: 'command',  payload: '/item iedit ' + this.uuid });
+            if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                if (e.shiftKey) {
+                    if (this.objectType === OBJECT_TYPE_CHARACTER) {
+                        this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
+                    } else if (this.objectType === OBJECT_TYPE_MOB) {
+                        this.$socket.sendObj({ type: 'command',  payload: '/mob edit ' + this.name });
+                    } else if (this.objectType === OBJECT_TYPE_ITEM) {
+                        this.$socket.sendObj({ type: 'command',  payload: '/item iedit ' + this.uuid });
+                    }
+                    return
                 }
-            } else {
-                this.$store.dispatch('setObjectTarget', this.name);
             }
+
+            this.$store.dispatch('setObjectTarget', this.name);
         },
 
         handleDoubleClick: function() {
