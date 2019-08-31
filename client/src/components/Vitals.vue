@@ -114,6 +114,7 @@
         justify-content: center;
         align-items: center;
         font-size: 12px;
+        text-shadow: 0px 0px 4px #000;
     }
 
     .container .bar-container .text .visible {

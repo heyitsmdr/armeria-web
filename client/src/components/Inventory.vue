@@ -63,5 +63,6 @@
     .currency-container {
         padding-left: 10px;
         padding-top: 5px;
+        color: #ffc107;
     }
 </style>
