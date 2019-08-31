@@ -114,6 +114,16 @@ func (ii *ItemInstance) RarityColor() string {
 	}
 }
 
+// RarityName returns the name of human-readable rarity name as a string.
+func (ii *ItemInstance) RarityName() string {
+	switch ii.Attribute(AttributeRarity) {
+	case "0":
+		return "Common"
+	default:
+		return "Common"
+	}
+}
+
 // EditorData returns the JSON used for the object editor.
 func (ii *ItemInstance) EditorData() *ObjectEditorData {
 	props := []*ObjectEditorDataProperty{
@@ -142,8 +152,9 @@ func (ii *ItemInstance) TooltipHTML() string {
 	return fmt.Sprintf(
 		`
 			<div class="name">%s</div>
-			<div class="type">Item</div>
+			<div class="type">%s</div>
 		`,
 		ii.Name(),
+		ii.RarityName(),
 	)
 }
