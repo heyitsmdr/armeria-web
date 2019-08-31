@@ -235,7 +235,7 @@ html, body {
       }
 
       .container-inventory {
-        flex-basis: 342px;
+        flex-basis: 365px;
       }
     }
   }

@@ -11,6 +11,9 @@
                 :tooltipData="item.tooltip"
             />
         </div>
+        <div class="currency-container">
+            <b>Money:</b> $0
+        </div>
     </div>
 </template>
 
@@ -54,6 +57,11 @@
     .item-container {
         display: flex;
         flex-wrap: wrap;
-        padding: 10px;
+        padding: 10px 10px 0px 10px;
+    }
+
+    .currency-container {
+        padding-left: 10px;
+        padding-top: 5px;
     }
 </style>
