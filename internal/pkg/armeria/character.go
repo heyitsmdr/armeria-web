@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -21,6 +22,7 @@ type Character struct {
 	UnsafeAttributes     map[string]string `json:"attributes"`
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
+	UnsafeLastSeen       time.Time         `json:"lastSeen"`
 	player               *Player
 }
 
@@ -195,6 +197,20 @@ func (c *Character) Colorize(text string, color int) string {
 	}
 }
 
+// LastSeen returns the Time the character last successfully logged into the game.
+func (c *Character) LastSeen() time.Time {
+	c.RLock()
+	defer c.RUnlock()
+	return c.UnsafeLastSeen
+}
+
+// SetLastSeen sets the time the character last logged into the game.
+func (c *Character) SetLastSeen(seen time.Time) {
+	c.Lock()
+	defer c.Unlock()
+	c.UnsafeLastSeen = seen
+}
+
 // LoggedIn handles everything that needs to happen when a character enters the game.
 func (c *Character) LoggedIn() {
 	room := c.Room()
@@ -207,6 +223,18 @@ func (c *Character) LoggedIn() {
 		)
 		return
 	}
+
+	// Show server / character info
+	c.Player().client.ShowText(
+		fmt.Sprintf(
+			"The server has been running for %s. You last logged in at %s (server time). ",
+			time.Since(Armeria.startTime),
+			c.LastSeen().Format("Mon Jan 2 2006 15:04:05 MST"),
+		),
+	)
+
+	// Update lastSeen
+	c.SetLastSeen(time.Now())
 
 	// Use command: /look
 	Armeria.commandManager.ProcessCommand(c.Player(), "look", false)

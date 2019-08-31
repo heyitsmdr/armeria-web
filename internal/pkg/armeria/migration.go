@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"strconv"
+	"time"
 
 	"go.uber.org/zap"
 )
 
 // SchemaVersion defines the current version of the schema. If the file system is using an older version, a
 // migration will be performed.
-const SchemaVersion int = 1
+const SchemaVersion int = 2
 
 // schemaVersionOnDisk reads the schema version from disk and returns it as an int.
 func schemaVersionOnDisk() int {
@@ -75,9 +76,12 @@ func migrateCharacters(to int) {
 		Armeria.log.Fatal("error unmarshalling characters.json", zap.Error(err))
 	}
 
-	switch to {
-	case 1:
-		// TODO: placeholder until we need a migration
+	for _, c := range s.Characters {
+		switch to {
+		case 2:
+			// Set UnsafeLastSeen to now
+			c.UnsafeLastSeen = time.Now()
+		}
 	}
 
 	b, err = json.Marshal(s)

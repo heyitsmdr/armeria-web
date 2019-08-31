@@ -25,6 +25,7 @@ type GameState struct {
 	publicPath       string
 	dataPath         string
 	objectImagesPath string
+	startTime        time.Time
 }
 
 var (
@@ -67,6 +68,8 @@ func Init(configFilePath string, serveTraffic bool) {
 	Armeria.setupGracefulExit()
 	Armeria.setupPeriodicSaves()
 	Armeria.setupAncillaryTasks()
+
+	Armeria.startTime = time.Now()
 
 	RegisterGameCommands()
 
