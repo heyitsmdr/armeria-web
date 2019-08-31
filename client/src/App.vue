@@ -20,7 +20,7 @@
           <InputBox />
         </div>
         <div class="container-bars">
-          Health/Magic/Stamina Bars
+          <Vitals />
         </div>
       </div>
       <div class="container-right">
@@ -40,6 +40,7 @@ import InputBox from '@/components/InputBox';
 import Minimap from '@/components/Minimap';
 import RoomTargets from '@/components/RoomTargets';
 import Inventory from '@/components/Inventory';
+import Vitals from '@/components/Vitals';
 
 export default {
   name: 'App',
@@ -48,7 +49,8 @@ export default {
     MainText,
     Minimap,
     RoomTargets,
-    Inventory
+    Inventory,
+    Vitals
   },
   data: () => {
     return {

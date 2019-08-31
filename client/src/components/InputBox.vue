@@ -137,7 +137,7 @@
 
   .container.active {
     background-color: #000;
-    box-shadow: 0px 0px 10px 0px #292929;
+    border: 1px solid #444;
   }
 
   .container.active .input-box {
