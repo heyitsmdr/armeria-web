@@ -40,7 +40,7 @@ func NewChannels() map[string]*Channel {
 			Name:              "Builders",
 			Description:       "Chat with other Armeria builders.",
 			SlashCommand:      "/builders",
-			Color:             ColorChannelCore,
+			Color:             ColorChannelBuilders,
 			RequirePermission: "CAN_BUILD",
 		},
 	}
