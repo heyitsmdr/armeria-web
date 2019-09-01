@@ -61,8 +61,13 @@
     }
 
     .currency-container {
-        padding-left: 10px;
-        padding-top: 5px;
+        margin-left: 10px;
+        margin-right: 14px;
+        border: 1px solid #333;
         color: #ffc107;
+        padding: 4px;
+        box-shadow: inset 0px 0px 10px #333;
+        background-color: #000;
+        font-size: 13px;
     }
 </style>
