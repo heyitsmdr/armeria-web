@@ -1485,3 +1485,40 @@ func handleChannelSayCommand(ctx *CommandContext) {
 
 	ch.Broadcast(ctx.Character, sayText)
 }
+
+func handleSettingsCommand(ctx *CommandContext) {
+	setting := strings.ToLower(ctx.Args["name"])
+	if !misc.Contains(ValidSettings(), setting) {
+		msg := fmt.Sprintf("'%s' is not a valid setting name. Please check available settings below:", setting)
+		if setting == "" {
+			msg = ""
+		}
+		ctx.Player.client.ShowColorizedText(msg, ColorError)
+
+		rows := []string{TableRow(
+			TableCell{content: "Name", header: true},
+			TableCell{content: "Default", header: true},
+			TableCell{content: "Current", header: true},
+		)}
+
+		valid := ValidSettings()
+
+		// TODO: Get all valid setting names, their defaults, and the current value. Loop through.
+		for _, s := range valid {
+			rows = append(rows, TableRow(
+				TableCell{content: s},
+				TableCell{content: SettingDefault(s), styling: "padding:0px 2px"},
+				TableCell{content: ctx.Character.Setting(s), styling: "padding:0px 2px"},
+			))
+		}
+		ctx.Player.client.ShowText(TextTable(rows...))
+		return
+	}
+	switch setting {
+	case "brief":
+		newValue := misc.ToggleStringBool(ctx.Character.Setting(setting))
+		msg := fmt.Sprintf("Setting '%s' has been set to '%s'.", setting, newValue)
+		ctx.Character.SetSetting("brief", newValue)
+		ctx.Player.client.ShowColorizedText(msg, ColorSuccess)
+	}
+}

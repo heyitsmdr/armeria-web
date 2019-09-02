@@ -20,6 +20,7 @@ type Character struct {
 	UnsafeName           string            `json:"name"`
 	UnsafePassword       string            `json:"password"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
+	UnsafeSettings       map[string]string `json:"settings"`
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	UnsafeLastSeen       time.Time         `json:"lastSeen"`
@@ -39,7 +40,24 @@ const (
 	ColorChannelGeneral
 	ColorChannelCore
 	ColorChannelBuilders
+
+	SettingBrief string = "brief"
 )
+
+func ValidSettings() []string {
+	return []string{
+		SettingBrief,
+	}
+}
+
+func SettingDefault(name string) string {
+	switch name {
+	case SettingBrief:
+		return "false"
+	}
+
+	return ""
+}
 
 // Init is called when the Character is created or loaded from disk.
 func (c *Character) Init() {
@@ -336,6 +354,28 @@ func (c *Character) Attribute(name string) string {
 	}
 
 	return c.UnsafeAttributes[name]
+}
+
+func (c *Character) SetSetting(name string, value string) error {
+	c.Lock()
+	defer c.Unlock()
+
+	if !misc.Contains(ValidSettings(), name) {
+		return errors.New("setting name is invalid")
+	}
+	c.UnsafeSettings[name] = value
+	return nil
+}
+
+func (c *Character) Setting(name string) string {
+	c.RLock()
+	defer c.RUnlock()
+
+	if len(c.UnsafeSettings[name]) == 0 {
+		return SettingDefault(name)
+	}
+
+	return c.UnsafeSettings[name]
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed.

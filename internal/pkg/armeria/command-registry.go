@@ -697,6 +697,24 @@ func RegisterGameCommands() {
 				},
 			},
 		},
+		{
+			Name: "settings",
+			Help: "View or change settings for your character.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:     "name",
+					Optional: true,
+				},
+				{
+					Name:     "value",
+					Optional: true,
+				},
+			},
+			Handler: handleSettingsCommand,
+		},
 	}
 
 	for _, cmd := range commands {

@@ -11,7 +11,7 @@ import (
 
 // SchemaVersion defines the current version of the schema. If the file system is using an older version, a
 // migration will be performed.
-const SchemaVersion int = 2
+const SchemaVersion int = 3
 
 // schemaVersionOnDisk reads the schema version from disk and returns it as an int.
 func schemaVersionOnDisk() int {
@@ -81,6 +81,8 @@ func migrateCharacters(to int) {
 		case 2:
 			// Set UnsafeLastSeen to now
 			c.UnsafeLastSeen = time.Now()
+		case 3:
+			c.UnsafeSettings = map[string]string{}
 		}
 	}
 

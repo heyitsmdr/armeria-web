@@ -69,3 +69,13 @@ func ParseArguments(args []string) []string {
 	}
 	return parsed
 }
+
+func ToggleStringBool(s string) string {
+	if s == "true" {
+		return "false"
+	}
+	if s == "false" {
+		return "true"
+	}
+	return s
+}
