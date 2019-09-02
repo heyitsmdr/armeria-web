@@ -44,12 +44,14 @@ const (
 	SettingBrief string = "brief"
 )
 
+// ValidSettings returns all valid settings for a character.
 func ValidSettings() []string {
 	return []string{
 		SettingBrief,
 	}
 }
 
+// SettingDesc is used to retrieve the description of a character setting.
 func SettingDesc(name string) string {
 	switch name {
 	case SettingBrief:
@@ -59,6 +61,7 @@ func SettingDesc(name string) string {
 	return ""
 }
 
+// SettingDefault is used as a fallback for setting values.
 func SettingDefault(name string) string {
 	switch name {
 	case SettingBrief:
@@ -82,7 +85,7 @@ func (c *Character) Init() {
 	Armeria.registry.Register(c, c.ID(), RegistryTypeCharacter)
 }
 
-// UUID returns the uuid of the character.
+// ID returns the uuid of the character.
 func (c *Character) ID() string {
 	return c.UUID
 }
@@ -92,7 +95,7 @@ func (c *Character) Type() ContainerObjectType {
 	return ContainerObjectTypeCharacter
 }
 
-// UnsafeName returns the raw character name.
+// Name returns the raw character name.
 func (c *Character) Name() string {
 	c.RLock()
 	defer c.RUnlock()
@@ -157,6 +160,7 @@ func (c *Character) PasswordHash() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
+// Inventory returns the character's inventory.
 func (c *Character) Inventory() *ObjectContainer {
 	c.RLock()
 	defer c.RUnlock()
@@ -365,6 +369,7 @@ func (c *Character) Attribute(name string) string {
 	return c.UnsafeAttributes[name]
 }
 
+// SetSetting sets a character setting and only valid settings can be set.
 func (c *Character) SetSetting(name string, value string) error {
 	c.Lock()
 	defer c.Unlock()
@@ -376,6 +381,7 @@ func (c *Character) SetSetting(name string, value string) error {
 	return nil
 }
 
+// Setting returns a setting's value.
 func (c *Character) Setting(name string) string {
 	c.RLock()
 	defer c.RUnlock()

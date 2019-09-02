@@ -70,6 +70,7 @@ func ParseArguments(args []string) []string {
 	return parsed
 }
 
+// ToggleStringBool toggles a string like a bool.
 func ToggleStringBool(s string) string {
 	if s == "true" {
 		return "false"

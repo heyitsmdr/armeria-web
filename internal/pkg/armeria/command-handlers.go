@@ -178,20 +178,19 @@ func handleGlanceCommand(ctx *CommandContext) {
 	var validDirString string
 	for i, d := range validDirs {
 		if i == 0 {
-			validDirString = fmt.Sprintf("\nYou can walk %s", d)
+			validDirString = fmt.Sprintf("\n[ Exits: %s", d)
 			if i == len(validDirs)-1 {
-				validDirString = validDirString + "."
+				validDirString = validDirString + " ]"
 			}
 		} else if i == len(validDirs)-1 {
-			validDirString = fmt.Sprintf("%s and %s.", validDirString, d)
+			validDirString = fmt.Sprintf("%s and %s ]", validDirString, d)
 		} else {
 			validDirString = fmt.Sprintf("%s, %s", validDirString, d)
 		}
 	}
 
 	ctx.Player.client.ShowText(
-		ctx.Character.Colorize(r.Attribute("title"), ColorRoomTitle) + "\n" +
-			r.Attribute("description") +
+		ctx.Character.Colorize(r.Attribute("title"), ColorRoomTitle) +
 			ctx.Character.Colorize(validDirString, ColorRoomDirs) +
 			withYou,
 	)
@@ -199,7 +198,7 @@ func handleGlanceCommand(ctx *CommandContext) {
 	if ctx.PlayerInitiated {
 		for _, c := range r.Here().Characters(true, ctx.Character) {
 			c.Player().client.ShowText(
-				fmt.Sprintf("%s takes a look around.", ctx.Character.FormattedName()),
+				fmt.Sprintf("%s glances around.", ctx.Character.FormattedName()),
 			)
 		}
 	}
