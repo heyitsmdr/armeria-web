@@ -50,6 +50,15 @@ func ValidSettings() []string {
 	}
 }
 
+func SettingDesc(name string) string {
+	switch name {
+	case SettingBrief:
+		return "Toggle short room descriptions when moving."
+	}
+
+	return ""
+}
+
 func SettingDefault(name string) string {
 	switch name {
 	case SettingBrief:

@@ -51,6 +51,14 @@ func RegisterGameCommands() {
 			Handler: handleLookCommand,
 		},
 		{
+			Name: "glance",
+			Help: "Glance around.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleGlanceCommand,
+		},
+		{
 			Name: "say",
 			Help: "Say something to everyone in your current room.",
 			Permissions: &CommandPermissions{
