@@ -36,7 +36,7 @@ func (gh *ArmeriaRepo) CreateIssue(characterName string, issueBody string, rawBu
 	ir := &github.IssueRequest{
 		Title:  &title,
 		Body:   &issueBody,
-		Labels: &[]string{"triage"},
+		Labels: &[]string{"triage", "in-game"},
 	}
 
 	i, _, err := gh.client.Issues.Create(context.Background(), "heyitsmdr", "armeria", ir)
