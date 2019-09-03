@@ -70,30 +70,66 @@ re-login.
 
 ## Upgrading Dependencies
 
-To upgrade Vue.js, you can use the Vue CLI. Be sure you have the Vue CLI and the
-Vue CLI Upgrade packages installed:
+This section outlines upgrading dependencies for both the client and the server.
+
+### Client
+
+To upgrade Vue.js, make sure you're using the latest version of the Vue CLI. If
+you don't have it installed, install it with:
 
 ```bash
 $ yarn global add @vue/cli
 $ yarn global add @vue/cli-upgrade
 ```
 
-You can upgrade the client by running:
+If you already have the Vue CLI installed, upgrade it to the latest version
+with:
+
+```bash
+$ yarn global upgrade @vue/cli
+$ yarn global upgrade @vue/cli-upgrade
+```
+
+Next, use the Vue CLI UI to handle upgrades gracefully. To do this:
 
 ```bash
 $ cd client
-$ vue upgrade major
+$ vue ui
 ```
 
-Press `Y` to confirm updating `package.json` and re-running `yarn install`
-automatically. Make sure the client builds successfully and commit the changes.
+The Vue CLI UI should pop up in your default browser. If the project is not
+already imported into the UI, go ahead and import it now.
 
-To upgrade another Node dependency, you can do this by running:
+Use the **Plugins** and **Dependencies** tabs to upgrade all of the plugins and
+dependencies that have updates available. Be especially careful when updating
+the `vue` and `vuex` dependencies to make sure everything is working within the
+client. It's a good idea to read through the Vue/Vuex release notes when doing
+this as well.
 
-```bash
-$ cd client
-$ yarn add <dependency name>
+Note that when performing these upgrades, the `package.json` and `yarn.lock`
+files will be updated accordingly and, assuming everything is working, these
+should be committed to the repo.
+
+### Server
+
+To upgrade the Golang version, you should first upgade Golang locally and make
+sure the server binary can be built successfully. You should then upgrade the
+build pipeline by modifying these two files:
+
+* `.github/workflows/dev.yml`
+* `.github/workflows/deploy.yml`
+
+Modify the `go-version` setting under the `with` section of the build step.
+
+To upgrade Armeria's dependencies, use:
+
 ```
+$ go get -u
+$ go mod tidy
+```
+
+You should also run `go mod tidy` any time you introduce or remove any new or
+existing dependencies.
 
 ## Publishing Features
 
