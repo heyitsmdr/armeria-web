@@ -1600,7 +1600,7 @@ func handleSettingsCommand(ctx *CommandContext) {
 		newValue := misc.ToggleStringBool(ctx.Character.Setting(setting))
 		msg := fmt.Sprintf("Setting '%s' has been set to '%s'.", setting, newValue)
 
-		ctx.Character.SetSetting("brief", newValue)
+		_ = ctx.Character.SetSetting("brief", newValue)
 
 		ctx.Player.client.ShowColorizedText(msg, ColorSuccess)
 	}
