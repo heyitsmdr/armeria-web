@@ -5,6 +5,9 @@ on:
       - '*'
     tags:
       - '!*'
+  pull_request:
+    branches:
+      - master
 jobs:
   build_server:
     name: Build Server
