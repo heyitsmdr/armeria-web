@@ -29,11 +29,13 @@ First and foremost, this game is open-source and can be ran locally with an
 abundance of example data. Anyone can contribute to the game, so long as you
 adhere to the [License](../LICENSE), [Contributing](docs/contributing.md), and
 [Code of Conduct](docs/code-of-conduct.md) docs. If you would like to have a
-deeper involvement with the development of Armeria and/or would like to help with
-building in-game content, you can join our community Discord and let us know!
+deeper involvement with the development of Armeria and/or would like to help
+with building in-game content, you can join our community Discord and let us
+know!
 
 ### Will all core contributors be given a priviledged character?
 
-Yes, you will be given a priviledged character so that you can help curate
-in-game content and help maintain the community both inside and outside of the
-game.
+Generally speaking, yes, you will be given a priviledged character so that you
+can help curate in-game content and help maintain the community both inside and
+outside of the game. However, if you have no desire to help in-game and want to
+help purely from a code standpoint, that is fine as well!
