@@ -51,6 +51,14 @@ func RegisterGameCommands() {
 			Handler: handleLookCommand,
 		},
 		{
+			Name: "glance",
+			Help: "Glance around.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleGlanceCommand,
+		},
+		{
 			Name: "say",
 			Help: "Say something to everyone in your current room.",
 			Permissions: &CommandPermissions{
@@ -696,6 +704,24 @@ func RegisterGameCommands() {
 					Handler: handleChannelSayCommand,
 				},
 			},
+		},
+		{
+			Name: "settings",
+			Help: "View or change settings for your character.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:     "name",
+					Optional: true,
+				},
+				{
+					Name:     "value",
+					Optional: true,
+				},
+			},
+			Handler: handleSettingsCommand,
 		},
 	}
 

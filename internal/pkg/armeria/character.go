@@ -20,6 +20,7 @@ type Character struct {
 	UnsafeName           string            `json:"name"`
 	UnsafePassword       string            `json:"password"`
 	UnsafeAttributes     map[string]string `json:"attributes"`
+	UnsafeSettings       map[string]string `json:"settings"`
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	UnsafeLastSeen       time.Time         `json:"lastSeen"`
@@ -39,7 +40,36 @@ const (
 	ColorChannelGeneral
 	ColorChannelCore
 	ColorChannelBuilders
+
+	SettingBrief string = "brief"
 )
+
+// ValidSettings returns all valid settings for a character.
+func ValidSettings() []string {
+	return []string{
+		SettingBrief,
+	}
+}
+
+// SettingDesc is used to retrieve the description of a character setting.
+func SettingDesc(name string) string {
+	switch name {
+	case SettingBrief:
+		return "Toggle short room descriptions when moving."
+	}
+
+	return ""
+}
+
+// SettingDefault is used as a fallback for setting values.
+func SettingDefault(name string) string {
+	switch name {
+	case SettingBrief:
+		return "false"
+	}
+
+	return ""
+}
 
 // Init is called when the Character is created or loaded from disk.
 func (c *Character) Init() {
@@ -55,7 +85,7 @@ func (c *Character) Init() {
 	Armeria.registry.Register(c, c.ID(), RegistryTypeCharacter)
 }
 
-// UUID returns the uuid of the character.
+// ID returns the uuid of the character.
 func (c *Character) ID() string {
 	return c.UUID
 }
@@ -65,7 +95,7 @@ func (c *Character) Type() ContainerObjectType {
 	return ContainerObjectTypeCharacter
 }
 
-// UnsafeName returns the raw character name.
+// Name returns the raw character name.
 func (c *Character) Name() string {
 	c.RLock()
 	defer c.RUnlock()
@@ -130,6 +160,7 @@ func (c *Character) PasswordHash() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
+// Inventory returns the character's inventory.
 func (c *Character) Inventory() *ObjectContainer {
 	c.RLock()
 	defer c.RUnlock()
@@ -336,6 +367,30 @@ func (c *Character) Attribute(name string) string {
 	}
 
 	return c.UnsafeAttributes[name]
+}
+
+// SetSetting sets a character setting and only valid settings can be set.
+func (c *Character) SetSetting(name string, value string) error {
+	c.Lock()
+	defer c.Unlock()
+
+	if !misc.Contains(ValidSettings(), name) {
+		return errors.New("setting name is invalid")
+	}
+	c.UnsafeSettings[name] = value
+	return nil
+}
+
+// Setting returns a setting's value.
+func (c *Character) Setting(name string) string {
+	c.RLock()
+	defer c.RUnlock()
+
+	if len(c.UnsafeSettings[name]) == 0 {
+		return SettingDefault(name)
+	}
+
+	return c.UnsafeSettings[name]
 }
 
 // MoveAllowed will check if moving to a particular location is valid/allowed.

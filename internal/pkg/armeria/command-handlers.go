@@ -134,6 +134,76 @@ func handleLookCommand(ctx *CommandContext) {
 	}
 }
 
+func handleGlanceCommand(ctx *CommandContext) {
+	r := ctx.Character.Room()
+
+	var objNames []string
+	for _, o := range r.Here().All() {
+		obj := o.(ContainerObject)
+
+		if obj.Type() == ContainerObjectTypeCharacter && obj.(*Character).Player() == nil {
+			continue
+		}
+
+		if obj.ID() != ctx.Character.ID() {
+			objNames = append(objNames, obj.FormattedName())
+		}
+	}
+
+	var withYou string
+	if len(objNames) > 0 {
+		withYou = fmt.Sprintf("\nHere with you: %s.", strings.Join(objNames, ", "))
+	}
+
+	ar := r.AdjacentRooms()
+	var validDirs []string
+	if ar.North != nil {
+		validDirs = append(validDirs, TextStyle("north", TextStyleBold))
+	}
+	if ar.South != nil {
+		validDirs = append(validDirs, TextStyle("south", TextStyleBold))
+	}
+	if ar.East != nil {
+		validDirs = append(validDirs, TextStyle("east", TextStyleBold))
+	}
+	if ar.West != nil {
+		validDirs = append(validDirs, TextStyle("west", TextStyleBold))
+	}
+	if ar.Up != nil {
+		validDirs = append(validDirs, TextStyle("up", TextStyleBold))
+	}
+	if ar.Down != nil {
+		validDirs = append(validDirs, TextStyle("down", TextStyleBold))
+	}
+	var validDirString string
+	for i, d := range validDirs {
+		if i == 0 {
+			validDirString = fmt.Sprintf("\n[ Exits: %s", d)
+			if i == len(validDirs)-1 {
+				validDirString = validDirString + " ]"
+			}
+		} else if i == len(validDirs)-1 {
+			validDirString = fmt.Sprintf("%s and %s ]", validDirString, d)
+		} else {
+			validDirString = fmt.Sprintf("%s, %s", validDirString, d)
+		}
+	}
+
+	ctx.Player.client.ShowText(
+		ctx.Character.Colorize(r.Attribute("title"), ColorRoomTitle) +
+			ctx.Character.Colorize(validDirString, ColorRoomDirs) +
+			withYou,
+	)
+
+	if ctx.PlayerInitiated {
+		for _, c := range r.Here().Characters(true, ctx.Character) {
+			c.Player().client.ShowText(
+				fmt.Sprintf("%s glances around.", ctx.Character.FormattedName()),
+			)
+		}
+	}
+}
+
 func handleSayCommand(ctx *CommandContext) {
 	if len(ctx.Args) == 0 {
 		ctx.Player.client.ShowText("Say what?")
@@ -276,7 +346,11 @@ func handleMoveCommand(ctx *CommandContext) {
 		)
 	}
 
-	Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
+	if ctx.Character.Setting(SettingBrief) == "true" {
+		Armeria.commandManager.ProcessCommand(ctx.Player, "glance", false)
+	} else {
+		Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
+	}
 }
 
 func handleRoomEditCommand(ctx *CommandContext) {
@@ -1484,4 +1558,46 @@ func handleChannelSayCommand(ctx *CommandContext) {
 	}
 
 	ch.Broadcast(ctx.Character, sayText)
+}
+
+func handleSettingsCommand(ctx *CommandContext) {
+	setting := strings.ToLower(ctx.Args["name"])
+
+	if !misc.Contains(ValidSettings(), setting) {
+		msg := fmt.Sprintf("'%s' is not a valid setting name. Please check available settings below:", setting)
+		if setting == "" {
+			msg = ""
+		}
+		ctx.Player.client.ShowColorizedText(msg, ColorError)
+
+		rows := []string{TableRow(
+			TableCell{content: "Name", header: true},
+			TableCell{content: "Description", header: true},
+			TableCell{content: "Default", header: true},
+			TableCell{content: "Current", header: true},
+		)}
+
+		valid := ValidSettings()
+
+		for _, s := range valid {
+			rows = append(rows, TableRow(
+				TableCell{content: s},
+				TableCell{content: SettingDesc(s), styling: "padding:0px 2px"},
+				TableCell{content: SettingDefault(s), styling: "padding:0px 2px"},
+				TableCell{content: ctx.Character.Setting(s), styling: "padding:0px 2px"},
+			))
+		}
+		ctx.Player.client.ShowText(TextTable(rows...))
+		return
+	}
+
+	switch setting {
+	case "brief":
+		newValue := misc.ToggleStringBool(ctx.Character.Setting(setting))
+		msg := fmt.Sprintf("Setting '%s' has been set to '%s'.", setting, newValue)
+
+		ctx.Character.SetSetting("brief", newValue)
+
+		ctx.Player.client.ShowColorizedText(msg, ColorSuccess)
+	}
 }
