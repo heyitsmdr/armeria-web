@@ -1595,13 +1595,17 @@ func handleSettingsCommand(ctx *CommandContext) {
 		return
 	}
 
-	switch setting {
-	case "brief":
-		newValue := misc.ToggleStringBool(ctx.Character.Setting(setting))
-		msg := fmt.Sprintf("Setting '%s' has been set to '%s'.", setting, newValue)
-
-		_ = ctx.Character.SetSetting("brief", newValue)
-
-		ctx.Player.client.ShowColorizedText(msg, ColorSuccess)
+	var newValue string
+	if ctx.Character.Setting(setting) == "true" || ctx.Character.Setting(setting) == "false" {
+		newValue = misc.ToggleStringBool(ctx.Character.Setting(setting))
+	} else {
+		newValue = ctx.Args["value"]
 	}
+
+	_ = ctx.Character.SetSetting(setting, newValue)
+
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, TextStyleBold), newValue),
+		ColorSuccess,
+	)
 }
