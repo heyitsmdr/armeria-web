@@ -1564,11 +1564,15 @@ func handleSettingsCommand(ctx *CommandContext) {
 	setting := strings.ToLower(ctx.Args["name"])
 
 	if !misc.Contains(ValidSettings(), setting) {
-		msg := fmt.Sprintf("'%s' is not a valid setting name. Please check available settings below:", setting)
-		if setting == "" {
-			msg = ""
+		if setting != "" {
+			ctx.Player.client.ShowColorizedText(
+				fmt.Sprintf(
+					"%s is not a valid setting name. Please check available settings below:",
+					TextStyle(setting, TextStyleBold),
+				),
+				ColorError,
+			)
 		}
-		ctx.Player.client.ShowColorizedText(msg, ColorError)
 
 		rows := []string{TableRow(
 			TableCell{content: "Name", header: true},
