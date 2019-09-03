@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"go.uber.org/zap"
+
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -1607,5 +1609,35 @@ func handleSettingsCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, TextStyleBold), newValue),
 		ColorSuccess,
+	)
+}
+
+func handleBugCommand(ctx *CommandContext) {
+	bug := ctx.Args["bug"]
+
+	issueBody := fmt.Sprintf(
+		"This was reported in-game by **%s**.\n\n"+
+			"**Location:** %s\n\n%s",
+		ctx.Character.Name(),
+		ctx.Character.Room().LocationString(),
+		bug,
+	)
+
+	issue, err := Armeria.github.CreateIssue(ctx.Character.Name(), issueBody, bug)
+	if err != nil {
+		Armeria.log.Error(
+			"error submitting bug to github repo",
+			zap.Error(err),
+		)
+		ctx.Player.client.ShowColorizedText(
+			"There was an error submitting the bug report to GitHub. As an alternative, you can manually"+
+				"submit a bug report here: https://github.com/heyitsmdr/armeria/issues/new",
+			ColorError,
+		)
+		return
+	}
+
+	ctx.Player.client.ShowText(
+		"Thank you for your submission! You can view/track it here: " + issue.GetHTMLURL(),
 	)
 }

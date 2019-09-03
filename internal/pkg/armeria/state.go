@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/github"
 	"log"
 	"os"
 	"os/signal"
@@ -26,6 +27,7 @@ type GameState struct {
 	dataPath         string
 	objectImagesPath string
 	startTime        time.Time
+	github           *github.ArmeriaRepo
 }
 
 var (
@@ -64,6 +66,8 @@ func Init(configFilePath string, serveTraffic bool) {
 	Armeria.mobManager = NewMobManager()
 	Armeria.itemManager = NewItemManager()
 	Armeria.channels = NewChannels()
+
+	Armeria.github = github.New()
 
 	Armeria.setupGracefulExit()
 	Armeria.setupPeriodicSaves()

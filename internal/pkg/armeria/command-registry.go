@@ -724,6 +724,22 @@ func RegisterGameCommands() {
 			},
 			Handler: handleSettingsCommand,
 		},
+		{
+			Name:     "bug",
+			AltNames: []string{"idea"},
+			Help:     "Report a bug or suggest an idea.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "bug",
+					Optional:         false,
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleBugCommand,
+		},
 	}
 
 	for _, cmd := range commands {
