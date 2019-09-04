@@ -27,6 +27,7 @@ func New() *ArmeriaRepo {
 	}
 }
 
+// CreateIssue creates a new GitHub issue in the heyitsmdr/armeria repo.
 func (gh *ArmeriaRepo) CreateIssue(characterName string, issueBody string, rawBug string) (*github.Issue, error) {
 	title := fmt.Sprintf("[%s] %s", characterName, rawBug)
 	if len(rawBug) > 100 {

@@ -94,9 +94,9 @@ export default new Vuex.Store({
       state.autoLoginToken = token;
       window.localStorage.setItem('auto_login_token', token);
       if (token.length > 0) {
-        state.gameText.push('<br>You will now be automatically logged in to this character.');
+        state.gameText.push({ id: state.gameText.length, html: '<br>You will now be automatically logged in to this character.' });
       } else {
-        state.gameText.push('<br>You will no longer be automatically logged in to this character.');
+        state.gameText.push({ id: state.gameText.length, html: '<br>You will no longer be automatically logged in to this character.' });
       }
     },
 
