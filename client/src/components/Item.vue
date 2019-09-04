@@ -2,6 +2,7 @@
     <div>
         <div
                 class="item"
+                ref="item"
                 draggable="true"
                 :style="{ backgroundImage: getBackgroundUrl(), borderColor: color }"
                 @dragstart="handleItemDragStart"
@@ -14,6 +15,7 @@
                 @mouseleave="handleMouseLeave"
                 @click="handleClick"
         >
+            <div v-if="equipped" class="equipped">equip</div>
         </div>
         <div class="tooltip" ref="tooltip" v-html="tooltipData"></div>
     </div>
@@ -25,8 +27,11 @@ import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "../plugins/SFX";
 
 export default {
     name: 'Item',
-    props: ['uuid', 'slotNum', 'pictureKey', 'tooltipData', 'color'],
+    props: ['uuid', 'slotNum', 'pictureKey', 'tooltipData', 'color', 'equipped'],
     computed: mapState(['isProduction']),
+    mounted: function() {
+        this.$refs['item'].classList.add('equipped');
+    },
     methods: {
         handleItemDragEnter: function(e) {
             e.target.classList.add('candrop');
@@ -146,6 +151,10 @@ export default {
         transform: scale(1.1);
     }
 
+    .item.equipped {
+
+    }
+
     .item.candrop {
         transform: scale(1.4);
     }
@@ -158,6 +167,15 @@ export default {
         background-size: contain;
         height: 100%;
         width: 100%;
+    }
+
+    .item .equipped {
+        background-color: rgba(50,50,50,0.8);
+        color: #fff;
+        font-size: 10px;
+        text-align: center;
+        margin-top: 27px;
+        text-transform: uppercase;
     }
 
     .tooltip {

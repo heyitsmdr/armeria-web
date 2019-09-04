@@ -258,9 +258,10 @@ func (c *Character) LoggedIn() {
 	// Show server / character info
 	c.Player().client.ShowText(
 		fmt.Sprintf(
-			"The server has been running for %s. You last logged in at %s (server time). ",
-			time.Since(Armeria.startTime),
-			c.LastSeen().Format("Mon Jan 2 2006 15:04:05 MST"),
+			"The server has been running for %s.\n"+
+				"You last logged in at %s (server time). ",
+			TextStyle(time.Since(Armeria.startTime), TextStyleBold),
+			TextStyle(c.LastSeen().Format("Mon Jan 2 2006 15:04:05 MST"), TextStyleBold),
 		),
 	)
 
@@ -283,6 +284,7 @@ func (c *Character) LoggedIn() {
 
 	c.Player().client.SyncInventory()
 	c.Player().client.SyncPermissions()
+	c.Player().client.SyncPlayerInfo()
 
 	Armeria.log.Info("character entered the game",
 		zap.String("character", c.Name()),

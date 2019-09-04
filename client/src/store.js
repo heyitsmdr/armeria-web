@@ -21,6 +21,7 @@ export default new Vuex.Store({
     inventory: [],
     itemBeingDragged: false,
     permissions: [],
+    playerInfo: { uuid: '' },
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -111,6 +112,10 @@ export default new Vuex.Store({
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions.split(' ')
     },
+
+    SET_PLAYER_INFO: (state, playerInfo) => {
+      state.playerInfo = playerInfo;
+    }
   },
   actions: {
     sendSlashCommand: ({ state }, payload) => {
@@ -195,6 +200,10 @@ export default new Vuex.Store({
 
     setPermissions: ({ commit }, payload) => {
       commit('SET_PERMISSIONS', payload.data);
+    },
+
+    setPlayerInfo: ({ commit }, payload) => {
+      commit('SET_PLAYER_INFO', JSON.parse(payload.data));
     }
   }
 })

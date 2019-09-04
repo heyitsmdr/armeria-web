@@ -520,6 +520,7 @@ func handleRefreshCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncRoomTitle()
 	ctx.Player.client.SyncInventory()
 	ctx.Player.client.SyncPermissions()
+	ctx.Player.client.SyncPlayerInfo()
 	ctx.Player.client.ShowText("Client data has been refreshed.")
 }
 
@@ -1630,7 +1631,7 @@ func handleBugCommand(ctx *CommandContext) {
 			zap.Error(err),
 		)
 		ctx.Player.client.ShowColorizedText(
-			"There was an error submitting the bug report to GitHub. As an alternative, you can manually"+
+			"There was an error submitting the bug report to GitHub.\nAs an alternative, you can manually "+
 				"submit a bug report here: https://github.com/heyitsmdr/armeria/issues/new",
 			ColorError,
 		)

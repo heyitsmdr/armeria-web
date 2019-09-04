@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"encoding/json"
 	"strings"
 	"sync"
 	"time"
@@ -143,4 +144,20 @@ func (p *Player) Character() *Character {
 	defer p.RUnlock()
 
 	return p.character
+}
+
+func (p *Player) PlayerInfoJSON() string {
+	pi := map[string]string{
+		"uuid": p.Character().ID(),
+	}
+
+	piJSON, err := json.Marshal(pi)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal player info data",
+			zap.String("character", p.Character().UUID),
+			zap.Error(err),
+		)
+	}
+
+	return string(piJSON)
 }

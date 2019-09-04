@@ -100,6 +100,11 @@ func (ca *ClientActions) SyncPermissions() {
 	ca.parent.CallClientAction("setPermissions", ca.parent.Character().Attribute(AttributePermissions))
 }
 
+// SyncPlayerInfo sets the character/player information on the client.
+func (ca *ClientActions) SyncPlayerInfo() {
+	ca.parent.CallClientAction("setPlayerInfo", ca.parent.Character().Player().PlayerInfoJSON())
+}
+
 // ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	// add access key

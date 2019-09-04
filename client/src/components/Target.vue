@@ -24,6 +24,7 @@
                     <div>{{ name }}</div>
                     <div class="alt">{{ title }}</div>
                 </div>
+                <div class="you" v-if="uuid===playerInfo.uuid">you</div>
             </div>
         </div>
     </div>
@@ -39,7 +40,7 @@ import {PICKUP_ITEM} from "../plugins/SFX";
 export default {
     name: 'Target',
     props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color'],
-    computed: mapState(['isProduction', 'objectTargetUUID']),
+    computed: mapState(['isProduction', 'objectTargetUUID', 'playerInfo']),
     watch: {
         objectTargetUUID: function(target) {
             if (this.uuid === target) {
@@ -184,6 +185,17 @@ export default {
                 font-weight: 400;
                 font-size: 12px;
             }
+        }
+
+        .you {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-color: #353535;
+            padding: 2px 5px;
+            border: 1px solid #353535;
+            text-transform: uppercase;
+            font-size: 12px;
         }
     }
 }
