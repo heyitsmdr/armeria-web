@@ -125,8 +125,7 @@ func (p *Player) CallClientAction(actionName string, payload interface{}) {
 // Connected is called when the parent successfully connects to the game (pre-login).
 func (p *Player) Connected() {
 	lines := []string{
-		"Welcome to the world of Armeria!\n",
-		"If you have a character, you can <b>/login</b>. Otherwise, use <b>/create</b>.",
+		"If you have an existing character, you can <b>/login</b>. Otherwise, <b>/create</b> a new one.",
 	}
 
 	p.client.ShowRawText(strings.Join(lines, "\n"))

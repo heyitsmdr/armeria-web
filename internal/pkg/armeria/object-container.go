@@ -246,7 +246,7 @@ func (oc *ObjectContainer) Characters(onlineOnly bool, except *Character) []*Cha
 	for _, ocd := range oc.UnsafeObjects {
 		c, ot := Armeria.registry.Get(ocd.UUID)
 		if ot == RegistryTypeCharacter {
-			if !onlineOnly || c.(*Character).Player() != nil {
+			if !onlineOnly || c.(*Character).Online() {
 				if except == nil || c.(*Character).ID() != except.ID() {
 					chars = append(chars, c.(*Character))
 				}

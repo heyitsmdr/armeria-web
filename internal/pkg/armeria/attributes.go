@@ -44,6 +44,7 @@ func ValidItemAttributes() []string {
 	return []string{
 		AttributePicture,
 		AttributeRarity,
+		AttributeDescription,
 	}
 }
 
@@ -51,6 +52,7 @@ func ValidItemAttributes() []string {
 func ValidItemInstanceAttributes() []string {
 	return []string{
 		AttributeRarity,
+		AttributeDescription,
 	}
 }
 

@@ -95,6 +95,7 @@ export default {
             }
 
             this.$store.dispatch('setObjectTarget', this.uuid);
+            this.$socket.sendObj({ type: 'command', payload: '/look ' + this.uuid });
         },
 
         handleDoubleClick: function() {
@@ -196,6 +197,7 @@ export default {
             border: 1px solid #353535;
             text-transform: uppercase;
             font-size: 12px;
+            transition: all .1s ease-in-out;
 
             &.selected {
                  background-color: #eedb38;

@@ -66,7 +66,13 @@
     watch: {
       isConnected: function(connected) {
         let token = this.$store.state.autoLoginToken;
+        if (connected) {
+          this.$store.dispatch('showText', { data: `Welcome to Armeria!\n\n` });
+        }
+
         if (connected && token.length > 0) {
+          const char = token.split(':')[0];
+          this.$store.dispatch('showText', { data: `You will be automatically logged in as '${char}'.\n\n` });
           this.$store.dispatch('sendSlashCommand', {
             command: `/logintoken ${token}`
           });

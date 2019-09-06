@@ -67,6 +67,47 @@ func handleLoginCommand(ctx *CommandContext) {
 
 func handleLookCommand(ctx *CommandContext) {
 	r := ctx.Character.Room()
+	at := ctx.Args["at"]
+
+	// Look _at_ something?
+	if len(at) > 0 {
+		var o interface{}
+		var rt RegistryType
+		o, _, rt = ctx.Character.Room().Here().Get(at)
+		if rt == RegistryTypeUnknown {
+			o, _, rt = ctx.Character.Room().Here().GetByName(at)
+			if rt == RegistryTypeUnknown {
+				ctx.Player.client.ShowColorizedText("You don't see anything here by that name.", ColorError)
+				return
+			}
+		}
+
+		co := o.(ContainerObject)
+		var lookResult string
+		if rt == RegistryTypeItemInstance {
+			lookResult = co.Attribute(AttributeDescription)
+		}
+
+		if len(lookResult) == 0 {
+			lookResult = "There is nothing special about it."
+		}
+
+		ctx.Player.client.ShowText(
+			fmt.Sprintf("You take a look at %s.\n%s", TextStyle(co.FormattedName(), TextStyleBold), lookResult),
+		)
+
+		if ctx.PlayerInitiated {
+			for _, c := range r.Here().Characters(true, ctx.Character) {
+				c.Player().client.ShowText(
+					fmt.Sprintf("%s is taking a look at %s.",
+						ctx.Character.FormattedName(),
+						TextStyle(co.FormattedName(), TextStyleBold),
+					),
+				)
+			}
+		}
+		return
+	}
 
 	var objNames []string
 	for _, o := range r.Here().All() {
@@ -749,7 +790,7 @@ func handleMobInstanceEditCommand(ctx *CommandContext) {
 func handleMobSetCommand(ctx *CommandContext) {
 	mob := strings.ToLower(ctx.Args["mob"])
 	attr := strings.ToLower(ctx.Args["property"])
-	val := strings.ToLower(ctx.Args["value"])
+	val := ctx.Args["value"]
 
 	m := Armeria.mobManager.MobByName(mob)
 	if m == nil {
@@ -996,7 +1037,7 @@ func handleItemInstanceEditCommand(ctx *CommandContext) {
 func handleItemSetCommand(ctx *CommandContext) {
 	item := strings.ToLower(ctx.Args["item"])
 	attr := strings.ToLower(ctx.Args["property"])
-	val := strings.ToLower(ctx.Args["value"])
+	val := ctx.Args["value"]
 
 	i := Armeria.itemManager.ItemByName(item)
 	if i == nil {

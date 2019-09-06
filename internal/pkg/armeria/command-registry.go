@@ -48,6 +48,13 @@ func RegisterGameCommands() {
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "at",
+					Optional:         true,
+					IncludeRemaining: true,
+				},
+			},
 			Handler: handleLookCommand,
 		},
 		{
