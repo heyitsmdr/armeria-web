@@ -115,7 +115,7 @@ func handleLookCommand(ctx *CommandContext) {
 					c.Player().client.ShowText(
 						fmt.Sprintf("%s is taking a look at something within %s inventory.",
 							ctx.Character.FormattedName(),
-							ctx.Character.Pronoun(PronounPossessive),
+							ctx.Character.Pronoun(PronounPossessiveAdjective),
 						),
 					)
 				} else {

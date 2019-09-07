@@ -125,7 +125,8 @@ func ItemAttributeDefault(name string) string {
 // MobAttributeDefault returns the default value for a particular attribute.
 func MobAttributeDefault(name string) string {
 	switch name {
-
+	case AttributeGender:
+		return "thing"
 	}
 
 	return ""
