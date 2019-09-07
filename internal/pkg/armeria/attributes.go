@@ -1,21 +1,27 @@
 package armeria
 
+import (
+	"strconv"
+	"strings"
+)
+
 const (
 	AttributeChannels    string = "channels"
 	AttributeColor       string = "color"
 	AttributeDescription string = "description"
+	AttributeDown        string = "down"
+	AttributeEast        string = "east"
+	AttributeGender      string = "gender"
+	AttributeNorth       string = "north"
 	AttributePermissions string = "permissions"
 	AttributePicture     string = "picture"
 	AttributeRarity      string = "rarity"
 	AttributeScript      string = "script"
+	AttributeSouth       string = "south"
 	AttributeTitle       string = "title"
 	AttributeType        string = "type"
-	AttributeNorth       string = "north"
-	AttributeEast        string = "east"
-	AttributeSouth       string = "south"
-	AttributeWest        string = "west"
 	AttributeUp          string = "up"
-	AttributeDown        string = "down"
+	AttributeWest        string = "west"
 )
 
 const (
@@ -36,6 +42,7 @@ func ValidCharacterAttributes() []string {
 		AttributeTitle,
 		AttributePermissions,
 		AttributeChannels,
+		AttributeGender,
 	}
 }
 
@@ -97,7 +104,8 @@ func AreaAttributeDefault(name string) string {
 // CharacterAttributeDefault returns the default value for a particular attribute.
 func CharacterAttributeDefault(name string) string {
 	switch name {
-
+	case AttributeGender:
+		return "male"
 	}
 
 	return ""
@@ -134,4 +142,45 @@ func RoomAttributeDefault(name string) string {
 	}
 
 	return ""
+}
+
+// ValidateItemAttribute returns a bool indicating whether a particular value is allowed
+// for a particular attribute.
+func ValidateItemAttribute(name string, value string) (bool, string) {
+	switch name {
+	case AttributeRarity:
+		valueInt, err := strconv.Atoi(value)
+		if err != nil {
+			return false, "value must be an integer"
+		} else if valueInt < 0 || valueInt > 4 {
+			return false, "rarity out of range (valid: 0-4)"
+		}
+	}
+
+	return true, ""
+}
+
+// ValidateMobAttribute returns a bool indicating whether a particular value is allowed
+// for a particular attribute.
+func ValidateMobAttribute(name, value string) (bool, string) {
+	switch name {
+	case AttributeScript:
+		return false, "script cannot be set explicitly"
+	}
+
+	return true, ""
+}
+
+// ValidateCharacterAttribute returns a bool indicating whether a particular value is allowed
+// for a particular attribute.
+func ValidateCharacterAttribute(name, value string) (bool, string) {
+	switch name {
+	case AttributeGender:
+		vlc := strings.ToLower(value)
+		if vlc != "male" && vlc != "female" {
+			return false, "gender can only be male or female"
+		}
+	}
+
+	return true, ""
 }

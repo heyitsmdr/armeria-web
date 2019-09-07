@@ -18,17 +18,6 @@ type Mob struct {
 	UnsafeInstances  []*MobInstance    `json:"instances"`
 }
 
-// ValidateMobAttribute returns a bool indicating whether a particular value is allowed
-// for a particular attribute.
-func ValidateMobAttribute(name string, value string) (bool, string) {
-	switch name {
-	case "script":
-		return false, "script cannot be set explicitly"
-	}
-
-	return true, ""
-}
-
 // Init is called when the Mob is created or loaded from disk.
 func (m *Mob) Init() {}
 

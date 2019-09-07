@@ -27,6 +27,8 @@ type Character struct {
 	player               *Player
 }
 
+type PronounType int
+
 const (
 	ColorRoomTitle int = iota
 	ColorSay
@@ -42,6 +44,10 @@ const (
 	ColorChannelBuilders
 
 	SettingBrief string = "brief"
+
+	PronounSubjective PronounType = iota
+	PronounPossessive
+	PronounObjective
 )
 
 // ValidSettings returns all valid settings for a character.
@@ -537,4 +543,27 @@ func (c *Character) InventoryJSON() string {
 	}
 
 	return string(inventoryJSON)
+}
+
+func (c *Character) Pronoun(pt PronounType) string {
+	gender := c.Attribute(AttributeGender)
+	if gender == "male" {
+		if pt == PronounSubjective {
+			return "he"
+		} else if pt == PronounPossessive {
+			return "his"
+		} else if pt == PronounObjective {
+			return "him"
+		}
+	} else if gender == "female" {
+		if pt == PronounSubjective {
+			return "she"
+		} else if pt == PronounPossessive {
+			return "hers"
+		} else if pt == PronounObjective {
+			return "her"
+		}
+	}
+
+	return ""
 }

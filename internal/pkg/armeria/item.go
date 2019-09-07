@@ -2,7 +2,6 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
-	"strconv"
 	"sync"
 
 	"github.com/google/uuid"
@@ -15,22 +14,6 @@ type Item struct {
 	UnsafeName       string            `json:"name"`
 	UnsafeAttributes map[string]string `json:"attributes"`
 	UnsafeInstances  []*ItemInstance   `json:"instances"`
-}
-
-// ValidateItemAttribute returns a bool indicating whether a particular value is allowed
-// for a particular attribute.
-func ValidateItemAttribute(name string, value string) (bool, string) {
-	switch name {
-	case "rarity":
-		valueInt, err := strconv.Atoi(value)
-		if err != nil {
-			return false, "value must be an integer"
-		} else if valueInt < 0 || valueInt > 4 {
-			return false, "rarity out of range (valid: 0-4)"
-		}
-	}
-
-	return true, ""
 }
 
 // Init is called when the Item is created or loaded from disk.

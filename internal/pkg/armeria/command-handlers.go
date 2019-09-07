@@ -86,6 +86,8 @@ func handleLookCommand(ctx *CommandContext) {
 		var lookResult string
 		if rt == RegistryTypeItemInstance {
 			lookResult = co.Attribute(AttributeDescription)
+		} else if rt == RegistryTypeCharacter {
+			lookResult = fmt.Sprintf("There is nothing special about %s.", co.(*Character).Pronoun(PronounObjective))
 		}
 
 		if len(lookResult) == 0 {
@@ -693,6 +695,14 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 	if !misc.Contains(ValidCharacterAttributes(), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid character attribute.", ColorError)
 		return
+	}
+
+	if len(val) > 0 {
+		valid, why := ValidateCharacterAttribute(attr, val)
+		if !valid {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+			return
+		}
 	}
 
 	_ = c.SetAttribute(attr, val)
