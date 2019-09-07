@@ -73,11 +73,20 @@ func handleLookCommand(ctx *CommandContext) {
 	if len(at) > 0 {
 		var o interface{}
 		var rt RegistryType
-		o, _, rt = ctx.Character.Room().Here().Get(at)
+		var oc *ObjectContainer
+
+		if len(at) > 4 && at[0:4] == "inv:" {
+			at = at[4:]
+			oc = ctx.Character.Inventory()
+		} else {
+			oc = ctx.Character.Room().Here()
+		}
+
+		o, _, rt = oc.Get(at)
 		if rt == RegistryTypeUnknown {
-			o, _, rt = ctx.Character.Room().Here().GetByName(at)
+			o, _, rt = oc.GetByName(at)
 			if rt == RegistryTypeUnknown {
-				ctx.Player.client.ShowColorizedText("You don't see anything here by that name.", ColorError)
+				ctx.Player.client.ShowColorizedText("You don't see anything by that name.", ColorError)
 				return
 			}
 		}

@@ -11,11 +11,11 @@
 </template>
 
 <script>
-    import Skill from '@/components/Skill';
+    //import Skill from '@/components/Skill';
 
     export default {
         name: 'Skills',
-        components: { Skill },
+        //components: { Skill },
     }
 </script>
 

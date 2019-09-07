@@ -97,13 +97,16 @@ export default {
         },
 
         handleClick: function(e) {
-            if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
-                if (e.shiftKey) {
-                    this.$socket.sendObj({
-                        type: 'command',
-                        payload: `/item iedit ${this.uuid}`
-                    });
-                }
+            if (!e.shiftKey) {
+                this.$socket.sendObj({
+                    type: 'command',
+                    payload: `/look inv:${this.uuid}`
+                });
+            } else if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                this.$socket.sendObj({
+                    type: 'command',
+                    payload: `/item iedit ${this.uuid}`
+                });
             }
         },
 
