@@ -74,12 +74,14 @@ func handleLookCommand(ctx *CommandContext) {
 		var o interface{}
 		var rt RegistryType
 		var oc *ObjectContainer
-
+		var searchInv bool
 		if len(at) > 4 && at[0:4] == "inv:" {
 			at = at[4:]
 			oc = ctx.Character.Inventory()
+			searchInv = true
 		} else {
 			oc = ctx.Character.Room().Here()
+			searchInv = false
 		}
 
 		o, _, rt = oc.Get(at)
@@ -109,12 +111,21 @@ func handleLookCommand(ctx *CommandContext) {
 
 		if ctx.PlayerInitiated {
 			for _, c := range r.Here().Characters(true, ctx.Character) {
-				c.Player().client.ShowText(
-					fmt.Sprintf("%s is taking a look at %s.",
-						ctx.Character.FormattedName(),
-						TextStyle(co.FormattedName(), TextStyleBold),
-					),
-				)
+				if searchInv {
+					c.Player().client.ShowText(
+						fmt.Sprintf("%s is taking a look at something within %s inventory.",
+							ctx.Character.FormattedName(),
+							ctx.Character.Pronoun(PronounPossessive),
+						),
+					)
+				} else {
+					c.Player().client.ShowText(
+						fmt.Sprintf("%s is taking a look at %s.",
+							ctx.Character.FormattedName(),
+							TextStyle(co.FormattedName(), TextStyleBold),
+						),
+					)
+				}
 			}
 		}
 		return
