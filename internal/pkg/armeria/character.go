@@ -46,7 +46,8 @@ const (
 	SettingBrief string = "brief"
 
 	PronounSubjective PronounType = iota
-	PronounPossessive
+	PronounPossessiveAdjective
+	PronounPossessiveAbsolute
 	PronounObjective
 )
 
@@ -550,7 +551,9 @@ func (c *Character) Pronoun(pt PronounType) string {
 	if gender == "male" {
 		if pt == PronounSubjective {
 			return "he"
-		} else if pt == PronounPossessive {
+		} else if pt == PronounPossessiveAbsolute {
+			return "his"
+		} else if pt == PronounPossessiveAdjective {
 			return "his"
 		} else if pt == PronounObjective {
 			return "him"
@@ -558,8 +561,10 @@ func (c *Character) Pronoun(pt PronounType) string {
 	} else if gender == "female" {
 		if pt == PronounSubjective {
 			return "she"
-		} else if pt == PronounPossessive {
+		} else if pt == PronounPossessiveAbsolute {
 			return "hers"
+		} else if pt == PronounPossessiveAdjective {
+			return "her"
 		} else if pt == PronounObjective {
 			return "her"
 		}

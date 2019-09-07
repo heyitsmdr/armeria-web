@@ -73,6 +73,7 @@ func ValidMobAttributes() []string {
 	return []string{
 		AttributePicture,
 		AttributeScript,
+		AttributeGender,
 	}
 }
 
@@ -166,6 +167,11 @@ func ValidateMobAttribute(name, value string) (bool, string) {
 	switch name {
 	case AttributeScript:
 		return false, "script cannot be set explicitly"
+	case AttributeGender:
+		vlc := strings.ToLower(value)
+		if vlc != "male" && vlc != "female" && vlc != "thing" {
+			return false, "gender can only be male, female, or thing"
+		}
 	}
 
 	return true, ""

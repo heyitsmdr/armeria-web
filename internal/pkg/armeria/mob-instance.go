@@ -111,3 +111,40 @@ func (mi *MobInstance) EditorData() *ObjectEditorData {
 		Properties: props,
 	}
 }
+
+func (mi *MobInstance) Pronoun(pt PronounType) string {
+	gender := mi.Attribute(AttributeGender)
+	if gender == "male" {
+		if pt == PronounSubjective {
+			return "he"
+		} else if pt == PronounPossessiveAbsolute {
+			return "his"
+		} else if pt == PronounPossessiveAdjective {
+			return "his"
+		} else if pt == PronounObjective {
+			return "him"
+		}
+	} else if gender == "female" {
+		if pt == PronounSubjective {
+			return "she"
+		} else if pt == PronounPossessiveAbsolute {
+			return "hers"
+		} else if pt == PronounPossessiveAdjective {
+			return "her"
+		} else if pt == PronounObjective {
+			return "her"
+		}
+	} else if gender == "thing" {
+		if pt == PronounSubjective {
+			return "it"
+		} else if pt == PronounPossessiveAbsolute {
+			return "its"
+		} else if pt == PronounPossessiveAdjective {
+			return "its"
+		} else if pt == PronounObjective {
+			return "it"
+		}
+	}
+
+	return ""
+}
