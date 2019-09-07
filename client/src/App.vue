@@ -117,6 +117,7 @@
             this.$store.dispatch('setObjectTarget', '');
             break;
           case 'enter':
+          case '/':
             this.$store.dispatch('setForceInputFocus', true);
             break;
         }
