@@ -2,11 +2,10 @@
     <div class="skills-container">
         <div class="skill-level-container">
             <div class="text">Skill Level</div>
-            <div class="level">100</div>
+            <div class="level">0</div>
         </div>
         <div class="skill-items-container">
-            <Skill name="Woodworking" level="15" percent="20" />
-            <Skill name="Climbing" level="20" percent="50" />
+            <div class="no-skills">No Skills</div>
         </div>
     </div>
 </template>
@@ -24,6 +23,7 @@
     .skills-container {
         display: flex;
         flex-direction: column;
+        height: 100%;
     }
 
     .skills-container .skill-level-container {
@@ -54,5 +54,14 @@
 
     .skills-container .skill-items-container {
         flex-grow: 1;
+        border-bottom: 1px solid #333;
+    }
+
+    .skills-container .skill-items-container .no-skills {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        color: #666;
     }
 </style>
