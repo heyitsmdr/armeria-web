@@ -6,6 +6,7 @@ const (
 	TextStyleMonospace int = iota
 	TextStyleBold
 	TextStyleColor
+	TextStyleLink
 )
 
 const (
@@ -38,6 +39,8 @@ func TextStyle(text interface{}, opts ...int) string {
 			t = fmt.Sprintf("<span class='monospace'>%v</span>", t)
 		case TextStyleColor:
 			t = fmt.Sprintf("<span style='color:#%s'>%v</span>", color, t)
+		case TextStyleLink:
+			t = fmt.Sprintf("<a href='%[1]v' class='inline-link' target='_new'>%[1]v</a>", t)
 		}
 	}
 

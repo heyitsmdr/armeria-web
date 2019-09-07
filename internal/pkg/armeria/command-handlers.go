@@ -1672,14 +1672,19 @@ func handleBugCommand(ctx *CommandContext) {
 			zap.Error(err),
 		)
 		ctx.Player.client.ShowColorizedText(
-			"There was an error submitting the bug report to GitHub.\nAs an alternative, you can manually "+
-				"submit a bug report here: https://github.com/heyitsmdr/armeria/issues/new",
+			fmt.Sprintf(
+				"There was an error submitting the bug report to GitHub.\nAs an alternative, you can manually "+
+					"submit a bug report here: %s",
+				TextStyle("https://github.com/heyitsmdr/armeria/issues/new", TextStyleLink),
+			),
 			ColorError,
 		)
 		return
 	}
 
 	ctx.Player.client.ShowText(
-		"Thank you for your submission! You can view/track it here: " + issue.GetHTMLURL(),
+		fmt.Sprintf("Thank you for your submission! You can view/track it here: %s",
+			TextStyle(issue.GetHTMLURL(), TextStyleLink),
+		),
 	)
 }

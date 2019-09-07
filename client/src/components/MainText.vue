@@ -47,6 +47,14 @@
         white-space: pre;
     }
 
+    .line .inline-link {
+        color: #666;
+    }
+
+    .line .inline-link:hover {
+        color: #aaa;
+    }
+
     .line table tr th {
         text-align: left;
         background: linear-gradient(to bottom, #111111 0%,#232323 100%);
