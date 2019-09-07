@@ -65,6 +65,10 @@ export default {
                 }
                 break;
         }
+
+        if (this.uuid === this.objectTargetUUID) {
+            this.$refs['container'].classList.add('selected');
+        }
     },
     methods: {
         getBackgroundUrl() {
@@ -132,6 +136,7 @@ export default {
 
     &.selected {
          border: 1px solid #ffeb3b !important;
+         background-color: #231f00;
     }
 
     &.mouse-down {
