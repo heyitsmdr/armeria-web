@@ -43,6 +43,15 @@ func RegisterGameCommands() {
 			Handler: handleLoginCommand,
 		},
 		{
+			Name:   "create",
+			Help:   "Create a new character.",
+			Hidden: true,
+			Permissions: &CommandPermissions{
+				RequireNoCharacter: true,
+			},
+			Handler: handleCreateCommand,
+		},
+		{
 			Name: "look",
 			Help: "Look at something.",
 			Permissions: &CommandPermissions{

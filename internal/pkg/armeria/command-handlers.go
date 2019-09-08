@@ -65,6 +65,10 @@ func handleLoginCommand(ctx *CommandContext) {
 	c.LoggedIn()
 }
 
+func handleCreateCommand(ctx *CommandContext) {
+	ctx.Player.client.ShowText("You cannot manually create new characters yet. Stay tuned.")
+}
+
 func handleLookCommand(ctx *CommandContext) {
 	r := ctx.Character.Room()
 	at := ctx.Args["at"]
