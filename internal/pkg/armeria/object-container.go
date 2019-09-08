@@ -56,6 +56,7 @@ type ContainerParentType int
 const (
 	ContainerParentTypeRoom ContainerParentType = iota
 	ContainerParentTypeCharacter
+	ContainerParentTypeMobInstance
 )
 
 // NewObjectContainer will return a new object container with the specified max size.

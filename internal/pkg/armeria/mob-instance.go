@@ -10,12 +10,18 @@ type MobInstance struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
 	UnsafeAttributes map[string]string `json:"attributes"`
+	UnsafeInventory  *ObjectContainer  `json:"inventory"`
 	Parent           *Mob              `json:"-"`
 }
 
 // Init is called when the MobInstance is created or loaded from disk.
 func (mi *MobInstance) Init() {
+	// register mob instance with registry
 	Armeria.registry.Register(mi, mi.ID(), RegistryTypeMobInstance)
+	// attach self as container's parent
+	mi.UnsafeInventory.AttachParent(mi, ContainerParentTypeMobInstance)
+	// sync container
+	mi.UnsafeInventory.Sync()
 }
 
 // Deinit is called when the MobInstance is deleted.
