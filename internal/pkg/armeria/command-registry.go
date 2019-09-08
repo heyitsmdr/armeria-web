@@ -756,6 +756,23 @@ func RegisterGameCommands() {
 			},
 			Handler: handleBugCommand,
 		},
+		{
+			Name: "give",
+			Help: "Give an item to someone or something.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "target",
+				},
+				{
+					Name:             "item",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleGiveCommand,
+		},
 	}
 
 	for _, cmd := range commands {

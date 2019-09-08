@@ -1722,3 +1722,79 @@ func handleBugCommand(ctx *CommandContext) {
 		),
 	)
 }
+
+func handleGiveCommand(ctx *CommandContext) {
+	target := ctx.Args["target"]
+	item := ctx.Args["item"]
+
+	ctr := ctx.Character.Room().Here()
+	tobj, _, trt := ctr.GetByName(target)
+	if trt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
+		return
+	}
+
+	iobj, _, irt := ctx.Character.Inventory().GetByName(item)
+	if irt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
+		return
+	}
+
+	if ctr.MaxSize() > 0 && ctr.Count() >= ctr.MaxSize() {
+		ctx.Player.client.ShowColorizedText(
+			fmt.Sprintf(
+				"%s does not have enough room to hold that!",
+				tobj.(ContainerObject).FormattedName(),
+			),
+			ColorError,
+		)
+		return
+	}
+
+	if trt != RegistryTypeCharacter {
+		ctx.Player.client.ShowColorizedText("You can only give things to other characters!", ColorError)
+		return
+	} else if tobj.(ContainerObject).ID() == ctx.Character.ID() {
+		ctx.Player.client.ShowColorizedText("You cannot give things to yourself.", ColorError)
+		return
+	}
+
+	ii := iobj.(*ItemInstance)
+	tc := tobj.(*Character)
+
+	// remove item from source
+	ctx.Character.Inventory().Remove(ii.ID())
+
+	// add item to target
+	_ = tc.Inventory().Add(ii.ID())
+
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf(
+			"You gave %s a %s.",
+			tobj.(*Character).FormattedName(),
+			ii.FormattedName(),
+		),
+		ColorSuccess,
+	)
+	ctx.Player.client.SyncInventory()
+
+	tc.Player().client.ShowColorizedText(
+		fmt.Sprintf(
+			"%s gave you a %s.",
+			ctx.Character.FormattedName(),
+			ii.FormattedName(),
+		),
+		ColorSuccess,
+	)
+	tc.Player().client.SyncInventory()
+
+	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character, tc) {
+		c.Player().client.ShowText(
+			fmt.Sprintf(
+				"%s gave %s something.",
+				ctx.Character.FormattedName(),
+				tc.FormattedName(),
+			),
+		)
+	}
+}

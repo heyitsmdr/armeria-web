@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"errors"
 	"strings"
 	"sync"
@@ -239,17 +240,24 @@ func (oc *ObjectContainer) Sync() {
 }
 
 // Characters returns all Character objects from the container.
-func (oc *ObjectContainer) Characters(onlineOnly bool, except *Character) []*Character {
+func (oc *ObjectContainer) Characters(onlineOnly bool, exceptions ...*Character) []*Character {
 	oc.RLock()
 	defer oc.RUnlock()
 
 	var chars []*Character
+	var exceptionIds []string
+
+	for _, c := range exceptions {
+		exceptionIds = append(exceptionIds, c.ID())
+	}
+
 	for _, ocd := range oc.UnsafeObjects {
 		c, ot := Armeria.registry.Get(ocd.UUID)
 		if ot == RegistryTypeCharacter {
-			if !onlineOnly || c.(*Character).Online() {
-				if except == nil || c.(*Character).ID() != except.ID() {
-					chars = append(chars, c.(*Character))
+			char := c.(*Character)
+			if !onlineOnly || char.Online() {
+				if len(exceptionIds) == 0 || misc.Contains(exceptionIds, char.ID()) {
+					chars = append(chars, char)
 				}
 			}
 		}
