@@ -99,7 +99,6 @@ export default {
             }
 
             this.$store.dispatch('setObjectTarget', this.uuid);
-            this.$socket.sendObj({ type: 'command', payload: '/look ' + this.uuid });
         },
 
         handleDoubleClick: function() {
@@ -119,8 +118,7 @@ export default {
         },
 
         onContextMenu: function() {
-            // TODO: add a custom right-click menu
-            // https://dev.to/iamafro/how-to-create-a-custom-context-menu--5d7p
+            this.$socket.sendObj({ type: 'command', payload: '/look ' + this.uuid });
         }
     }
 }

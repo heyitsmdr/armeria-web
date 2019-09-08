@@ -1,8 +1,5 @@
 <template>
-    <div class="root" @dragenter="handleDragEnter" @dragleave="handleDragLeave" @dragover.prevent @drop="handleDrop">
-        <div class="drop-overlay" ref="overlay">
-            Drop the item here to place the item into the room.
-        </div>
+    <div class="root">
         <div class="container" @click="handleClick">
             <Target
                 v-for="obj in sortedRoomObjects"
@@ -27,15 +24,6 @@ export default {
     components: {
         Target
     },
-    watch: {
-        itemBeingDragged: function(being_dragged) {
-            if (being_dragged) {
-                this.$refs['overlay'].classList.add('visible');
-            } else {
-                this.$refs['overlay'].classList.remove('visible');
-            }
-        },
-    },
     computed: {
         ...mapState(['roomObjects', 'itemBeingDragged']),
         sortedRoomObjects: function() {
@@ -54,22 +42,6 @@ export default {
         handleClick: function() {
             //this.$store.dispatch('setObjectTarget', '');
         },
-
-        handleDragEnter: function() {
-            this.$refs['overlay'].classList.add('highlight');
-        },
-
-        handleDragLeave: function() {
-            this.$refs['overlay'].classList.remove('highlight');
-        },
-
-        handleDrop: function(e) {
-            this.$refs['overlay'].classList.remove('highlight');
-            let iuuid = e.dataTransfer.getData("item_uuid");
-            this.$store.dispatch('sendSlashCommand', {
-                command: `/drop ${iuuid}`
-            });
-        }
     }
 }
 </script>

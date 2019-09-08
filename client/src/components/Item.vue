@@ -13,7 +13,8 @@
                 @drop="handleItemDrop"
                 @mousemove="handleMouseMove"
                 @mouseleave="handleMouseLeave"
-                @click="handleClick"
+                @mouseup="handleMouseUp"
+                @contextmenu.stop.prevent="handleContextMenu"
         >
             <div v-if="equipped" class="equipped">equip</div>
         </div>
@@ -96,18 +97,24 @@ export default {
             this.hideTooltip();
         },
 
-        handleClick: function(e) {
-            if (!e.shiftKey) {
-                this.$socket.sendObj({
-                    type: 'command',
-                    payload: `/look inv:${this.uuid}`
-                });
-            } else if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+        handleMouseUp: function(e) {
+            if (!this.uuid) {
+                return;
+            }
+
+            if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                 this.$socket.sendObj({
                     type: 'command',
                     payload: `/item iedit ${this.uuid}`
                 });
             }
+        },
+
+        handleContextMenu: function() {
+            this.$socket.sendObj({
+                type: 'command',
+                payload: `/look inv:${this.uuid}`
+            });
         },
 
         hideTooltip: function() {

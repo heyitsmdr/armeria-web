@@ -36,9 +36,9 @@
         flex-grow: 1;
         display: flex;
         align-items: center;
-        font-size: 18px;
+        font-size: 16px;
         padding-left: 10px;
-        background-color: #222;
+        background-color: #1b1b1b;
     }
 
     .skills-container .skill-level-container .level {
