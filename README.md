@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/heyitsmdr/armeria/workflows/Lint%20%26%20Build/badge.svg)](https://github.com/heyitsmdr/armeria/actions) [![Actions Status](https://github.com/heyitsmdr/armeria/workflows/Deploy%20Tagged%20Commit/badge.svg)](https://github.com/heyitsmdr/armeria/actions)
+
 # Armeria
 
 Armeria is an open-source web-based online role-playing game being written in [Golang](https://golang.org/)
