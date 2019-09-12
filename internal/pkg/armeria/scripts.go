@@ -160,13 +160,12 @@ func LuaInventoryGive(L *lua.LState) int {
 
 	if c.Online() {
 		c.Player().client.SyncInventory()
-		c.Player().client.ShowColorizedText(
+		c.Player().client.ShowText(
 			fmt.Sprintf(
 				"%s gave you a %s.",
 				mi.FormattedName(),
 				ii.FormattedName(),
 			),
-			ColorSuccess,
 		)
 	}
 

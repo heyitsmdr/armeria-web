@@ -1787,13 +1787,12 @@ func handleGiveCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncInventory()
 
 	if trt == RegistryTypeCharacter {
-		tobj.(*Character).Player().client.ShowColorizedText(
+		tobj.(*Character).Player().client.ShowText(
 			fmt.Sprintf(
 				"%s gave you a %s.",
 				ctx.Character.FormattedName(),
 				ii.FormattedName(),
 			),
-			ColorSuccess,
 		)
 		tobj.(*Character).Player().client.SyncInventory()
 	} else if trt == RegistryTypeMobInstance {
