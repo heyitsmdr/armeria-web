@@ -109,6 +109,8 @@ func (ii *ItemInstance) RarityColor() string {
 	switch ii.Attribute(AttributeRarity) {
 	case "0":
 		return "#ffffff"
+	case "1":
+		return "#00ff00"
 	default:
 		return "#ffffff"
 	}
@@ -119,6 +121,8 @@ func (ii *ItemInstance) RarityName() string {
 	switch ii.Attribute(AttributeRarity) {
 	case "0":
 		return "Common"
+	case "1":
+		return "Uncommon"
 	default:
 		return "Common"
 	}
@@ -151,9 +155,10 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 func (ii *ItemInstance) TooltipHTML() string {
 	return fmt.Sprintf(
 		`
-			<div class="name">%s</div>
+			<div class="name" style="color:%s">%s</div>
 			<div class="type">%s</div>
 		`,
+		ii.RarityColor(),
 		ii.Name(),
 		ii.RarityName(),
 	)

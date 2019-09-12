@@ -191,7 +191,8 @@ export default {
     .tooltip {
         display: none;
         position: absolute;
-        width: 200px;
+        max-width: 400px;
+        min-width: 150px;
         z-index: 999;
         top: 50px;
         background-color: #111;
