@@ -1728,13 +1728,13 @@ func handleGiveCommand(ctx *CommandContext) {
 	item := ctx.Args["item"]
 
 	ctr := ctx.Character.Room().Here()
-	tobj, _, trt := ctr.GetByName(target)
+	tobj, _, trt := ctr.GetByUUIDOrName(target)
 	if trt == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
 
-	iobj, _, irt := ctx.Character.Inventory().GetByName(item)
+	iobj, _, irt := ctx.Character.Inventory().GetByUUIDOrName(item)
 	if irt == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
 		return

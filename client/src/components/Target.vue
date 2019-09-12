@@ -3,18 +3,10 @@
         <div
                 class="container"
                 ref="container"
-                @mousedown="handleMouseDown"
-                @mouseup="handleMouseUp"
-                @dblclick="handleDoubleClick"
-                @contextmenu.stop.prevent="onContextMenu"
         >
             <div class="picture">
                 <div class="picture-container"
                      :style="{ backgroundImage: getBackgroundUrl() }"
-                     @dragenter.stop.prevent="onPictureDragEnter"
-                     @drop.stop.prevent="onPictureDragDrop"
-                     @dragleave.stop.prevent
-                     @dragover.stop.prevent
                 >
 
                 </div>
@@ -26,6 +18,17 @@
                 </div>
                 <div class="you" :class="{ selected: uuid===objectTargetUUID }" v-if="uuid===playerInfo.uuid">you</div>
             </div>
+            <div
+                class="overlay"
+                @mousedown="handleMouseDown"
+                @mouseup="handleMouseUp"
+                @dblclick="handleDoubleClick"
+                @contextmenu.stop.prevent="onContextMenu"
+                @dragenter="handleDragEnter"
+                @dragleave="handleDragLeave"
+                @drop="handleDrop"
+                @dragover.prevent
+            ></div>
         </div>
     </div>
 </template>
@@ -109,16 +112,26 @@ export default {
             }
         },
 
-        onPictureDragEnter: function() {
-            // TODO: add class to make it obvious you can drop something here
-        },
-
-        onPictureDragDrop: function() {
-            // TODO: maybe allow uploading images here?
-        },
-
         onContextMenu: function() {
             this.$socket.sendObj({ type: 'command', payload: '/look ' + this.uuid });
+        },
+
+        handleDragEnter: function() {
+            this.$refs['container'].classList.add('can-drop-item');
+        },
+
+        handleDragLeave: function() {
+            this.$refs['container'].classList.remove('can-drop-item');
+        },
+
+        handleDrop: function(e) {
+            this.$refs['container'].classList.remove('can-drop-item');
+            const item_uuid = e.dataTransfer.getData('item_uuid');
+            if (item_uuid) {
+                this.$store.dispatch('sendSlashCommand', {
+                    command: `/give ${this.uuid} ${item_uuid}`
+                });
+            }
         }
     }
 }
@@ -131,6 +144,10 @@ export default {
     transition: all .1s ease-in-out;
     transform: scale(1);
     display: flex;
+
+    &.can-drop-item {
+         transform: scale(1.1) !important;
+    }
 
     &.selected {
          border: 1px solid #ffeb3b !important;
@@ -208,6 +225,15 @@ export default {
                  color: #000;
             }
         }
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        width: 100%;
+        z-index: 999;
     }
 }
 </style>

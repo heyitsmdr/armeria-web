@@ -153,6 +153,30 @@ func (oc *ObjectContainer) Get(uuid string) (interface{}, *ObjectContainerDefini
 	return nil, nil, RegistryTypeUnknown
 }
 
+// GetByName retrieves an object from the object container, based on the name of the object.
+func (oc *ObjectContainer) GetByName(name string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	for _, ocd := range oc.UnsafeObjects {
+		o, ot := Armeria.registry.Get(ocd.UUID)
+		if strings.ToLower(o.(ContainerObject).Name()) == strings.ToLower(name) {
+			return o, ocd, ot
+		}
+	}
+
+	return nil, nil, RegistryTypeUnknown
+}
+
+// GetByUUIDOrName attempts to retrieve an object by it's uuid, and then by it's name.
+func (oc *ObjectContainer) GetByUUIDOrName(UUIDOrName string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+	if obj, ocd, rt := oc.Get(UUIDOrName); rt != RegistryTypeUnknown {
+		return obj, ocd, rt
+	}
+
+	return oc.GetByName(UUIDOrName)
+}
+
 // Slot returns the slot that the uuid is within. If the uuid does not exist, slot 0 will be returned,
 // which could result in a false positive. Check existance of the uuid before using this function.
 func (oc *ObjectContainer) Slot(uuid string) int {
@@ -169,21 +193,6 @@ func (oc *ObjectContainer) Slot(uuid string) int {
 func (oc *ObjectContainer) SetSlot(uuid string, slot int) {
 	_, ocd, _ := oc.Get(uuid)
 	ocd.Slot = slot
-}
-
-// GetByName retrieves an object from the object container, based on the name of the object.
-func (oc *ObjectContainer) GetByName(name string) (interface{}, *ObjectContainerDefinition, RegistryType) {
-	oc.RLock()
-	defer oc.RUnlock()
-
-	for _, ocd := range oc.UnsafeObjects {
-		o, ot := Armeria.registry.Get(ocd.UUID)
-		if strings.ToLower(o.(ContainerObject).Name()) == strings.ToLower(name) {
-			return o, ocd, ot
-		}
-	}
-
-	return nil, nil, RegistryTypeUnknown
 }
 
 // AtSlot retrieves an object from a specific slot, or nil if the container is unbounded.
