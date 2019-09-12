@@ -36,7 +36,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 			ColorSuccess,
 		)
 		if c.Online() {
-			for _, chars := range c.Room().Here().Characters(true, nil) {
+			for _, chars := range c.Room().Here().Characters(true) {
 				chars.Player().client.SyncRoomObjects()
 			}
 		}
@@ -50,7 +50,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 			ColorSuccess,
 		)
 		for _, mi := range m.Instances() {
-			for _, chars := range mi.Room().Here().Characters(true, nil) {
+			for _, chars := range mi.Room().Here().Characters(true) {
 				chars.Player().client.SyncRoomObjects()
 			}
 		}
@@ -66,7 +66,7 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 		for _, ii := range i.Instances() {
 			ctr := Armeria.registry.GetObjectContainer(ii.ID())
 			if ctr.ParentType() == ContainerParentTypeRoom {
-				for _, chars := range ii.Room().Here().Characters(true, nil) {
+				for _, chars := range ii.Room().Here().Characters(true) {
 					chars.Player().client.SyncRoomObjects()
 				}
 			} else if ctr.ParentType() == ContainerParentTypeCharacter {

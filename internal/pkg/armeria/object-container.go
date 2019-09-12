@@ -256,7 +256,7 @@ func (oc *ObjectContainer) Characters(onlineOnly bool, exceptions ...*Character)
 		if ot == RegistryTypeCharacter {
 			char := c.(*Character)
 			if !onlineOnly || char.Online() {
-				if len(exceptionIds) == 0 || misc.Contains(exceptionIds, char.ID()) {
+				if len(exceptionIds) == 0 || !misc.Contains(exceptionIds, char.ID()) {
 					chars = append(chars, char)
 				}
 			}

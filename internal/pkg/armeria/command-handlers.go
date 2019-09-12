@@ -534,7 +534,7 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 
 	_ = Armeria.worldManager.CreateRoom(ctx.Character.Room().ParentArea, c)
 
-	for _, c := range ctx.Character.Room().ParentArea.Characters(nil) {
+	for _, c := range ctx.Character.Room().ParentArea.Characters() {
 		c.Player().client.SyncMap()
 	}
 
@@ -569,7 +569,7 @@ func handleRoomDestroyCommand(ctx *CommandContext) {
 
 	r.ParentArea.RemoveRoom(r)
 
-	for _, c := range ctx.Character.Room().ParentArea.Characters(nil) {
+	for _, c := range ctx.Character.Room().ParentArea.Characters() {
 		c.Player().client.SyncMap()
 	}
 
@@ -918,7 +918,7 @@ func handleMobSpawnCommand(ctx *CommandContext) {
 	mi := m.CreateInstance()
 	_ = ctx.Character.Room().Here().Add(mi.ID())
 
-	for _, c := range ctx.Character.Room().Here().Characters(true, nil) {
+	for _, c := range ctx.Character.Room().Here().Characters(true) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mi.FormattedName()),
 		)
@@ -1035,7 +1035,7 @@ func handleItemSpawnCommand(ctx *CommandContext) {
 	ii := i.CreateInstance()
 	_ = ctx.Character.Room().Here().Add(ii.ID())
 
-	for _, c := range ctx.Character.Room().Here().Characters(true, nil) {
+	for _, c := range ctx.Character.Room().Here().Characters(true) {
 		c.Player().client.ShowText(
 			fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", ii.FormattedName()),
 		)
@@ -1740,7 +1740,23 @@ func handleGiveCommand(ctx *CommandContext) {
 		return
 	}
 
-	if ctr.MaxSize() > 0 && ctr.Count() >= ctr.MaxSize() {
+	if trt != RegistryTypeCharacter && trt != RegistryTypeMobInstance {
+		ctx.Player.client.ShowColorizedText("You can only give things to other characters or mobs!", ColorError)
+		return
+	} else if tobj.(ContainerObject).ID() == ctx.Character.ID() {
+		ctx.Player.client.ShowColorizedText("You cannot give things to yourself.", ColorError)
+		return
+	}
+
+	// set the target object container
+	var toc *ObjectContainer
+	if trt == RegistryTypeCharacter {
+		toc = tobj.(*Character).Inventory()
+	} else {
+		toc = tobj.(*MobInstance).Inventory()
+	}
+
+	if toc.MaxSize() > 0 && toc.Count() >= toc.MaxSize() {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf(
 				"%s does not have enough room to hold that!",
@@ -1751,49 +1767,55 @@ func handleGiveCommand(ctx *CommandContext) {
 		return
 	}
 
-	if trt != RegistryTypeCharacter {
-		ctx.Player.client.ShowColorizedText("You can only give things to other characters!", ColorError)
-		return
-	} else if tobj.(ContainerObject).ID() == ctx.Character.ID() {
-		ctx.Player.client.ShowColorizedText("You cannot give things to yourself.", ColorError)
-		return
-	}
-
 	ii := iobj.(*ItemInstance)
-	tc := tobj.(*Character)
+	tco := tobj.(ContainerObject)
 
 	// remove item from source
 	ctx.Character.Inventory().Remove(ii.ID())
 
 	// add item to target
-	_ = tc.Inventory().Add(ii.ID())
+	_ = toc.Add(ii.ID())
 
 	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf(
 			"You gave %s a %s.",
-			tobj.(*Character).FormattedName(),
+			tco.FormattedName(),
 			ii.FormattedName(),
 		),
 		ColorSuccess,
 	)
 	ctx.Player.client.SyncInventory()
 
-	tc.Player().client.ShowColorizedText(
-		fmt.Sprintf(
-			"%s gave you a %s.",
-			ctx.Character.FormattedName(),
-			ii.FormattedName(),
-		),
-		ColorSuccess,
-	)
-	tc.Player().client.SyncInventory()
+	if trt == RegistryTypeCharacter {
+		tobj.(*Character).Player().client.ShowColorizedText(
+			fmt.Sprintf(
+				"%s gave you a %s.",
+				ctx.Character.FormattedName(),
+				ii.FormattedName(),
+			),
+			ColorSuccess,
+		)
+		tobj.(*Character).Player().client.SyncInventory()
+	} else if trt == RegistryTypeMobInstance {
+		go CallMobFunc(
+			ctx.Character,
+			tobj.(*MobInstance),
+			"received_item",
+			lua.LString(ctx.Character.ID()),
+			lua.LString(ii.ID()),
+		)
+	}
 
-	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character, tc) {
+	roomExceptions := []*Character{ctx.Character}
+	if trt == RegistryTypeCharacter {
+		roomExceptions = append(roomExceptions, tobj.(*Character))
+	}
+	for _, c := range ctx.Character.Room().Here().Characters(true, roomExceptions...) {
 		c.Player().client.ShowText(
 			fmt.Sprintf(
 				"%s gave %s something.",
 				ctx.Character.FormattedName(),
-				tc.FormattedName(),
+				tco.FormattedName(),
 			),
 		)
 	}

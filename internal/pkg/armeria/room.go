@@ -171,7 +171,7 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 	ca.SyncMapLocation()
 	ca.SyncRoomTitle()
 
-	for _, char := range r.Here().Characters(true, nil) {
+	for _, char := range r.Here().Characters(true) {
 		char.Player().client.SyncRoomObjects()
 	}
 

@@ -23,6 +23,7 @@ func WriteMobScript(m *Mob, script string) {
 	_ = ioutil.WriteFile(m.ScriptFile(), []byte(script), 0644)
 }
 
+// LuaMobSay is the handler for lua function: mob_say.
 func LuaMobSay(L *lua.LState) int {
 	text := L.ToString(1)
 	mname := lua.LVAsString(L.GetGlobal("mob_name"))
@@ -43,7 +44,7 @@ func LuaMobSay(L *lua.LState) int {
 		verb = "says"
 	}
 
-	for _, c := range mi.Room().Here().Characters(true, nil) {
+	for _, c := range mi.Room().Here().Characters(true) {
 		c.Player().client.ShowColorizedText(
 			fmt.Sprintf("%s %s, \"%s\"", mi.FormattedName(), verb, normalizedText),
 			ColorSay,
@@ -53,6 +54,7 @@ func LuaMobSay(L *lua.LState) int {
 	return 0
 }
 
+// LuaCharacterAttribute is the handler for lua function: c_attr.
 func LuaCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
@@ -75,6 +77,7 @@ func LuaCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
+// LuaSetCharacterAttribute is the handler for lua function: c_set_attr.
 func LuaSetCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
@@ -101,6 +104,76 @@ func LuaSetCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
+// LuaItemName is the handler for lua function: i_name.
+func LuaItemName(L *lua.LState) int {
+	uuid := L.ToString(1)
+
+	o, rt := Armeria.registry.Get(uuid)
+	if rt != RegistryTypeItemInstance {
+		L.Push(lua.LNumber(-1))
+		return 1
+	}
+
+	L.Push(lua.LString(o.(*ItemInstance).FormattedName()))
+	return 1
+}
+
+// LuaInventoryGive is the handler for lua function: inv_give.
+func LuaInventoryGive(L *lua.LState) int {
+	cuuid := L.ToString(1)
+	iuuid := L.ToString(2)
+
+	muuid := lua.LVAsString(L.GetGlobal("mob_uuid"))
+
+	var mi *MobInstance
+	if o, rt := Armeria.registry.Get(muuid); rt == RegistryTypeMobInstance {
+		mi = o.(*MobInstance)
+	} else {
+		return 0
+	}
+
+	var c *Character
+	if o, rt := Armeria.registry.Get(cuuid); rt == RegistryTypeCharacter {
+		c = o.(*Character)
+	} else {
+		return 0
+	}
+
+	var ii *ItemInstance
+	if o, rt := Armeria.registry.Get(iuuid); rt == RegistryTypeItemInstance {
+		ii = o.(*ItemInstance)
+	} else {
+		return 0
+	}
+
+	if !mi.Inventory().Contains(iuuid) {
+		return 0
+	}
+
+	if c.Inventory().Count() >= c.Inventory().MaxSize() {
+		return 0
+	}
+
+	mi.Inventory().Remove(iuuid)
+
+	_ = c.Inventory().Add(iuuid)
+
+	if c.Online() {
+		c.Player().client.SyncInventory()
+		c.Player().client.ShowColorizedText(
+			fmt.Sprintf(
+				"%s gave you a %s.",
+				mi.FormattedName(),
+				ii.FormattedName(),
+			),
+			ColorSuccess,
+		)
+	}
+
+	return 0
+}
+
+// CallMobFunc handles executing mob scripts within the Lua environment.
 func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...lua.LValue) {
 	L := lua.NewState()
 	defer L.Close()
@@ -113,6 +186,8 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("say", L.NewFunction(LuaMobSay))
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
+	L.SetGlobal("i_name", L.NewFunction(LuaItemName))
+	L.SetGlobal("inv_give", L.NewFunction(LuaInventoryGive))
 
 	err := L.DoFile(mi.Parent.ScriptFile())
 	if err != nil {

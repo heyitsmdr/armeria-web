@@ -95,6 +95,14 @@ func (mi *MobInstance) Room() *Room {
 	return oc.ParentRoom()
 }
 
+// Inventory returns the character's inventory.
+func (mi *MobInstance) Inventory() *ObjectContainer {
+	mi.RLock()
+	defer mi.RUnlock()
+
+	return mi.UnsafeInventory
+}
+
 // EditorData returns the JSON used for the object editor.
 func (mi *MobInstance) EditorData() *ObjectEditorData {
 	props := []*ObjectEditorDataProperty{

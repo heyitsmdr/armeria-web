@@ -428,7 +428,7 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 		Armeria.log.Fatal("error adding character to destination room")
 	}
 
-	for _, char := range oldRoom.Here().Characters(true, nil) {
+	for _, char := range oldRoom.Here().Characters(true) {
 		char.Player().client.ShowText(msgToOld)
 	}
 

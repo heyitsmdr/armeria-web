@@ -183,13 +183,13 @@ func (a *Area) RemoveRoom(r *Room) {
 }
 
 // Characters returns online characters within the area, with an optional Character exception.
-func (a *Area) Characters(except *Character) []*Character {
+func (a *Area) Characters(exceptions ...*Character) []*Character {
 	a.RLock()
 	defer a.RUnlock()
 
 	var c []*Character
 	for _, r := range a.UnsafeRooms {
-		c = append(c, r.Here().Characters(true, except)...)
+		c = append(c, r.Here().Characters(true, exceptions...)...)
 	}
 
 	return c
