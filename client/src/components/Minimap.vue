@@ -25,7 +25,7 @@ export default {
         return {
             gridSize: 22,
             gridBorderSize: 2,
-            gridPadding: 12,
+            gridPadding: 2,
             mapHeight: 0,
             mapWidth: 0,
             areaTitle: 'Unknown'
@@ -92,7 +92,6 @@ export default {
                 if (room.west !== "") { areaTransitions.push('w'); }
 
                 areaTransitions.forEach(t => {
-                    console.log(t);
                     let s = PIXI.Sprite.from('./gfx/areaTransition.png');
                     s.x = sprite.x;
                     s.y = sprite.y;
