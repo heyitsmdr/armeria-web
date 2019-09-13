@@ -5,6 +5,7 @@
             <div class="room-name">{{ roomTitle }}</div>
         </div>
         <div class="map" ref="map">
+            <canvas id="map-canvas"></canvas>
             <div class="floor" ref="floor">
 
             </div>
@@ -15,6 +16,8 @@
 
 <script>
 import { mapState } from 'vuex';
+import * as PIXI from 'pixi.js';
+import { Ease, ease } from 'pixi-ease';
 
 export default {
     name: 'Minimap',
@@ -22,7 +25,7 @@ export default {
         return {
             gridSize: 22,
             gridBorderSize: 2,
-            gridPadding: 6,
+            gridPadding: 12,
             mapHeight: 0,
             mapWidth: 0,
             areaTitle: 'Unknown'
@@ -31,117 +34,88 @@ export default {
     watch: {
         minimapData: function(newMinimapData) {
             this.areaTitle = newMinimapData.name;
-            this.renderMap(newMinimapData.rooms, this.characterLocation.z);
-            this.centerMapOnLocation(this.characterLocation, this.characterLocation);
+            
+            this.renderMap(newMinimapData.rooms, this.characterLocation, this.$socket, this.$store);
+            this.centerMapOnLocation(this.characterLocation);
         },
         characterLocation: function(newLocation, oldLocation) {
             if (newLocation.z !== oldLocation.z) {
-                this.renderMap(this.minimapData.rooms, newLocation.z);
+                this.renderMap(this.minimapData.rooms, this.characterLocation, this.$socket, this.$store);
             }
-            this.centerMapOnLocation(newLocation, oldLocation);
+            this.centerMapOnLocation(newLocation);
         }
     },
     computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
     methods: {
-        clearMap() {
-            const map = this.$refs['floor'];
-            while (map.firstChild) {
-                map.firstChild.remove();
-            }
+        rgbToHex(rgb) {
+            var a = rgb.split(',');
+            return PIXI.utils.rgb2hex([a[0]/255, a[1]/255, a[2]/255]);
         },
 
-        renderMap(rooms, zIndex) {
-            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+        toHex(c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        },
 
+        clearMap() {
+            this.mapContainer.removeChildren();
+        },
+
+        renderMap(rooms, loc, socket, store) {
+            this.app.stage.addChild(this.mapContainer);
+
+            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+            
             this.clearMap();
 
-            const filteredRooms = rooms.filter(r => r.z === zIndex);
+            const filteredRooms = rooms.filter(r => r.z === loc.z);
 
             filteredRooms.forEach(room => {
-                const div = document.createElement('div');
-                div.style.height = this.gridSize + 'px';
-                div.style.width = this.gridSize + 'px';
-                div.style.position = 'absolute';
-                div.style.top = -((room.y * gridSizeFull) + (this.gridPadding * room.y)) + 'px';
-                div.style.left = ((room.x * gridSizeFull) + (this.gridPadding * room.x)) + 'px';
-                div.style.backgroundColor = `rgba(${room.color},0.6)`;
-                div.style.border = `${this.gridBorderSize}px solid rgba(${room.color},0.8)`;
-                div.setAttribute('x', room.x);
-                div.setAttribute('y', room.y);
-                div.setAttribute('z', room.z);
-                div.addEventListener('click', this.handleRoomClick);
-                div.className = 'room';
+                let sprite = PIXI.Sprite.from('./gfx/baseTile.png');
+                sprite.anchor.set(0.5);
+                sprite.x = ((room.x * gridSizeFull) + (this.gridPadding * room.x));
+                sprite.y = -((room.y * gridSizeFull) + (this.gridPadding * room.y));
+                sprite.interactive = true;
+                sprite.buttonMode = true;
+                sprite.on('pointerdown', handleRoomClick);
+                sprite.on('pointerover', function(){sprite.scale.set(1.2, 1.2)});
+                sprite.on('pointerout', function(){sprite.scale.set(1.0,1.0)});
+                this.mapContainer.addChild(sprite);
 
-                if (room.north !== "") div.style.borderTop = "dashed";
-                if (room.east !== "") div.style.borderRight = "dashed";
-                if (room.south !== "") div.style.borderBottom = "dashed";
-                if (room.west !== "") div.style.borderLeft = "dashed";
+                sprite.tint = this.rgbToHex(room.color);
 
-                if (room.type === 'track') {
-                    div.style.opacity = '0.3';
-                    div.style.borderRadius = '20px';
+                function handleRoomClick(){
+                    if (store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                        socket.sendObj({type: 'command', payload: '/room edit ' + room.x + ',' + room.y + ',' + room.z});
+                    }
                 }
-
-                this.$refs['floor'].appendChild(div)
             })
         },
 
-        centerMapOnLocation(location, oldLocation) {
-            const floor = this.$refs['floor'];
-            const halfMapWidth = this.mapWidth / 2;
-            const halfMapHeight = this.mapHeight / 2;
-            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2);
-
-            floor.style.left = (halfMapWidth - (gridSizeFull / 2) - (gridSizeFull * location.x) - (this.gridPadding * location.x)) + 'px';
-            floor.style.top = (halfMapHeight - (gridSizeFull / 2) - (gridSizeFull * -location.y) - (this.gridPadding * -location.y)) + 'px';
-
-            const oldLocDiv = document.querySelector(`.room[x="${oldLocation.x}"][y="${oldLocation.y}"]`)
-            if  (oldLocDiv) {
-                oldLocDiv.classList.remove('current-location');
-            }
-
-            const newLocDiv = document.querySelector(`.room[x="${location.x}"][y="${location.y}"]`)
-            if (newLocDiv) {
-                newLocDiv.classList.add('current-location');
-            }
-
-            for(let i = 0; i < this.minimapData.rooms.length; i++) {
-                const x = this.minimapData.rooms[i].x;
-                const y = this.minimapData.rooms[i].y;
-                const z = this.minimapData.rooms[i].z;
-                if (x === location.x && y === location.y && z === location.z) {
-                    this.$refs['map'].style.backgroundColor = `rgba(${this.minimapData.rooms[i].color},0.05)`;
-                    break;
-                }
-            }
+        centerMapOnLocation: function(location) {
+            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+            var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x));
+            var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y));
+            ease.add(this.mapContainer, { x: x, y: y }, { duration: 100, repeat: false, reverse: false });//move(this.mapContainer, x, y);
         },
 
         handleAreaClick: function(e) {
             if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                 this.$socket.sendObj({type: 'command', payload: '/area edit'});
             }
-        },
-
-        handleRoomClick: function(e) {
-            if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
-                var room = e.target;
-                var coords = room.getAttribute('x') +
-                        ',' + room.getAttribute('y') +
-                        ',' + room.getAttribute('z');
-                this.$socket.sendObj({type: 'command', payload: '/room edit ' + coords});
-            }
         }
     },
     mounted() {
-        const map = this.$refs['map'];
+
+        this.mapContainer = new PIXI.Container();
+        this.mapCanvas = document.getElementById("map-canvas");
+        this.app = new PIXI.Application({width: 250, height: 206, view: this.mapCanvas});
+
         const pos = this.$refs['position'];
-        
-        this.mapHeight = map.clientHeight;
-        this.mapWidth = map.clientWidth;
 
         // set position to half height/width with an offset for border size on position marker
-        pos.style.top = ((this.mapHeight / 2) - 2) + 'px';
-        pos.style.left = ((this.mapWidth / 2) - 2) + 'px';
+        pos.style.top = ((this.app.screen.height / 2) - 2) + 'px';
+        pos.style.left = ((this.app.screen.width / 2) - 2) + 'px';
     }
 }
 </script>
@@ -212,5 +186,8 @@ export default {
         left: 0px;
         transition: all .1s ease-in-out;
     }
+}
+#test-canvas {
+
 }
 </style>
