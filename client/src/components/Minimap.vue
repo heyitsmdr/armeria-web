@@ -106,10 +106,9 @@ export default {
         }
     },
     mounted() {
-
+        const mapCanvas = document.getElementById("map-canvas");
+        this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas});
         this.mapContainer = new PIXI.Container();
-        this.mapCanvas = document.getElementById("map-canvas");
-        this.app = new PIXI.Application({width: 250, height: 206, view: this.mapCanvas});
 
         const pos = this.$refs['position'];
 
@@ -186,8 +185,5 @@ export default {
         left: 0px;
         transition: all .1s ease-in-out;
     }
-}
-#test-canvas {
-
 }
 </style>
