@@ -1481,9 +1481,8 @@ func handleGetCommand(ctx *CommandContext) {
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.SyncRoomObjects()
-		c.Player().client.ShowColorizedText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("%s picked up a %s.", ctx.Character.FormattedName(), item.FormattedName()),
-			ColorSuccess,
 		)
 	}
 }
@@ -1519,9 +1518,8 @@ func handleDropCommand(ctx *CommandContext) {
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.SyncRoomObjects()
-		c.Player().client.ShowColorizedText(
+		c.Player().client.ShowText(
 			fmt.Sprintf("%s dropped a %s.", ctx.Character.FormattedName(), item.FormattedName()),
-			ColorSuccess,
 		)
 	}
 }

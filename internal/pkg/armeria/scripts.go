@@ -167,6 +167,16 @@ func LuaInventoryGive(L *lua.LState) int {
 				ii.FormattedName(),
 			),
 		)
+
+		for _, char := range c.Room().Here().Characters(true, c) {
+			char.Player().client.ShowText(
+				fmt.Sprintf(
+					"%s gave something to %s.",
+					mi.FormattedName(),
+					c.FormattedName(),
+				),
+			)
+		}
 	}
 
 	return 0
