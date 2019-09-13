@@ -34,13 +34,12 @@ export default {
     watch: {
         minimapData: function(newMinimapData) {
             this.areaTitle = newMinimapData.name;
-            
-            this.renderMap(newMinimapData.rooms, this.characterLocation, this.$socket, this.$store);
+            this.renderMap(newMinimapData.rooms, this.characterLocation);
             this.centerMapOnLocation(this.characterLocation);
         },
         characterLocation: function(newLocation, oldLocation) {
             if (newLocation.z !== oldLocation.z) {
-                this.renderMap(this.minimapData.rooms, this.characterLocation, this.$socket, this.$store);
+                this.renderMap(this.minimapData.rooms, this.characterLocation);
             }
             this.centerMapOnLocation(newLocation);
         }
@@ -52,16 +51,11 @@ export default {
             return PIXI.utils.rgb2hex([a[0]/255, a[1]/255, a[2]/255]);
         },
 
-        toHex(c) {
-            var hex = c.toString(16);
-            return hex.length == 1 ? "0" + hex : hex;
-        },
-
         clearMap() {
             this.mapContainer.removeChildren();
         },
 
-        renderMap(rooms, loc, socket, store) {
+        renderMap(rooms, loc) {
             this.app.stage.addChild(this.mapContainer);
 
             const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
@@ -71,24 +65,43 @@ export default {
             const filteredRooms = rooms.filter(r => r.z === loc.z);
 
             filteredRooms.forEach(room => {
-                let sprite = PIXI.Sprite.from('./gfx/baseTile.png');
+                let file;
+                switch (room.type) {
+                    case 'track':
+                        file = './gfx/trackTile.png';
+                        break;
+                    default:
+                        file = './gfx/baseTile.png';
+                }
+                let sprite = PIXI.Sprite.from(file);
                 sprite.anchor.set(0.5);
                 sprite.x = ((room.x * gridSizeFull) + (this.gridPadding * room.x));
                 sprite.y = -((room.y * gridSizeFull) + (this.gridPadding * room.y));
                 sprite.interactive = true;
                 sprite.buttonMode = true;
-                sprite.on('pointerdown', handleRoomClick);
-                sprite.on('pointerover', function(){sprite.scale.set(1.2, 1.2)});
-                sprite.on('pointerout', function(){sprite.scale.set(1.0,1.0)});
+                sprite.on('pointerdown', () => this.handleRoomClick(room));
+                sprite.on('pointerover', () => sprite.scale.set(1.2, 1.2));
+                sprite.on('pointerout', () => sprite.scale.set(1.0,1.0));
                 this.mapContainer.addChild(sprite);
-
                 sprite.tint = this.rgbToHex(room.color);
 
-                function handleRoomClick(){
-                    if (store.state.permissions.indexOf('CAN_BUILD') >= 0) {
-                        socket.sendObj({type: 'command', payload: '/room edit ' + room.x + ',' + room.y + ',' + room.z});
-                    }
-                }
+                let areaTransitions = [];
+                if (room.north !== "") { areaTransitions.push('n'); }
+                if (room.east !== "") { areaTransitions.push('e'); }
+                if (room.south !== "") { areaTransitions.push('s'); }
+                if (room.west !== "") { areaTransitions.push('w'); }
+
+                areaTransitions.forEach(t => {
+                    console.log(t);
+                    let s = PIXI.Sprite.from('./gfx/areaTransition.png');
+                    s.x = sprite.x;
+                    s.y = sprite.y;
+                    s.anchor.set(0.5);
+                    if (t === 'e') { s.rotation = 90 * (Math.PI/180); }
+                    if (t === 's') { s.rotation = 180 * (Math.PI/180); }
+                    if (t === 'w') { s.rotation = -90 * (Math.PI/180); }
+                    this.mapContainer.addChild(s);
+                })
             })
         },
 
@@ -103,8 +116,15 @@ export default {
             if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                 this.$socket.sendObj({type: 'command', payload: '/area edit'});
             }
-        }
+        },
+
+        handleRoomClick: function(room) {
+                    if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                        this.$socket.sendObj({type: 'command', payload: '/room edit ' + room.x + ',' + room.y + ',' + room.z});
+                    }
+                }
     },
+
     mounted() {
         const mapCanvas = document.getElementById("map-canvas");
         this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas});
