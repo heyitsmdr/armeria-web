@@ -1817,3 +1817,17 @@ func handleGiveCommand(ctx *CommandContext) {
 		)
 	}
 }
+
+func handleEmoteCommand(ctx *CommandContext) {
+	emotion := ctx.Args["emote"]
+
+	if emotion[len(emotion)-1:] == "." {
+		emotion = emotion[:len(emotion)-1]
+	}
+
+	for _, c := range ctx.Character.Room().Here().Characters(true) {
+		c.Player().client.ShowText(
+			fmt.Sprintf("%s %s.", ctx.Character.FormattedName(), emotion),
+		)
+	}
+}

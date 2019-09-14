@@ -773,6 +773,20 @@ func RegisterGameCommands() {
 			},
 			Handler: handleGiveCommand,
 		},
+		{
+			Name: "me",
+			Help: "Emote something to everyone in your current room.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "emote",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleEmoteCommand,
+		},
 	}
 
 	for _, cmd := range commands {
