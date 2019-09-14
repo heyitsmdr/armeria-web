@@ -93,7 +93,7 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// Init will initialize the HTTP web server, for serving the web client
+// InitWeb will initialize the HTTP web server, for serving the web client
 func InitWeb(port int) {
 	Armeria.log.Info("serving http requests",
 		zap.String("path", Armeria.publicPath),
@@ -108,6 +108,7 @@ func InitWeb(port int) {
 		"/img/",
 		"/vendor/",
 		"/sfx/",
+		"/gfx/",
 		"/favicon.ico",
 		"/scripteditor.html",
 	}
