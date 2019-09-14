@@ -17,7 +17,7 @@
 <script>
 import { mapState } from 'vuex';
 import * as PIXI from 'pixi.js';
-import { Ease, ease } from 'pixi-ease';
+import { ease } from 'pixi-ease';
 
 export default {
     name: 'Minimap',
