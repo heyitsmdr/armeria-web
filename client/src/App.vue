@@ -32,6 +32,9 @@
         </div>
       </div>
     </div>
+    <div class="status-bar-container">
+      <StatusBar />
+    </div>
   </div>
 </template>
 
@@ -44,6 +47,7 @@
   import Inventory from '@/components/Inventory';
   import Vitals from '@/components/Vitals';
   import Skills from '@/components/Skills';
+  import StatusBar from '@/components/StatusBar';
 
   export default {
     name: 'App',
@@ -54,7 +58,8 @@
       RoomTargets,
       Inventory,
       Vitals,
-      Skills
+      Skills,
+      StatusBar
     },
     data: () => {
       return {
@@ -252,6 +257,13 @@
           flex-basis: 365px;
         }
       }
+    }
+
+    .status-bar-container {
+      flex-basis: 30px;
+      border-top: 1px solid #333;
+      position: relative;
+      background-color: #0e0e0e;
     }
   }
 </style>

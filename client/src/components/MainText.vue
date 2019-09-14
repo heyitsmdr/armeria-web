@@ -38,7 +38,7 @@
         computed: {
             ...mapState(['gameText', 'itemBeingDragged']),
             containerHeight() {
-                const height = this.windowHeight - 37 - 30 - 2;
+                const height = this.windowHeight - 37 - 30 - 2 - 35;
                 return `${height}px`;
             }
         },
