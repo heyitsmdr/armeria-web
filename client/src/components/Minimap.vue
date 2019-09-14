@@ -28,7 +28,9 @@ export default {
             gridPadding: 2,
             mapHeight: 0,
             mapWidth: 0,
-            areaTitle: 'Unknown'
+            areaTitle: 'Unknown',
+            app: null,
+            mapContainer: null
         }
     },
     watch: {
