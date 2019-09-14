@@ -4,7 +4,6 @@
       class="input-box"
       ref="inputBox"
       type="text"
-      placeholder="Type a command or say something.."
       v-model="textToSend"
       @keyup.enter="handleSendText"
       @keyup.escape="handleRemoveFocus"
@@ -12,6 +11,9 @@
       @focus="handleFocus"
       @blur="handleBlur"
     />
+    <div class="hotkey-overlay" v-if="!isFocused">
+      Hotkey Mode -- Press ENTER for Input Mode
+    </div>
   </div>
 </template>
 
@@ -32,10 +34,13 @@
       this.$refs['inputBox'].focus();
     },
     watch: {
-        forceInputFocus: function(force) {
-            if (force) {
+        forceInputFocus: function(data) {
+            if (data.forced) {
                 this.$refs['inputBox'].focus();
-                this.$store.dispatch('setForceInputFocus', false);
+                if (data.text) {
+                  this.textToSend = data.text;
+                }
+                this.$store.dispatch('setForceInputFocus', { forced: false });
             }
         }
     },
@@ -119,8 +124,9 @@
 
 <style scoped>
   .container {
-    background-color: #0c0c0c;
+    opacity: 0.4;
     border: 1px solid #272727;
+    position: relative;
   }
 
   .input-box {
@@ -136,8 +142,8 @@
   }
 
   .container.active {
-    background-color: #000;
     border: 1px solid #444;
+    opacity: 1;
   }
 
   .container.active .input-box {
@@ -146,5 +152,18 @@
 
   .input-box:focus {
     outline: none;
+  }
+
+  .hotkey-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.85);
   }
 </style>

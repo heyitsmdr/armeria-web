@@ -119,8 +119,10 @@
             this.$store.dispatch('setObjectTarget', '');
             break;
           case 'enter':
+            this.$store.dispatch('setForceInputFocus', { forced: true });
+            break;
           case '/':
-            this.$store.dispatch('setForceInputFocus', true);
+            this.$store.dispatch('setForceInputFocus', { forced: true, text: '/' });
             break;
         }
 
@@ -228,7 +230,6 @@
 
         .container-input {
           flex-shrink: 1;
-          background-color: #000;
         }
 
         .container-bars {

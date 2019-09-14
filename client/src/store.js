@@ -9,7 +9,7 @@ export default new Vuex.Store({
     isConnected: false,
     gameText: [],
     allowGlobalHotkeys: true,
-    forceInputFocus: false,
+    forceInputFocus: { forced: false, text: '' },
     minimapData: {},
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
@@ -87,8 +87,8 @@ export default new Vuex.Store({
       state.objectEditorData = data;
     },
 
-    SET_FORCE_INPUT_FOCUS: (state, force) => {
-      state.forceInputFocus = force;
+    SET_FORCE_INPUT_FOCUS: (state, data) => {
+      state.forceInputFocus = data;
     },
 
     SET_AUTOLOGIN_TOKEN: (state, token) => {
