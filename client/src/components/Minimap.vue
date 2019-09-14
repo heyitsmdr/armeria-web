@@ -58,14 +58,11 @@ export default {
         },
 
         renderMap(rooms, loc) {
-            this.app.stage.addChild(this.mapContainer);
-
-            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
-            
             this.clearMap();
 
-            const filteredRooms = rooms.filter(r => r.z === loc.z);
+            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
 
+            const filteredRooms = rooms.filter(r => r.z === loc.z);
             filteredRooms.forEach(room => {
                 let file;
                 switch (room.type) {
@@ -141,6 +138,8 @@ export default {
         const mapCanvas = document.getElementById('map-canvas');
         this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas, antialias: true});
         this.mapContainer = new PIXI.Container();
+
+        this.app.stage.addChild(this.mapContainer);
 
         const pos = this.$refs['position'];
 
