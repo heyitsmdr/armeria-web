@@ -90,6 +90,8 @@ export default {
                 if (room.east !== "") { areaTransitions.push('e'); }
                 if (room.south !== "") { areaTransitions.push('s'); }
                 if (room.west !== "") { areaTransitions.push('w'); }
+                if (room.up !== "") { areaTransitions.push('u'); }
+                if (room.down !== '') { areaTransitions.push('d'); }
 
                 areaTransitions.forEach(t => {
                     let s = PIXI.Sprite.from('./gfx/areaTransition.png');
@@ -99,6 +101,15 @@ export default {
                     if (t === 'e') { s.rotation = 90 * (Math.PI/180); }
                     if (t === 's') { s.rotation = 180 * (Math.PI/180); }
                     if (t === 'w') { s.rotation = -90 * (Math.PI/180); }
+                    if (t === 'u') {
+                        s.x = Math.floor(sprite.x + gridSizeFull / 4) + 1;
+                        s.y = Math.floor(sprite.y + gridSizeFull / 4);
+                    }
+                    if (t === 'd') {
+                        s.rotation = 180 * (Math.PI/180);
+                        s.x = Math.floor(sprite.x - gridSizeFull / 4);
+                        s.y = Math.floor(sprite.y - gridSizeFull / 4) + 1;
+                    }
                     this.mapContainer.addChild(s);
                 })
             })
@@ -126,7 +137,7 @@ export default {
 
     mounted() {
         const mapCanvas = document.getElementById("map-canvas");
-        this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas});
+        this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas, antialias: true});
         this.mapContainer = new PIXI.Container();
 
         const pos = this.$refs['position'];
