@@ -493,7 +493,6 @@ func handleRoomSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Character.Room().SetAttribute(attr, ctx.Args["value"])
 	ctx.Player.client.SyncMap()
 
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {

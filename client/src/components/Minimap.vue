@@ -86,11 +86,11 @@ export default {
                 sprite.tint = this.rgbToHex(room.color);
 
                 let areaTransitions = [];
-                if (room.north !== "") { areaTransitions.push('n'); }
-                if (room.east !== "") { areaTransitions.push('e'); }
-                if (room.south !== "") { areaTransitions.push('s'); }
-                if (room.west !== "") { areaTransitions.push('w'); }
-                if (room.up !== "") { areaTransitions.push('u'); }
+                if (room.north !== '') { areaTransitions.push('n'); }
+                if (room.east !== '') { areaTransitions.push('e'); }
+                if (room.south !== '') { areaTransitions.push('s'); }
+                if (room.west !== '') { areaTransitions.push('w'); }
+                if (room.up !== '') { areaTransitions.push('u'); }
                 if (room.down !== '') { areaTransitions.push('d'); }
 
                 areaTransitions.forEach(t => {
@@ -136,7 +136,7 @@ export default {
     },
 
     mounted() {
-        const mapCanvas = document.getElementById("map-canvas");
+        const mapCanvas = document.getElementById('map-canvas');
         this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas, antialias: true});
         this.mapContainer = new PIXI.Container();
 
