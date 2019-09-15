@@ -11,7 +11,7 @@
       @focus="handleFocus"
       @blur="handleBlur"
     />
-    <div class="hotkey-overlay" v-if="!isFocused">
+    <div class="hotkey-overlay" v-if="!isFocused" @click="handleHotkeyOverlayClick">
       Hotkey Mode -- Press ENTER for Input Mode
     </div>
   </div>
@@ -117,6 +117,10 @@
         } else {
           this.password = "";
         }
+      },
+
+      handleHotkeyOverlayClick() {
+        this.$refs['inputBox'].focus();
       }
     }
   }
@@ -124,8 +128,7 @@
 
 <style scoped>
   .container {
-    opacity: 0.4;
-    border: 1px solid #272727;
+    border: 1px solid #222;
     position: relative;
   }
 
@@ -143,7 +146,6 @@
 
   .container.active {
     border: 1px solid #444;
-    opacity: 1;
   }
 
   .container.active .input-box {
@@ -164,6 +166,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #888;
+  }
+
+  .hotkey-overlay:hover {
+    cursor: pointer;
+    color: #bbb;
   }
 </style>
