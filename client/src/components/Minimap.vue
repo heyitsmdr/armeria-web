@@ -48,9 +48,22 @@ export default {
     },
     computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
     methods: {
-        rgbToHex(rgb) {
-            var a = rgb.split(',');
-            return PIXI.utils.rgb2hex([a[0]/255, a[1]/255, a[2]/255]);
+        rgbToHex(rgb, darken = 0) {
+            const a = rgb.split(',');
+            let r = a[0];
+            let g = a[1];
+            let b = a[2];
+
+            if (darken > 0) {
+                r -= darken;
+                g -= darken;
+                b -= darken;
+                if (r < 0) { r = 0; }
+                if (g < 0) { g = 0; }
+                if (b < 0) { b = 0; }
+            }
+
+            return PIXI.utils.rgb2hex([r/255, g/255, b/255]);
         },
 
         clearMap() {
@@ -118,7 +131,21 @@ export default {
             const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
             var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x));
             var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y));
-            ease.add(this.mapContainer, { x: x, y: y }, { duration: 100, repeat: false, reverse: false });//move(this.mapContainer, x, y);
+            ease.add(this.mapContainer, { x: x, y: y }, { duration: 100, repeat: false, reverse: false });
+            this.app.renderer.backgroundColor = this.rgbToHex(this.roomColor(location), 160);
+
+        },
+
+        roomColor: function(location) {
+            for (let roomIdx = 0; roomIdx < this.minimapData.rooms.length; roomIdx++) {
+                const room = this.minimapData.rooms[roomIdx];
+                if (room.x === location.x && room.y === location.y && room.z === location.z) {
+                    return room.color;
+                }
+            }
+
+            console.log('no match');
+            return '0,0,0';
         },
 
         handleAreaClick: function(e) {
