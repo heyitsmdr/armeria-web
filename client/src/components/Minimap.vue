@@ -143,8 +143,7 @@ export default {
                     return room.color;
                 }
             }
-
-            console.log('no match');
+            
             return '0,0,0';
         },
 
