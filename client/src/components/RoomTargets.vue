@@ -46,7 +46,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
     .root {
         height: 100%;
         background-color: #131313;
@@ -54,33 +54,5 @@ export default {
 
     .container {
         padding-top: 10px;
-    }
-
-    .drop-overlay {
-        display: flex;
-        opacity: 0;
-        position: absolute;
-        z-index: 10;
-        width: 245px;
-        height: 549px;
-        left: -1000px;
-        background-color: rgba(0, 0, 0, 0.72);
-        align-items: center;
-        justify-content: center;
-        border: 2px dashed #353535;
-        transition: opacity 0.1s ease-in-out;
-        text-align: center;
-        font-size: 18px;
-        color: #777;
-    }
-
-    .drop-overlay.visible {
-        left: 0px;
-        opacity: 1;
-    }
-
-    .drop-overlay.highlight {
-        border: 2px dashed #fff;
-        color: #bbb;
     }
 </style>

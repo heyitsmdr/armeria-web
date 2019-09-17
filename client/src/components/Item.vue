@@ -23,118 +23,118 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "../plugins/SFX";
+    import {mapState} from 'vuex';
+    import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "../plugins/SFX";
 
-export default {
-    name: 'Item',
-    props: ['uuid', 'slotNum', 'pictureKey', 'tooltipData', 'color', 'equipped'],
-    computed: mapState(['isProduction']),
-    mounted: function() {
-        this.$refs['item'].classList.add('equipped');
-    },
-    methods: {
-        handleItemDragEnter: function(e) {
-            e.target.classList.add('candrop');
+    export default {
+        name: 'Item',
+        props: ['uuid', 'slotNum', 'pictureKey', 'tooltipData', 'color', 'equipped'],
+        computed: mapState(['isProduction']),
+        mounted: function () {
+            this.$refs['item'].classList.add('equipped');
         },
+        methods: {
+            handleItemDragEnter: function (e) {
+                e.target.classList.add('candrop');
+            },
 
-        handleItemDragLeave: function(e) {
-            e.target.classList.remove('candrop');
-        },
+            handleItemDragLeave: function (e) {
+                e.target.classList.remove('candrop');
+            },
 
-        handleItemDragStart: function(e) {
-            e.target.classList.add('dragging');
-            e.dataTransfer.setData('item_uuid', this.uuid);
-            e.dataTransfer.setData('item_slot', this.slotNum);
-            this.hideTooltip();
-            this.$store.dispatch('setItemBeingDragged', true);
-            this.$soundEvent(INVENTORY_DRAG_START);
-        },
+            handleItemDragStart: function (e) {
+                e.target.classList.add('dragging');
+                e.dataTransfer.setData('item_uuid', this.uuid);
+                e.dataTransfer.setData('item_slot', this.slotNum);
+                this.hideTooltip();
+                this.$store.dispatch('setItemBeingDragged', true);
+                this.$soundEvent(INVENTORY_DRAG_START);
+            },
 
-        handleItemDragEnd: function(e) {
-            e.target.classList.remove('dragging');
-            this.$store.dispatch('setItemBeingDragged', false);
-            this.$soundEvent(INVENTORY_DRAG_STOP);
-        },
+            handleItemDragEnd: function (e) {
+                e.target.classList.remove('dragging');
+                this.$store.dispatch('setItemBeingDragged', false);
+                this.$soundEvent(INVENTORY_DRAG_STOP);
+            },
 
-        handleItemDrop: function(e) {
-            e.target.classList.remove('candrop');
+            handleItemDrop: function (e) {
+                e.target.classList.remove('candrop');
 
-            let slot = e.dataTransfer.getData("item_slot");
-            if (slot) {
-                this.$store.dispatch('sendSlashCommand', {
-                    command: `/swap ${slot} ${this.slotNum}`
-                });
-            }
-        },
+                let slot = e.dataTransfer.getData("item_slot");
+                if (slot) {
+                    this.$store.dispatch('sendSlashCommand', {
+                        command: `/swap ${slot} ${this.slotNum}`
+                    });
+                }
+            },
 
-        handleMouseMove: function(e) {
-            if (!this.uuid) {
-                return;
-            }
+            handleMouseMove: function (e) {
+                if (!this.uuid) {
+                    return;
+                }
 
-            const xOffset = 50;
-            const yOffset = 50;
+                const xOffset = 50;
+                const yOffset = 50;
 
-            let tt = this.$refs["tooltip"];
-            if (!tt.classList.contains('visible')) {
-                tt.classList.add('visible');
-            }
+                let tt = this.$refs["tooltip"];
+                if (!tt.classList.contains('visible')) {
+                    tt.classList.add('visible');
+                }
 
-            let ttTop = e.clientY - tt.clientHeight - yOffset;
-            let ttLeft = e.clientX - xOffset;
+                let ttTop = e.clientY - tt.clientHeight - yOffset;
+                let ttLeft = e.clientX - xOffset;
 
-            if ((ttLeft + tt.clientWidth + 20) > window.innerWidth) {
-                ttLeft = window.innerWidth - tt.clientWidth - 20;
-            }
+                if ((ttLeft + tt.clientWidth + 20) > window.innerWidth) {
+                    ttLeft = window.innerWidth - tt.clientWidth - 20;
+                }
 
-            tt.style.top = ttTop + 'px';
-            tt.style.left = ttLeft + 'px';
-            tt.style.borderColor = this.color;
-        },
+                tt.style.top = ttTop + 'px';
+                tt.style.left = ttLeft + 'px';
+                tt.style.borderColor = this.color;
+            },
 
-        handleMouseLeave: function() {
-            this.hideTooltip();
-        },
+            handleMouseLeave: function () {
+                this.hideTooltip();
+            },
 
-        handleMouseUp: function(e) {
-            if (!this.uuid) {
-                return;
-            }
+            handleMouseUp: function (e) {
+                if (!this.uuid) {
+                    return;
+                }
 
-            if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                    this.$socket.sendObj({
+                        type: 'command',
+                        payload: `/item iedit ${this.uuid}`
+                    });
+                }
+            },
+
+            handleContextMenu: function () {
                 this.$socket.sendObj({
                     type: 'command',
-                    payload: `/item iedit ${this.uuid}`
+                    payload: `/look inv:${this.uuid}`
                 });
-            }
-        },
+            },
 
-        handleContextMenu: function() {
-            this.$socket.sendObj({
-                type: 'command',
-                payload: `/look inv:${this.uuid}`
-            });
-        },
+            hideTooltip: function () {
+                let tt = this.$refs["tooltip"];
+                tt.classList.remove('visible');
+            },
 
-        hideTooltip: function() {
-            let tt = this.$refs["tooltip"];
-            tt.classList.remove('visible');
-        },
+            getBackgroundUrl() {
+                if (!this.pictureKey) {
+                    return '';
+                }
 
-        getBackgroundUrl() {
-            if (!this.pictureKey) {
-                return '';
-            }
+                if (!this.isProduction) {
+                    return `url(http://localhost:8081/oi/${this.pictureKey})`;
+                }
 
-            if (!this.isProduction) {
-                return `url(http://localhost:8081/oi/${this.pictureKey})`;
-            }
-
-            return `url(/oi/${this.pictureKey})`;
-        },
+                return `url(/oi/${this.pictureKey})`;
+            },
+        }
     }
-}
 </script>
 
 <style>
@@ -180,7 +180,7 @@ export default {
     }
 
     .item .equipped {
-        background-color: rgba(50,50,50,0.8);
+        background-color: rgba(50, 50, 50, 0.8);
         color: #fff;
         font-size: 10px;
         text-align: center;

@@ -2,13 +2,13 @@
     <div class="inventory">
         <div class="item-container">
             <Item
-                v-for="item in items"
-                :key="item.slot"
-                :uuid="item.uuid"
-                :slotNum="item.slot"
-                :pictureKey="item.picture"
-                :color="item.color"
-                :tooltipData="item.tooltip"
+                    v-for="item in items"
+                    :key="item.slot"
+                    :uuid="item.uuid"
+                    :slotNum="item.slot"
+                    :pictureKey="item.picture"
+                    :color="item.color"
+                    :tooltipData="item.tooltip"
             />
         </div>
         <div class="currency-container">
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-    import { mapState } from 'vuex';
+    import {mapState} from 'vuex';
     import Item from '@/components/Item';
 
     export default {
@@ -28,18 +28,18 @@
         },
         computed: {
             ...mapState(['inventory']),
-            items: function() {
+            items: function () {
                 let itemDef = {};
                 this.inventory.forEach(item => {
                     itemDef[item.slot] = item
                 });
 
                 let items = [];
-                for(let i = 0; i < 35; i++) {
+                for (let i = 0; i < 35; i++) {
                     if (itemDef[i]) {
                         items.push(itemDef[i]);
                     } else {
-                        items.push({ slot: i });
+                        items.push({slot: i});
                     }
                 }
                 return items;

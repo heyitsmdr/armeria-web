@@ -7,13 +7,13 @@
             </div>
         </div>
         <div
-            class="item-drag-overlay"
-            ref="item-overlay"
-            @dragenter="handleItemOverlayDragEnter"
-            @dragleave="handleItemOverlayDragLeave"
-            @drop="handleItemOverlayDrop"
-            @dragover.prevent
-            v-if="itemBeingDragged"
+                class="item-drag-overlay"
+                ref="item-overlay"
+                @dragenter="handleItemOverlayDragEnter"
+                @dragleave="handleItemOverlayDragLeave"
+                @drop="handleItemOverlayDrop"
+                @dragover.prevent
+                v-if="itemBeingDragged"
         >
             Release the item here to drop it into the room.
         </div>
@@ -21,13 +21,13 @@
 </template>
 
 <script>
-    import { mapState } from 'vuex'
+    import {mapState} from 'vuex'
     import ObjectEditor from "./ObjectEditor";
 
     export default {
         name: 'MainText',
-        components: { ObjectEditor },
-        data: function() {
+        components: {ObjectEditor},
+        data: function () {
             return {
                 lineNumber: 0
             }
@@ -42,22 +42,22 @@
                 return `${height}px`;
             }
         },
-        updated: function() {
+        updated: function () {
             this.$nextTick(function () {
                 const div = this.$refs['mainTextContainer'];
                 div.scrollTop = 9999999;
             });
         },
         methods: {
-            handleItemOverlayDragEnter: function() {
+            handleItemOverlayDragEnter: function () {
                 this.$refs['item-overlay'].classList.add('item-over');
             },
 
-            handleItemOverlayDragLeave: function() {
+            handleItemOverlayDragLeave: function () {
                 this.$refs['item-overlay'].classList.remove('item-over');
             },
 
-            handleItemOverlayDrop: function(e) {
+            handleItemOverlayDrop: function (e) {
                 this.$refs['item-overlay'].classList.remove('item-over');
                 let iuuid = e.dataTransfer.getData("item_uuid");
                 this.$store.dispatch('sendSlashCommand', {
@@ -85,7 +85,7 @@
 
     .line table tr th {
         text-align: left;
-        background: linear-gradient(to bottom, #111111 0%,#232323 100%);
+        background: linear-gradient(to bottom, #111111 0%, #232323 100%);
         padding: 3px;
     }
 
@@ -129,6 +129,4 @@
         color: #cacaca;
         user-select: text;
     }
-
-
 </style>

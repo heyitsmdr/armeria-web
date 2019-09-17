@@ -15,220 +15,232 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import * as PIXI from 'pixi.js';
-import { ease } from 'pixi-ease';
+    import {mapState} from 'vuex';
+    import * as PIXI from 'pixi.js';
+    import {ease} from 'pixi-ease';
 
-export default {
-    name: 'Minimap',
-    data: () => {
-        return {
-            gridSize: 22,
-            gridBorderSize: 2,
-            gridPadding: 2,
-            mapHeight: 0,
-            mapWidth: 0,
-            areaTitle: 'Unknown',
-            app: null,
-            mapContainer: null
-        }
-    },
-    watch: {
-        minimapData: function(newMinimapData) {
-            this.areaTitle = newMinimapData.name;
-            this.renderMap(newMinimapData.rooms, this.characterLocation);
-            this.centerMapOnLocation(this.characterLocation);
-        },
-        characterLocation: function(newLocation, oldLocation) {
-            if (newLocation.z !== oldLocation.z) {
-                this.renderMap(this.minimapData.rooms, this.characterLocation);
+    export default {
+        name: 'Minimap',
+        data: () => {
+            return {
+                gridSize: 22,
+                gridBorderSize: 2,
+                gridPadding: 2,
+                mapHeight: 0,
+                mapWidth: 0,
+                areaTitle: 'Unknown',
+                app: null,
+                mapContainer: null
             }
-            this.centerMapOnLocation(newLocation);
-        }
-    },
-    computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
-    methods: {
-        rgbToHex(rgb, darken = 0) {
-            const a = rgb.split(',');
-            let r = a[0];
-            let g = a[1];
-            let b = a[2];
-
-            if (darken > 0) {
-                r -= darken;
-                g -= darken;
-                b -= darken;
-                if (r < 0) { r = 0; }
-                if (g < 0) { g = 0; }
-                if (b < 0) { b = 0; }
-            }
-
-            return PIXI.utils.rgb2hex([r/255, g/255, b/255]);
         },
-
-        clearMap() {
-            this.mapContainer.removeChildren();
-        },
-
-        renderMap(rooms, loc) {
-            this.clearMap();
-
-            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
-
-            const filteredRooms = rooms.filter(r => r.z === loc.z);
-            filteredRooms.forEach(room => {
-                let file;
-                switch (room.type) {
-                    case 'track':
-                        file = './gfx/trackTile.png';
-                        break;
-                    default:
-                        file = './gfx/baseTile.png';
+        watch: {
+            minimapData: function (newMinimapData) {
+                this.areaTitle = newMinimapData.name;
+                this.renderMap(newMinimapData.rooms, this.characterLocation);
+                this.centerMapOnLocation(this.characterLocation);
+            },
+            characterLocation: function (newLocation, oldLocation) {
+                if (newLocation.z !== oldLocation.z) {
+                    this.renderMap(this.minimapData.rooms, this.characterLocation);
                 }
-                let sprite = PIXI.Sprite.from(file);
-                sprite.anchor.set(0.5);
-                sprite.x = ((room.x * gridSizeFull) + (this.gridPadding * room.x));
-                sprite.y = -((room.y * gridSizeFull) + (this.gridPadding * room.y));
-                sprite.interactive = true;
-                sprite.buttonMode = true;
-                sprite.on('pointerdown', () => this.handleRoomClick(room));
-                sprite.on('pointerover', () => sprite.scale.set(1.2, 1.2));
-                sprite.on('pointerout', () => sprite.scale.set(1.0,1.0));
-                this.mapContainer.addChild(sprite);
-                sprite.tint = this.rgbToHex(room.color);
+                this.centerMapOnLocation(newLocation);
+            }
+        },
+        computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
+        methods: {
+            rgbToHex(rgb, darken = 0) {
+                const a = rgb.split(',');
+                let r = a[0];
+                let g = a[1];
+                let b = a[2];
 
-                let areaTransitions = [];
-                if (room.north !== '') { areaTransitions.push('n'); }
-                if (room.east !== '') { areaTransitions.push('e'); }
-                if (room.south !== '') { areaTransitions.push('s'); }
-                if (room.west !== '') { areaTransitions.push('w'); }
-                if (room.up !== '') { areaTransitions.push('u'); }
-                if (room.down !== '') { areaTransitions.push('d'); }
+                if (darken > 0) {
+                    r -= darken;
+                    g -= darken;
+                    b -= darken;
+                    if (r < 0) {
+                        r = 0;
+                    }
+                    if (g < 0) {
+                        g = 0;
+                    }
+                    if (b < 0) {
+                        b = 0;
+                    }
+                }
 
-                areaTransitions.forEach(t => {
-                    let s = PIXI.Sprite.from('./gfx/areaTransition.png');
-                    s.x = sprite.x;
-                    s.y = sprite.y;
-                    s.anchor.set(0.5);
-                    if (t === 'e') { s.rotation = 90 * (Math.PI/180); }
-                    if (t === 's') { s.rotation = 180 * (Math.PI/180); }
-                    if (t === 'w') { s.rotation = -90 * (Math.PI/180); }
-                    if (t === 'u') {
-                        s.x = Math.floor(sprite.x + gridSizeFull / 4) + 1;
-                        s.y = Math.floor(sprite.y + gridSizeFull / 4);
+                return PIXI.utils.rgb2hex([r / 255, g / 255, b / 255]);
+            },
+
+            clearMap() {
+                this.mapContainer.removeChildren();
+            },
+
+            renderMap(rooms, loc) {
+                this.clearMap();
+
+                const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+
+                const filteredRooms = rooms.filter(r => r.z === loc.z);
+                filteredRooms.forEach(room => {
+                    let file;
+                    switch (room.type) {
+                        case 'track':
+                            file = './gfx/trackTile.png';
+                            break;
+                        default:
+                            file = './gfx/baseTile.png';
                     }
-                    if (t === 'd') {
-                        s.rotation = 180 * (Math.PI/180);
-                        s.x = Math.floor(sprite.x - gridSizeFull / 4);
-                        s.y = Math.floor(sprite.y - gridSizeFull / 4) + 1;
+                    let sprite = PIXI.Sprite.from(file);
+                    sprite.anchor.set(0.5);
+                    sprite.x = ((room.x * gridSizeFull) + (this.gridPadding * room.x));
+                    sprite.y = -((room.y * gridSizeFull) + (this.gridPadding * room.y));
+                    sprite.interactive = true;
+                    sprite.buttonMode = true;
+                    sprite.on('pointerdown', () => this.handleRoomClick(room));
+                    sprite.on('pointerover', () => sprite.scale.set(1.2, 1.2));
+                    sprite.on('pointerout', () => sprite.scale.set(1.0, 1.0));
+                    this.mapContainer.addChild(sprite);
+                    sprite.tint = this.rgbToHex(room.color);
+
+                    let areaTransitions = [];
+                    if (room.north !== '') {
+                        areaTransitions.push('n');
                     }
-                    this.mapContainer.addChild(s);
+                    if (room.east !== '') {
+                        areaTransitions.push('e');
+                    }
+                    if (room.south !== '') {
+                        areaTransitions.push('s');
+                    }
+                    if (room.west !== '') {
+                        areaTransitions.push('w');
+                    }
+                    if (room.up !== '') {
+                        areaTransitions.push('u');
+                    }
+                    if (room.down !== '') {
+                        areaTransitions.push('d');
+                    }
+
+                    areaTransitions.forEach(t => {
+                        let s = PIXI.Sprite.from('./gfx/areaTransition.png');
+                        s.x = sprite.x;
+                        s.y = sprite.y;
+                        s.anchor.set(0.5);
+                        if (t === 'e') {
+                            s.rotation = 90 * (Math.PI / 180);
+                        }
+                        if (t === 's') {
+                            s.rotation = 180 * (Math.PI / 180);
+                        }
+                        if (t === 'w') {
+                            s.rotation = -90 * (Math.PI / 180);
+                        }
+                        if (t === 'u') {
+                            s.x = Math.floor(sprite.x + gridSizeFull / 4) + 1;
+                            s.y = Math.floor(sprite.y + gridSizeFull / 4);
+                        }
+                        if (t === 'd') {
+                            s.rotation = 180 * (Math.PI / 180);
+                            s.x = Math.floor(sprite.x - gridSizeFull / 4);
+                            s.y = Math.floor(sprite.y - gridSizeFull / 4) + 1;
+                        }
+                        this.mapContainer.addChild(s);
+                    })
                 })
-            })
-        },
+            },
 
-        centerMapOnLocation: function(location) {
-            const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
-            var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x));
-            var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y));
-            ease.add(this.mapContainer, { x: x, y: y }, { duration: 100, repeat: false, reverse: false });
-            this.app.renderer.backgroundColor = this.rgbToHex(this.roomColor(location), 160);
+            centerMapOnLocation: function (location) {
+                const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+                var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x));
+                var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y));
+                ease.add(this.mapContainer, {x: x, y: y}, {duration: 100, repeat: false, reverse: false});
+                this.app.renderer.backgroundColor = this.rgbToHex(this.roomColor(location), 160);
 
-        },
+            },
 
-        roomColor: function(location) {
-            for (let roomIdx = 0; roomIdx < this.minimapData.rooms.length; roomIdx++) {
-                const room = this.minimapData.rooms[roomIdx];
-                if (room.x === location.x && room.y === location.y && room.z === location.z) {
-                    return room.color;
-                }
-            }
-            
-            return '0,0,0';
-        },
-
-        handleAreaClick: function(e) {
-            if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
-                this.$socket.sendObj({type: 'command', payload: '/area edit'});
-            }
-        },
-
-        handleRoomClick: function(room) {
-                    if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
-                        this.$socket.sendObj({type: 'command', payload: '/room edit ' + room.x + ',' + room.y + ',' + room.z});
+            roomColor: function (location) {
+                for (let roomIdx = 0; roomIdx < this.minimapData.rooms.length; roomIdx++) {
+                    const room = this.minimapData.rooms[roomIdx];
+                    if (room.x === location.x && room.y === location.y && room.z === location.z) {
+                        return room.color;
                     }
                 }
-    },
 
-    mounted() {
-        const mapCanvas = document.getElementById('map-canvas');
-        this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas, antialias: true});
-        this.mapContainer = new PIXI.Container();
+                return '0,0,0';
+            },
 
-        this.app.stage.addChild(this.mapContainer);
+            handleAreaClick: function (e) {
+                if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                    this.$socket.sendObj({type: 'command', payload: '/area edit'});
+                }
+            },
 
-        const pos = this.$refs['position'];
+            handleRoomClick: function (room) {
+                if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                    this.$socket.sendObj({
+                        type: 'command',
+                        payload: '/room edit ' + room.x + ',' + room.y + ',' + room.z
+                    });
+                }
+            }
+        },
 
-        // set position to half height/width with an offset for border size on position marker
-        pos.style.top = ((this.app.screen.height / 2) - 2) + 'px';
-        pos.style.left = ((this.app.screen.width / 2) - 2) + 'px';
+        mounted() {
+            const mapCanvas = document.getElementById('map-canvas');
+            this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas, antialias: true});
+            this.mapContainer = new PIXI.Container();
+
+            this.app.stage.addChild(this.mapContainer);
+
+            const pos = this.$refs['position'];
+
+            // set position to half height/width with an offset for border size on position marker
+            pos.style.top = ((this.app.screen.height / 2) - 2) + 'px';
+            pos.style.left = ((this.app.screen.width / 2) - 2) + 'px';
+        }
     }
-}
 </script>
 
-<style lang="scss">
-.map .floor .room {
-    transition: all .1s ease-in-out;
-
-    &:hover {
-         cursor: pointer;
-         transform: scale(1.1);
-     }
-
-    &.current-location {
-         border-color: #ff0 !important;
-         transform: scale(1.3);
+<style scoped>
+    .container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
-}
-</style>
 
-<style lang="scss" scoped>
-.container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
+    .area-title {
+        text-align: center;
+        padding: 5px;
+        background-color: #1b1b1b;
+        border-bottom: 1px solid #313131;
+        color: #fff;
+        flex-shrink: 1;
+    }
 
-.area-title {
-    text-align: center;
-    padding: 5px;
-    background-color: #1b1b1b;
-    border-bottom: 1px solid #313131;
-    color: #fff;
-    flex-shrink: 1;
-
-    .map-name {
+    .area-title .map-name {
         font-weight: 600;
         font-size: 16px;
         cursor: pointer;
     }
 
-    .room-name {
+    .area-title .room-name {
         font-size: 12px;
     }
-}
 
-.map {
-    background-color: #0c0c0c;
-    border-bottom: 1px solid #313131;
-    flex-grow: 1;
-    min-height: 205px;
-    position: relative;
-    overflow: hidden;
-    transition: all .3s ease-in-out;
-    box-shadow: inset 0px 0px 10px 1px #000;
+    .map {
+        background-color: #0c0c0c;
+        border-bottom: 1px solid #313131;
+        flex-grow: 1;
+        min-height: 205px;
+        position: relative;
+        overflow: hidden;
+        transition: all .3s ease-in-out;
+        box-shadow: inset 0px 0px 10px 1px #000;
+    }
 
-    .position {
+    .map .position {
         position: absolute;
         height: 0px;
         width: 0px;
@@ -236,11 +248,10 @@ export default {
         border: 2px solid #FF0;
     }
 
-    .floor {
+    .map .floor {
         position: absolute;
         top: 0px;
         left: 0px;
         transition: all .1s ease-in-out;
     }
-}
 </style>
