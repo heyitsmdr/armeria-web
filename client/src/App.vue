@@ -67,7 +67,7 @@
         windowWidth: 0,
       }
     },
-    computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen', 'isConnected']),
+    computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen', 'isConnected', 'playerInfo']),
     watch: {
       isConnected: function(connected) {
         let token = this.$store.state.autoLoginToken;
@@ -83,7 +83,13 @@
           } else {
             this.$store.dispatch('showText', { data: 'If you have an existing character, you can <b>/login</b>. Otherwise, <b>/create</b> a new one.\n' });
           }
+        } else {
+          window.document.title = '**DISCONNECTED** Armeria.io';
         }
+      },
+
+      playerInfo: function(info) {
+        window.document.title = `${info.name} - Armeria.io`;
       }
     },
     methods: {

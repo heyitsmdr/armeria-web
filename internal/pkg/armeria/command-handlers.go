@@ -358,40 +358,19 @@ func handleMoveCommand(ctx *CommandContext) {
 		return
 	}
 
-	newRoom := Armeria.worldManager.RoomInDirection(ctx.Character.Room(), d)
-
-	areaLink := ctx.Character.Room().Attribute(d)
-	if areaLink != "" {
-		na := strings.Split(areaLink, ",")
-		if len(na) != 4 {
-			ctx.Player.client.ShowColorizedText("You cannot go that way.", ColorError)
-			Armeria.channels[ChannelBuilders].Broadcast(
-				nil,
-				fmt.Sprintf("ERROR: Invalid area link at %s (%s) due to using an invalid format.", ctx.Character.Room().LocationString(), d),
-			)
-			return
+	newRoom := ctx.Character.Room().ConnectedRoom(d)
+	if newRoom == nil {
+		currentRoomAttr := ctx.Character.Room().Attribute(d)
+		if len(currentRoomAttr) > 0 && currentRoomAttr[0:1] == "!" {
+			if len(currentRoomAttr) > 1 {
+				ctx.Player.client.ShowColorizedText(currentRoomAttr[1:], ColorError)
+			} else {
+				ctx.Player.client.ShowColorizedText(CommonInvalidDirection, ColorError)
+			}
+		} else {
+			ctx.Player.client.ShowColorizedText(CommonInvalidDirection, ColorError)
 		}
-		ta := Armeria.worldManager.AreaByName(na[0])
-		if ta == nil {
-			ctx.Player.client.ShowColorizedText("You cannot go that way.", ColorError)
-			Armeria.channels[ChannelBuilders].Broadcast(
-				nil,
-				fmt.Sprintf("ERROR: Invalid area link at %s (%s) due to the area not existing.", ctx.Character.Room().LocationString(), d),
-			)
-			return
-		}
-		x, xerr := strconv.Atoi(na[1])
-		y, yerr := strconv.Atoi(na[2])
-		z, zerr := strconv.Atoi(na[3])
-		if xerr != nil || yerr != nil || zerr != nil {
-			ctx.Player.client.ShowColorizedText("You cannot go that way.", ColorError)
-			Armeria.channels[ChannelBuilders].Broadcast(
-				nil,
-				fmt.Sprintf("ERROR: Invalid area link at %s (%s) due to the coords not existing within the target area.", ctx.Character.Room().LocationString(), d),
-			)
-			return
-		}
-		newRoom = ta.RoomAt(NewCoords(x, y, z, 0))
+		return
 	}
 
 	moveAllowed, moveError := ctx.Character.MoveAllowed(newRoom)
@@ -400,7 +379,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		return
 	}
 
-	oldRoomUUID := ctx.Character.Room().ParentArea.Id()
+	oldAreaUUID := ctx.Character.Room().ParentArea.Id()
 	ctx.Character.Move(
 		newRoom,
 		ctx.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
@@ -408,7 +387,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		ctx.Character.Colorize(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), arriveDir), ColorMovement),
 	)
 
-	if newRoom.ParentArea.Id() != oldRoomUUID {
+	if newRoom.ParentArea.Id() != oldAreaUUID {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("You've just entered %s.", TextStyle(newRoom.ParentArea.Name(), TextStyleBold)),
 			ColorMovementAlt,

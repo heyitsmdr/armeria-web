@@ -2,6 +2,9 @@ package armeria
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -24,6 +27,27 @@ func NewCoords(x int, y int, z int, i int) *Coords {
 		UnsafeZ: z,
 		UnsafeI: i,
 	}
+}
+
+// NewCoordsFromString creates and returns a new Coords from a single string.
+func NewCoordsFromString(c string) *Coords {
+	sections := strings.Split(c, ",")
+	if len(sections) != 3 {
+		return nil
+	}
+
+	var x, y, z int
+	if i, err := strconv.Atoi(sections[0]); err == nil {
+		x = i
+	}
+	if i, err := strconv.Atoi(sections[1]); err == nil {
+		y = i
+	}
+	if i, err := strconv.Atoi(sections[2]); err == nil {
+		z = i
+	}
+
+	return NewCoords(x, y, z, 0)
 }
 
 // CopyCoords copies the contents of a Coords pointer and returns a fresh Coords pointer.
@@ -108,4 +132,9 @@ func (c *Coords) JSON() string {
 	}
 
 	return string(j)
+}
+
+// String returns the coordinates as a string.
+func (c *Coords) String() string {
+	return fmt.Sprintf("%d,%d,%d", c.UnsafeX, c.UnsafeY, c.UnsafeZ)
 }

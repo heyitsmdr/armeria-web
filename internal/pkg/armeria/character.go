@@ -405,7 +405,7 @@ func (c *Character) Setting(name string) string {
 // MoveAllowed will check if moving to a particular location is valid/allowed.
 func (c *Character) MoveAllowed(r *Room) (bool, string) {
 	if r == nil {
-		return false, "You cannot move that way."
+		return false, CommonInvalidDirection
 	}
 
 	if len(c.TempAttribute(TempAttributeGhost)) > 0 {

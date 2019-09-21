@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
@@ -204,13 +205,46 @@ func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 // AdjacentRooms returns the Room objects that are adjacent to the current room.
 func (r *Room) AdjacentRooms() *AdjacentRooms {
 	return &AdjacentRooms{
-		North: Armeria.worldManager.RoomInDirection(r, NorthDirection),
-		South: Armeria.worldManager.RoomInDirection(r, SouthDirection),
-		East:  Armeria.worldManager.RoomInDirection(r, EastDirection),
-		West:  Armeria.worldManager.RoomInDirection(r, WestDirection),
-		Up:    Armeria.worldManager.RoomInDirection(r, UpDirection),
-		Down:  Armeria.worldManager.RoomInDirection(r, DownDirection),
+		North: r.ConnectedRoom(NorthDirection),
+		South: r.ConnectedRoom(SouthDirection),
+		East:  r.ConnectedRoom(EastDirection),
+		West:  r.ConnectedRoom(WestDirection),
+		Up:    r.ConnectedRoom(UpDirection),
+		Down:  r.ConnectedRoom(DownDirection),
 	}
+}
+
+// ConnectedRoom returns the adjacent explicit or implicit Room object.
+func (r *Room) ConnectedRoom(direction string) *Room {
+	// check for an explicit exit first
+	explicitDirection := r.Attribute(direction)
+	edSections := strings.Split(explicitDirection, ",")
+	if len(explicitDirection) > 0 {
+		if len(edSections) == 3 {
+			return r.ParentArea.RoomAt(NewCoordsFromString(explicitDirection))
+		} else if len(edSections) == 4 {
+			a := Armeria.worldManager.AreaByName(edSections[0])
+			if a != nil {
+				return a.RoomAt(NewCoordsFromString(strings.Join(edSections[1:], ",")))
+			}
+		} else if explicitDirection[0:1] == "!" {
+			return nil
+		}
+	}
+
+	// check for an implicit exit
+	offsets := misc.DirectionOffsets(direction)
+	if offsets == nil {
+		return nil
+	}
+
+	x := r.Coords.X() + offsets["x"]
+	y := r.Coords.Y() + offsets["y"]
+	z := r.Coords.Z() + offsets["z"]
+
+	loc := NewCoords(x, y, z, 0)
+
+	return r.ParentArea.RoomAt(loc)
 }
 
 // LocationString returns the location of the room within the game world as a string.

@@ -1,7 +1,6 @@
 package armeria
 
 import (
-	"armeria/internal/pkg/misc"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -125,26 +124,6 @@ func (m *WorldManager) CreateArea(name string) *Area {
 	m.UnsafeWorld = append(m.UnsafeWorld, a)
 
 	return a
-}
-
-func (m *WorldManager) RoomInDirection(r *Room, direction string) *Room {
-	offsets := misc.DirectionOffsets(direction)
-	if offsets == nil {
-		Armeria.log.Fatal("invalid direction provided",
-			zap.String("direction", direction),
-		)
-	}
-
-	o, _ := Armeria.registry.Get(r.ID())
-	room := o.(*Room)
-
-	x := room.Coords.X() + offsets["x"]
-	y := room.Coords.Y() + offsets["y"]
-	z := room.Coords.Z() + offsets["z"]
-
-	loc := NewCoords(x, y, z, 0)
-
-	return room.ParentArea.RoomAt(loc)
 }
 
 func (m *WorldManager) AreaByName(name string) *Area {

@@ -105,7 +105,7 @@ func (p *Player) FlushWrites() {
 	}
 }
 
-// SetupPumps will create two go routines for reading and writing from the socket
+// SetupPumps will create two go routines for reading to and writing from the underlying socket connection.
 func (p *Player) SetupPumps() {
 	if p.pumpsInitialized {
 		return
@@ -116,7 +116,7 @@ func (p *Player) SetupPumps() {
 	p.pumpsInitialized = true
 }
 
-// CallClientAction sends a socket event to call a Vuex action on the webapp
+// CallClientAction sends a socket event to call a Vuex action on the webapp.
 func (p *Player) CallClientAction(actionName string, payload interface{}) {
 	p.sendData <- &OutgoingDataStructure{Action: actionName, Payload: payload}
 }
@@ -143,6 +143,7 @@ func (p *Player) Character() *Character {
 func (p *Player) PlayerInfoJSON() string {
 	pi := map[string]string{
 		"uuid": p.Character().ID(),
+		"name": p.Character().Name(),
 	}
 
 	piJSON, err := json.Marshal(pi)

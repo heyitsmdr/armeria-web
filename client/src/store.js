@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { Room } from './models';
 
 Vue.use(Vuex);
 
@@ -10,7 +11,7 @@ export default new Vuex.Store({
     gameText: [],
     allowGlobalHotkeys: true,
     forceInputFocus: { forced: false, text: '' },
-    minimapData: {},
+    minimapData: { name: '', rooms: [] },
     characterLocation: { x: 0, y: 0, z: 0 },
     roomObjects: [],
     roomTitle: 'Unknown',
@@ -21,7 +22,7 @@ export default new Vuex.Store({
     inventory: [],
     itemBeingDragged: false,
     permissions: [],
-    playerInfo: { uuid: '' },
+    playerInfo: { uuid: '', name: '' },
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -60,7 +61,13 @@ export default new Vuex.Store({
     },
 
     SET_MINIMAP_DATA: (state, minimapData) => {
-      state.minimapData = minimapData;
+      state.minimapData = {
+        name: minimapData.name,
+        rooms: [],
+      };
+      minimapData.rooms.forEach(r => {
+        state.minimapData.rooms.push(new Room(r));
+      });
     },
 
     SET_CHARACTER_LOCATION: (state, loc) => {

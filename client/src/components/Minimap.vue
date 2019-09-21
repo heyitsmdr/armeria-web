@@ -23,9 +23,9 @@
         name: 'Minimap',
         data: () => {
             return {
-                gridSize: 22,
+                gridSize: 20,
                 gridBorderSize: 2,
-                gridPadding: 2,
+                gridPadding: 8,
                 mapHeight: 0,
                 mapWidth: 0,
                 areaTitle: 'Unknown',
@@ -34,20 +34,25 @@
             }
         },
         watch: {
-            minimapData: function (newMinimapData) {
-                this.areaTitle = newMinimapData.name;
-                this.renderMap(newMinimapData.rooms, this.characterLocation);
+            minimapData(data) {
+                this.areaTitle = data.name;
+                this.renderMap(data.rooms, this.characterLocation.z);
                 this.centerMapOnLocation(this.characterLocation);
             },
-            characterLocation: function (newLocation, oldLocation) {
+            characterLocation(newLocation, oldLocation) {
                 if (newLocation.z !== oldLocation.z) {
-                    this.renderMap(this.minimapData.rooms, this.characterLocation);
+                    this.renderMap(this.minimapData.rooms, this.characterLocation.z);
                 }
                 this.centerMapOnLocation(newLocation);
             }
         },
         computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
         methods: {
+            /**
+             * Return hex color from an rgb string.
+             * @param {String} rgb
+             * @param {Number} darken=0
+             */
             rgbToHex(rgb, darken = 0) {
                 const a = rgb.split(',');
                 let r = a[0];
@@ -72,16 +77,138 @@
                 return PIXI.utils.rgb2hex([r / 255, g / 255, b / 255]);
             },
 
+            /**
+             * Remove all children from the map container.
+             */
             clearMap() {
                 this.mapContainer.removeChildren();
             },
 
-            renderMap(rooms, loc) {
+            /**
+             * Calculate localized offsets for a given room.
+             * @param {Room} room
+             */
+            localRoomOffsets(room) {
+                const gridSizeFull = this.gridSize + (this.gridBorderSize * 2);
+                return {
+                    x: ((room.x * gridSizeFull) + (this.gridPadding * room.x)),
+                    y: -((room.y * gridSizeFull) + (this.gridPadding * room.y)),
+                    size: gridSizeFull,
+                }
+            },
+
+            /**
+             * Draw a directional line between two rooms on a PIXI.Graphics.
+             * @param {PIXI.Graphics} lineGraphics
+             * @param {Room} srcRoom
+             * @param {Room} targetRoom
+             * @param {String} direction
+             */
+            drawRoomLine(lineGraphics, srcRoom, targetRoom, direction) {
+                const srcOffsets = this.localRoomOffsets(srcRoom);
+                const targetOffsets = this.localRoomOffsets(targetRoom);
+                const lineWidth = 2;
+
+                let startX, startY, endX, endY;
+                switch (direction) {
+                    case 'north':
+                        startX = srcOffsets.x + (srcOffsets.size / 2);
+                        startY = srcOffsets.y;
+                        endX = targetOffsets.x + (targetOffsets.size / 2);
+                        endY = targetOffsets.y + targetOffsets.size;
+                        break;
+                    case 'south':
+                        startX = srcOffsets.x + (srcOffsets.size / 2);
+                        startY = srcOffsets.y + srcOffsets.size;
+                        endX = targetOffsets.x + (targetOffsets.size / 2);
+                        endY = targetOffsets.y;
+                        break;
+                    case 'east':
+                        startX = srcOffsets.x + srcOffsets.size;
+                        startY = srcOffsets.y + (srcOffsets.size / 2);
+                        endX = targetOffsets.x;
+                        endY = targetOffsets.y + (targetOffsets.size / 2);
+                        break;
+                    case 'west':
+                        startX = srcOffsets.x;
+                        startY = srcOffsets.y + (srcOffsets.size / 2);
+                        endX =  targetOffsets.x + targetOffsets.size;
+                        endY = targetOffsets.y + (targetOffsets.size / 2);
+                        break;
+                }
+
+                lineGraphics
+                    .lineStyle(lineWidth, 0xffffff)
+                    .moveTo(startX, startY)
+                    .lineTo(endX, endY);
+            },
+
+            /**
+             * Render a directional indicator on the map container.
+             * @param {Number} x
+             * @param {Number} y
+             * @param {String} direction
+             */
+            drawExternalRoomConnector(x, y, direction) {
+                let s = PIXI.Sprite.from('./gfx/areaTransition.png');
+                s.x = x + 12;
+                s.y = y + 12;
+                s.anchor.set(0.5);
+
+                if (direction === 'east') {
+                    s.rotation = 90 * (Math.PI / 180);
+                }
+                if (direction === 'south') {
+                    s.rotation = 180 * (Math.PI / 180);
+                }
+                if (direction === 'west') {
+                    s.rotation = -90 * (Math.PI / 180);
+                }
+                if (direction === 'up') {
+                    s.x += 5;
+                    s.y += 8;
+                }
+                if (direction === 'down') {
+                    s.rotation = 180 * (Math.PI / 180);
+                    s.x -= 5;
+                    s.y -= 8;
+                }
+                this.mapContainer.addChild(s);
+            },
+
+            /**
+             * Returns the matching room within the minimap rooms of the Vuex store.
+             * @param {String} roomDirString
+             * @returns {*}
+             */
+            roomAt(roomDirString) {
+                const sections = roomDirString.split(",");
+
+                for(let i = 0; i < this.minimapData.rooms.length; i++) {
+                    const sameX = this.minimapData.rooms[i].x.toString() === sections[1];
+                    const sameY = this.minimapData.rooms[i].y.toString() === sections[2];
+                    const sameZ = this.minimapData.rooms[i].z.toString() === sections[3];
+
+                    if (sameX && sameY && sameZ) {
+                        return this.minimapData.rooms[i];
+                    }
+                }
+
+                return null
+            },
+
+            /**
+             * Renders the minimap.
+             * @param {Array<Room>} rooms
+             * @param {Number} zIndex
+             */
+            renderMap(rooms, zIndex) {
                 this.clearMap();
 
-                const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
+                const lineGraphics = new PIXI.Graphics();
+                this.mapContainer.addChild(lineGraphics);
 
-                const filteredRooms = rooms.filter(r => r.z === loc.z);
+                const filteredRooms = rooms.filter(r => r.z === zIndex);
                 filteredRooms.forEach(room => {
                     let file;
                     switch (room.type) {
@@ -91,75 +218,48 @@
                         default:
                             file = './gfx/baseTile.png';
                     }
+
                     let sprite = PIXI.Sprite.from(file);
-                    sprite.anchor.set(0.5);
-                    sprite.x = ((room.x * gridSizeFull) + (this.gridPadding * room.x));
-                    sprite.y = -((room.y * gridSizeFull) + (this.gridPadding * room.y));
+                    sprite.x = this.localRoomOffsets(room).x;
+                    sprite.y = this.localRoomOffsets(room).y;
                     sprite.interactive = true;
                     sprite.buttonMode = true;
-                    sprite.on('pointerdown', () => this.handleRoomClick(room));
+                    sprite.on('pointerdown', (e) => this.handleRoomClick(e, room));
                     sprite.on('pointerover', () => sprite.scale.set(1.2, 1.2));
                     sprite.on('pointerout', () => sprite.scale.set(1.0, 1.0));
                     this.mapContainer.addChild(sprite);
                     sprite.tint = this.rgbToHex(room.color);
 
-                    let areaTransitions = [];
-                    if (room.north !== '') {
-                        areaTransitions.push('n');
-                    }
-                    if (room.east !== '') {
-                        areaTransitions.push('e');
-                    }
-                    if (room.south !== '') {
-                        areaTransitions.push('s');
-                    }
-                    if (room.west !== '') {
-                        areaTransitions.push('w');
-                    }
-                    if (room.up !== '') {
-                        areaTransitions.push('u');
-                    }
-                    if (room.down !== '') {
-                        areaTransitions.push('d');
-                    }
-
-                    areaTransitions.forEach(t => {
-                        let s = PIXI.Sprite.from('./gfx/areaTransition.png');
-                        s.x = sprite.x;
-                        s.y = sprite.y;
-                        s.anchor.set(0.5);
-                        if (t === 'e') {
-                            s.rotation = 90 * (Math.PI / 180);
+                    const directions = ['north', 'south', 'east', 'west', 'up', 'down'];
+                    directions.forEach(dir => {
+                        if (room[dir].length > 0) {
+                            if (dir === 'up' || dir === 'down' || room[dir].split(',')[0] !== this.areaTitle) {
+                                this.drawExternalRoomConnector(sprite.x, sprite.y, dir);
+                            } else {
+                                this.drawRoomLine(lineGraphics, room, this.roomAt(room[dir]), dir);
+                            }
                         }
-                        if (t === 's') {
-                            s.rotation = 180 * (Math.PI / 180);
-                        }
-                        if (t === 'w') {
-                            s.rotation = -90 * (Math.PI / 180);
-                        }
-                        if (t === 'u') {
-                            s.x = Math.floor(sprite.x + gridSizeFull / 4) + 1;
-                            s.y = Math.floor(sprite.y + gridSizeFull / 4);
-                        }
-                        if (t === 'd') {
-                            s.rotation = 180 * (Math.PI / 180);
-                            s.x = Math.floor(sprite.x - gridSizeFull / 4);
-                            s.y = Math.floor(sprite.y - gridSizeFull / 4) + 1;
-                        }
-                        this.mapContainer.addChild(s);
-                    })
-                })
+                    });
+                });
             },
 
+            /**
+             * Centers the map using easing on the character's current location.
+             * @param location
+             */
             centerMapOnLocation: function (location) {
                 const gridSizeFull = this.gridSize + (this.gridBorderSize * 2)
-                var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x));
-                var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y));
+                var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x)) - (gridSizeFull / 2);
+                var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y)) - (gridSizeFull / 2);
                 ease.add(this.mapContainer, {x: x, y: y}, {duration: 100, repeat: false, reverse: false});
                 this.app.renderer.backgroundColor = this.rgbToHex(this.roomColor(location), 160);
 
             },
 
+            /**
+             * Returns the room color for a particular location.
+             * @param location
+             */
             roomColor: function (location) {
                 for (let roomIdx = 0; roomIdx < this.minimapData.rooms.length; roomIdx++) {
                     const room = this.minimapData.rooms[roomIdx];
@@ -171,18 +271,35 @@
                 return '0,0,0';
             },
 
+            /**
+             * Handles the click event for the area name container.
+             * @param {MouseEvent} e
+             */
             handleAreaClick: function (e) {
                 if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                     this.$socket.sendObj({type: 'command', payload: '/area edit'});
                 }
             },
 
-            handleRoomClick: function (room) {
+            /**
+             * Handles the click event for a minimap room.
+             * @param {PIXI.interaction.InteractionEvent} evt
+             * @param {Room} room
+             */
+            handleRoomClick: function (evt, room) {
                 if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
-                    this.$socket.sendObj({
-                        type: 'command',
-                        payload: '/room edit ' + room.x + ',' + room.y + ',' + room.z
-                    });
+                    if (evt.data.originalEvent.shiftKey) {
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/teleport ${this.areaTitle},${room.x},${room.y},${room.z}`
+                        });
+                    } else {
+                        this.$socket.sendObj({
+                            type: 'command',
+                            payload: `/room edit ${room.x},${room.y},${room.z}`
+                        });
+                    }
+
                 }
             }
         },

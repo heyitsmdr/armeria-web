@@ -71,6 +71,25 @@ func (a *Area) MinimapJSON() string {
 
 	var rooms []map[string]interface{}
 	for _, r := range a.UnsafeRooms {
+		var north, south, east, west, up, down string
+		if cr := r.ConnectedRoom(NorthDirection); cr != nil {
+			north = cr.LocationString()
+		}
+		if cr := r.ConnectedRoom(SouthDirection); cr != nil {
+			south = cr.LocationString()
+		}
+		if cr := r.ConnectedRoom(EastDirection); cr != nil {
+			east = cr.LocationString()
+		}
+		if cr := r.ConnectedRoom(WestDirection); cr != nil {
+			west = cr.LocationString()
+		}
+		if cr := r.ConnectedRoom(UpDirection); cr != nil {
+			up = cr.LocationString()
+		}
+		if cr := r.ConnectedRoom(DownDirection); cr != nil {
+			down = cr.LocationString()
+		}
 		rooms = append(rooms, map[string]interface{}{
 			"title": r.Attribute("title"),
 			"color": r.Attribute("color"),
@@ -78,12 +97,12 @@ func (a *Area) MinimapJSON() string {
 			"x":     r.Coords.X(),
 			"y":     r.Coords.Y(),
 			"z":     r.Coords.Z(),
-			"north": r.Attribute(NorthDirection),
-			"east":  r.Attribute(EastDirection),
-			"south": r.Attribute(SouthDirection),
-			"west":  r.Attribute(WestDirection),
-			"up":    r.Attribute(UpDirection),
-			"down":  r.Attribute(DownDirection),
+			"north": north,
+			"south": south,
+			"east":  east,
+			"west":  west,
+			"up":    up,
+			"down":  down,
 		})
 	}
 
