@@ -33,20 +33,25 @@
                 mapContainer: null
             }
         },
+        computed: mapState(['minimapData', 'characterLocation', 'roomTitle', 'permissions']),
         watch: {
             minimapData(data) {
                 this.areaTitle = data.name;
-                this.renderMap(data.rooms, this.characterLocation.z);
+                this.renderMap();
                 this.centerMapOnLocation(this.characterLocation);
             },
             characterLocation(newLocation, oldLocation) {
                 if (newLocation.z !== oldLocation.z) {
-                    this.renderMap(this.minimapData.rooms, this.characterLocation.z);
+                    this.renderMap();
                 }
                 this.centerMapOnLocation(newLocation);
+            },
+            permissions() {
+                if (this.minimapData.rooms.length > 0) {
+                    this.renderMap();
+                }
             }
         },
-        computed: mapState(['minimapData', 'characterLocation', 'roomTitle']),
         methods: {
             /**
              * Return hex color from an rgb string.
@@ -199,16 +204,14 @@
 
             /**
              * Renders the minimap.
-             * @param {Array<Room>} rooms
-             * @param {Number} zIndex
              */
-            renderMap(rooms, zIndex) {
+            renderMap() {
                 this.clearMap();
 
                 const lineGraphics = new PIXI.Graphics();
                 this.mapContainer.addChild(lineGraphics);
 
-                const filteredRooms = rooms.filter(r => r.z === zIndex);
+                const filteredRooms = this.minimapData.rooms.filter(r => r.z === this.characterLocation.z);
                 filteredRooms.forEach(room => {
                     let file;
                     switch (room.type) {
@@ -224,11 +227,13 @@
                     sprite.y = this.localRoomOffsets(room).y;
                     sprite.interactive = true;
                     sprite.buttonMode = true;
-                    sprite.on('pointerdown', (e) => this.handleRoomClick(e, room));
-                    sprite.on('pointerover', () => sprite.scale.set(1.2, 1.2));
-                    sprite.on('pointerout', () => sprite.scale.set(1.0, 1.0));
-                    this.mapContainer.addChild(sprite);
+                    if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                        sprite.on('pointerdown', (e) => this.handleRoomClick(e, room));
+                        sprite.on('pointerover', () => sprite.tint = this.rgbToHex('255,255,0'));
+                        sprite.on('pointerout', () => sprite.tint = this.rgbToHex(room.color));
+                    }
                     sprite.tint = this.rgbToHex(room.color);
+                    this.mapContainer.addChild(sprite);
 
                     const directions = ['north', 'south', 'east', 'west', 'up', 'down'];
                     directions.forEach(dir => {
