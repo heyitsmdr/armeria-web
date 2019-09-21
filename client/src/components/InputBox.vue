@@ -86,11 +86,6 @@
             },
 
             handleRemoveFocus(event) {
-                if (this.objectEditorOpen) {
-                    this.$store.dispatch('setObjectEditorOpen', false);
-                    return;
-                }
-
                 event.target.blur()
             },
 

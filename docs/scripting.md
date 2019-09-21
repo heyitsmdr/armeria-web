@@ -7,7 +7,7 @@
 * Function: [i_name](#i_nameuuid)
 * Function: [inv_give](#inv_givecharacter_uuid-item_uuid)
 * Function: [say](#saytext)
-* Function: sleep
+* Function: [sleep](#sleepduration)
 
 * Event: [character_entered](#character_enteredcharacter_name)
 * Event: [character_left](#character_leftcharacter_name)

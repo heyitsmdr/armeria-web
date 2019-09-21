@@ -19,7 +19,10 @@
                         v-if="prop.propType === 'editable'"
                         @click="handleEditablePropClick($event, prop)"
                         @blur="handleEditablePropBlur($event, prop)"
-                        @keydown="handleEditablePropKeyDown($event, prop)"
+                        @keydown.enter.stop.prevent
+                        @keydown.esc.stop.prevent
+                        @keyup.esc.stop.prevent="handleEditablePropEscapeKey($event)"
+                        @keyup.enter.stop.prevent="handleEditablePropEnterKey($event, prop)"
                     >
                         {{ prop.value || "&nbsp;" }}
                     </div>
@@ -126,22 +129,20 @@
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
             },
 
-            handleEditablePropKeyDown: function(e, prop) {
-                if (e.key === 'Enter') {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    this.animateDivWithClass(e.target, 'success');
-                    e.target.blur();
-                    
-                    if (this.objectEditorData.objectType === "room") {
-                      this.setProperty(prop.name, e.target.textContent, this.objectEditorData.textCoords);
-                    } else {
-                      this.setProperty(prop.name, e.target.textContent);
-                    }
-                } else if (e.key === 'Escape') {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    e.target.blur();
+            handleEditablePropEscapeKey: function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                e.target.blur();
+            },
+
+            handleEditablePropEnterKey: function(e, prop) {
+                this.animateDivWithClass(e.target, 'success');
+                e.target.blur();
+
+                if (this.objectEditorData.objectType === "room") {
+                    this.setProperty(prop.name, e.target.textContent, this.objectEditorData.textCoords);
+                } else {
+                    this.setProperty(prop.name, e.target.textContent);
                 }
             },
 
@@ -228,8 +229,8 @@
                     return;
                 }
 
-                const reader = new FileReader()
-                reader.readAsBinaryString(file)
+                const reader = new FileReader();
+                reader.readAsBinaryString(file);
                 reader.onload = () => {
                     this.$socket.sendObj({
                         type: 'objectPictureUpload',
