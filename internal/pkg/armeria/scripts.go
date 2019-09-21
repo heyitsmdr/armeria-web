@@ -3,6 +3,7 @@ package armeria
 import (
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -23,7 +24,7 @@ func WriteMobScript(m *Mob, script string) {
 	_ = ioutil.WriteFile(m.ScriptFile(), []byte(script), 0644)
 }
 
-// LuaMobSay is the handler for lua function: mob_say.
+// LuaMobSay (mob_say) causes the mob to say something to the room.
 func LuaMobSay(L *lua.LState) int {
 	text := L.ToString(1)
 	mname := lua.LVAsString(L.GetGlobal("mob_name"))
@@ -54,7 +55,18 @@ func LuaMobSay(L *lua.LState) int {
 	return 0
 }
 
-// LuaCharacterAttribute is the handler for lua function: c_attr.
+// LuaSleep (sleep) causes the script to sleep for a particular time.Duration (ie: 30s).
+func LuaSleep(L *lua.LState) int {
+	duration := L.ToString(1)
+
+	if d, err := time.ParseDuration(duration); err == nil {
+		time.Sleep(d)
+	}
+
+	return 0
+}
+
+// LuaCharacterAttribute (c_attr) retrieves a permanent or temporary character attribute.
 func LuaCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
@@ -77,7 +89,7 @@ func LuaCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
-// LuaSetCharacterAttribute is the handler for lua function: c_set_attr.
+// LuaSetCharacterAttribute (c_set_attr) sets a permanent or temporary character attribute.
 func LuaSetCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
@@ -104,7 +116,7 @@ func LuaSetCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
-// LuaItemName is the handler for lua function: i_name.
+// LuaItemName (i_name) returns the formatted item name from an item uuid.
 func LuaItemName(L *lua.LState) int {
 	uuid := L.ToString(1)
 
@@ -118,7 +130,7 @@ func LuaItemName(L *lua.LState) int {
 	return 1
 }
 
-// LuaInventoryGive is the handler for lua function: inv_give.
+// LuaInventoryGive (inv_give) gives an item to a character from the mob's inventory.
 func LuaInventoryGive(L *lua.LState) int {
 	cuuid := L.ToString(1)
 	iuuid := L.ToString(2)
@@ -193,6 +205,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("mob_name", lua.LString(mi.Name()))
 	// global functions
 	L.SetGlobal("say", L.NewFunction(LuaMobSay))
+	L.SetGlobal("sleep", L.NewFunction(LuaSleep))
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 	L.SetGlobal("i_name", L.NewFunction(LuaItemName))

@@ -7,6 +7,7 @@
 * Function: [i_name](#i_nameuuid)
 * Function: [inv_give](#inv_givecharacter_uuid-item_uuid)
 * Function: [say](#saytext)
+* Function: sleep
 
 * Event: [character_entered](#character_enteredcharacter_name)
 * Event: [character_left](#character_leftcharacter_name)
@@ -68,6 +69,13 @@ Gives an item from the mob's inventory to a character.
 * `text` `(string)`: the text to say
 
 The mob will say `text` in the same room it's in. All other characters in the room will see this.
+
+### sleep(duration)
+
+**Arguments**:
+* `duration` `(string)`: duration to sleep for (ie: `30s`)
+
+Delays the mob script for a particular duration.
 
 ## Events
 
