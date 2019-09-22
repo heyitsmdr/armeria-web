@@ -149,7 +149,7 @@ func (p *Player) PlayerInfoJSON() string {
 	piJSON, err := json.Marshal(pi)
 	if err != nil {
 		Armeria.log.Fatal("failed to marshal player info data",
-			zap.String("character", p.Character().UUID),
+			zap.String("unsafeCharacter", p.Character().UUID),
 			zap.Error(err),
 		)
 	}

@@ -34,7 +34,7 @@ func NewClientActions(p *Player) ClientActions {
 	}
 }
 
-// ShowColorizedText displays color-formatted text if there is a character attached to
+// ShowColorizedText displays color-formatted text if there is a unsafeCharacter attached to
 // the parent instance.
 func (ca *ClientActions) ShowColorizedText(text string, color int) {
 	var t string
@@ -64,7 +64,7 @@ func (ca *ClientActions) SyncMap() {
 	ca.parent.CallClientAction("setMapData", minimap)
 }
 
-// SyncMapLocation sets the character location on the minimap.
+// SyncMapLocation sets the unsafeCharacter location on the minimap.
 func (ca *ClientActions) SyncMapLocation() {
 	loc := ca.parent.Character().Room().Coords.JSON()
 	ca.parent.CallClientAction("setCharacterLocation", loc)
@@ -95,12 +95,12 @@ func (ca *ClientActions) SyncInventory() {
 	ca.parent.CallClientAction("setInventory", inv)
 }
 
-// SyncPermissions sets the character permissions on the client (to allow/disallow certain client actions / UI tweaks).
+// SyncPermissions sets the unsafeCharacter permissions on the client (to allow/disallow certain client actions / UI tweaks).
 func (ca *ClientActions) SyncPermissions() {
 	ca.parent.CallClientAction("setPermissions", ca.parent.Character().Attribute(AttributePermissions))
 }
 
-// SyncPlayerInfo sets the character/player information on the client.
+// SyncPlayerInfo sets the unsafeCharacter/player information on the client.
 func (ca *ClientActions) SyncPlayerInfo() {
 	ca.parent.CallClientAction("setPlayerInfo", ca.parent.Character().Player().PlayerInfoJSON())
 }

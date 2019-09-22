@@ -166,7 +166,7 @@ func (r *Room) EditorData() *ObjectEditorData {
 	}
 }
 
-// CharacterEntered is called when the character is moved to the room (or logged in).
+// CharacterEntered is called when the unsafeCharacter is moved to the room (or logged in).
 func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 	ca := c.Player().client
 	ca.SyncMapLocation()
@@ -186,7 +186,7 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 	}
 }
 
-// CharacterLeft is called when the character left the room (or logged out).
+// CharacterLeft is called when the unsafeCharacter left the room (or logged out).
 func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 	for _, char := range r.Here().Characters(true, c) {
 		char.Player().client.SyncRoomObjects()

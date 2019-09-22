@@ -50,9 +50,11 @@ export default new Vuex.Store({
       state.gameText.push({
         id: state.gameText.length,
         html: text
-          .replace(/\n/g, "<br>")
-          .replace(/\[b\]/g, "<span style='font-weight:600'>")
-          .replace(/\[\/b\]/g, "</span>")
+            .replace(/\n/g, "<br>")
+            .replace(/\[b\]/g, "<span style='font-weight:600'>")
+            .replace(/\[\/b\]/g, "</span>")
+            .replace(/\[cmd=([^\]]*)\]/g, "<a href='#' class='inline-command' onclick='window.Armeria.$store.dispatch(\"sendSlashCommand\", {command:\"$1\"})'>")
+            .replace(/\[\/cmd\]/g, "</a>")
       });
     },
 

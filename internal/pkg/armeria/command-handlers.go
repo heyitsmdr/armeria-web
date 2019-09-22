@@ -30,30 +30,30 @@ func handleLoginCommand(ctx *CommandContext) {
 		}
 
 		if c.PasswordHash() != sections[1] {
-			ctx.Player.client.ShowColorizedText("Invalid token for that character.", ColorError)
+			ctx.Player.client.ShowColorizedText("Invalid token for that unsafeCharacter.", ColorError)
 			return
 		}
 	} else {
 		// basic auth
-		c = Armeria.characterManager.CharacterByName(ctx.Args["character"])
+		c = Armeria.characterManager.CharacterByName(ctx.Args["unsafeCharacter"])
 		if c == nil {
 			ctx.Player.client.ShowText("Character not found.")
 			return
 		}
 
 		if !c.CheckPassword(ctx.Args["password"]) {
-			ctx.Player.client.ShowColorizedText("Password incorrect for that character.", ColorError)
+			ctx.Player.client.ShowColorizedText("Password incorrect for that unsafeCharacter.", ColorError)
 			return
 		}
 	}
 
 	if c.Player() != nil {
-		ctx.Player.client.ShowColorizedText("This character is already logged in.", ColorError)
+		ctx.Player.client.ShowColorizedText("This unsafeCharacter is already logged in.", ColorError)
 		return
 	}
 
 	if c.Room() == nil {
-		ctx.Player.client.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
+		ctx.Player.client.ShowColorizedText("This unsafeCharacter logged out of a room which no longer exists.", ColorError)
 		return
 	}
 
@@ -575,10 +575,10 @@ func handleWhisperCommand(ctx *CommandContext) {
 
 	c := Armeria.characterManager.CharacterByName(t)
 	if c == nil {
-		ctx.Player.client.ShowColorizedText("That's not a valid character name.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid unsafeCharacter name.", ColorError)
 		return
 	} else if c.Player() == nil {
-		ctx.Player.client.ShowColorizedText("That character is not online.", ColorError)
+		ctx.Player.client.ShowColorizedText("That unsafeCharacter is not online.", ColorError)
 		return
 	}
 
@@ -619,7 +619,7 @@ func handleWhoCommand(ctx *CommandContext) {
 	noun := "characters"
 	verb := "are"
 	if len(chars) < 2 {
-		noun = "character"
+		noun = "unsafeCharacter"
 		verb = "is"
 	}
 
@@ -640,14 +640,14 @@ func handleWhoCommand(ctx *CommandContext) {
 }
 
 func handleCharacterEditCommand(ctx *CommandContext) {
-	char := ctx.Args["character"]
+	char := ctx.Args["unsafeCharacter"]
 	var c *Character
 	if len(char) == 0 {
 		c = ctx.Character
 	} else {
 		c = Armeria.characterManager.CharacterByName(strings.ToLower(char))
 		if c == nil {
-			ctx.Player.client.ShowColorizedText("That character doesn't exist.", ColorError)
+			ctx.Player.client.ShowColorizedText("That unsafeCharacter doesn't exist.", ColorError)
 			return
 		}
 	}
@@ -684,18 +684,18 @@ func handleCharacterListCommand(ctx *CommandContext) {
 }
 
 func handleCharacterSetCommand(ctx *CommandContext) {
-	char := strings.ToLower(ctx.Args["character"])
+	char := strings.ToLower(ctx.Args["unsafeCharacter"])
 	attr := strings.ToLower(ctx.Args["property"])
 	val := ctx.Args["value"]
 
 	c := Armeria.characterManager.CharacterByName(char)
 	if c == nil {
-		ctx.Player.client.ShowColorizedText("That character doesn't exist.", ColorError)
+		ctx.Player.client.ShowColorizedText("That unsafeCharacter doesn't exist.", ColorError)
 		return
 	}
 
 	if !misc.Contains(ValidCharacterAttributes(), attr) {
-		ctx.Player.client.ShowColorizedText("That's not a valid character attribute.", ColorError)
+		ctx.Player.client.ShowColorizedText("That's not a valid unsafeCharacter attribute.", ColorError)
 		return
 	}
 
@@ -710,13 +710,13 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 	_ = c.SetAttribute(attr, val)
 
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You modified the %s property of the character %s.", TextStyle(attr, TextStyleBold), c.FormattedName()),
+		fmt.Sprintf("You modified the %s property of the unsafeCharacter %s.", TextStyle(attr, TextStyleBold), c.FormattedName()),
 		ColorSuccess,
 	)
 
 	if c.Name() != ctx.Character.Name() && c.Player() != nil {
 		c.Player().client.ShowText(
-			fmt.Sprintf("Your character was modified by %s.", ctx.Character.FormattedName()),
+			fmt.Sprintf("Your unsafeCharacter was modified by %s.", ctx.Character.FormattedName()),
 		)
 
 	}
@@ -1246,7 +1246,7 @@ func handleAreaEditCommand(ctx *CommandContext) {
 func handlePasswordCommand(ctx *CommandContext) {
 	pw := ctx.Args["password"]
 	ctx.Character.SetPassword(pw)
-	ctx.Player.client.ShowColorizedText("Your character password has been set.", ColorSuccess)
+	ctx.Player.client.ShowColorizedText("Your unsafeCharacter password has been set.", ColorSuccess)
 }
 
 func handleTeleportCommand(ctx *CommandContext) {
@@ -1258,10 +1258,10 @@ func handleTeleportCommand(ctx *CommandContext) {
 		cn := t[1:]
 		c := Armeria.characterManager.CharacterByName(cn)
 		if c == nil {
-			ctx.Player.client.ShowColorizedText("There is no character by that name.", ColorError)
+			ctx.Player.client.ShowColorizedText("There is no unsafeCharacter by that name.", ColorError)
 			return
 		} else if c.Player() == nil {
-			ctx.Player.client.ShowColorizedText("That character is not online.", ColorError)
+			ctx.Player.client.ShowColorizedText("That unsafeCharacter is not online.", ColorError)
 			return
 		}
 

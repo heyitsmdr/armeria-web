@@ -26,13 +26,13 @@ func StoreObjectPicture(p *Player, o map[string]interface{}) {
 	var oldKey string
 	var editorData *ObjectEditorData
 	switch objectType {
-	case "character":
+	case "unsafeCharacter":
 		c := Armeria.characterManager.CharacterByName(name)
 		oldKey = c.Attribute(AttributePicture)
 		_ = c.SetAttribute(AttributePicture, k)
 		editorData = c.EditorData()
 		p.client.ShowColorizedText(
-			fmt.Sprintf("A picture has been uploaded and set for character %s.", c.FormattedName()),
+			fmt.Sprintf("A picture has been uploaded and set for unsafeCharacter %s.", c.FormattedName()),
 			ColorSuccess,
 		)
 		if c.Online() {

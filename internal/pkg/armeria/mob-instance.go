@@ -95,7 +95,7 @@ func (mi *MobInstance) Room() *Room {
 	return oc.ParentRoom()
 }
 
-// Inventory returns the character's inventory.
+// Inventory returns the unsafeCharacter's inventory.
 func (mi *MobInstance) Inventory() *ObjectContainer {
 	mi.RLock()
 	defer mi.RUnlock()

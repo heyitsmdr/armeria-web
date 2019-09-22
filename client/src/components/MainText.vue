@@ -83,6 +83,16 @@
         color: #aaa;
     }
 
+    .line .inline-command {
+        color: #2196F3;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .line .inline-command:hover {
+        color: #00BCD4;
+    }
+
     .line table tr th {
         text-align: left;
         background: linear-gradient(to bottom, #111111 0%, #232323 100%);

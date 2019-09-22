@@ -12,13 +12,13 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "login",
-			Help: "Log your character into the game world.",
+			Help: "Log your unsafeCharacter into the game world.",
 			Permissions: &CommandPermissions{
 				RequireNoCharacter: true,
 			},
 			Arguments: []*CommandArgument{
 				{
-					Name: "character",
+					Name: "unsafeCharacter",
 				},
 				{
 					Name:  "password",
@@ -29,7 +29,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name:   "logintoken",
-			Help:   "Log your character into the game world (with a token).",
+			Help:   "Log your unsafeCharacter into the game world (with a token).",
 			Hidden: true,
 			Permissions: &CommandPermissions{
 				RequireNoCharacter: true,
@@ -44,7 +44,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name:   "create",
-			Help:   "Create a new character.",
+			Help:   "Create a new unsafeCharacter.",
 			Hidden: true,
 			Permissions: &CommandPermissions{
 				RequireNoCharacter: true,
@@ -90,7 +90,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "move",
-			Help: "Move your character into a connecting room.",
+			Help: "Move your unsafeCharacter into a connecting room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -168,7 +168,7 @@ func RegisterGameCommands() {
 			},
 		},
 		{
-			Name: "character",
+			Name: "unsafeCharacter",
 			Help: "Manage characters.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
@@ -188,10 +188,10 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "set",
-					Help: "Set an attribute on the specified character. Leave value empty to revert to default.",
+					Help: "Set an attribute on the specified unsafeCharacter. Leave value empty to revert to default.",
 					Arguments: []*CommandArgument{
 						{
-							Name: "character",
+							Name: "unsafeCharacter",
 						},
 						{
 							Name: "property",
@@ -206,10 +206,10 @@ func RegisterGameCommands() {
 				},
 				{
 					Name: "edit",
-					Help: "Open the editor panel for the specified character.",
+					Help: "Open the editor panel for the specified unsafeCharacter.",
 					Arguments: []*CommandArgument{
 						{
-							Name:     "character",
+							Name:     "unsafeCharacter",
 							Optional: true,
 						},
 					},
@@ -237,7 +237,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "whisper",
 			AltNames: []string{"w"},
-			Help:     "Send a private message to the specified character. They must be online.",
+			Help:     "Send a private message to the specified unsafeCharacter. They must be online.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -560,7 +560,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "password",
-			Help: "Set a new password for your character.",
+			Help: "Set a new password for your unsafeCharacter.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -575,7 +575,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "teleport",
 			AltNames: []string{"tp"},
-			Help:     "Teleport to the specified character or room.",
+			Help:     "Teleport to the specified unsafeCharacter or room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_TELEPORT",
@@ -677,7 +677,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "autologin",
-			Help: "Toggle auto-login for your character.",
+			Help: "Toggle auto-login for your unsafeCharacter.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -724,7 +724,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "settings",
 			AltNames: []string{"setting"},
-			Help:     "View or change settings for your character.",
+			Help:     "View or change settings for your unsafeCharacter.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},

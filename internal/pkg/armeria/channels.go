@@ -57,7 +57,7 @@ func ChannelByName(name string) *Channel {
 	return nil
 }
 
-// HasPermission returns a bool indicating whether the character can participate in the channel.
+// HasPermission returns a bool indicating whether the unsafeCharacter can participate in the channel.
 func (c *Channel) HasPermission(char *Character) bool {
 	if len(c.RequirePermission) > 0 {
 		return char.HasPermission(c.RequirePermission)
@@ -66,7 +66,7 @@ func (c *Channel) HasPermission(char *Character) bool {
 }
 
 // Broadcast sends a message to all logged-in players that have joined the channel. You can pass
-// nil as the Character if this is coming from a system rather than a particular character.
+// nil as the Character if this is coming from a system rather than a particular unsafeCharacter.
 func (c *Channel) Broadcast(from *Character, text string) {
 	var msgToOthers string
 	var msgToFrom string

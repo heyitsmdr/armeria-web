@@ -166,12 +166,12 @@ func (a *Area) Attribute(name string) string {
 	return a.UnsafeAttributes[name]
 }
 
-// CharacterEntered is called when the character is moved into the area (or logged in).
+// CharacterEntered is called when the unsafeCharacter is moved into the area (or logged in).
 func (a *Area) CharacterEntered(c *Character, causedByLogin bool) {
 	c.Player().client.SyncMap()
 }
 
-// CharacterLeft is called when the character left the area (or logged out).
+// CharacterLeft is called when the unsafeCharacter left the area (or logged out).
 func (a *Area) CharacterLeft(c *Character, causedByLogout bool) {
 
 }

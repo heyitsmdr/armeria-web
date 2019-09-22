@@ -8,7 +8,7 @@ import (
 )
 
 // ObjectContainer is a container of game objects that can be persisted to disk. These can be used for
-// things in a room, a character's inventory, a chest, etc.
+// things in a room, a unsafeCharacter's inventory, a chest, etc.
 type ObjectContainer struct {
 	sync.RWMutex
 	UnsafeObjects    []*ObjectContainerDefinition `json:"objects"`

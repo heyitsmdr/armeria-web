@@ -86,7 +86,7 @@ func migrateCharacters(to int) {
 			c.UnsafeSettings = map[string]string{}
 		}
 
-		Armeria.log.Info("character migration successful",
+		Armeria.log.Info("unsafeCharacter migration successful",
 			zap.String("name", c.UnsafeName),
 		)
 	}

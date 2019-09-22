@@ -21,6 +21,7 @@ type GameState struct {
 	worldManager     *WorldManager
 	mobManager       *MobManager
 	itemManager      *ItemManager
+	convoManager     *ConversationManager
 	registry         *Registry
 	channels         map[string]*Channel
 	publicPath       string
@@ -66,6 +67,7 @@ func Init(configFilePath string, serveTraffic bool) {
 	Armeria.mobManager = NewMobManager()
 	Armeria.itemManager = NewItemManager()
 	Armeria.channels = NewChannels()
+	Armeria.convoManager = NewConversationManager()
 
 	Armeria.github = github.New()
 

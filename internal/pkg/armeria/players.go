@@ -53,11 +53,11 @@ func (m *PlayerManager) DisconnectPlayer(p *Player) {
 	}
 
 	if p.character != nil {
-		// Notify character of logout
+		// Notify unsafeCharacter of logout
 		p.character.LoggedOut()
-		// Unset parent from character
+		// Unset parent from unsafeCharacter
 		p.character.SetPlayer(nil)
-		// Unset character from parent
+		// Unset unsafeCharacter from parent
 		p.AttachCharacter(nil)
 	}
 

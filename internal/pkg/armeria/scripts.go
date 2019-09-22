@@ -66,7 +66,7 @@ func LuaSleep(L *lua.LState) int {
 	return 0
 }
 
-// LuaCharacterAttribute (c_attr) retrieves a permanent or temporary character attribute.
+// LuaCharacterAttribute (c_attr) retrieves a permanent or temporary unsafeCharacter attribute.
 func LuaCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
@@ -89,7 +89,7 @@ func LuaCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
-// LuaSetCharacterAttribute (c_set_attr) sets a permanent or temporary character attribute.
+// LuaSetCharacterAttribute (c_set_attr) sets a permanent or temporary unsafeCharacter attribute.
 func LuaSetCharacterAttribute(L *lua.LState) int {
 	character := L.ToString(1)
 	attr := L.ToString(2)
@@ -130,7 +130,7 @@ func LuaItemName(L *lua.LState) int {
 	return 1
 }
 
-// LuaInventoryGive (inv_give) gives an item to a character from the mob's inventory.
+// LuaInventoryGive (inv_give) gives an item to a unsafeCharacter from the mob's inventory.
 func LuaInventoryGive(L *lua.LState) int {
 	cuuid := L.ToString(1)
 	iuuid := L.ToString(2)
@@ -194,18 +194,78 @@ func LuaInventoryGive(L *lua.LState) int {
 	return 0
 }
 
+// LuaStartConvo (start_convo) starts a new conversation and begins conversation ticks.
+func LuaStartConvo(L *lua.LState) int {
+	cuuid := lua.LVAsString(L.GetGlobal("invoker_uuid"))
+	muuid := lua.LVAsString(L.GetGlobal("mob_uuid"))
+
+	var c *Character
+	var mi *MobInstance
+
+	if o, rt := Armeria.registry.Get(cuuid); rt == RegistryTypeCharacter {
+		c = o.(*Character)
+	} else {
+		return 0
+	}
+
+	if o, rt := Armeria.registry.Get(muuid); rt == RegistryTypeMobInstance {
+		mi = o.(*MobInstance)
+	} else {
+		return 0
+	}
+
+	if !c.Online() {
+		return 0
+	}
+
+	// check if the unsafeCharacter is already in a conversation; cancel it if so
+	if c.MobConvo() != nil {
+		c.MobConvo().Cancel()
+	}
+
+	convo := Armeria.convoManager.NewConversation()
+	convo.SetCharacter(c)
+	convo.SetMobInstance(mi)
+	c.SetMobConvo(convo)
+	convo.Start()
+
+	return 0
+}
+
+// LuaEndConvo (end_convo) ends a conversation and stops conversation ticks.
+func LuaEndConvo(L *lua.LState) int {
+	cuuid := lua.LVAsString(L.GetGlobal("invoker_uuid"))
+
+	var c *Character
+
+	if o, rt := Armeria.registry.Get(cuuid); rt == RegistryTypeCharacter {
+		c = o.(*Character)
+	} else {
+		return 0
+	}
+
+	if c.MobConvo() != nil {
+		c.MobConvo().Cancel()
+	}
+
+	return 0
+}
+
 // CallMobFunc handles executing mob scripts within the Lua environment.
 func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...lua.LValue) {
 	L := lua.NewState()
 	defer L.Close()
 
 	// global variables
+	L.SetGlobal("invoker_uuid", lua.LString(invoker.ID()))
 	L.SetGlobal("invoker_name", lua.LString(invoker.Name()))
 	L.SetGlobal("mob_uuid", lua.LString(mi.UUID))
 	L.SetGlobal("mob_name", lua.LString(mi.Name()))
 	// global functions
 	L.SetGlobal("say", L.NewFunction(LuaMobSay))
 	L.SetGlobal("sleep", L.NewFunction(LuaSleep))
+	L.SetGlobal("start_convo", L.NewFunction(LuaStartConvo))
+	L.SetGlobal("end_convo", L.NewFunction(LuaEndConvo))
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 	L.SetGlobal("i_name", L.NewFunction(LuaItemName))

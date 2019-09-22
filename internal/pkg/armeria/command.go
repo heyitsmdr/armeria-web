@@ -151,8 +151,8 @@ func (cmd *Command) LogCtx(ctx *CommandContext) {
 		c = ctx.Character.Name()
 	}
 
-	Armeria.log.Info("character executed command",
-		zap.String("character", c),
+	Armeria.log.Info("unsafeCharacter executed command",
+		zap.String("unsafeCharacter", c),
 		zap.String("command", ctx.Command.Name),
 		zap.Strings("arguments", args),
 	)

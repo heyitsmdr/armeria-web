@@ -24,6 +24,7 @@ type Character struct {
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	UnsafeLastSeen       time.Time         `json:"lastSeen"`
+	UnsafeMobConvo       *Conversation     `json:"-"`
 	player               *Player
 }
 
@@ -51,14 +52,14 @@ const (
 	PronounObjective
 )
 
-// ValidSettings returns all valid settings for a character.
+// ValidSettings returns all valid settings for a unsafeCharacter.
 func ValidSettings() []string {
 	return []string{
 		SettingBrief,
 	}
 }
 
-// SettingDesc is used to retrieve the description of a character setting.
+// SettingDesc is used to retrieve the description of a unsafeCharacter setting.
 func SettingDesc(name string) string {
 	switch name {
 	case SettingBrief:
@@ -88,11 +89,11 @@ func (c *Character) Init() {
 	c.UnsafeInventory.AttachParent(c, ContainerParentTypeCharacter)
 	// sync container
 	c.UnsafeInventory.Sync()
-	// register the character with registry
+	// register the unsafeCharacter with registry
 	Armeria.registry.Register(c, c.ID(), RegistryTypeCharacter)
 }
 
-// ID returns the uuid of the character.
+// ID returns the uuid of the unsafeCharacter.
 func (c *Character) ID() string {
 	return c.UUID
 }
@@ -102,21 +103,21 @@ func (c *Character) Type() ContainerObjectType {
 	return ContainerObjectTypeCharacter
 }
 
-// Name returns the raw character name.
+// Name returns the raw unsafeCharacter name.
 func (c *Character) Name() string {
 	c.RLock()
 	defer c.RUnlock()
 	return c.UnsafeName
 }
 
-// FormattedName returns the formatted character name.
+// FormattedName returns the formatted unsafeCharacter name.
 func (c *Character) FormattedName() string {
 	c.RLock()
 	defer c.RUnlock()
 	return TextStyle(c.UnsafeName, TextStyleBold)
 }
 
-// FormattedNameWithTitle returns the formatted character name including the character's title (if set).
+// FormattedNameWithTitle returns the formatted unsafeCharacter name including the unsafeCharacter's title (if set).
 func (c *Character) FormattedNameWithTitle() string {
 	c.RLock()
 	defer c.RUnlock()
@@ -158,7 +159,7 @@ func (c *Character) SetPassword(pw string) {
 	c.UnsafePassword = string(hash)
 }
 
-// PasswordHash returns the character's already-encrypted password as an md5 hash.
+// PasswordHash returns the unsafeCharacter's already-encrypted password as an md5 hash.
 func (c *Character) PasswordHash() string {
 	c.RLock()
 	defer c.RUnlock()
@@ -167,7 +168,7 @@ func (c *Character) PasswordHash() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
-// Inventory returns the character's inventory.
+// Inventory returns the unsafeCharacter's inventory.
 func (c *Character) Inventory() *ObjectContainer {
 	c.RLock()
 	defer c.RUnlock()
@@ -175,7 +176,7 @@ func (c *Character) Inventory() *ObjectContainer {
 	return c.UnsafeInventory
 }
 
-// Player returns the parent that is playing the character.
+// Player returns the parent that is playing the unsafeCharacter.
 func (c *Character) Player() *Player {
 	c.RLock()
 	defer c.RUnlock()
@@ -183,7 +184,7 @@ func (c *Character) Player() *Player {
 	return c.player
 }
 
-// SetPlayer sets the parent that is playing the character.
+// SetPlayer sets the parent that is playing the unsafeCharacter.
 func (c *Character) SetPlayer(p *Player) {
 	c.Lock()
 	defer c.Unlock()
@@ -191,7 +192,23 @@ func (c *Character) SetPlayer(p *Player) {
 	c.player = p
 }
 
-// Room returns the character's Room based on the object container it is within.
+// MobConvo returns the active mob conversation for the unsafeCharacter.
+func (c *Character) MobConvo() *Conversation {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.UnsafeMobConvo
+}
+
+// SetMobConvo sets the active mob conversation with the unsafeCharacter.
+func (c *Character) SetMobConvo(convo *Conversation) {
+	c.Lock()
+	defer c.Unlock()
+
+	c.UnsafeMobConvo = convo
+}
+
+// Room returns the unsafeCharacter's Room based on the object container it is within.
 func (c *Character) Room() *Room {
 	oc := Armeria.registry.GetObjectContainer(c.ID())
 	if oc == nil {
@@ -200,7 +217,7 @@ func (c *Character) Room() *Room {
 	return oc.ParentRoom()
 }
 
-// Colorize will color text according to the character's color settings.
+// Colorize will color text according to the unsafeCharacter's color settings.
 func (c *Character) Colorize(text string, color int) string {
 	c.RLock()
 	defer c.RUnlock()
@@ -235,34 +252,34 @@ func (c *Character) Colorize(text string, color int) string {
 	}
 }
 
-// LastSeen returns the Time the character last successfully logged into the game.
+// LastSeen returns the Time the unsafeCharacter last successfully logged into the game.
 func (c *Character) LastSeen() time.Time {
 	c.RLock()
 	defer c.RUnlock()
 	return c.UnsafeLastSeen
 }
 
-// SetLastSeen sets the time the character last logged into the game.
+// SetLastSeen sets the time the unsafeCharacter last logged into the game.
 func (c *Character) SetLastSeen(seen time.Time) {
 	c.Lock()
 	defer c.Unlock()
 	c.UnsafeLastSeen = seen
 }
 
-// LoggedIn handles everything that needs to happen when a character enters the game.
+// LoggedIn handles everything that needs to happen when a unsafeCharacter enters the game.
 func (c *Character) LoggedIn() {
 	room := c.Room()
 	area := c.Room().ParentArea
 
-	// Add character to room
+	// Add unsafeCharacter to room
 	if room == nil || area == nil {
-		Armeria.log.Fatal("character logged into an invalid area/room",
-			zap.String("character", c.Name()),
+		Armeria.log.Fatal("unsafeCharacter logged into an invalid area/room",
+			zap.String("unsafeCharacter", c.Name()),
 		)
 		return
 	}
 
-	// Show server / character info
+	// Show server / unsafeCharacter info
 	c.Player().client.ShowText(
 		fmt.Sprintf(
 			"The server has been running for %s.\n"+
@@ -293,20 +310,20 @@ func (c *Character) LoggedIn() {
 	c.Player().client.SyncPermissions()
 	c.Player().client.SyncPlayerInfo()
 
-	Armeria.log.Info("character entered the game",
-		zap.String("character", c.Name()),
+	Armeria.log.Info("unsafeCharacter entered the game",
+		zap.String("unsafeCharacter", c.Name()),
 	)
 }
 
-// LoggedOut handles everything that needs to happen when a character leaves the game.
+// LoggedOut handles everything that needs to happen when a unsafeCharacter leaves the game.
 func (c *Character) LoggedOut() {
 	room := c.Room()
 	area := c.Room().ParentArea
 
-	// Remove character from room
+	// Remove unsafeCharacter from room
 	if room == nil || area == nil {
-		Armeria.log.Fatal("character logged out of an invalid area/room",
-			zap.String("character", c.Name()),
+		Armeria.log.Fatal("unsafeCharacter logged out of an invalid area/room",
+			zap.String("unsafeCharacter", c.Name()),
 		)
 		return
 	}
@@ -327,8 +344,13 @@ func (c *Character) LoggedOut() {
 		delete(c.UnsafeTempAttributes, key)
 	}
 
-	Armeria.log.Info("character left the game",
-		zap.String("character", c.Name()),
+	// Stop any on-going mob conversations
+	if c.MobConvo() != nil {
+		c.MobConvo().Cancel()
+	}
+
+	Armeria.log.Info("unsafeCharacter left the game",
+		zap.String("unsafeCharacter", c.Name()),
 	)
 }
 
@@ -378,7 +400,7 @@ func (c *Character) Attribute(name string) string {
 	return c.UnsafeAttributes[name]
 }
 
-// SetSetting sets a character setting and only valid settings can be set.
+// SetSetting sets a unsafeCharacter setting and only valid settings can be set.
 func (c *Character) SetSetting(name string, value string) error {
 	c.Lock()
 	defer c.Unlock()
@@ -419,13 +441,13 @@ func (c *Character) MoveAllowed(r *Room) (bool, string) {
 	return true, ""
 }
 
-// Move will move the character to a new location (no move checks are performed).
+// Move will move the unsafeCharacter to a new location (no move checks are performed).
 func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.Room()
 
 	oldRoom.Here().Remove(c.ID())
 	if err := to.Here().Add(c.ID()); err != nil {
-		Armeria.log.Fatal("error adding character to destination room")
+		Armeria.log.Fatal("error adding unsafeCharacter to destination room")
 	}
 
 	for _, char := range oldRoom.Here().Characters(true) {
@@ -447,6 +469,11 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 
 	oldRoom.CharacterEntered(c, false)
 	to.CharacterEntered(c, false)
+
+	// Stop any on-going mob conversations
+	if c.MobConvo() != nil {
+		c.MobConvo().Cancel()
+	}
 }
 
 // EditorData returns the JSON used for the object editor.
@@ -468,7 +495,7 @@ func (c *Character) EditorData() *ObjectEditorData {
 	return &ObjectEditorData{
 		UUID:       c.ID(),
 		Name:       c.Name(),
-		ObjectType: "character",
+		ObjectType: "unsafeCharacter",
 		Properties: props,
 	}
 }
@@ -482,7 +509,7 @@ func (c *Character) HasPermission(p string) bool {
 	return misc.Contains(perms, p)
 }
 
-// Channels returns the Channel objects for the channels this character is within.
+// Channels returns the Channel objects for the channels this unsafeCharacter is within.
 func (c *Character) Channels() []*Channel {
 	var channels []*Channel
 
@@ -538,7 +565,7 @@ func (c *Character) InventoryJSON() string {
 	inventoryJSON, err := json.Marshal(inventory)
 	if err != nil {
 		Armeria.log.Fatal("failed to marshal inventory data",
-			zap.String("character", c.UUID),
+			zap.String("unsafeCharacter", c.UUID),
 			zap.Error(err),
 		)
 	}

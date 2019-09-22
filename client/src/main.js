@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "production") {
 Vue.use(VueNativeSock, connectionString, { store: store, format: 'json' })
 Vue.use(SFX)
 
-new Vue({
+window.Armeria = new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
