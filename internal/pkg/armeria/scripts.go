@@ -251,6 +251,25 @@ func LuaEndConvo(L *lua.LState) int {
 	return 0
 }
 
+// LuaRoomText (room_text) sends arbitrary text to the room.
+func LuaRoomText(L *lua.LState) int {
+	text := L.ToString(1)
+	muuid := lua.LVAsString(L.GetGlobal("mob_uuid"))
+
+	var mi *MobInstance
+	if o, rt := Armeria.registry.Get(muuid); rt == RegistryTypeMobInstance {
+		mi = o.(*MobInstance)
+	} else {
+		return 0
+	}
+
+	for _, c := range mi.Room().Here().Characters(true) {
+		c.Player().client.ShowText(text)
+	}
+
+	return 0
+}
+
 // CallMobFunc handles executing mob scripts within the Lua environment.
 func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...lua.LValue) {
 	L := lua.NewState()
@@ -270,6 +289,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 	L.SetGlobal("i_name", L.NewFunction(LuaItemName))
 	L.SetGlobal("inv_give", L.NewFunction(LuaInventoryGive))
+	L.SetGlobal("room_text", L.NewFunction(LuaRoomText))
 
 	err := L.DoFile(mi.Parent.ScriptFile())
 	if err != nil {

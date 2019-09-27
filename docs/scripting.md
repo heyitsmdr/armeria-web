@@ -8,13 +8,16 @@
 * Function: [inv_give](#inv_givecharacter_uuid-item_uuid)
 * Function: [say](#saytext)
 * Function: [sleep](#sleepduration)
+* Function: [start_convo](#start_convo)
+* Function: [end_convo](#end_convo)
+* Function: [room_text](#room_texttext)
 
 * Event: [character_entered](#character_enteredcharacter_name)
 * Event: [character_left](#character_leftcharacter_name)
 * Event: [character_said](#character_saidcharacter_name-text)
 * Event: [received_item](#received_itemcharacter_name-uuid)
+* Event: [conversation_tick](#conversation_ticktick_count)
 
-)
 ## Functions
 
 ### c_attr(character_name, attribute, temp)
@@ -77,6 +80,22 @@ The mob will say `text` in the same room it's in. All other characters in the ro
 
 Delays the mob script for a particular duration.
 
+### start_convo()
+
+Starts a conversation with a character causing the `conversation_tick` event to fire every second. Note that if a
+character moves or logs off, the conversation will be automatically ended.
+
+### end_convo()
+
+Ends a conversation with a character stopping the `conversation_tick` event from firing.
+
+### room_text(text)
+
+**Arguments**:
+* `text` `(string)`: text to send to the room
+
+Sends arbitrary text to the same room the Mob is within. Useful for conversations.
+
 ## Events
 
 ### character_entered(character_name)
@@ -110,3 +129,12 @@ Triggered when a character says something in the room.
 * `item_uuid` `(string)`: object uuid of received item
     
 Triggered when a character gives an item to a mob.
+
+### conversation_tick(tick_count)
+
+**Parameters**:
+* `tick_count` `(int)`: current tick count after conversation started
+    
+Triggered every second after a conversation with a character is started. The `tick_count` will be set to the number of
+ticks (seconds) that have passed since the start of the convo allowing you to time out events that may occur during
+a conversation. You can use the global variable `invoker_uuid` to get the Character UUID that the conversation is with.
