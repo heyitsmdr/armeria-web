@@ -30,7 +30,7 @@ func handleLoginCommand(ctx *CommandContext) {
 		}
 
 		if c.PasswordHash() != sections[1] {
-			ctx.Player.client.ShowColorizedText("Invalid token for that unsafeCharacter.", ColorError)
+			ctx.Player.client.ShowColorizedText("Invalid token for that character.", ColorError)
 			return
 		}
 	} else {
@@ -48,12 +48,12 @@ func handleLoginCommand(ctx *CommandContext) {
 	}
 
 	if c.Player() != nil {
-		ctx.Player.client.ShowColorizedText("This unsafeCharacter is already logged in.", ColorError)
+		ctx.Player.client.ShowColorizedText("This character is already logged in.", ColorError)
 		return
 	}
 
 	if c.Room() == nil {
-		ctx.Player.client.ShowColorizedText("This unsafeCharacter logged out of a room which no longer exists.", ColorError)
+		ctx.Player.client.ShowColorizedText("This character logged out of a room which no longer exists.", ColorError)
 		return
 	}
 

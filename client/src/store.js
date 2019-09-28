@@ -23,6 +23,7 @@ export default new Vuex.Store({
     itemBeingDragged: false,
     permissions: [],
     playerInfo: { uuid: '', name: '' },
+    commandHistory: [],
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -124,13 +125,19 @@ export default new Vuex.Store({
 
     SET_PLAYER_INFO: (state, playerInfo) => {
       state.playerInfo = playerInfo;
+    },
+
+    APPEND_COMMAND_HISTORY: (state, command) => {
+      state.commandHistory.push(command);
     }
   },
   actions: {
-    sendSlashCommand: ({ state }, payload) => {
+    sendSlashCommand: ({ state , commit }, payload) => {
       if (!state.isConnected) {
         return;
       }
+
+      commit('APPEND_COMMAND_HISTORY', payload.command);
 
       Vue.prototype.$socket.sendObj({
         type: "command",

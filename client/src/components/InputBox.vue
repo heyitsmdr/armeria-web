@@ -7,7 +7,7 @@
                 v-model="textToSend"
                 @keyup.enter="handleSendText"
                 @keyup.escape="handleRemoveFocus"
-                @keypress="handleKeyPress"
+                @keydown="handleKeyDown"
                 @focus="handleFocus"
                 @blur="handleBlur"
         />
@@ -27,9 +27,10 @@
                 textToSend: '',
                 password: '',
                 isFocused: false,
+                lastCommandHistoryIndex: -1,
             }
         },
-        computed: mapState(['objectEditorOpen', 'forceInputFocus']),
+        computed: mapState(['objectEditorOpen', 'forceInputFocus', 'commandHistory']),
         mounted() {
             this.$refs['inputBox'].focus();
         },
@@ -55,6 +56,38 @@
                 }
 
                 return false;
+            },
+
+            selectAll: function() {
+                this.$refs['inputBox'].select();
+            },
+
+            getLastCommand() {
+                let retrieveIndex = 0;
+
+                if (this.lastCommandHistoryIndex === -1) {
+                    retrieveIndex = this.commandHistory.length - 1;
+                    this.lastCommandHistoryIndex = retrieveIndex;
+                } else if (this.lastCommandHistoryIndex > 0) {
+                    retrieveIndex = this.lastCommandHistoryIndex - 1;
+                    this.lastCommandHistoryIndex = retrieveIndex
+                }
+
+                return this.commandHistory[retrieveIndex];
+            },
+
+            getNextCommand() {
+                let retrieveIndex = this.lastCommandHistoryIndex;
+
+                if (retrieveIndex === -1) {
+                    retrieveIndex = this.commandHistory.length - 1;
+                    this.lastCommandHistoryIndex = retrieveIndex;
+                } else if (this.lastCommandHistoryIndex < (this.commandHistory.length - 1)) {
+                    retrieveIndex = this.lastCommandHistoryIndex + 1;
+                    this.lastCommandHistoryIndex = retrieveIndex
+                }
+
+                return this.commandHistory[retrieveIndex];
             },
 
             handleSendText() {
@@ -83,6 +116,7 @@
 
 
                 this.textToSend = '';
+                this.lastCommandHistoryIndex = -1;
             },
 
             handleRemoveFocus(event) {
@@ -99,10 +133,19 @@
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
             },
 
-            // TODO: Add functionality to be able to handle a backspace press (might only be on keyDown)
-            handleKeyPress(e) {
-                if (this.textToSend.substr(0, 6).toLowerCase() === '/login' && this.textToSend.split(" ").length === 3) {
-                    if (e.key !== 'Enter') {
+            handleKeyDown(e) {
+                if (e.key === 'ArrowUp') {
+                    this.textToSend = this.getLastCommand();
+                    setTimeout(this.selectAll, 10);
+                } else if (e.key === 'ArrowDown') {
+                    this.textToSend = this.getNextCommand();
+                    setTimeout(this.selectAll, 10);
+                } else if (this.textToSend.substr(0, 6).toLowerCase() === '/login' && this.textToSend.split(" ").length === 3) {
+                    if (e.key === 'Backspace') {
+                        this.password = this.password.slice(0, this.password.length - 1);
+                        this.textToSend = this.textToSend.slice(0, this.textToSend.length - 1);
+                        this.textToSend += "*";
+                    } else if (e.key !== 'Enter' && e.key !== 'Escape') {
                         e.preventDefault();
                         e.stopPropagation();
                         this.password += e.key;
