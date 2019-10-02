@@ -14,6 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// A Character is the player's logged in character.
 type Character struct {
 	sync.RWMutex
 	UUID                 string            `json:"uuid"`
@@ -28,8 +29,10 @@ type Character struct {
 	player               *Player
 }
 
+// PronounType is used to determine the correct pronoun (he/she etc.)
 type PronounType int
 
+// Character constants
 const (
 	ColorRoomTitle int = iota
 	ColorSay
@@ -340,7 +343,7 @@ func (c *Character) LoggedOut() {
 	room.CharacterLeft(c, true)
 
 	// Clear temp attributes
-	for key, _ := range c.UnsafeTempAttributes {
+	for key := range c.UnsafeTempAttributes {
 		delete(c.UnsafeTempAttributes, key)
 	}
 
@@ -532,6 +535,7 @@ func (c *Character) InChannel(ch *Channel) bool {
 	return misc.Contains(strings.Split(strings.ToLower(channelsString), ","), strings.ToLower(ch.Name))
 }
 
+// Online is used to see if the character is online.
 func (c *Character) Online() bool {
 	return c.Player() != nil
 }
@@ -573,6 +577,7 @@ func (c *Character) InventoryJSON() string {
 	return string(inventoryJSON)
 }
 
+// Pronoun is used to determine the appropriate pronoun for the character.
 func (c *Character) Pronoun(pt PronounType) string {
 	gender := c.Attribute(AttributeGender)
 	if gender == "male" {
