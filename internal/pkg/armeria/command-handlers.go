@@ -379,7 +379,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		return
 	}
 
-	oldAreaUUID := ctx.Character.Room().ParentArea.Id()
+	oldAreaUUID := ctx.Character.Room().ParentArea.ID()
 	ctx.Character.Move(
 		newRoom,
 		ctx.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
@@ -387,7 +387,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		ctx.Character.Colorize(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), arriveDir), ColorMovement),
 	)
 
-	if newRoom.ParentArea.Id() != oldAreaUUID {
+	if newRoom.ParentArea.ID() != oldAreaUUID {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("You've just entered %s.", TextStyle(newRoom.ParentArea.Name(), TextStyleBold)),
 			ColorMovementAlt,

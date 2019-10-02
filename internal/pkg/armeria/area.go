@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Area is a container for rooms.
 type Area struct {
 	sync.RWMutex
 	UUID             string            `json:"uuid"`
@@ -17,6 +18,7 @@ type Area struct {
 	UnsafeAttributes map[string]string `json:"attributes"`
 }
 
+// Direction strings.
 const (
 	NorthDirection = "north"
 	SouthDirection = "south"
@@ -28,20 +30,20 @@ const (
 
 // Init is called when the Area is created or loaded from disk.
 func (a *Area) Init() {
-	Armeria.registry.Register(a, a.Id(), RegistryTypeArea)
+	Armeria.registry.Register(a, a.ID(), RegistryTypeArea)
 }
 
 // Deinit is called when the Area is deleted.
 func (a *Area) Deinit() {
-	Armeria.registry.Unregister(a.Id())
+	Armeria.registry.Unregister(a.ID())
 }
 
 // ID returns the UUID of the Area.
-func (a *Area) Id() string {
+func (a *Area) ID() string {
 	return a.UUID
 }
 
-// UnsafeName returns the name of the area.
+// Name returns the name of the area.
 func (a *Area) Name() string {
 	a.RLock()
 	defer a.RUnlock()
@@ -111,12 +113,12 @@ func (a *Area) MinimapJSON() string {
 		"rooms": rooms,
 	}
 
-	mapJson, err := json.Marshal(minimap)
+	mapJSON, err := json.Marshal(minimap)
 	if err != nil {
 		log.Fatalf("[area] failed to marshal minimap data: %s", err)
 	}
 
-	return string(mapJson)
+	return string(mapJSON)
 
 }
 
@@ -132,7 +134,7 @@ func (a *Area) EditorData() *ObjectEditorData {
 	}
 
 	return &ObjectEditorData{
-		UUID:       a.Id(),
+		UUID:       a.ID(),
 		Name:       a.Name(),
 		ObjectType: "area",
 		Properties: props,
@@ -186,6 +188,7 @@ func (a *Area) AddRoom(r *Room) {
 	a.UnsafeRooms = append(a.UnsafeRooms, r)
 }
 
+// RemoveRoom removes a room.
 func (a *Area) RemoveRoom(r *Room) {
 	a.Lock()
 	defer a.Unlock()
