@@ -462,7 +462,7 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 
 	oldArea := oldRoom.ParentArea
 	newArea := to.ParentArea
-	if oldArea.Id() != newArea.Id() {
+	if oldArea.ID() != newArea.ID() {
 		oldArea.CharacterLeft(c, false)
 		newArea.CharacterEntered(c, false)
 	}
