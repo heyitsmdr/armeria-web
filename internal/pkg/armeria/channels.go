@@ -14,6 +14,7 @@ type Channel struct {
 	RequirePermission string
 }
 
+// Channels constants.
 const (
 	ChannelGeneral  string = "general"
 	ChannelCore     string = "core"

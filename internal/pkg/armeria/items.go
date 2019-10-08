@@ -10,12 +10,14 @@ import (
 	"go.uber.org/zap"
 )
 
+// ItemManager holds all items found in the server data.
 type ItemManager struct {
 	sync.RWMutex
 	dataFile    string
 	UnsafeItems []*Item `json:"items"`
 }
 
+// NewItemManager creates a new ItemManager.
 func NewItemManager() *ItemManager {
 	m := &ItemManager{
 		dataFile: fmt.Sprintf("%s/items.json", Armeria.dataPath),
@@ -122,8 +124,8 @@ func (m *ItemManager) ItemByName(name string) *Item {
 	return nil
 }
 
-// ItemInstanceById returns the matching ItemInstance, by uuid.
-func (m *ItemManager) ItemInstanceById(uuid string) *ItemInstance {
+// ItemInstanceByID returns the matching ItemInstance, by uuid.
+func (m *ItemManager) ItemInstanceByID(uuid string) *ItemInstance {
 	m.RLock()
 	defer m.RUnlock()
 
