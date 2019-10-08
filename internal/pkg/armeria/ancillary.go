@@ -2,6 +2,8 @@ package armeria
 
 import "go.uber.org/zap"
 
+// searchForDanglingInstances searches for mob and item instances in the database that that have no valid container
+// parent. The instances are wiped from the registry and on the next database save, will be removed from the database.
 func searchForDanglingInstances() {
 	var mobsAndItems []interface{}
 
