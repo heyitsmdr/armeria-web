@@ -12,6 +12,7 @@ type ConversationManager struct {
 	unsafeConversations []*Conversation
 }
 
+// Conversation is a struct that represents a Character conversing with a MobInstance.
 type Conversation struct {
 	sync.RWMutex
 	unsafeCharacter   *Character
