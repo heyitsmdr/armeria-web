@@ -8,10 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
+// ClientActions is a struct that references a Player and can send data to the client to trigger client-based
+// actions within the Vuex store.
 type ClientActions struct {
 	parent *Player
 }
 
+// ObjectEditorData is a struct that contains the json fields for the Object Editor on the client.
 type ObjectEditorData struct {
 	UUID       string                      `json:"uuid"`
 	Name       string                      `json:"name"`
@@ -21,6 +24,8 @@ type ObjectEditorData struct {
 	TextCoords string                      `json:"textCoords"`
 }
 
+// ObjectEditorDataProperty is a struct that contains the json fields for each individual property within the
+// Object Editor.
 type ObjectEditorDataProperty struct {
 	Name        string `json:"name"`
 	Value       string `json:"value"`
@@ -28,6 +33,7 @@ type ObjectEditorDataProperty struct {
 	PropType    string `json:"propType"`
 }
 
+// NewClientActions returns a new instance of the ClientActions struct.
 func NewClientActions(p *Player) ClientActions {
 	return ClientActions{
 		parent: p,
