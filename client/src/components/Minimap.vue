@@ -143,7 +143,7 @@
                 }
 
                 lineGraphics
-                    .lineStyle(lineWidth, 0xffffff)
+                    .lineStyle(lineWidth, 0xdddddd)
                     .moveTo(startX, startY)
                     .lineTo(endX, endY);
             },
@@ -217,6 +217,21 @@
                     switch (room.type) {
                         case 'track':
                             file = './gfx/trackTile.png';
+                            break;
+                        case 'bank':
+                            file = './gfx/bankTile.png';
+                            break;
+                        case 'armor':
+                            file = './gfx/armorTile.png';
+                            break;
+                        case 'sword':
+                            file = './gfx/swordTile.png';
+                            break;
+                        case 'home':
+                            file = './gfx/homeTile.png';
+                            break;
+                        case 'wand':
+                            file = './gfx/wandTile.png';
                             break;
                         default:
                             file = './gfx/baseTile.png';
