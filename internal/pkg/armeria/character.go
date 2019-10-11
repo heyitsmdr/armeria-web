@@ -498,7 +498,7 @@ func (c *Character) EditorData() *ObjectEditorData {
 	return &ObjectEditorData{
 		UUID:       c.ID(),
 		Name:       c.Name(),
-		ObjectType: "unsafeCharacter",
+		ObjectType: "character",
 		Properties: props,
 	}
 }
