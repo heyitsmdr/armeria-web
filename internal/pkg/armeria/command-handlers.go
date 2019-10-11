@@ -1427,7 +1427,7 @@ func handleGetCommand(ctx *CommandContext) {
 	istring := ctx.Args["item"]
 
 	roomObjects := ctx.Character.Room().Here()
-	o, _, rt := roomObjects.GetByName(istring)
+	o, _, rt := roomObjects.GetByUUIDOrName(istring)
 	if o == nil {
 		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
 		return

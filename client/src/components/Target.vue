@@ -106,7 +106,7 @@ export default {
 
         handleDoubleClick: function() {
             if (this.objectType === OBJECT_TYPE_ITEM) {
-                this.$socket.sendObj({ type: 'command', payload: '/get ' + this.name });
+                this.$socket.sendObj({ type: 'command', payload: '/get ' + this.uuid });
                 this.$store.dispatch('setObjectTarget', '');
                 this.$soundEvent(PICKUP_ITEM);
             }
