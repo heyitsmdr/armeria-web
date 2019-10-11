@@ -1,6 +1,7 @@
 module armeria
 
 require (
+	code.cloudfoundry.org/bytefmt v0.0.0-20190819182555-854d396b647c
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-github/v28 v28.0.1
@@ -9,6 +10,8 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/websocket v1.4.1
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/onsi/ginkgo v1.10.2 // indirect
+	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20190514113301-1cd887cd7036

@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
+	"code.cloudfoundry.org/bytefmt"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type Player struct {
@@ -33,7 +33,7 @@ func (p *Player) readPump() {
 	defer Armeria.playerManager.DisconnectPlayer(p)
 
 	// Set max size of a single message to 512KB
-	p.socket.SetReadLimit(512000)
+	p.socket.SetReadLimit(512 * bytefmt.KILOBYTE)
 
 	for {
 		messageRead := &IncomingDataStructure{}
