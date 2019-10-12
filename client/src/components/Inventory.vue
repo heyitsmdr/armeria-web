@@ -8,7 +8,6 @@
                     :slotNum="item.slot"
                     :pictureKey="item.picture"
                     :color="item.color"
-                    :tooltipData="item.tooltip"
             />
         </div>
         <div class="currency-container">

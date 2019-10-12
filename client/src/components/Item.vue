@@ -27,7 +27,7 @@
 
     export default {
         name: 'Item',
-        props: ['uuid', 'slotNum', 'pictureKey', 'tooltipData', 'color', 'equipped'],
+        props: ['uuid', 'slotNum', 'pictureKey', 'color', 'equipped'],
         computed: mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
         mounted: function () {
             this.$refs['item'].classList.add('equipped');
