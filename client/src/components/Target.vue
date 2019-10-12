@@ -106,9 +106,7 @@ export default {
         },
 
         handleMouseLeave: function() {
-            if (this.itemTooltipVisible) {
-                this.$store.dispatch('hideItemTooltip');
-            }
+            this.hideTooltip();
         },
         handleMouseDown: function() {
             this.$refs['container'].classList.add('mouse-down');
@@ -132,11 +130,18 @@ export default {
             this.$store.dispatch('setObjectTarget', this.uuid);
         },
 
+        hideTooltip: function() {
+            if (this.itemTooltipVisible) {
+                this.$store.dispatch('hideItemTooltip');
+            }
+        },
+
         handleDoubleClick: function() {
             if (this.objectType === OBJECT_TYPE_ITEM) {
                 this.$socket.sendObj({ type: 'command', payload: '/get ' + this.uuid });
                 this.$store.dispatch('setObjectTarget', '');
                 this.$soundEvent(PICKUP_ITEM);
+                this.hideTooltip();
             }
         },
 
