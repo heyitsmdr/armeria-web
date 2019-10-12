@@ -20,8 +20,10 @@
             </div>
             <div
                 class="overlay"
+                @mousemove="handleMouseMove"
                 @mousedown="handleMouseDown"
                 @mouseup="handleMouseUp"
+                @mouseleave="handleMouseLeave"
                 @dblclick="handleDoubleClick"
                 @contextmenu.stop.prevent="onContextMenu"
                 @dragenter="handleDragEnter"
@@ -43,7 +45,14 @@ import {PICKUP_ITEM} from "../plugins/SFX";
 export default {
     name: 'Target',
     props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color'],
-    computed: mapState(['isProduction', 'objectTargetUUID', 'playerInfo']),
+    computed: mapState([
+        'isProduction',
+        'objectTargetUUID',
+        'playerInfo',
+        'itemTooltipMouseCoords',
+        'itemTooltipUUID',
+        'itemTooltipVisible'
+    ]),
     watch: {
         objectTargetUUID: function(target) {
             if (this.uuid === target) {
@@ -82,6 +91,25 @@ export default {
             return `url(/oi/${this.pictureKey})`;
         },
 
+        handleMouseMove: function(e) {
+            if (this.objectType != OBJECT_TYPE_ITEM) {
+                return;
+            }
+
+            if (this.itemTooltipMouseCoords.x !== e.clientX || this.itemTooltipMouseCoords.y !== e.clientY) {
+                this.$store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
+            }
+
+            if (this.itemTooltipUUID !== this.uuid) {
+                this.$store.dispatch('showItemTooltip', this.uuid);
+            }
+        },
+
+        handleMouseLeave: function() {
+            if (this.itemTooltipVisible) {
+                this.$store.dispatch('hideItemTooltip');
+            }
+        },
         handleMouseDown: function() {
             this.$refs['container'].classList.add('mouse-down');
         },

@@ -66,7 +66,10 @@
 
                 if ((ttLeft + tt.clientWidth + 20) > window.innerWidth) {
                     ttLeft = window.innerWidth - tt.clientWidth - 20;
+                } else if (ttLeft < 10) {
+                    ttLeft = 10;
                 }
+
 
                 tt.style.top = ttTop + 'px';
                 tt.style.left = ttLeft + 'px';
