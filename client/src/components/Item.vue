@@ -18,7 +18,6 @@
         >
             <div v-if="equipped" class="equipped">equip</div>
         </div>
-        <div class="tooltip" ref="tooltip" v-html="tooltipData"></div>
     </div>
 </template>
 
@@ -29,7 +28,7 @@
     export default {
         name: 'Item',
         props: ['uuid', 'slotNum', 'pictureKey', 'tooltipData', 'color', 'equipped'],
-        computed: mapState(['isProduction']),
+        computed: mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
         mounted: function () {
             this.$refs['item'].classList.add('equipped');
         },
@@ -73,24 +72,13 @@
                     return;
                 }
 
-                const xOffset = 50;
-                const yOffset = 50;
-
-                let tt = this.$refs["tooltip"];
-                if (!tt.classList.contains('visible')) {
-                    tt.classList.add('visible');
+                if (this.itemTooltipMouseCoords.x !== e.clientX || this.itemTooltipMouseCoords.y !== e.clientY) {
+                    this.$store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
                 }
 
-                let ttTop = e.clientY - tt.clientHeight - yOffset;
-                let ttLeft = e.clientX - xOffset;
-
-                if ((ttLeft + tt.clientWidth + 20) > window.innerWidth) {
-                    ttLeft = window.innerWidth - tt.clientWidth - 20;
+                if (this.itemTooltipUUID !== this.uuid) {
+                    this.$store.dispatch('showItemTooltip', this.uuid);
                 }
-
-                tt.style.top = ttTop + 'px';
-                tt.style.left = ttLeft + 'px';
-                tt.style.borderColor = this.color;
             },
 
             handleMouseLeave: function () {
@@ -118,8 +106,9 @@
             },
 
             hideTooltip: function () {
-                let tt = this.$refs["tooltip"];
-                tt.classList.remove('visible');
+                if (this.itemTooltipVisible) {
+                    this.$store.dispatch('hideItemTooltip');
+                }
             },
 
             getBackgroundUrl() {

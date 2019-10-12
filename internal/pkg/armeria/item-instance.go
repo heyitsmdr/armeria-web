@@ -2,9 +2,12 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 // ItemInstance is an instance of an Item.
@@ -151,15 +154,27 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 	}
 }
 
-// TooltipHTML generates the HTML string to be sent to the game client for rendering the associated tooltip.
-func (ii *ItemInstance) TooltipHTML() string {
-	return fmt.Sprintf(
-		`
-			<div class="name" style="color:%s">%s</div>
-			<div class="type">%s</div>
-		`,
-		ii.RarityColor(),
-		ii.Name(),
-		ii.RarityName(),
-	)
+// TooltipContentJSON generates the HTML string to be sent to the game client in JSON format.
+func (ii *ItemInstance) TooltipContentJSON() string {
+	tt := map[string]string{
+		"uuid": ii.ID(),
+		"html": fmt.Sprintf(
+			`<div class="name" style="color:%s">%s</div>
+			<div class="type">%s</div>`,
+			ii.RarityColor(),
+			ii.Name(),
+			ii.RarityName(),
+		),
+		"rarity": ii.RarityColor(),
+	}
+
+	ttJSON, err := json.Marshal(tt)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal item tooltip content",
+			zap.String("uuid", ii.ID()),
+			zap.Error(err),
+		)
+	}
+
+	return string(ttJSON)
 }

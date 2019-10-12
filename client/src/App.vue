@@ -35,6 +35,7 @@
     <div class="status-bar-container">
       <StatusBar />
     </div>
+    <ItemTooltip />
   </div>
 </template>
 
@@ -48,6 +49,7 @@
   import Vitals from '@/components/Vitals';
   import Skills from '@/components/Skills';
   import StatusBar from '@/components/StatusBar';
+  import ItemTooltip from '@/components/ItemTooltip';
 
   export default {
     name: 'App',
@@ -59,7 +61,8 @@
       Inventory,
       Vitals,
       Skills,
-      StatusBar
+      StatusBar,
+      ItemTooltip
     },
     data: () => {
       return {

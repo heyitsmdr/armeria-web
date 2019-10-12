@@ -24,6 +24,21 @@ export default new Vuex.Store({
     permissions: [],
     playerInfo: { uuid: '', name: '' },
     commandHistory: [],
+    itemTooltipUUID: '',
+    itemTooltipVisible: false,
+    itemTooltipCache: [],
+    itemTooltipMouseCoords: { x: 0, y: 0 },
+  },
+  getters: {
+    itemTooltipCache: (state) => (uuid) => {
+      for(let i = 0; i < state.itemTooltipCache.length; i++) {
+        const cacheItem = state.itemTooltipCache[i];
+        if (cacheItem.uuid === uuid) {
+          return cacheItem;
+        }
+      }
+      return null;
+    }
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {
@@ -129,7 +144,37 @@ export default new Vuex.Store({
 
     APPEND_COMMAND_HISTORY: (state, command) => {
       state.commandHistory.push(command);
+    },
+
+    SET_ITEM_TOOLTIP_UUID: (state, uuid) => {
+      state.itemTooltipUUID = uuid;
+      state.itemTooltipVisible = true;
+    },
+
+    HIDE_ITEM_TOOLTIP: (state) => {
+      state.itemTooltipVisible = false;
+      state.itemTooltipUUID = '';
+    },
+
+    SET_ITEM_TOOLTIP_HTML: (state, data) => {
+      for(let i = 0; i < state.itemTooltipCache.length; i++) {
+        const cacheItem = state.itemTooltipCache[i];
+        if (cacheItem.uuid === data.uuid) {
+          return;
+        }
+      }
+
+      state.itemTooltipCache.push(data);
+    },
+
+    SET_ITEM_TOOLTIP_MOUSE_COORDS: (state, mouseCoords) => {
+      state.itemTooltipMouseCoords = mouseCoords;
+    },
+
+    CLEAR_ITEM_TOOLTIP_CACHE: (state) => {
+      state.itemTooltipCache = [];
     }
+
   },
   actions: {
     sendSlashCommand: ({ state , commit }, payload) => {
@@ -167,6 +212,22 @@ export default new Vuex.Store({
 
     setItemBeingDragged: ({ commit }, payload) => {
       commit('SET_ITEM_BEING_DRAGGED', payload);
+    },
+
+    showItemTooltip: ({ commit }, payload) => {
+      commit('SET_ITEM_TOOLTIP_UUID', payload);
+    },
+
+    hideItemTooltip: ({ commit }) => {
+      commit('HIDE_ITEM_TOOLTIP');
+    },
+
+    moveItemTooltip: ({ commit }, payload) => {
+      commit('SET_ITEM_TOOLTIP_MOUSE_COORDS', payload);
+    },
+
+    clearItemTooltipCache: ({ commit }) => {
+      commit('CLEAR_ITEM_TOOLTIP_CACHE');
     },
 
     //
@@ -220,6 +281,10 @@ export default new Vuex.Store({
 
     setPlayerInfo: ({ commit }, payload) => {
       commit('SET_PLAYER_INFO', JSON.parse(payload.data));
+    },
+
+    setItemTooltipHTML: ({ commit }, payload) => {
+      commit('SET_ITEM_TOOLTIP_HTML', JSON.parse(payload.data));
     }
   }
 })

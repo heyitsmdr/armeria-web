@@ -58,6 +58,14 @@ func (p *Player) readPump() {
 			}
 		case "objectPictureUpload":
 			StoreObjectPicture(p, messageRead.Payload.(map[string]interface{}))
+		case "itemTooltipHTML":
+			uuid := messageRead.Payload.(string)
+			o, rt := Armeria.registry.Get(uuid)
+			if rt != RegistryTypeItemInstance {
+				break
+			}
+			ii := o.(*ItemInstance)
+			p.client.SetItemTooltipHTML(ii)
 		default:
 			p.client.ShowText("Your client sent invalid data.")
 		}

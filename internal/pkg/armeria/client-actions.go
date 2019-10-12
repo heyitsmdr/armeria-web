@@ -138,3 +138,8 @@ func (ca *ClientActions) ToggleAutologin() {
 		strings.ToLower(ca.parent.Character().Name())+":"+ca.parent.Character().PasswordHash(),
 	)
 }
+
+// SetItemTooltipHTML sets the item's tooltip HTML on the client and stores it in the client-side cache.
+func (ca *ClientActions) SetItemTooltipHTML(ii *ItemInstance) {
+	ca.parent.CallClientAction("setItemTooltipHTML", ii.TooltipContentJSON())
+}

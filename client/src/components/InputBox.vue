@@ -53,6 +53,10 @@
                 } else if (cmd === '//closeeditor') {
                     this.$store.dispatch('setObjectEditorOpen', false);
                     return true;
+                } else if (cmd === '//clearttcache') {
+                    this.$store.dispatch('clearItemTooltipCache', false);
+                    this.$store.dispatch('showText', { data: `\n[DEBUG] Item tooltip cache has been cleared on your client.\n` });
+                    return true;
                 }
 
                 return false;

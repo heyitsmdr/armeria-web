@@ -313,8 +313,8 @@ func (c *Character) LoggedIn() {
 	c.Player().client.SyncPermissions()
 	c.Player().client.SyncPlayerInfo()
 
-	Armeria.log.Info("unsafeCharacter entered the game",
-		zap.String("unsafeCharacter", c.Name()),
+	Armeria.log.Info("character entered the game",
+		zap.String("character", c.Name()),
 	)
 }
 
@@ -325,8 +325,8 @@ func (c *Character) LoggedOut() {
 
 	// Remove unsafeCharacter from room
 	if room == nil || area == nil {
-		Armeria.log.Fatal("unsafeCharacter logged out of an invalid area/room",
-			zap.String("unsafeCharacter", c.Name()),
+		Armeria.log.Fatal("character logged out of an invalid area/room",
+			zap.String("character", c.Name()),
 		)
 		return
 	}
@@ -352,8 +352,8 @@ func (c *Character) LoggedOut() {
 		c.MobConvo().Cancel()
 	}
 
-	Armeria.log.Info("unsafeCharacter left the game",
-		zap.String("unsafeCharacter", c.Name()),
+	Armeria.log.Info("character left the game",
+		zap.String("character", c.Name()),
 	)
 }
 
@@ -562,7 +562,6 @@ func (c *Character) InventoryJSON() string {
 			"picture": ii.Attribute(AttributePicture),
 			"slot":    c.Inventory().Slot(ii.ID()),
 			"color":   ii.RarityColor(),
-			"tooltip": ii.TooltipHTML(),
 		})
 	}
 
