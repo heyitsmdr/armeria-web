@@ -61,10 +61,12 @@
                 }
             }, false);
 
-            document.addEventListener('mouseout', () => {
-                if (this.lastItemTooltipUUID.length > 0) {
-                    this.lastItemTooltipUUID = '';
-                    this.$store.dispatch('hideItemTooltip');
+            document.addEventListener('mouseout', e => {
+                if (e.target.className === 'hover-item-tooltip') {
+                    if (this.lastItemTooltipUUID.length > 0) {
+                        this.lastItemTooltipUUID = '';
+                        this.$store.dispatch('hideItemTooltip');
+                    }
                 }
             }, false);
         },
