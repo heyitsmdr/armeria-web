@@ -58,15 +58,9 @@
                         this.$store.dispatch('showItemTooltip', uuid);
                     }
                     this.$store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
-                }
-            }, false);
-
-            document.addEventListener('mouseout', e => {
-                if (e.target.className === 'hover-item-tooltip') {
-                    if (this.lastItemTooltipUUID.length > 0) {
-                        this.lastItemTooltipUUID = '';
-                        this.$store.dispatch('hideItemTooltip');
-                    }
+                } else if (this.lastItemTooltipUUID.length > 0) {
+                    this.lastItemTooltipUUID = '';
+                    this.$store.dispatch('hideItemTooltip');
                 }
             }, false);
         },
