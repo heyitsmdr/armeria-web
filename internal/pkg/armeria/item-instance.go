@@ -46,9 +46,20 @@ func (ii *ItemInstance) Name() string {
 // FormattedName returns the formatted Item name.
 func (ii *ItemInstance) FormattedName() string {
 	return TextStyle(
-		ii.RarityColor()+"["+ii.Parent.Name()+"]",
-		TextStyleBold,
-		TextStyleColor,
+		ii.Parent.Name(),
+		WithBold(),
+		WithColor(ii.RarityColor()),
+	)
+}
+
+// FormattedNameWithTooltip returns the formatted Item name with special styling to allow for the client
+// to mouse-over the name and display the item tooltip.
+func (ii *ItemInstance) FormattedNameWithTooltip() string {
+	return TextStyle(
+		ii.Parent.Name(),
+		WithBold(),
+		WithColor(ii.RarityColor()),
+		WithItemTooltip(ii.ID()),
 	)
 }
 
@@ -111,11 +122,11 @@ func (ii *ItemInstance) Room() *Room {
 func (ii *ItemInstance) RarityColor() string {
 	switch ii.Attribute(AttributeRarity) {
 	case "0":
-		return "#ffffff"
+		return "ffffff"
 	case "1":
-		return "#00ff00"
+		return "00ff00"
 	default:
-		return "#ffffff"
+		return "ffffff"
 	}
 }
 

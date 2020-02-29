@@ -85,7 +85,7 @@ func HandleScriptWrite(w http.ResponseWriter, r *http.Request) {
 	cp := c.Player()
 	if cp != nil {
 		cp.client.ShowColorizedText(
-			fmt.Sprintf("The script has been saved to %s.", TextStyle(m.UnsafeName, TextStyleBold)),
+			fmt.Sprintf("The script has been saved to %s.", TextStyle(m.UnsafeName, WithBold())),
 			ColorSuccess,
 		)
 	}

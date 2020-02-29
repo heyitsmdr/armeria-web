@@ -76,17 +76,17 @@ func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) stri
 	output := []string{
 		cmd.Help,
 		fmt.Sprintf("%s /%s &lt;sub-command&gt;\n",
-			TextStyle("Syntax:", TextStyleBold),
+			TextStyle("Syntax:", WithBold()),
 			strings.Join(commandsEntered, " "),
 		),
-		TextStyle("Sub-commands:", TextStyleBold),
+		TextStyle("Sub-commands:", WithBold()),
 	}
 
 	var rows []string
 	for _, scmd := range cmd.Subcommands {
 		if cmd.CheckPermissions(p) {
 			rows = append(rows, TableRow(
-				TableCell{content: TextStyle(scmd.Name, TextStyleBold)},
+				TableCell{content: TextStyle(scmd.Name, WithBold())},
 				TableCell{content: scmd.Help},
 			))
 		}
@@ -116,7 +116,7 @@ func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string
 		cmd.Help,
 		fmt.Sprintf(
 			"%s /%s %s\n",
-			TextStyle("Syntax:", TextStyleBold),
+			TextStyle("Syntax:", WithBold()),
 			strings.Join(commandsEntered, " "),
 			strings.Join(argumentStrings, " "),
 		),

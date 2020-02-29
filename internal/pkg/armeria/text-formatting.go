@@ -3,13 +3,6 @@ package armeria
 import "fmt"
 
 const (
-	TextStyleMonospace int = iota
-	TextStyleBold
-	TextStyleColor
-	TextStyleLink
-)
-
-const (
 	TextStatement int = iota
 	TextQuestion
 	TextExclaim
@@ -21,30 +14,54 @@ type TableCell struct {
 	header  bool
 }
 
+type TextOperation struct {
+	Text string
+}
+
 // TextStyle will style text according to one or more styling options.
-func TextStyle(text interface{}, opts ...int) string {
+func TextStyle(text interface{}, opts ...TextOperation) string {
 	t := fmt.Sprintf("%v", text)
 
-	var color string
-	if t[0:1] == "#" && len(t) > 6 {
-		color = t[1:7]
-		t = t[7:]
-	}
-
 	for _, o := range opts {
-		switch o {
-		case TextStyleBold:
-			t = fmt.Sprintf("<span style='font-weight:600'>%v</span>", t)
-		case TextStyleMonospace:
-			t = fmt.Sprintf("<span class='monospace'>%v</span>", t)
-		case TextStyleColor:
-			t = fmt.Sprintf("<span style='color:#%s'>%v</span>", color, t)
-		case TextStyleLink:
-			t = fmt.Sprintf("<a href='%[1]v' class='inline-link' target='_new'>%[1]v</a>", t)
-		}
+		t = fmt.Sprintf(o.Text, t)
 	}
 
 	return t
+}
+
+// WithBold formats the text as bold.
+func WithBold() TextOperation {
+	return TextOperation{
+		Text: "<span style='font-weight:600'>%v</span>",
+	}
+}
+
+// WithMonospace formats the text using a monospace font.
+func WithMonospace() TextOperation {
+	return TextOperation{
+		Text: "<span class='monospace'>%v</span>",
+	}
+}
+
+// WithColor formats the text using a specific color.
+func WithColor(color string) TextOperation {
+	return TextOperation{
+		Text: "<span style='color:#" + color + "'>%v</span>",
+	}
+}
+
+// WithLink formats the text creating a hyperlink.
+func WithLink(url string) TextOperation {
+	return TextOperation{
+		Text: "<a href='" + url + "' class='inline-link' target='_new'>%v</a>",
+	}
+}
+
+// WithItemTooltip formats the text allowing a player to mouse-over the item and view the item tooltip.
+func WithItemTooltip(uuid string) TextOperation {
+	return TextOperation{
+		Text: "<span class='hover-item-tooltip' data-uuid='" + uuid + "'>%v</a>",
+	}
 }
 
 // TextPunctuation will automatically punctuate a string and return the punctuation type.

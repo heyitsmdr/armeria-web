@@ -46,7 +46,7 @@ func (mi *MobInstance) Name() string {
 
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
-	return TextStyle(mi.Parent.Name(), TextStyleBold)
+	return TextStyle(mi.Parent.Name(), WithBold())
 }
 
 // SetAttribute sets a permanent attribute on the MobInstance.

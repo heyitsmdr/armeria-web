@@ -117,7 +117,7 @@ func (c *Character) Name() string {
 func (c *Character) FormattedName() string {
 	c.RLock()
 	defer c.RUnlock()
-	return TextStyle(c.UnsafeName, TextStyleBold)
+	return TextStyle(c.UnsafeName, WithBold())
 }
 
 // FormattedNameWithTitle returns the formatted unsafeCharacter name including the unsafeCharacter's title (if set).
@@ -127,10 +127,10 @@ func (c *Character) FormattedNameWithTitle() string {
 
 	title := c.UnsafeAttributes["title"]
 	if title != "" {
-		return fmt.Sprintf("%s (%s)", TextStyle(c.UnsafeName, TextStyleBold), title)
+		return fmt.Sprintf("%s (%s)", TextStyle(c.UnsafeName, WithBold()), title)
 	}
 
-	return TextStyle(c.UnsafeName, TextStyleBold)
+	return TextStyle(c.UnsafeName, WithBold())
 }
 
 // CheckPassword returns a bool indicating whether the password is correct or not.
@@ -287,8 +287,8 @@ func (c *Character) LoggedIn() {
 		fmt.Sprintf(
 			"The server has been running for %s.\n"+
 				"You last logged in at %s (server time). ",
-			TextStyle(time.Since(Armeria.startTime), TextStyleBold),
-			TextStyle(c.LastSeen().Format("Mon Jan 2 2006 15:04:05 MST"), TextStyleBold),
+			TextStyle(time.Since(Armeria.startTime), WithBold()),
+			TextStyle(c.LastSeen().Format("Mon Jan 2 2006 15:04:05 MST"), WithBold()),
 		),
 	)
 
