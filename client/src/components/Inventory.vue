@@ -11,7 +11,7 @@
             />
         </div>
         <div class="currency-container">
-            <b>Money:</b> $0
+            <b>Money:</b> {{ formattedMoney }}
         </div>
     </div>
 </template>
@@ -25,8 +25,22 @@
         components: {
             Item
         },
+        data: function () {
+            return {
+                formatter: null,
+            }
+        },
+        mounted: function () {
+            this.formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            });
+        },
         computed: {
-            ...mapState(['inventory']),
+            ...mapState(['inventory', 'money']),
+            formattedMoney: function() {
+                return this.formatter.format(parseFloat(this.money));
+            },
             items: function () {
                 let itemDef = {};
                 this.inventory.forEach(item => {

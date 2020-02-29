@@ -12,6 +12,7 @@ const (
 	AttributeDown        string = "down"
 	AttributeEast        string = "east"
 	AttributeGender      string = "gender"
+	AttributeMoney       string = "money"
 	AttributeNorth       string = "north"
 	AttributePermissions string = "permissions"
 	AttributePicture     string = "picture"
@@ -43,6 +44,7 @@ func ValidCharacterAttributes() []string {
 		AttributePermissions,
 		AttributeChannels,
 		AttributeGender,
+		AttributeMoney,
 	}
 }
 
@@ -107,6 +109,8 @@ func CharacterAttributeDefault(name string) string {
 	switch name {
 	case AttributeGender:
 		return "male"
+	case AttributeMoney:
+		return "0"
 	}
 
 	return ""
@@ -186,6 +190,10 @@ func ValidateCharacterAttribute(name, value string) (bool, string) {
 		vlc := strings.ToLower(value)
 		if vlc != "male" && vlc != "female" {
 			return false, "gender can only be male or female"
+		}
+	case AttributeMoney:
+		if _, err := strconv.ParseFloat(value, 64); err != nil {
+			return false, "money can only be a numeric value"
 		}
 	}
 

@@ -28,6 +28,7 @@ export default new Vuex.Store({
     itemTooltipVisible: false,
     itemTooltipCache: [],
     itemTooltipMouseCoords: { x: 0, y: 0 },
+    money: '0',
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
@@ -173,7 +174,11 @@ export default new Vuex.Store({
 
     CLEAR_ITEM_TOOLTIP_CACHE: (state) => {
       state.itemTooltipCache = [];
-    }
+    },
+
+    SET_MONEY: (state, money) => {
+      state.money = money;
+    },
 
   },
   actions: {
@@ -285,6 +290,10 @@ export default new Vuex.Store({
 
     setItemTooltipHTML: ({ commit }, payload) => {
       commit('SET_ITEM_TOOLTIP_HTML', JSON.parse(payload.data));
-    }
+    },
+
+    setMoney: ({ commit }, payload) => {
+      commit('SET_MONEY', payload.data);
+    },
   }
 })

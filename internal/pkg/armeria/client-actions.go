@@ -101,12 +101,17 @@ func (ca *ClientActions) SyncInventory() {
 	ca.parent.CallClientAction("setInventory", inv)
 }
 
-// SyncPermissions sets the unsafeCharacter permissions on the client (to allow/disallow certain client actions / UI tweaks).
+// SyncPermissions sets the character permissions on the client (to allow/disallow certain client actions / UI tweaks).
 func (ca *ClientActions) SyncPermissions() {
 	ca.parent.CallClientAction("setPermissions", ca.parent.Character().Attribute(AttributePermissions))
 }
 
-// SyncPlayerInfo sets the unsafeCharacter/player information on the client.
+// SyncMoney sets the character's money on the client.
+func (ca *ClientActions) SyncMoney() {
+	ca.parent.CallClientAction("setMoney", ca.parent.Character().Attribute(AttributeMoney))
+}
+
+// SyncPlayerInfo sets the character/player information on the client.
 func (ca *ClientActions) SyncPlayerInfo() {
 	ca.parent.CallClientAction("setPlayerInfo", ca.parent.Character().Player().PlayerInfoJSON())
 }

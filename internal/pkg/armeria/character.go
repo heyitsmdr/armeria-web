@@ -312,6 +312,7 @@ func (c *Character) LoggedIn() {
 	c.Player().client.SyncInventory()
 	c.Player().client.SyncPermissions()
 	c.Player().client.SyncPlayerInfo()
+	c.Player().client.SyncMoney()
 
 	Armeria.log.Info("character entered the game",
 		zap.String("character", c.Name()),

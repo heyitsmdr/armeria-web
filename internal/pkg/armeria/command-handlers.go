@@ -566,6 +566,7 @@ func handleRefreshCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncInventory()
 	ctx.Player.client.SyncPermissions()
 	ctx.Player.client.SyncPlayerInfo()
+	ctx.Player.client.SyncMoney()
 	ctx.Player.client.ShowText("Client data has been refreshed.")
 }
 
