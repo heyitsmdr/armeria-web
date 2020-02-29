@@ -8,23 +8,23 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "howler": "^2.1.2",
-    "pixi-ease": "^2.4.0",
-    "pixi.js": "^5.1.3",
-    "vue": "^2.6.6",
-    "vue-native-websocket": "^2.0.13",
-    "vuex": "^3.0.1"
+    "howler": "^2.1.3",
+    "pixi-ease": "^2.4.2",
+    "pixi.js": "^5.2.1",
+    "vue": "^2.6.11",
+    "vue-native-websocket": "^2.0.14",
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.11.0",
-    "@vue/cli-plugin-eslint": "^3.11.0",
-    "@vue/cli-service": "^3.11.0",
-    "babel-eslint": "^10.0.2",
-    "eslint": "^6.0.1",
-    "eslint-plugin-vue": "^5.2.3",
-    "sass": "^1.17.3",
-    "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.21"
+    "@vue/cli-plugin-babel": "^4.2.3",
+    "@vue/cli-plugin-eslint": "^4.2.3",
+    "@vue/cli-service": "^4.2.3",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^6.2.1",
+    "sass": "^1.26.1",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
