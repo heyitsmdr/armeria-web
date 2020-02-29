@@ -141,9 +141,9 @@ func handleLookCommand(ctx *CommandContext) {
 
 		if obj.Type() == ContainerObjectTypeCharacter && obj.(*Character).Player() == nil {
 			continue
-		}
-
-		if obj.ID() != ctx.Character.ID() {
+		} else if obj.Type() == ContainerObjectTypeItem {
+			objNames = append(objNames, obj.(*ItemInstance).FormattedNameWithTooltip())
+		} else if obj.ID() != ctx.Character.ID() {
 			objNames = append(objNames, obj.FormattedName())
 		}
 	}
@@ -1453,7 +1453,7 @@ func handleGetCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncInventory()
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You picked up a %s.", item.FormattedName()),
+		fmt.Sprintf("You picked up a %s.", item.FormattedNameWithTooltip()),
 		ColorSuccess,
 	)
 
@@ -1490,7 +1490,7 @@ func handleDropCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncInventory()
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You dropped a %s.", item.FormattedName()),
+		fmt.Sprintf("You dropped a %s.", item.FormattedNameWithTooltip()),
 		ColorSuccess,
 	)
 
@@ -1756,7 +1756,7 @@ func handleGiveCommand(ctx *CommandContext) {
 		fmt.Sprintf(
 			"You gave %s a %s.",
 			tco.FormattedName(),
-			ii.FormattedName(),
+			ii.FormattedNameWithTooltip(),
 		),
 		ColorSuccess,
 	)
@@ -1767,7 +1767,7 @@ func handleGiveCommand(ctx *CommandContext) {
 			fmt.Sprintf(
 				"%s gave you a %s.",
 				ctx.Character.FormattedName(),
-				ii.FormattedName(),
+				ii.FormattedNameWithTooltip(),
 			),
 		)
 		tobj.(*Character).Player().client.SyncInventory()

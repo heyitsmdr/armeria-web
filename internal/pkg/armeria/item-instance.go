@@ -46,7 +46,7 @@ func (ii *ItemInstance) Name() string {
 // FormattedName returns the formatted Item name.
 func (ii *ItemInstance) FormattedName() string {
 	return TextStyle(
-		ii.Parent.Name(),
+		fmt.Sprintf("[%s]", ii.Parent.Name()),
 		WithBold(),
 		WithColor(ii.RarityColor()),
 	)
@@ -56,10 +56,10 @@ func (ii *ItemInstance) FormattedName() string {
 // to mouse-over the name and display the item tooltip.
 func (ii *ItemInstance) FormattedNameWithTooltip() string {
 	return TextStyle(
-		ii.Parent.Name(),
+		fmt.Sprintf("[%s]", ii.Parent.Name()),
+		WithItemTooltip(ii.ID()),
 		WithBold(),
 		WithColor(ii.RarityColor()),
-		WithItemTooltip(ii.ID()),
 	)
 }
 

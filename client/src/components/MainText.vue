@@ -29,7 +29,8 @@
         components: {ObjectEditor},
         data: function () {
             return {
-                lineNumber: 0
+                lineNumber: 0,
+                lastItemTooltipUUID: '',
             }
         },
         props: {
@@ -47,6 +48,25 @@
                 const div = this.$refs['mainTextContainer'];
                 div.scrollTop = 9999999;
             });
+        },
+        mounted: function () {
+            document.addEventListener('mousemove', e => {
+                if (e.target.className === 'hover-item-tooltip') {
+                    const uuid = e.target.getAttribute('data-uuid');
+                    if (this.lastItemTooltipUUID !== uuid) {
+                        this.lastItemTooltipUUID = uuid;
+                        this.$store.dispatch('showItemTooltip', uuid);
+                    }
+                    this.$store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
+                }
+            }, false);
+
+            document.addEventListener('mouseout', () => {
+                if (this.lastItemTooltipUUID.length > 0) {
+                    this.lastItemTooltipUUID = '';
+                    this.$store.dispatch('hideItemTooltip');
+                }
+            }, false);
         },
         methods: {
             handleItemOverlayDragEnter: function () {
