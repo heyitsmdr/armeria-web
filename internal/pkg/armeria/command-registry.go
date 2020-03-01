@@ -787,6 +787,38 @@ func RegisterGameCommands() {
 			},
 			Handler: handleEmoteCommand,
 		},
+		{
+			Name: "ledger",
+			Help: "Manage item ledgers.",
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
+			},
+			Subcommands: []*Command{
+				{
+					Name: "list",
+					Help: "List the created item ledgers.",
+					Arguments: []*CommandArgument{
+						{
+							Name:     "filter",
+							Optional: true,
+						},
+					},
+					Handler: handleLedgerListCommand,
+				},
+				//{
+				//	Name: "create",
+				//	Help: "Create a new item ledger.",
+				//	Arguments: []*CommandArgument{
+				//		{
+				//			Name:             "name",
+				//			IncludeRemaining: true,
+				//		},
+				//	},
+				//	Handler: handleLedgerCreateCommand,
+				//},
+			},
+		},
 	}
 
 	for _, cmd := range commands {

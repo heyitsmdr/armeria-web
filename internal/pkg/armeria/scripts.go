@@ -24,6 +24,26 @@ func WriteMobScript(m *Mob, script string) {
 	_ = ioutil.WriteFile(m.ScriptFile(), []byte(script), 0644)
 }
 
+// LuaInvoker returns the Character that invoked the lua function.
+func LuaInvoker(L *lua.LState) *Character {
+	cuuid := lua.LVAsString(L.GetGlobal("invoker_uuid"))
+	if o, rt := Armeria.registry.Get(cuuid); rt == RegistryTypeCharacter {
+		return o.(*Character)
+	}
+
+	return nil
+}
+
+// LuaMobInstance returns the MobInstance that the script belongs to.
+func LuaMobInstance(L *lua.LState) *MobInstance {
+	muuid := lua.LVAsString(L.GetGlobal("mob_uuid"))
+	if o, rt := Armeria.registry.Get(muuid); rt == RegistryTypeMobInstance {
+		return o.(*MobInstance)
+	}
+
+	return nil
+}
+
 // LuaMobSay (mob_say) causes the mob to say something to the room.
 func LuaMobSay(L *lua.LState) int {
 	text := L.ToString(1)
@@ -237,7 +257,6 @@ func LuaEndConvo(L *lua.LState) int {
 	cuuid := lua.LVAsString(L.GetGlobal("invoker_uuid"))
 
 	var c *Character
-
 	if o, rt := Armeria.registry.Get(cuuid); rt == RegistryTypeCharacter {
 		c = o.(*Character)
 	} else {
@@ -247,6 +266,39 @@ func LuaEndConvo(L *lua.LState) int {
 	if c.MobConvo() != nil {
 		c.MobConvo().Cancel()
 	}
+
+	return 0
+}
+
+// LuaShop (shop) displays shop items to the character that invoked the command.
+func LuaShop(L *lua.LState) int {
+	c := LuaInvoker(L)
+	if c == nil {
+		return 0
+	}
+
+	mi := LuaMobInstance(L)
+	if mi == nil {
+		return 0
+	}
+
+	rows := []string{TableRow(
+		TableCell{content: "Item", header: true},
+		TableCell{content: "Description", header: true},
+		TableCell{content: "Price", header: true},
+		TableCell{content: "Actions", header: true},
+	)}
+
+	for _, ii := range mi.Inventory().Items() {
+		rows = append(rows, TableRow(
+			TableCell{content: ii.FormattedName()},
+			TableCell{content: ii.Attribute(AttributeDescription)},
+			TableCell{content: "$0"},
+			TableCell{content: TextStyle("Buy", WithButton("/buy "+ii.ID(), ""))},
+		))
+	}
+
+	c.Player().client.ShowText(TextTable(rows...))
 
 	return 0
 }
@@ -290,6 +342,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("i_name", L.NewFunction(LuaItemName))
 	L.SetGlobal("inv_give", L.NewFunction(LuaInventoryGive))
 	L.SetGlobal("room_text", L.NewFunction(LuaRoomText))
+	L.SetGlobal("shop", L.NewFunction(LuaShop))
 
 	err := L.DoFile(mi.Parent.ScriptFile())
 	if err != nil {

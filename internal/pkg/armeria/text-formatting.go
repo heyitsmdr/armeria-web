@@ -43,6 +43,13 @@ func WithMonospace() TextOperation {
 	}
 }
 
+// WithButton formats the text creating a clickable button (with optional promptData).
+func WithButton(cmd, promptData string) TextOperation {
+	return TextOperation{
+		Text: "<span class='inline-button' data-cmd='" + cmd + "' data-prompt='" + promptData + "'>%v</span>",
+	}
+}
+
 // WithColor formats the text using a specific color.
 func WithColor(color string) TextOperation {
 	return TextOperation{

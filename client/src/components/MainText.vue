@@ -109,6 +109,17 @@
         color: #00BCD4;
     }
 
+    .line .inline-button {
+        background-color: #383737;
+        padding: 0px 5px;
+        border: 1px solid #585555;
+    }
+
+    .line .inline-button:hover {
+        cursor: pointer;
+        border: 1px solid #848282;
+    }
+
     .line table tr th {
         text-align: left;
         background: linear-gradient(to bottom, #111111 0%, #232323 100%);

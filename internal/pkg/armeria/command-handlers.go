@@ -142,7 +142,7 @@ func handleLookCommand(ctx *CommandContext) {
 		if obj.Type() == ContainerObjectTypeCharacter && obj.(*Character).Player() == nil {
 			continue
 		} else if obj.Type() == ContainerObjectTypeItem {
-			objNames = append(objNames, obj.(*ItemInstance).FormattedNameWithTooltip())
+			objNames = append(objNames, obj.(*ItemInstance).FormattedName())
 		} else if obj.ID() != ctx.Character.ID() {
 			objNames = append(objNames, obj.FormattedName())
 		}
@@ -1454,7 +1454,7 @@ func handleGetCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncInventory()
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You picked up a %s.", item.FormattedNameWithTooltip()),
+		fmt.Sprintf("You picked up a %s.", item.FormattedName()),
 		ColorSuccess,
 	)
 
@@ -1491,7 +1491,7 @@ func handleDropCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncInventory()
 	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("You dropped a %s.", item.FormattedNameWithTooltip()),
+		fmt.Sprintf("You dropped a %s.", item.FormattedName()),
 		ColorSuccess,
 	)
 
@@ -1757,7 +1757,7 @@ func handleGiveCommand(ctx *CommandContext) {
 		fmt.Sprintf(
 			"You gave %s a %s.",
 			tco.FormattedName(),
-			ii.FormattedNameWithTooltip(),
+			ii.FormattedName(),
 		),
 		ColorSuccess,
 	)
@@ -1768,7 +1768,7 @@ func handleGiveCommand(ctx *CommandContext) {
 			fmt.Sprintf(
 				"%s gave you a %s.",
 				ctx.Character.FormattedName(),
-				ii.FormattedNameWithTooltip(),
+				ii.FormattedName(),
 			),
 		)
 		tobj.(*Character).Player().client.SyncInventory()
@@ -1809,4 +1809,18 @@ func handleEmoteCommand(ctx *CommandContext) {
 			fmt.Sprintf("%s %s.", ctx.Character.FormattedName(), emotion),
 		)
 	}
+}
+
+func handleLedgerListCommand(ctx *CommandContext) {
+	rows := []string{TableRow(
+		TableCell{content: "Ledger", header: true},
+	)}
+
+	for _, l := range Armeria.ledgerManager.Ledgers() {
+		rows = append(rows, TableRow(
+			TableCell{content: l.Name()},
+		))
+	}
+
+	ctx.Player.client.ShowText(TextTable(rows...))
 }

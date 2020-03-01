@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 // SchemaVersion defines the current version of the schema. If the file system is using an older version, a
 // migration will be performed.
-const SchemaVersion int = 4
+const SchemaVersion int = 5
 
 // schemaVersionOnDisk reads the schema version from disk and returns it as an int.
 func schemaVersionOnDisk() int {
@@ -86,7 +87,7 @@ func migrateCharacters(to int) {
 			c.UnsafeSettings = map[string]string{}
 		}
 
-		Armeria.log.Info("unsafeCharacter migration successful",
+		Armeria.log.Info("character migration successful",
 			zap.String("name", c.UnsafeName),
 		)
 	}
@@ -143,6 +144,18 @@ func migrateMobs(to int) {
 	}
 }
 
+// migrateLedgers handles migrations for ledgers.
+func migrateLedgers(to int) {
+	if to == 5 {
+		lm := &LedgerManager{
+			dataFile:      fmt.Sprintf("%s/ledgers.json", Armeria.dataPath),
+			UnsafeLedgers: []*Ledger{},
+		}
+		lm.SaveLedgers()
+		Armeria.log.Info("initial ledger created successfully")
+	}
+}
+
 // Migrate performs a sequential data migration.
 func Migrate() {
 	sv := schemaVersionOnDisk()
@@ -156,6 +169,7 @@ func Migrate() {
 		Armeria.log.Info("migrating to next schema version", zap.Int("version", i))
 		migrateCharacters(i)
 		migrateMobs(i)
+		migrateLedgers(i)
 	}
 
 	writeSchemaVersionToDisk(SchemaVersion)

@@ -22,6 +22,7 @@ type GameState struct {
 	mobManager       *MobManager
 	itemManager      *ItemManager
 	convoManager     *ConversationManager
+	ledgerManager    *LedgerManager
 	registry         *Registry
 	channels         map[string]*Channel
 	publicPath       string
@@ -68,6 +69,7 @@ func Init(configFilePath string, serveTraffic bool) {
 	Armeria.itemManager = NewItemManager()
 	Armeria.channels = NewChannels()
 	Armeria.convoManager = NewConversationManager()
+	Armeria.ledgerManager = NewLedgerManager()
 
 	Armeria.github = github.New()
 
@@ -118,4 +120,5 @@ func (gs *GameState) Save() {
 	gs.worldManager.SaveWorld()
 	gs.mobManager.SaveMobs()
 	gs.itemManager.SaveItems()
+	gs.ledgerManager.SaveLedgers()
 }
