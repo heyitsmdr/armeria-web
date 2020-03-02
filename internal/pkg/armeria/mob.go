@@ -89,6 +89,7 @@ func (m *Mob) CreateInstance() *MobInstance {
 	mi := &MobInstance{
 		UUID:             uuid.New().String(),
 		UnsafeAttributes: make(map[string]string),
+		UnsafeInventory:  NewObjectContainer(0),
 		Parent:           m,
 	}
 
