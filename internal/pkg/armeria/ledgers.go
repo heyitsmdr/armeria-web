@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -93,4 +94,33 @@ func (m *LedgerManager) Ledgers() []*Ledger {
 	defer m.RUnlock()
 
 	return m.UnsafeLedgers
+}
+
+// LedgerByName returns the matching Ledger, by name.
+func (m *LedgerManager) LedgerByName(name string) *Ledger {
+	m.RLock()
+	defer m.RUnlock()
+
+	for _, l := range m.UnsafeLedgers {
+		if strings.ToLower(l.Name()) == strings.ToLower(name) {
+			return l
+		}
+	}
+
+	return nil
+}
+
+// CreateLedger creates a new Ledger instance, but doesn't add it to memory.
+func (m *LedgerManager) CreateLedger(name string) *Ledger {
+	return &Ledger{
+		UnsafeName: name,
+	}
+}
+
+// AddLedger adds a new Item reference to memory.
+func (m *LedgerManager) AddLedger(l *Ledger) {
+	m.Lock()
+	defer m.Unlock()
+
+	m.UnsafeLedgers = append(m.UnsafeLedgers, l)
 }

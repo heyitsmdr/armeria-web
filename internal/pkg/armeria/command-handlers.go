@@ -930,8 +930,18 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 }
 
 func handleWipeCommand(ctx *CommandContext) {
+	filter := ctx.Args["filter"]
+	matches := 0
+
 	for _, o := range ctx.Character.Room().Here().All() {
 		obj := o.(ContainerObject)
+
+		// using a filter?
+		if len(filter) > 0 && !strings.Contains(strings.ToLower(obj.Name()), strings.ToLower(filter)) {
+			continue
+		}
+
+		matches = matches + 1
 		switch obj.Type() {
 		case ContainerObjectTypeMob:
 			m := Armeria.mobManager.MobByName(obj.Name())
@@ -948,14 +958,19 @@ func handleWipeCommand(ctx *CommandContext) {
 		}
 	}
 
+	if len(filter) > 0 && matches == 0 {
+		ctx.Player.client.ShowColorizedText("The filter did not match anything in the room.", ColorError)
+		return
+	}
+
 	for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
 		c.Player().client.ShowText(
-			fmt.Sprintf("%s wiped the room.", ctx.Character.FormattedName()),
+			fmt.Sprintf("%s wiped one or more things from the room.", ctx.Character.FormattedName()),
 		)
 		c.Player().client.SyncRoomObjects()
 	}
 
-	ctx.Player.client.ShowColorizedText("You wiped the room.", ColorSuccess)
+	ctx.Player.client.ShowColorizedText(fmt.Sprintf("You wiped %d things from the room.", matches), ColorSuccess)
 	ctx.Player.client.SyncRoomObjects()
 }
 
@@ -1814,11 +1829,130 @@ func handleEmoteCommand(ctx *CommandContext) {
 func handleLedgerListCommand(ctx *CommandContext) {
 	rows := []string{TableRow(
 		TableCell{content: "Ledger", header: true},
+		TableCell{content: "Items", header: true},
 	)}
 
 	for _, l := range Armeria.ledgerManager.Ledgers() {
 		rows = append(rows, TableRow(
-			TableCell{content: l.Name()},
+			TableCell{content: fmt.Sprintf("[cmd=/ledger show %[1]s]%[1]s[/cmd]", l.Name())},
+			TableCell{content: fmt.Sprintf("%d items", len(l.Entries()))},
+		))
+	}
+
+	ctx.Player.client.ShowText(TextTable(rows...))
+}
+
+func handleLedgerCreateCommand(ctx *CommandContext) {
+	name := ctx.Args["name"]
+
+	if strings.Contains(name, " ") {
+		ctx.Player.client.ShowColorizedText("The ledger name cannot contain a space.", ColorError)
+		return
+	}
+
+	exists := Armeria.ledgerManager.LedgerByName(name)
+	if exists != nil {
+		ctx.Player.client.ShowColorizedText("A ledger already exists with that name.", ColorError)
+		return
+	}
+
+	l := Armeria.ledgerManager.CreateLedger(name)
+	Armeria.ledgerManager.AddLedger(l)
+
+	ctx.Player.client.ShowColorizedText("The ledger has been created.", ColorSuccess)
+}
+
+func handleLedgerRenameCommand(ctx *CommandContext) {
+	ledgerName := ctx.Args["ledger_name"]
+	newName := ctx.Args["new_name"]
+
+	ledger := Armeria.ledgerManager.LedgerByName(ledgerName)
+	if ledger == nil {
+		ctx.Player.client.ShowColorizedText("A ledger by that name doesn't exist.", ColorError)
+		return
+	}
+
+	if strings.Contains(newName, " ") {
+		ctx.Player.client.ShowColorizedText("The new ledger name cannot contain a space.", ColorError)
+		return
+	}
+
+	ledger.SetName(newName)
+
+	ctx.Player.client.ShowColorizedText("The ledger has been renamed.", ColorSuccess)
+}
+
+func handleLedgerAddCommand(ctx *CommandContext) {
+	ledgerName := ctx.Args["ledger_name"]
+	itemName := ctx.Args["item_name"]
+
+	ledger := Armeria.ledgerManager.LedgerByName(ledgerName)
+	if ledger == nil {
+		ctx.Player.client.ShowColorizedText("A ledger by that name doesn't exist.", ColorError)
+		return
+	}
+
+	item := Armeria.itemManager.ItemByName(itemName)
+	if item == nil {
+		ctx.Player.client.ShowColorizedText("An item by that name doesn't exist.", ColorError)
+		return
+	}
+
+	if ledger.Contains(item.Name()) != nil {
+		ctx.Player.client.ShowColorizedText("That item is already on that ledger.", ColorError)
+		return
+	}
+
+	ledger.AddEntry(&LedgerEntry{
+		ItemName:  item.Name(),
+		BuyPrice:  0.00,
+		SellPrice: 0.00,
+	})
+
+	ctx.Player.client.ShowColorizedText("Entry has been added to the ledger.", ColorSuccess)
+}
+
+func handleLedgerRemoveCommand(ctx *CommandContext) {
+	ledgerName := ctx.Args["ledger_name"]
+	itemName := ctx.Args["item_name"]
+
+	ledger := Armeria.ledgerManager.LedgerByName(ledgerName)
+	if ledger == nil {
+		ctx.Player.client.ShowColorizedText("A ledger by that name doesn't exist.", ColorError)
+		return
+	}
+
+	entry := ledger.Contains(itemName)
+	if entry == nil {
+		ctx.Player.client.ShowColorizedText("That item doesn't exist on that ledger.", ColorError)
+		return
+	}
+
+	ledger.RemoveEntry(entry)
+
+	ctx.Player.client.ShowColorizedText("Entry has been removed from the ledger.", ColorSuccess)
+}
+
+func handleLedgerShowCommand(ctx *CommandContext) {
+	ledgerName := ctx.Args["ledger_name"]
+
+	ledger := Armeria.ledgerManager.LedgerByName(ledgerName)
+	if ledger == nil {
+		ctx.Player.client.ShowColorizedText("A ledger by that name doesn't exist.", ColorError)
+		return
+	}
+
+	rows := []string{TableRow(
+		TableCell{content: "Item", header: true},
+		TableCell{content: "Buy", header: true},
+		TableCell{content: "Sell", header: true},
+	)}
+
+	for _, entry := range ledger.Entries() {
+		rows = append(rows, TableRow(
+			TableCell{content: entry.ItemName},
+			TableCell{content: fmt.Sprintf("$%f", entry.BuyPrice)},
+			TableCell{content: fmt.Sprintf("$%f", entry.SellPrice)},
 		))
 	}
 

@@ -237,7 +237,7 @@ func RegisterGameCommands() {
 		{
 			Name:     "whisper",
 			AltNames: []string{"w"},
-			Help:     "Send a private message to the specified character. They must be online.",
+			Help:     "Send a private message to an online character.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
@@ -542,10 +542,17 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "wipe",
-			Help: "Wipe ALL objects in your current room.",
+			Help: "Wipe everything, or a specific thing, in your current room.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "filter",
+					IncludeRemaining: true,
+					Optional:         true,
+				},
 			},
 			Handler: handleWipeCommand,
 		},
@@ -806,17 +813,68 @@ func RegisterGameCommands() {
 					},
 					Handler: handleLedgerListCommand,
 				},
-				//{
-				//	Name: "create",
-				//	Help: "Create a new item ledger.",
-				//	Arguments: []*CommandArgument{
-				//		{
-				//			Name:             "name",
-				//			IncludeRemaining: true,
-				//		},
-				//	},
-				//	Handler: handleLedgerCreateCommand,
-				//},
+				{
+					Name: "create",
+					Help: "Create a new item ledger.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "name",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleLedgerCreateCommand,
+				},
+				{
+					Name: "rename",
+					Help: "Renames an item ledger.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "ledger_name",
+						},
+						{
+							Name: "new_name",
+						},
+					},
+					Handler: handleLedgerRenameCommand,
+				},
+				{
+					Name: "add",
+					Help: "Add an item to a ledger.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "ledger_name",
+						},
+						{
+							Name:             "item_name",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleLedgerAddCommand,
+				},
+				{
+					Name: "remove",
+					Help: "Remove an item from a ledger.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "ledger_name",
+						},
+						{
+							Name:             "item_name",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleLedgerRemoveCommand,
+				},
+				{
+					Name: "show",
+					Help: "Show the contents of a ledger.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "ledger_name",
+						},
+					},
+					Handler: handleLedgerShowCommand,
+				},
 			},
 		},
 	}
