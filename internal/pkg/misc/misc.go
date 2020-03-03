@@ -72,3 +72,12 @@ func ToggleStringBool(s string) string {
 	}
 	return s
 }
+
+// BoolToWords returns a string depending on whether or not a bool is true.
+func BoolToWords(b bool, true string, false string) string {
+	if b {
+		return true
+	}
+
+	return false
+}

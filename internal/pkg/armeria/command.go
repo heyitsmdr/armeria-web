@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"fmt"
 	"strings"
 
@@ -25,6 +26,7 @@ type CommandArgument struct {
 	IncludeRemaining bool
 	Optional         bool
 	NoLog            bool
+	Help             string
 }
 
 type CommandPermissions struct {
@@ -97,28 +99,36 @@ func (cmd *Command) ShowSubcommandHelp(p *Player, commandsEntered []string) stri
 	return strings.Join(output, "\n")
 }
 
-func (cmd *Command) ShowArgumentHelp(p *Player, commandsEntered []string) string {
+// ShowArgumentHelp returns help for command arguments.
+func (cmd *Command) ShowArgumentHelp(commandsEntered []string) string {
 	if len(cmd.Arguments) == 0 {
 		return "There are no command arguments."
 	}
 
 	var argumentStrings []string
+	var argumentRows []string
 	for _, arg := range cmd.Arguments {
 		if arg.Optional {
 			argumentStrings = append(argumentStrings, fmt.Sprintf("[%s]", arg.Name))
 		} else {
 			argumentStrings = append(argumentStrings, fmt.Sprintf("&lt;%s&gt;", arg.Name))
 		}
-
+		argumentRows = append(argumentRows, TableRow(
+			TableCell{content: TextStyle(arg.Name, WithBold())},
+			TableCell{content: TextStyle(misc.BoolToWords(arg.Optional, "Optional", "Required"), WithItalics())},
+			TableCell{content: arg.Help},
+		))
 	}
 
 	output := []string{
 		cmd.Help,
 		fmt.Sprintf(
-			"%s /%s %s\n",
+			"%s /%s %s\n\n%s\n%s",
 			TextStyle("Syntax:", WithBold()),
 			strings.Join(commandsEntered, " "),
 			strings.Join(argumentStrings, " "),
+			TextStyle("Arguments:", WithBold()),
+			TextTable(argumentRows...),
 		),
 	}
 

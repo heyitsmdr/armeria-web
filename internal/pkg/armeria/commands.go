@@ -59,9 +59,13 @@ func (m *CommandManager) FindCommand(p *Player, searchWithin []*Command, cmd str
 			commandArgs := make(map[string]string)
 			parsedArgs := misc.ParseArguments(sections[1:])
 			if cmd.Arguments != nil {
+				if len(parsedArgs) > 0 && parsedArgs[len(parsedArgs)-1] == "--help" {
+					return nil, nil, cmd.ShowArgumentHelp(append(alreadyProcessed, cmdName))
+				}
+
 				for pos, arg := range cmd.Arguments {
 					if !arg.Optional && len(parsedArgs) < (pos+1) {
-						return nil, nil, cmd.ShowArgumentHelp(p, append(alreadyProcessed, cmdName))
+						return nil, nil, cmd.ShowArgumentHelp(append(alreadyProcessed, cmdName))
 					}
 					if arg.IncludeRemaining {
 						commandArgs[arg.Name] = strings.Join(parsedArgs[pos:], " ")

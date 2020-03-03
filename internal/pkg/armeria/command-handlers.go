@@ -659,19 +659,19 @@ func handleCharacterEditCommand(ctx *CommandContext) {
 func handleCharacterListCommand(ctx *CommandContext) {
 	f := ctx.Args["filter"]
 
-	var chars []string
+	rows := []string{TableRow(
+		TableCell{content: "Character", header: true},
+	)}
+
 	for _, c := range Armeria.characterManager.Characters() {
 		if len(f) == 0 || strings.Contains(strings.ToLower(c.Name()), strings.ToLower(f)) {
-			chars = append(chars, c.Name())
+			rows = append(rows, TableRow(
+				TableCell{content: c.Name()},
+			))
 		}
 	}
 
-	var matchingText string
-	if len(f) > 0 {
-		matchingText = " matching \"" + f + "\""
-	}
-
-	if len(chars) == 0 {
+	if len(f) > 0 && len(rows) == 1 {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no characters matching \"%s\".", f),
 			ColorError,
@@ -679,9 +679,7 @@ func handleCharacterListCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are %s characters%s: %s.", TextStyle(len(chars), WithBold()), matchingText, strings.Join(chars, ", ")),
-	)
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleCharacterSetCommand(ctx *CommandContext) {
@@ -731,19 +729,21 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 func handleMobListCommand(ctx *CommandContext) {
 	f := ctx.Args["filter"]
 
-	var mobs []string
+	rows := []string{TableRow(
+		TableCell{content: "Mob", header: true},
+		TableCell{content: "Instances", header: true},
+	)}
+
 	for _, m := range Armeria.mobManager.Mobs() {
 		if len(f) == 0 || strings.Contains(strings.ToLower(m.Name()), strings.ToLower(f)) {
-			mobs = append(mobs, m.Name())
+			rows = append(rows, TableRow(
+				TableCell{content: m.Name()},
+				TableCell{content: fmt.Sprintf("%d instances", len(m.Instances()))},
+			))
 		}
 	}
 
-	var matchingText string
-	if len(f) > 0 {
-		matchingText = " matching \"" + f + "\""
-	}
-
-	if len(mobs) == 0 {
+	if len(f) > 0 && len(rows) == 1 {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no mobs matching \"%s\".", f),
 			ColorError,
@@ -751,9 +751,7 @@ func handleMobListCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are %s mobs%s: %s.", TextStyle(len(mobs), WithBold()), matchingText, strings.Join(mobs, ", ")),
-	)
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleMobCreateCommand(ctx *CommandContext) {
@@ -994,19 +992,21 @@ func handleItemCreateCommand(ctx *CommandContext) {
 func handleItemListCommand(ctx *CommandContext) {
 	f := ctx.Args["filter"]
 
-	var items []string
+	rows := []string{TableRow(
+		TableCell{content: "Item", header: true},
+		TableCell{content: "Instances", header: true},
+	)}
+
 	for _, i := range Armeria.itemManager.Items() {
 		if len(f) == 0 || strings.Contains(strings.ToLower(i.Name()), strings.ToLower(f)) {
-			items = append(items, i.Name())
+			rows = append(rows, TableRow(
+				TableCell{content: i.Name()},
+				TableCell{content: fmt.Sprintf("%d instances", len(i.Instances()))},
+			))
 		}
 	}
 
-	var matchingText string
-	if len(f) > 0 {
-		matchingText = " matching \"" + f + "\""
-	}
-
-	if len(items) == 0 {
+	if len(f) > 0 && len(rows) == 1 {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no items matching \"%s\".", f),
 			ColorError,
@@ -1014,9 +1014,7 @@ func handleItemListCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are %s items%s: %s.", TextStyle(len(items), WithBold()), matchingText, strings.Join(items, ", ")),
-	)
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleItemSpawnCommand(ctx *CommandContext) {
@@ -1218,19 +1216,21 @@ func handleAreaCreateCommand(ctx *CommandContext) {
 func handleAreaListCommand(ctx *CommandContext) {
 	f := ctx.Args["filter"]
 
-	var areas []string
+	rows := []string{TableRow(
+		TableCell{content: "Area", header: true},
+		TableCell{content: "Rooms", header: true},
+	)}
+
 	for _, a := range Armeria.worldManager.Areas() {
 		if len(f) == 0 || strings.Contains(strings.ToLower(a.Name()), strings.ToLower(f)) {
-			areas = append(areas, a.Name())
+			rows = append(rows, TableRow(
+				TableCell{content: a.Name()},
+				TableCell{content: fmt.Sprintf("%d rooms", len(a.Rooms()))},
+			))
 		}
 	}
 
-	var matchingText string
-	if len(f) > 0 {
-		matchingText = " matching \"" + f + "\""
-	}
-
-	if len(areas) == 0 {
+	if len(f) > 0 && len(rows) == 1 {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("There are no areas matching \"%s\".", f),
 			ColorError,
@@ -1238,9 +1238,7 @@ func handleAreaListCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Player.client.ShowText(
-		fmt.Sprintf("There are %s areas%s: %s.", TextStyle(len(areas), WithBold()), matchingText, strings.Join(areas, ", ")),
-	)
+	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
 func handleAreaEditCommand(ctx *CommandContext) {
@@ -1959,4 +1957,42 @@ func handleLedgerShowCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(TextTable(rows...))
+}
+
+func handleLedgerSetCommand(ctx *CommandContext) {
+	buyOrSell := strings.ToLower(ctx.Args["buy_or_sell"])
+	ledgerName := ctx.Args["ledger_name"]
+	itemName := ctx.Args["item_name"]
+	price := ctx.Args["price"]
+
+	if buyOrSell != "buy" && buyOrSell != "sell" {
+		ctx.Player.client.ShowColorizedText("You must set either a BUY or SELL price.", ColorError)
+		return
+	}
+
+	ledger := Armeria.ledgerManager.LedgerByName(ledgerName)
+	if ledger == nil {
+		ctx.Player.client.ShowColorizedText("A ledger by that name doesn't exist.", ColorError)
+		return
+	}
+
+	entry := ledger.Contains(itemName)
+	if entry == nil {
+		ctx.Player.client.ShowColorizedText("That item doesn't exist on that ledger.", ColorError)
+		return
+	}
+
+	amount, err := strconv.ParseFloat(price, 64)
+	if err != nil {
+		ctx.Player.client.ShowColorizedText("You must set a numerical price.", ColorError)
+		return
+	}
+
+	if buyOrSell == "buy" {
+		entry.BuyPrice = amount
+	} else {
+		entry.SellPrice = amount
+	}
+
+	ctx.Player.client.ShowColorizedText("The price has been set on the ledger.", ColorSuccess)
 }

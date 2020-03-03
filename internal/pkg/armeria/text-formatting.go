@@ -36,6 +36,13 @@ func WithBold() TextOperation {
 	}
 }
 
+// WithItalics formats the text using italics.
+func WithItalics() TextOperation {
+	return TextOperation{
+		Text: "<span style='font-style:italic'>%v</span>",
+	}
+}
+
 // WithMonospace formats the text using a monospace font.
 func WithMonospace() TextOperation {
 	return TextOperation{

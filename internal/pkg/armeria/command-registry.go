@@ -875,6 +875,29 @@ func RegisterGameCommands() {
 					},
 					Handler: handleLedgerShowCommand,
 				},
+				{
+					Name: "set",
+					Help: "Set the buy or sell price of an item on a ledger.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "buy_or_sell",
+							Help: "Set to either 'buy' or 'sell'.",
+						},
+						{
+							Name: "ledger_name",
+							Help: "The name of the ledger.",
+						},
+						{
+							Name: "item_name",
+							Help: "The name of the item.",
+						},
+						{
+							Name: "price",
+							Help: "The buy or sell price you want to set.",
+						},
+					},
+					Handler: handleLedgerSetCommand,
+				},
 			},
 		},
 	}

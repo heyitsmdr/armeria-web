@@ -51,6 +51,14 @@ func (a *Area) Name() string {
 	return a.UnsafeName
 }
 
+// Rooms returns all the rooms within the area.
+func (a *Area) Rooms() []*Room {
+	a.RLock()
+	defer a.RUnlock()
+
+	return a.UnsafeRooms
+}
+
 // RoomAt returns the Room at a particular Coords within the same area.
 func (a *Area) RoomAt(c *Coords) *Room {
 	a.RLock()
