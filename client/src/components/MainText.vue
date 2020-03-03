@@ -120,6 +120,11 @@
         border: 1px solid #848282;
     }
 
+    .line .inline-loopback {
+        color: #5d5d5d;
+        padding-top: 15px;
+    }
+
     .line table tr th {
         text-align: left;
         background: linear-gradient(to bottom, #111111 0%, #232323 100%);
@@ -165,5 +170,6 @@
     .line {
         color: #cacaca;
         user-select: text;
+        font-size: 13px;
     }
 </style>

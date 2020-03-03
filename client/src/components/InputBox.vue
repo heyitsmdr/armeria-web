@@ -97,6 +97,10 @@
             handleSendText() {
                 let slashCommand = this.textToSend;
 
+                this.$store.dispatch('showText', {
+                    data: `<div class="inline-loopback">${slashCommand}</div>`
+                });
+
                 if (slashCommand.length === 0) {
                     this.$store.dispatch('sendSlashCommand', {
                         command: '/look'
