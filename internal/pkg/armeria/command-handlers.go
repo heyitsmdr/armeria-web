@@ -1421,6 +1421,8 @@ func handleClipboardPasteCommand(ctx *CommandContext) {
 			r.SetAttribute(attr, attrValue)
 		}
 		ctx.Player.client.ShowColorizedText("Room attributes on the clipboard have been applied.", ColorSuccess)
+		ctx.Player.client.SyncMap()
+		ctx.Player.client.SyncRoomTitle()
 	default:
 		ctx.Player.client.ShowColorizedText("That object type cannot be pasted anywhere.", ColorError)
 		return

@@ -10,5 +10,7 @@ function character_said(char_name, text)
     say("What would you like to know more about? You can ask me about [b]test island[/b].")
   elseif text == "title" then
     say("Your title is " .. c_attr(char_name, "title", false))
+  elseif text == "shop" then
+    shop()
   end
 end
