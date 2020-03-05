@@ -876,6 +876,17 @@ func RegisterGameCommands() {
 					Handler: handleLedgerShowCommand,
 				},
 				{
+					Name: "search",
+					Help: "Search all ledgers for an item.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "item_name",
+							Help: "The name of the item you want to search for.",
+						},
+					},
+					Handler: handleLedgerSearchCommand,
+				},
+				{
 					Name: "set",
 					Help: "Set the buy or sell price of an item on a ledger.",
 					Arguments: []*CommandArgument{

@@ -1959,6 +1959,41 @@ func handleLedgerShowCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
+func handleLedgerSearchCommand(ctx *CommandContext) {
+	itemName := ctx.Args["item_name"]
+
+	matches := make(map[string][]string)
+
+	for _, ledger := range Armeria.ledgerManager.Ledgers() {
+		for _, entry := range ledger.Entries() {
+			if strings.Contains(strings.ToLower(entry.ItemName), strings.ToLower(itemName)) {
+				matches[ledger.Name()] = append(matches[ledger.Name()], entry.ItemName)
+			}
+		}
+	}
+
+	if len(matches) == 0 {
+		ctx.Player.client.ShowColorizedText("No matches found across all ledgers.", ColorError)
+		return
+	}
+
+	rows := []string{TableRow(
+		TableCell{content: "Ledger", header: true},
+		TableCell{content: "Matched", header: true},
+	)}
+
+	for ledger, matches := range matches {
+		for _, item := range matches {
+			rows = append(rows, TableRow(
+				TableCell{content: fmt.Sprintf("[cmd=/ledger show %[1]s]%[1]s[/cmd]", ledger)},
+				TableCell{content: item},
+			))
+		}
+	}
+
+	ctx.Player.client.ShowText(TextTable(rows...))
+}
+
 func handleLedgerSetCommand(ctx *CommandContext) {
 	buyOrSell := strings.ToLower(ctx.Args["buy_or_sell"])
 	ledgerName := ctx.Args["ledger_name"]
