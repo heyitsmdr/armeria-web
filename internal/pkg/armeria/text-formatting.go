@@ -99,7 +99,7 @@ func TextTable(rows ...string) string {
 	for _, row := range rows {
 		rowString = rowString + row
 	}
-	return "<table>" + rowString + "</table"
+	return "<table cellspacing=\"0\">" + rowString + "</table"
 }
 
 // TableRow generates a row to be used within a TextTable.

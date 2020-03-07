@@ -125,9 +125,15 @@
         padding-top: 15px;
     }
 
+    .line .hover-item-tooltip:hover {
+        cursor: pointer;
+        border-bottom: 1px dotted #666;
+    }
+
     .line table tr th {
         text-align: left;
         background: linear-gradient(to bottom, #111111 0%, #232323 100%);
+        border-bottom: 1px solid #403e3e;
         padding: 3px;
     }
 

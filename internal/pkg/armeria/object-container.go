@@ -367,3 +367,17 @@ func (oc *ObjectContainer) Add(uuid string) error {
 
 	return nil
 }
+
+// PopulateFromLedger ensures at least one entry from the ledger exists within the object container.
+func (oc *ObjectContainer) PopulateFromLedger(ledger *Ledger) {
+	for _, entry := range ledger.Entries() {
+		item := Armeria.itemManager.ItemByName(entry.ItemName)
+		if item != nil {
+			_, _, rt := oc.GetByName(item.Name())
+			if rt == RegistryTypeUnknown {
+				ii := item.CreateInstance()
+				oc.Add(ii.ID())
+			}
+		}
+	}
+}

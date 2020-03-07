@@ -272,6 +272,13 @@ func LuaEndConvo(L *lua.LState) int {
 
 // LuaShop (shop) displays shop items to the character that invoked the command.
 func LuaShop(L *lua.LState) int {
+	ledgerName := L.ToString(1)
+
+	ledger := Armeria.ledgerManager.LedgerByName(ledgerName)
+	if ledger == nil {
+		panic(fmt.Sprintf("ledger not found: %s", ledgerName))
+	}
+
 	c := LuaInvoker(L)
 	if c == nil {
 		return 0
@@ -282,6 +289,9 @@ func LuaShop(L *lua.LState) int {
 		return 0
 	}
 
+	// Ensure mob's inventory has at least one item instance from everything on the ledger.
+	mi.Inventory().PopulateFromLedger(ledger)
+
 	rows := []string{TableRow(
 		TableCell{content: "Item", header: true},
 		TableCell{content: "Description", header: true},
@@ -290,12 +300,15 @@ func LuaShop(L *lua.LState) int {
 	)}
 
 	for _, ii := range mi.Inventory().Items() {
-		rows = append(rows, TableRow(
-			TableCell{content: ii.FormattedName()},
-			TableCell{content: ii.Attribute(AttributeDescription)},
-			TableCell{content: "$0"},
-			TableCell{content: TextStyle("Buy", WithButton("/buy "+ii.ID(), ""))},
-		))
+		ledgerEntry := ledger.Contains(ii.Name())
+		if ledgerEntry != nil {
+			rows = append(rows, TableRow(
+				TableCell{content: ii.FormattedName()},
+				TableCell{content: ii.Attribute(AttributeDescription)},
+				TableCell{content: fmt.Sprintf("$%f", ledgerEntry.BuyPrice)},
+				TableCell{content: TextStyle("Buy", WithButton("/buy "+ii.ID(), ""))},
+			))
+		}
 	}
 
 	c.Player().client.ShowText(TextTable(rows...))
@@ -383,9 +396,9 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 		if invoker.HasPermission("CAN_BUILD") {
 			invoker.Player().client.ShowColorizedText(
 				fmt.Sprintf(
-					"There was an error running %s() on mob %s:\n%s",
-					funcName,
-					mi.Name(),
+					"There was an error running %s on mob %s.\n\n%s",
+					TextStyle(funcName+"()", WithBold()),
+					TextStyle(mi.Name(), WithBold()),
 					err.Error(),
 				),
 				ColorError,
