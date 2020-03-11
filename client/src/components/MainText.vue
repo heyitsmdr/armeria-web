@@ -77,7 +77,7 @@
                 this.$refs['item-overlay'].classList.remove('item-over');
                 let iuuid = e.dataTransfer.getData("item_uuid");
                 this.$store.dispatch('sendSlashCommand', {
-                    command: `/drop ${iuuid}`
+                    command: `/drop "${iuuid}"`
                 });
             }
         },

@@ -188,6 +188,7 @@ export default new Vuex.Store({
       }
 
       commit('APPEND_COMMAND_HISTORY', payload.command);
+      commit('ADD_GAME_TEXT', `<div class="inline-loopback">${payload.command}</div>`);
 
       Vue.prototype.$socket.sendObj({
         type: "command",

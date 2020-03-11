@@ -1,6 +1,9 @@
 package armeria
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const (
 	TextStatement int = iota
@@ -54,6 +57,16 @@ func WithMonospace() TextOperation {
 func WithButton(cmd, promptData string) TextOperation {
 	return TextOperation{
 		Text: "<span class='inline-button' data-cmd='" + cmd + "' data-prompt='" + promptData + "'>%v</span>",
+	}
+}
+
+// WithLinkCmd formats the text creating a hyperlink that executes a specific command when clicked on.
+func WithLinkCmd(cmd string) TextOperation {
+	normalizedCmd := strings.ReplaceAll(cmd, "\"", "\\\"")
+	return TextOperation{
+		Text: "<a href='#' class='inline-command' " +
+			"onclick='window.Armeria.$store.dispatch(\"sendSlashCommand\", {command:\"" + normalizedCmd + "\"})'>" +
+			"%v</a>",
 	}
 }
 

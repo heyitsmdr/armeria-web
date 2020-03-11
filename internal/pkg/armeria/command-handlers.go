@@ -1951,8 +1951,8 @@ func handleLedgerShowCommand(ctx *CommandContext) {
 	for _, entry := range ledger.Entries() {
 		rows = append(rows, TableRow(
 			TableCell{content: entry.ItemName},
-			TableCell{content: fmt.Sprintf("$%f", entry.BuyPrice)},
-			TableCell{content: fmt.Sprintf("$%f", entry.SellPrice)},
+			TableCell{content: misc.Money.FormatMoney(entry.BuyPrice)},
+			TableCell{content: misc.Money.FormatMoney(entry.SellPrice)},
 		))
 	}
 
@@ -2030,4 +2030,63 @@ func handleLedgerSetCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowColorizedText("The price has been set on the ledger.", ColorSuccess)
+}
+
+func handleBuyCommand(ctx *CommandContext) {
+	mobName := ctx.Args["npc"]
+	itemName := ctx.Args["item"]
+
+	// Ensure mob is present in the room
+	m, _, rt := ctx.Character.Room().Here().GetByName(mobName)
+	if rt != RegistryTypeMobInstance {
+		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
+		return
+	}
+	mobInstance := m.(*MobInstance)
+
+	// Ensure mob is aware of a ledger that contains the item
+	var item *ItemInstance
+	var itemLedger *LedgerEntry
+	for _, ledger := range mobInstance.ItemLedgers() {
+		ledgerEntry := ledger.Contains(itemName)
+		if ledgerEntry != nil {
+			itemLedger = ledgerEntry
+			mobInstance.Inventory().PopulateFromLedger(ledger)
+			if i, _, rt := mobInstance.Inventory().GetByName(ledgerEntry.ItemName); rt == RegistryTypeItemInstance {
+				item = i.(*ItemInstance)
+				break
+			}
+		}
+	}
+	if item == nil || itemLedger == nil {
+		ctx.Player.client.ShowColorizedText(fmt.Sprintf("%s does not have that to sell.", mobInstance.Name()), ColorError)
+		return
+	}
+
+	// Ensure character has room in their inventory
+	if ctx.Character.Inventory().Count() >= ctx.Character.Inventory().MaxSize() {
+		ctx.Player.client.ShowColorizedText(CommonInventoryFilled, ColorError)
+		return
+	}
+
+	// Remove money from character
+	if !ctx.Character.RemoveMoney(itemLedger.BuyPrice) {
+		ctx.Player.client.ShowColorizedText("You can't afford that.", ColorError)
+		return
+	}
+
+	// Transfer the item
+	mobInstance.Inventory().Remove(item.ID())
+	if err := ctx.Character.Inventory().Add(item.ID()); err != nil {
+		// Something went wrong, let's destroy the item instance and return the money
+		i := Armeria.itemManager.ItemByName(item.Name())
+		i.DeleteInstance(item)
+		ctx.Character.AddMoney(itemLedger.BuyPrice)
+		ctx.Player.client.ShowColorizedText("Something went wrong with the transaction.", ColorError)
+		return
+	}
+
+	ctx.Player.client.SyncMoney()
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.ShowColorizedText("Ok.", ColorSuccess)
 }

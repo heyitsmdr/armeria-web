@@ -160,39 +160,33 @@
             setProperty: function(propName, propValue, target = ".") {
                 switch(this.objectEditorData.objectType) {
                     case 'room':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/room set ${target} ${propName} ${propValue}`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/room set "${target}" "${propName}" "${propValue}"`
                         });
                         break;
                     case 'character':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/character set "${this.objectEditorData.name}" ${propName} ${propValue}`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/character set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
                         });
                         break;
                     case 'mob':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/mob set "${this.objectEditorData.name}" ${propName} ${propValue}`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/mob set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
                         });
                         break;
                     case 'item':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/item set "${this.objectEditorData.name}" ${propName} ${propValue}`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/item set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
                         });
                         break;
                     case 'specific-item':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/item iset ${this.objectEditorData.uuid} ${propName} ${propValue}`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/item iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`
                         });
                         break;
                     case 'specific-mob':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/mob iset ${this.objectEditorData.uuid} ${propName} ${propValue}`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/mob iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`
                         });
                         break;
                 }
@@ -263,15 +257,13 @@
             handleParentClick: function(parentName) {
                 switch(this.objectEditorData.objectType) {
                     case 'specific-item':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/item edit "${parentName}"`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/item edit "${parentName}"`
                         });
                         break;
                     case 'specific-mob':
-                        this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/mob edit "${parentName}"`
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/mob edit "${parentName}"`
                         });
                         break;
                 }

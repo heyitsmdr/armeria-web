@@ -307,21 +307,6 @@ func (oc *ObjectContainer) Items() []*ItemInstance {
 	return items
 }
 
-// Remove removes an object from the container.
-func (oc *ObjectContainer) Remove(uuid string) {
-	oc.Lock()
-	defer oc.Unlock()
-
-	for i, ocd := range oc.UnsafeObjects {
-		if ocd.UUID == uuid {
-			oc.UnsafeObjects[i] = oc.UnsafeObjects[len(oc.UnsafeObjects)-1]
-			oc.UnsafeObjects = oc.UnsafeObjects[:len(oc.UnsafeObjects)-1]
-		}
-	}
-
-	Armeria.registry.UnregisterContainerObject(uuid)
-}
-
 // NextAvailableSlot returns the next unused slot within the container.
 func (oc *ObjectContainer) NextAvailableSlot() (int, error) {
 	if oc.UnsafeMaxSize == 0 {
@@ -336,6 +321,21 @@ func (oc *ObjectContainer) NextAvailableSlot() (int, error) {
 	}
 
 	return 0, ErrContainerNoRoom
+}
+
+// Remove removes an object from the container.
+func (oc *ObjectContainer) Remove(uuid string) {
+	oc.Lock()
+	defer oc.Unlock()
+
+	for i, ocd := range oc.UnsafeObjects {
+		if ocd.UUID == uuid {
+			oc.UnsafeObjects[i] = oc.UnsafeObjects[len(oc.UnsafeObjects)-1]
+			oc.UnsafeObjects = oc.UnsafeObjects[:len(oc.UnsafeObjects)-1]
+		}
+	}
+
+	Armeria.registry.UnregisterContainerObject(uuid)
 }
 
 // Add attempts to add an object to the container. This can fail if the object already exists within the container
@@ -368,15 +368,18 @@ func (oc *ObjectContainer) Add(uuid string) error {
 	return nil
 }
 
-// PopulateFromLedger ensures at least one entry from the ledger exists within the object container.
+// PopulateFromLedger ensures at least one entry from the ledger, with a buy price, exists within the
+// object container.
 func (oc *ObjectContainer) PopulateFromLedger(ledger *Ledger) {
 	for _, entry := range ledger.Entries() {
-		item := Armeria.itemManager.ItemByName(entry.ItemName)
-		if item != nil {
-			_, _, rt := oc.GetByName(item.Name())
-			if rt == RegistryTypeUnknown {
-				ii := item.CreateInstance()
-				oc.Add(ii.ID())
+		if entry.BuyPrice > 0 {
+			item := Armeria.itemManager.ItemByName(entry.ItemName)
+			if item != nil {
+				_, _, rt := oc.GetByName(item.Name())
+				if rt == RegistryTypeUnknown {
+					ii := item.CreateInstance()
+					oc.Add(ii.ID())
+				}
 			}
 		}
 	}

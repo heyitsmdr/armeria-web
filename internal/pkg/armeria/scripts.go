@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -292,26 +293,50 @@ func LuaShop(L *lua.LState) int {
 	// Ensure mob's inventory has at least one item instance from everything on the ledger.
 	mi.Inventory().PopulateFromLedger(ledger)
 
-	rows := []string{TableRow(
+	// Ensure mob knows about this ledger
+	mi.AddItemLedger(ledger)
+
+	// Generate buy table
+	buyTable := []string{TableRow(
 		TableCell{content: "Item", header: true},
 		TableCell{content: "Description", header: true},
-		TableCell{content: "Price", header: true},
-		TableCell{content: "Actions", header: true},
+		TableCell{content: "Buy", header: true},
 	)}
-
 	for _, ii := range mi.Inventory().Items() {
 		ledgerEntry := ledger.Contains(ii.Name())
-		if ledgerEntry != nil {
-			rows = append(rows, TableRow(
+		if ledgerEntry != nil && ledgerEntry.BuyPrice > 0 {
+			buyTable = append(buyTable, TableRow(
 				TableCell{content: ii.FormattedName()},
 				TableCell{content: ii.Attribute(AttributeDescription)},
-				TableCell{content: fmt.Sprintf("$%f", ledgerEntry.BuyPrice)},
-				TableCell{content: TextStyle("Buy", WithButton("/buy "+ii.ID(), ""))},
+				TableCell{content: TextStyle(
+					fmt.Sprintf("Buy %s <%s>", ii.Name(), misc.Money.FormatMoney(ledgerEntry.BuyPrice)),
+					WithLinkCmd(fmt.Sprintf("/buy \"%s\" \"%s\"", mi.Name(), ii.Name())),
+				)},
 			))
 		}
 	}
+	c.Player().client.ShowText(TextTable(buyTable...))
 
-	c.Player().client.ShowText(TextTable(rows...))
+	// Generate sell table
+	sellTable := []string{TableRow(
+		TableCell{content: "Inventory", header: true},
+		TableCell{content: "Sell", header: true},
+	)}
+	for _, ii := range c.Inventory().Items() {
+		ledgerEntry := ledger.Contains(ii.Name())
+		if ledgerEntry != nil && ledgerEntry.SellPrice > 0 {
+			sellTable = append(sellTable, TableRow(
+				TableCell{content: ii.FormattedName()},
+				TableCell{content: TextStyle(
+					fmt.Sprintf("Sell %s <%s>", ii.Name(), misc.Money.FormatMoney(ledgerEntry.SellPrice)),
+					WithLinkCmd(fmt.Sprintf("/sell \"%s\" \"%s\"", mi.Name(), ii.ID())),
+				)},
+			))
+		}
+	}
+	if len(sellTable) > 1 {
+		c.Player().client.ShowText(TextTable(sellTable...))
+	}
 
 	return 0
 }

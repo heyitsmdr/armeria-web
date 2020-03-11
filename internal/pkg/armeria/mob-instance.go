@@ -8,10 +8,11 @@ import (
 
 type MobInstance struct {
 	sync.RWMutex
-	UUID             string            `json:"uuid"`
-	UnsafeAttributes map[string]string `json:"attributes"`
-	UnsafeInventory  *ObjectContainer  `json:"inventory"`
-	Parent           *Mob              `json:"-"`
+	UUID              string            `json:"uuid"`
+	UnsafeAttributes  map[string]string `json:"attributes"`
+	UnsafeInventory   *ObjectContainer  `json:"inventory"`
+	UnsafeItemLedgers []*Ledger         `json:"-"`
+	Parent            *Mob              `json:"-"`
 }
 
 // Init is called when the MobInstance is created or loaded from disk.
@@ -84,6 +85,22 @@ func (mi *MobInstance) InstanceAttribute(name string) string {
 	defer mi.RUnlock()
 
 	return mi.UnsafeAttributes[name]
+}
+
+// AddItemLedger adds a "known" item ledger to the mob for use with buying and selling items.
+func (mi *MobInstance) AddItemLedger(ledger *Ledger) {
+	mi.Lock()
+	defer mi.Unlock()
+
+	mi.UnsafeItemLedgers = append(mi.UnsafeItemLedgers, ledger)
+}
+
+// ItemLedgers returns the "known" item ledgers for use with buying and selling items.
+func (mi *MobInstance) ItemLedgers() []*Ledger {
+	mi.RLock()
+	defer mi.RUnlock()
+
+	return mi.UnsafeItemLedgers
 }
 
 // MobInstance returns the MobInstance's Room based on the object container it is within.

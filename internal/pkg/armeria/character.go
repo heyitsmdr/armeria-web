@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -402,6 +403,35 @@ func (c *Character) Attribute(name string) string {
 	}
 
 	return c.UnsafeAttributes[name]
+}
+
+// Money returns the character's money as a float.
+func (c *Character) Money() float64 {
+	money := c.Attribute(AttributeMoney)
+	f, err := strconv.ParseFloat(money, 64)
+	if err != nil {
+		Armeria.log.Fatal("unable to convert money to float64",
+			zap.Error(err),
+		)
+	}
+	return f
+}
+
+// RemoveMoney attempts to remove money from the character and returns True if they can afford it.
+func (c *Character) RemoveMoney(amount float64) bool {
+	money := c.Money()
+	if amount > money {
+		return false
+	}
+
+	_ = c.SetAttribute(AttributeMoney, fmt.Sprintf("%.2f", money-amount))
+
+	return true
+}
+
+// AddMoney adds money to the character.
+func (c *Character) AddMoney(amount float64) {
+	_ = c.SetAttribute(AttributeMoney, fmt.Sprintf("%.2f", c.Money()+amount))
 }
 
 // SetSetting sets a unsafeCharacter setting and only valid settings can be set.

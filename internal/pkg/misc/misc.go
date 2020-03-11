@@ -1,5 +1,9 @@
 package misc
 
+import "github.com/leekchan/accounting"
+
+var Money = accounting.Accounting{Symbol: "$", Precision: 2}
+
 // Contains tells whether a contains x.
 func Contains(a []string, x string) bool {
 	for _, n := range a {

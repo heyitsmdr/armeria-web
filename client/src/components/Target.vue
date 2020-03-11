@@ -117,11 +117,17 @@ export default {
             if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                 if (e.shiftKey) {
                     if (this.objectType === OBJECT_TYPE_CHARACTER) {
-                        this.$socket.sendObj({ type: 'command', payload: '/character edit ' + this.name });
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/character edit "${this.name}"`
+                        });
                     } else if (this.objectType === OBJECT_TYPE_MOB) {
-                        this.$socket.sendObj({ type: 'command',  payload: '/mob iedit ' + this.uuid });
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/mob iedit "${this.uuid}"`
+                        });
                     } else if (this.objectType === OBJECT_TYPE_ITEM) {
-                        this.$socket.sendObj({ type: 'command',  payload: '/item iedit ' + this.uuid });
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/item iedit "${this.uuid}"`
+                        });
                     }
                     return
                 }
@@ -138,7 +144,9 @@ export default {
 
         handleDoubleClick: function() {
             if (this.objectType === OBJECT_TYPE_ITEM) {
-                this.$socket.sendObj({ type: 'command', payload: '/get ' + this.uuid });
+                this.$store.dispatch('sendSlashCommand', {
+                    command: `/get "${this.uuid}"`
+                });
                 this.$store.dispatch('setObjectTarget', '');
                 this.$soundEvent(PICKUP_ITEM);
                 this.hideTooltip();
@@ -146,7 +154,9 @@ export default {
         },
 
         onContextMenu: function() {
-            this.$socket.sendObj({ type: 'command', payload: '/look ' + this.uuid });
+            this.$store.dispatch('sendSlashCommand', {
+                command: `/look "${this.uuid}"`
+            });
         },
 
         handleDragEnter: function() {
@@ -162,7 +172,7 @@ export default {
             const item_uuid = e.dataTransfer.getData('item_uuid');
             if (item_uuid) {
                 this.$store.dispatch('sendSlashCommand', {
-                    command: `/give ${this.uuid} ${item_uuid}`
+                    command: `/give "${this.uuid}" "${item_uuid}"`
                 });
             }
         }

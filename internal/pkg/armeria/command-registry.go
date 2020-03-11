@@ -911,6 +911,25 @@ func RegisterGameCommands() {
 				},
 			},
 		},
+		{
+			Name: "buy",
+			Help: "Buy an item from an NPC.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "npc",
+					Help: "The name of the NPC you wish to buy the item from.",
+				},
+				{
+					Name:             "item",
+					Help:             "The name of the item you wish to buy.",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleBuyCommand,
+		},
 	}
 
 	for _, cmd := range commands {
