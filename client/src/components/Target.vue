@@ -92,7 +92,7 @@ export default {
         },
 
         handleMouseMove: function(e) {
-            if (this.objectType != OBJECT_TYPE_ITEM) {
+            if (this.objectType !== OBJECT_TYPE_ITEM) {
                 return;
             }
 
@@ -108,6 +108,7 @@ export default {
         handleMouseLeave: function() {
             this.hideTooltip();
         },
+
         handleMouseDown: function() {
             this.$refs['container'].classList.add('mouse-down');
         },

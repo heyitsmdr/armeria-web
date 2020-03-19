@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/sfx"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -123,7 +124,7 @@ func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	editorData.AccessKey = c.Name() + "/" + c.PasswordHash()
 	j, err := json.Marshal(editorData)
 	if err != nil {
-		Armeria.log.Fatal("failed to marshal data",
+		Armeria.log.Fatal("failed to marshal data for client action: ShowObjectEditor",
 			zap.Error(err),
 		)
 	}
@@ -147,4 +148,37 @@ func (ca *ClientActions) ToggleAutologin() {
 // SetItemTooltipHTML sets the item's tooltip HTML on the client and stores it in the client-side cache.
 func (ca *ClientActions) SetItemTooltipHTML(ii *ItemInstance) {
 	ca.parent.CallClientAction("setItemTooltipHTML", ii.TooltipContentJSON())
+}
+
+// SetItemTooltipHTMLRaw sets an item's tooltip HTML on the client to some arbitrary value.
+func (ca *ClientActions) SetItemTooltipHTMLRaw(uuid, content string) {
+	tt := map[string]string{
+		"uuid":   uuid,
+		"html":   content,
+		"rarity": "ffffff",
+	}
+
+	ttJSON, err := json.Marshal(tt)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal data for client action: SetItemTooltipHTMLRaw",
+			zap.Error(err),
+		)
+	}
+
+	ca.parent.CallClientAction("setItemTooltipHTML", string(ttJSON))
+}
+
+// PlaySFX plays a sound effect on the client.
+func (ca *ClientActions) PlaySFX(id sfx.ClientSoundEffect, volume float32) {
+	data := map[string]interface{}{
+		"id":     string(id),
+		"volume": volume,
+	}
+	dataJSON, err := json.Marshal(data)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal data for client action: PlaySFX",
+			zap.Error(err),
+		)
+	}
+	ca.parent.CallClientAction("playSFX", string(dataJSON))
 }

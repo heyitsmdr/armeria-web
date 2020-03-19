@@ -47,6 +47,7 @@ const (
 	ColorChannelGeneral
 	ColorChannelCore
 	ColorChannelBuilders
+	ColorMoney
 
 	SettingBrief string = "brief"
 
@@ -251,6 +252,8 @@ func (c *Character) Colorize(text string, color int) string {
 		return fmt.Sprintf("<span style='color:#ff5722'>%s</span>", text)
 	case ColorChannelBuilders:
 		return fmt.Sprintf("<span style='color:#007cff'>%s</span>", text)
+	case ColorMoney:
+		return fmt.Sprintf("<span style='color:#fec205'>%s</span>", text)
 	default:
 		return text
 	}

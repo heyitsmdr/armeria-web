@@ -158,6 +158,8 @@
             },
 
             setProperty: function(propName, propValue, target = ".") {
+                propValue = propValue.trim();
+
                 switch(this.objectEditorData.objectType) {
                     case 'room':
                         this.$store.dispatch('sendSlashCommand', {

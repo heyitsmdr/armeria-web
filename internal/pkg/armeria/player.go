@@ -62,6 +62,7 @@ func (p *Player) readPump() {
 			uuid := messageRead.Payload.(string)
 			o, rt := Armeria.registry.Get(uuid)
 			if rt != RegistryTypeItemInstance {
+				p.client.SetItemTooltipHTMLRaw(uuid, "There is no additional information available.")
 				break
 			}
 			ii := o.(*ItemInstance)

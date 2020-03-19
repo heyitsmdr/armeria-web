@@ -87,7 +87,7 @@ func WithLink(url string) TextOperation {
 // WithItemTooltip formats the text allowing a player to mouse-over the item and view the item tooltip.
 func WithItemTooltip(uuid string) TextOperation {
 	return TextOperation{
-		Text: "<span class='hover-item-tooltip' data-uuid='" + uuid + "'>%v</a>",
+		Text: "<span class='hover-item-tooltip' data-uuid='" + uuid + "'>%v</span>",
 	}
 }
 

@@ -296,5 +296,10 @@ export default new Vuex.Store({
     setMoney: ({ commit }, payload) => {
       commit('SET_MONEY', payload.data);
     },
+
+    playSFX: (_, payload) => {
+      const sfx = JSON.parse(payload.data);
+      Vue.prototype.$soundEvent(sfx.id, sfx.volume);
+    },
   }
 })

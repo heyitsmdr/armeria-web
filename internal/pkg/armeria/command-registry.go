@@ -930,6 +930,25 @@ func RegisterGameCommands() {
 			},
 			Handler: handleBuyCommand,
 		},
+		{
+			Name: "sell",
+			Help: "Sell an item to an NPC.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "npc",
+					Help: "The name of the NPC you wish to sell the item to.",
+				},
+				{
+					Name:             "item",
+					Help:             "The name of the item you wish to sell.",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleSellCommand,
+		},
 	}
 
 	for _, cmd := range commands {
