@@ -1,15 +1,15 @@
 <template>
     <div class="container">
-        <div class="area-title">
-            <div class="map-name" @click="handleAreaClick">{{ areaTitle }}</div>
-            <div class="room-name">{{ roomTitle }}</div>
-        </div>
         <div class="map" ref="map">
             <canvas id="map-canvas"></canvas>
             <div class="floor" ref="floor">
 
             </div>
             <div class="position" ref="position"></div>
+        </div>
+        <div class="area-title">
+            <div class="map-name" @click="handleAreaClick">{{ areaTitle }}</div>
+            <div class="room-name">{{ roomTitle }}</div>
         </div>
     </div>
 </template>

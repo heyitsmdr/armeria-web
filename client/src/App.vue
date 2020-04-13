@@ -7,18 +7,19 @@
         </div>
         
         <div class="container-tabs">
-        <div class="tabs">
-          <ul class="tab-list">
-            <li :class="{'is-selected' : isSelected(0)}" @click="selectedTab = 0"><img src="gfx/iconInventory.png" alt=""></li>
-            <li :class="{'is-selected' : isSelected(1)}" @click="selectedTab = 1"><img src="gfx/iconSkills.png" alt=""></li>
-          </ul>
+          <div class="tab-panels">
+            <Inventory v-if="isSelected(0)"/>
+            <Skills v-if="isSelected(2)"/>
+          </div>
+          <div class="tabs">
+            <ul class="tab-list">
+              <li :class="{'is-selected' : isSelected(0)}" @click="selectedTab = 0"><img src="gfx/iconInventory.png" alt=""></li>
+              <li :class="{'is-selected' : isSelected(1)}" @click="selectedTab = 1"><img src="gfx/iconArmor.png" alt=""></li>
+              <li :class="{'is-selected' : isSelected(2)}" @click="selectedTab = 2"><img src="gfx/iconSkills.png" alt=""></li>
+              <li :class="{'is-selected' : isSelected(3)}" @click="selectedTab = 3"><img src="gfx/iconMagic.png" alt=""></li>
+            </ul>
+          </div>
         </div>
-        <div class="tab-panels">
-          <Inventory v-if="isSelected(0)"/>
-          <Skills v-if="isSelected(1)"/>
-        </div>
-      </div>
-
       </div>
       <div class="container-center">
         <div class="container-maintext">
@@ -226,38 +227,45 @@
         background-color: $backgroundLight;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
+        
+        .container-tabs {
+          -webkit-box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.25);
+              -moz-box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.25);
+              box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.25);
 
-        .tab-list {
-          width:100%;
-          /*padding:0 0 1.75em 1em;*/padding:0;
-          margin: 0.5em 0 0;
-          list-style:none;
-          line-height:1em;
-          height: 32px;
-
-          li {
+          .tab-list {
+            width:100%;
+            /*padding:0 0 1.75em 1em;*/padding:0;
+            margin: 0.5em 0 0;
+            list-style:none;
+            line-height:1em;
             height: 32px;
-            float: left;
-            margin: 0;
-            padding: 0.25em;
-            width: 50%;
-            cursor: pointer;
-            text-align: center;
-            background-color: #0a0a0a;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
 
-            img {
-              max-width: 100%;
-              max-height: 100%;
+            li {
+              height: 32px;
+              float: left;
+              margin: 0;
+              padding: 0.25em;
+              width: 25%;
+              cursor: pointer;
+              text-align: center;
+              background-color: #151515;
+              -moz-box-sizing: border-box;
+              box-sizing: border-box;
+
+              img {
+                max-width: 100%;
+                max-height: 100%;
+              }
             }
+            .is-selected {
+                background-color: #1b1b1b;
+                border-left: solid 2px #222;
+                border-right: solid 2px #111;
+                border-bottom: solid 2px #111;
+              }
           }
-          .is-selected {
-              background-color: #1b1b1b;
-              -webkit-box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.5);
-              -moz-box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.5);
-              box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.5);
-            }
         }
 
         .container-minimap {
