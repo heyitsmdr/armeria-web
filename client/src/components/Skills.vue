@@ -29,7 +29,8 @@
     .skills-container .skill-level-container {
         flex-basis: 40px;
         display: flex;
-        box-shadow: 0px 0px 7px #000;
+        /*box-shadow: 0px 0px 7px #000;*/
+        padding: 5px 0 0 0;
     }
 
     .skills-container .skill-level-container .text {

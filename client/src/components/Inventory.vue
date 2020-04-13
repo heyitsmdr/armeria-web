@@ -63,14 +63,14 @@
 
 <style scoped>
     .inventory {
-        background-color: #131313;
+        background-color: #1b1b1b;
         height: 100%;
     }
 
     .item-container {
         display: flex;
         flex-wrap: wrap;
-        padding: 10px 10px 0px 10px;
+        padding: 5px 10px 0px 10px;
     }
 
     .currency-container {

@@ -5,12 +5,20 @@
         <div class="container-minimap">
           <Minimap />
         </div>
-        <div class="container-targets">
-          <RoomTargets />
+        
+        <div class="container-tabs">
+        <div class="tabs">
+          <ul class="tab-list">
+            <li :class="{'is-selected' : isSelected(0)}" @click="selectedTab = 0"><img src="gfx/iconInventory.png" alt=""></li>
+            <li :class="{'is-selected' : isSelected(1)}" @click="selectedTab = 1"><img src="gfx/iconSkills.png" alt=""></li>
+          </ul>
         </div>
-        <div class="container-hotkeys">
-          Hotkeys
+        <div class="tab-panels">
+          <Inventory v-if="isSelected(0)"/>
+          <Skills v-if="isSelected(1)"/>
         </div>
+      </div>
+
       </div>
       <div class="container-center">
         <div class="container-maintext">
@@ -24,11 +32,8 @@
         </div>
       </div>
       <div class="container-right">
-        <div class="container-skills">
-          <Skills />
-        </div>
-        <div class="container-inventory">
-          <Inventory />
+        <div class="container-targets">
+          <RoomTargets />
         </div>
       </div>
     </div>
@@ -68,6 +73,7 @@
       return {
         windowHeight: 0,
         windowWidth: 0,
+        selectedTab: 0,
       }
     },
     computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen', 'isConnected', 'playerInfo']),
@@ -145,6 +151,10 @@
             command: sendCommand
           });
         }
+      },
+
+      isSelected(id) {
+        return this.selectedTab === id
       }
     },
 
@@ -217,17 +227,49 @@
         display: flex;
         flex-direction: column;
 
+        .tab-list {
+          width:100%;
+          /*padding:0 0 1.75em 1em;*/padding:0;
+          margin: 0.5em 0 0;
+          list-style:none;
+          line-height:1em;
+          height: 32px;
+
+          li {
+            height: 32px;
+            float: left;
+            margin: 0;
+            padding: 0.25em;
+            width: 50%;
+            cursor: pointer;
+            text-align: center;
+            background-color: #0a0a0a;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+
+            img {
+              max-width: 100%;
+              max-height: 100%;
+            }
+          }
+          .is-selected {
+              background-color: #1b1b1b;
+              -webkit-box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.5);
+              -moz-box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.5);
+              box-shadow: 0px -2px 2px 0px rgba(0,0,0,0.5);
+            }
+        }
+
         .container-minimap {
           flex-basis: 250px;
         }
 
-        .container-targets {
+        .container-skills {
           flex-grow: 1;
-          min-height: 100px;
         }
 
-        .container-hotkeys {
-          flex-basis: 250px;
+        .container-inventory {
+          flex-basis: 365px;
         }
       }
 
@@ -258,12 +300,9 @@
         display: flex;
         flex-direction: column;
 
-        .container-skills {
+        .container-targets {
           flex-grow: 1;
-        }
-
-        .container-inventory {
-          flex-basis: 365px;
+          min-height: 100px;
         }
       }
     }
