@@ -253,6 +253,8 @@
               background-color: #151515;
               -moz-box-sizing: border-box;
               box-sizing: border-box;
+              border: solid 1px #111;
+              border-right:none;
 
               img {
                 max-width: 100%;
@@ -261,9 +263,8 @@
             }
             .is-selected {
                 background-color: #1b1b1b;
-                border-left: solid 2px #222;
-                border-right: solid 2px #111;
-                border-bottom: solid 2px #111;
+                border: solid 1px #222;
+                border-top: none;
               }
           }
         }
@@ -285,8 +286,11 @@
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        box-shadow: 0px 0px 12px 1px #080808;
+        /*box-shadow: 0px 0px 12px 1px #080808;*/
         position: relative;
+        padding: 0 5px;
+        border-left: solid 1px #222;
+        border-right: solid 1px #222;
 
         .container-maintext {
           flex-grow: 1;
@@ -317,7 +321,7 @@
 
     .status-bar-container {
       flex-basis: 30px;
-      border-top: 1px solid #333;
+      border-top: 1px solid #222;
       position: relative;
       background-color: #0e0e0e;
     }

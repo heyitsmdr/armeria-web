@@ -11,7 +11,7 @@
             />
         </div>
         <div class="currency-container">
-            <b>Money:</b> {{ formattedMoney }}
+            <img src="gfx/iconGold.png" alt=""><p>{{ formattedMoney }}</p>
         </div>
     </div>
 </template>
@@ -73,14 +73,27 @@
         padding: 5px 10px 0px 10px;
     }
 
+    img {
+            max-width: 100%;
+            max-height: 100%;
+            float:right;
+        }
+
     .currency-container {
         margin-left: 10px;
         margin-right: 14px;
-        border: 1px solid #bf9109;
         color: #ffc107;
-        padding: 4px;
-        box-shadow: inset 0px 0px 5px #cc9904;
-        background-color: #000;
+        background-color: #1b1b1b;
         font-size: 13px;
+        height: 24px;
+        margin-top: -12px;
+    }
+
+    p {
+        height: 24px;
+        display: flex;
+        text-align: right;
+        flex-direction: column;
+        padding: 3px 3px 0 0;
     }
 </style>
