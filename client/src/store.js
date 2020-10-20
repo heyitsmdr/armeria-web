@@ -188,7 +188,13 @@ export default new Vuex.Store({
       }
 
       commit('APPEND_COMMAND_HISTORY', payload.command);
-      commit('ADD_GAME_TEXT', `<div class="inline-loopback">${payload.command}</div>`);
+
+      let echoCmd = payload.command;
+      if (payload.command.indexOf('logintoken') === 1) {
+        // Hide the actual token from the command echo'd to the main text area.
+        echoCmd = `${payload.command.split(':')[0]}:&lt;redacted&gt;`
+      }
+      commit('ADD_GAME_TEXT', `<div class="inline-loopback">${echoCmd}</div>`);
 
       Vue.prototype.$socket.sendObj({
         type: "command",
