@@ -23,6 +23,7 @@ type ObjectEditorData struct {
 	Properties []*ObjectEditorDataProperty `json:"properties"`
 	AccessKey  string                      `json:"accessKey"`
 	TextCoords string                      `json:"textCoords"`
+	IsChild    bool                        `json:"isChild"`
 }
 
 // ObjectEditorDataProperty is a struct that contains the json fields for each individual property within the

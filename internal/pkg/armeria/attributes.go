@@ -67,7 +67,10 @@ func ValidItemInstanceAttributes() []string {
 
 // ValidMobInstanceAttributes returns an array of attributes that can be overriden from the parent.
 func ValidMobInstanceAttributes() []string {
-	return []string{}
+	return []string{
+		AttributeGender,
+		AttributeTitle,
+	}
 }
 
 // ValidMobAttributes returns an array of valid attributes that can be permanently set.
@@ -76,6 +79,7 @@ func ValidMobAttributes() []string {
 		AttributePicture,
 		AttributeScript,
 		AttributeGender,
+		AttributeTitle,
 	}
 }
 

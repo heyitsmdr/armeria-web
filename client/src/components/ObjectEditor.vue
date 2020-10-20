@@ -15,7 +15,7 @@
                     <!-- editable type -->
                     <div
                         class="editable"
-                        :class="{ inherited: prop.value.length === 0 && prop.parentValue.length > 0 }"
+                        :class="{ inherited: prop.value.length === 0 && objectEditorData.isChild }"
                         v-if="prop.propType === 'editable'"
                         @click="handleEditablePropClick($event, prop)"
                         @blur="handleEditablePropBlur($event, prop)"

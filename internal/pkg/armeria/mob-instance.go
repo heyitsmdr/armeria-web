@@ -139,6 +139,7 @@ func (mi *MobInstance) EditorData() *ObjectEditorData {
 		UUID:       mi.ID(),
 		Name:       mi.Name(),
 		ObjectType: "specific-mob",
+		IsChild:    true,
 		Properties: props,
 	}
 }

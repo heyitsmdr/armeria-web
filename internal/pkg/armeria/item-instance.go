@@ -151,6 +151,7 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 		UUID:       ii.ID(),
 		Name:       ii.Name(),
 		ObjectType: "specific-item",
+		IsChild:    true,
 		Properties: props,
 	}
 }
