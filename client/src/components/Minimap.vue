@@ -326,7 +326,7 @@
 
         mounted() {
             const mapCanvas = document.getElementById('map-canvas');
-            this.app = new PIXI.Application({width: 250, height: 206, view: mapCanvas, antialias: true});
+            this.app = new PIXI.Application({width: 250, height: 205, view: mapCanvas, antialias: true});
             this.mapContainer = new PIXI.Container();
 
             this.app.stage.addChild(this.mapContainer);
@@ -364,13 +364,13 @@
 
     .area-title .room-name {
         font-size: 12px;
+        color: #bdbdbd;
     }
 
     .map {
         background-color: #0c0c0c;
         border-bottom: 1px solid #313131;
-        flex-grow: 1;
-        min-height: 205px;
+        flex-basis: 205px;
         position: relative;
         overflow: hidden;
         transition: all .3s ease-in-out;

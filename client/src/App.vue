@@ -8,9 +8,6 @@
         <div class="container-targets">
           <RoomTargets />
         </div>
-        <div class="container-hotkeys">
-          Hotkeys
-        </div>
       </div>
       <div class="container-center">
         <div class="container-maintext">
@@ -224,10 +221,6 @@
         .container-targets {
           flex-grow: 1;
           min-height: 100px;
-        }
-
-        .container-hotkeys {
-          flex-basis: 250px;
         }
       }
 
