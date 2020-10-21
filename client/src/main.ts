@@ -1,7 +1,10 @@
 import Vue from 'vue'
+// @ts-ignore
 import VueNativeSock from 'vue-native-websocket'
 import App from './App.vue'
+// @ts-ignore
 import store from './store'
+// @ts-ignore
 import SFX from './plugins/SFX'
 
 Vue.config.productionTip = false
@@ -16,7 +19,8 @@ if (process.env.NODE_ENV === "production") {
 Vue.use(VueNativeSock, connectionString, { store: store, format: 'json' })
 Vue.use(SFX)
 
-window.Armeria = new Vue({
+// @ts-ignore
+window['Armeria'] = new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
