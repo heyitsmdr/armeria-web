@@ -167,7 +167,8 @@ func (ii *ItemInstance) TooltipContentJSON() string {
 			ii.Name(),
 			ii.RarityName(),
 		),
-		"rarity": ii.RarityColor(),
+		"rarity":  ii.RarityColor(),
+		"picture": ii.Attribute(AttributePicture),
 	}
 
 	ttJSON, err := json.Marshal(tt)
