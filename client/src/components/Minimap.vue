@@ -30,7 +30,8 @@
                 mapWidth: 0,
                 areaTitle: 'Unknown',
                 app: null,
-                mapContainer: null
+                mapContainer: null,
+                backgroundTilingSprite: null
             }
         },
         computed: mapState(['minimapData', 'characterLocation', 'roomTitle', 'permissions']),
@@ -272,7 +273,9 @@
                 var x = (this.app.screen.width / 2) + -((location.x * gridSizeFull) + (this.gridPadding * location.x)) - (gridSizeFull / 2);
                 var y = (this.app.screen.height / 2) + ((location.y * gridSizeFull) + (this.gridPadding * location.y)) - (gridSizeFull / 2);
                 ease.add(this.mapContainer, {x: x, y: y}, {duration: 100, repeat: false, reverse: false});
-                this.app.renderer.backgroundColor = this.rgbToHex(this.roomColor(location), 160);
+
+                // Tint the background.
+                this.backgroundTilingSprite.tint = this.rgbToHex(this.roomColor(location), -100);
 
             },
 
@@ -327,8 +330,22 @@
         mounted() {
             const mapCanvas = document.getElementById('map-canvas');
             this.app = new PIXI.Application({width: 250, height: 205, view: mapCanvas, antialias: true});
-            this.mapContainer = new PIXI.Container();
 
+            this.backgroundTilingSprite = new PIXI.TilingSprite(
+                PIXI.Texture.from('gfx/minimap-bg.png'),
+                this.app.screen.width,
+                this.app.screen.height
+            );
+
+            const backgroundContainer = new PIXI.Container();
+            backgroundContainer.addChild(this.backgroundTilingSprite);
+
+            const filter = new PIXI.filters.ColorMatrixFilter();
+            backgroundContainer.filters = [filter];
+            filter.contrast(1, true);
+            this.app.stage.addChild(backgroundContainer);
+
+            this.mapContainer = new PIXI.Container();
             this.app.stage.addChild(this.mapContainer);
 
             const pos = this.$refs['position'];
