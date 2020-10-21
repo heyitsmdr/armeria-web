@@ -159,8 +159,9 @@ export default new Vuex.Store({
 
     SET_ITEM_TOOLTIP_HTML: (state, data) => {
       for(let i = 0; i < state.itemTooltipCache.length; i++) {
-        const cacheItem = state.itemTooltipCache[i];
+        let cacheItem = state.itemTooltipCache[i];
         if (cacheItem.uuid === data.uuid) {
+          cacheItem = data;
           return;
         }
       }
