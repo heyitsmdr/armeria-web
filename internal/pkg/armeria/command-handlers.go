@@ -344,7 +344,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		arriveDir = "the west"
 	case "west", "w":
 		d = "west"
-		walkDir = "west"
+		walkDir = "the west"
 		arriveDir = "the east"
 	case "up", "u":
 		d = "up"
