@@ -1284,7 +1284,9 @@ func handleTeleportCommand(ctx *CommandContext) {
 		moveMsg = fmt.Sprintf("You teleported to %s.", c.FormattedName())
 	} else {
 		loc := strings.Split(t, ",")
-		if len(loc) != 4 {
+		if len(loc) == 1 {
+			loc = append(loc, "0", "0", "0")
+		} else if len(loc) != 4 {
 			ctx.Player.client.ShowColorizedText("Incorrect format for teleport. Use [area],[x],[y],[z].", ColorError)
 			return
 		}
