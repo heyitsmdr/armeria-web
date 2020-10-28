@@ -30,6 +30,11 @@ func (m *CommandManager) Commands() []*Command {
 // RegisterCommand will register a Command with the command manager with the arguments
 // parsed out.
 func (m *CommandManager) RegisterCommand(c *Command) {
+	// Set parents for sub-commands.
+	for _, cmd := range c.Subcommands {
+		cmd.Parent = c
+	}
+
 	m.commands = append(m.commands, c)
 }
 

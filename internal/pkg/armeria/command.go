@@ -9,6 +9,7 @@ import (
 )
 
 type Command struct {
+	Parent       *Command
 	Name         string
 	AltNames     []string
 	Help         string
@@ -161,9 +162,18 @@ func (cmd *Command) LogCtx(ctx *CommandContext) {
 		c = ctx.Character.Name()
 	}
 
-	Armeria.log.Info("character executed command",
-		zap.String("character", c),
-		zap.String("command", ctx.Command.Name),
-		zap.Strings("arguments", args),
-	)
+	if ctx.Command.Parent != nil {
+		Armeria.log.Info("character executed command",
+			zap.String("character", c),
+			zap.String("command", ctx.Command.Parent.Name),
+			zap.String("sub-command", ctx.Command.Name),
+			zap.Strings("arguments", args),
+		)
+	} else {
+		Armeria.log.Info("character executed command",
+			zap.String("character", c),
+			zap.String("command", ctx.Command.Name),
+			zap.Strings("arguments", args),
+		)
+	}
 }
