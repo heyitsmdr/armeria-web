@@ -306,20 +306,20 @@
 
             /**
              * Handles the click event for a minimap room.
-             * @param {PIXI.interaction.InteractionEvent} evt
+             * @param {PIXI.InteractionEvent} evt
              * @param {Room} room
              */
             handleRoomClick: function (evt, room) {
                 if (this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
                     if (evt.data.originalEvent.shiftKey) {
                         this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/teleport ${this.areaTitle},${room.x},${room.y},${room.z}`
+                          type: 'command',
+                          payload: `/room edit ${room.x},${room.y},${room.z}`
                         });
                     } else {
                         this.$socket.sendObj({
-                            type: 'command',
-                            payload: `/room edit ${room.x},${room.y},${room.z}`
+                          type: 'command',
+                          payload: `/teleport ${this.areaTitle},${room.x},${room.y},${room.z}`
                         });
                     }
 
