@@ -99,13 +99,22 @@ func (ii *ItemInstance) Character() *Character {
 	return oc.ParentCharacter()
 }
 
-// Room returns the ItemInstance's Room based on the object container it is within.
+// Room returns the Room that has the ItemInstance.
 func (ii *ItemInstance) Room() *Room {
 	oc := Armeria.registry.GetObjectContainer(ii.ID())
 	if oc == nil {
 		return nil
 	}
 	return oc.ParentRoom()
+}
+
+// MobInstance returns the MobInstance that has the ItemInstance.
+func (ii *ItemInstance) MobInstance() *MobInstance {
+	oc := Armeria.registry.GetObjectContainer(ii.ID())
+	if oc == nil {
+		return nil
+	}
+	return oc.ParentMobInstance()
 }
 
 // RarityColor returns the HTML color code that represents the rarity of the item.

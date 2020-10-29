@@ -1175,11 +1175,19 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 				TableCell{content: ii.ID()},
 				TableCell{
 					content: fmt.Sprintf(
-						"%s (slot %d)",
+						"Character: %s (slot %d)",
 						ii.Character().FormattedName(),
 						ii.Character().Inventory().Slot(ii.ID()),
 					),
 					styling: "",
+				},
+			))
+		} else if ctr.ParentType() == ContainerParentTypeMobInstance {
+			rows = append(rows, TableRow(
+				TableCell{content: ii.FormattedName()},
+				TableCell{content: ii.ID()},
+				TableCell{
+					content: fmt.Sprintf("Mob: %s", ii.MobInstance().FormattedName()),
 				},
 			))
 		}

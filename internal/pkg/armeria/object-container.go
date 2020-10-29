@@ -92,7 +92,7 @@ func (oc *ObjectContainer) AttachParent(p interface{}, t ContainerParentType) {
 	oc.UnsafeParentType = t
 }
 
-// ParentRoom returns the parent Room if the object has an appropriate parent type.
+// ParentRoom returns the parent Room if the object has the appropriate parent type.
 func (oc *ObjectContainer) ParentRoom() *Room {
 	oc.RLock()
 	defer oc.RUnlock()
@@ -104,7 +104,7 @@ func (oc *ObjectContainer) ParentRoom() *Room {
 	return oc.UnsafeParent.(*Room)
 }
 
-// ParentCharacter returns the parent Character if the object has an appropriate parent type.
+// ParentCharacter returns the parent Character if the object has the appropriate parent type.
 func (oc *ObjectContainer) ParentCharacter() *Character {
 	oc.RLock()
 	defer oc.RUnlock()
@@ -114,6 +114,18 @@ func (oc *ObjectContainer) ParentCharacter() *Character {
 	}
 
 	return oc.UnsafeParent.(*Character)
+}
+
+// ParentMobInstance returns the parent MobInstance if the object has the appropriate parent type.
+func (oc *ObjectContainer) ParentMobInstance() *MobInstance {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	if oc.UnsafeParentType != ContainerParentTypeMobInstance {
+		return nil
+	}
+
+	return oc.UnsafeParent.(*MobInstance)
 }
 
 // ParentType returns the ContainerParentType that owns this object container.
