@@ -299,7 +299,8 @@ func RegisterGameCommands() {
 					Help: "Create a new mob in the game.",
 					Arguments: []*CommandArgument{
 						{
-							Name: "name",
+							Name:             "name",
+							IncludeRemaining: true,
 						},
 					},
 					Handler: handleMobCreateCommand,
