@@ -138,8 +138,12 @@ export default {
             }
 
             if (moveCommand.length > 0) {
-                if (event.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD')) {
-                    moveCommand = moveCommand.replace('/move', '/room create');
+                if (this.$store.state.permissions.indexOf('CAN_BUILD')) {
+                    if (event.shiftKey) {
+                        moveCommand = moveCommand.replace('/move', '/room create');
+                    } else if (event.ctrlKey) {
+                        moveCommand = moveCommand.replace('/move', '/room destroy');
+                    }
                 }
 
                 this.$store.dispatch('sendSlashCommand', {
