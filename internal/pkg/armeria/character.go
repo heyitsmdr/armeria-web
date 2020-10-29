@@ -57,14 +57,14 @@ const (
 	PronounObjective
 )
 
-// ValidSettings returns all valid settings for a unsafeCharacter.
+// ValidSettings returns all valid settings for a Character.
 func ValidSettings() []string {
 	return []string{
 		SettingBrief,
 	}
 }
 
-// SettingDesc is used to retrieve the description of a unsafeCharacter setting.
+// SettingDesc is used to retrieve the description of a Character setting.
 func SettingDesc(name string) string {
 	switch name {
 	case SettingBrief:

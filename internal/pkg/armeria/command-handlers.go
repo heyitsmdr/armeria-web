@@ -400,6 +400,10 @@ func handleMoveCommand(ctx *CommandContext) {
 	} else {
 		Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
 	}
+
+	if ctx.Character.TempAttribute(TempAttributeEditorOpen) == "true" {
+		ctx.Player.client.ShowObjectEditor(newRoom.EditorData())
+	}
 }
 
 func handleRoomEditCommand(ctx *CommandContext) {
@@ -511,7 +515,10 @@ func handleRoomCreateCommand(ctx *CommandContext) {
 		return
 	}
 
-	_ = Armeria.worldManager.CreateRoom(ctx.Character.Room().ParentArea, c)
+	rm := Armeria.worldManager.CreateRoom(ctx.Character.Room().ParentArea, c)
+
+	// Match room colors.
+	rm.SetAttribute(AttributeColor, ctx.Character.Room().Attribute(AttributeColor))
 
 	for _, c := range ctx.Character.Room().ParentArea.Characters() {
 		c.Player().client.SyncMap()
