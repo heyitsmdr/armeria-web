@@ -144,7 +144,7 @@
                 }
 
                 // If two rooms are the same color, draw their connecting lines as that color.
-                let lineColor = this.rgbToHex('221,221,221');
+                let lineColor = this.rgbToHex('190,190,190');
                 if (srcRoom.color === targetRoom.color) {
                     lineColor = this.rgbToHex(srcRoom.color);
                 }
