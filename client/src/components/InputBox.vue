@@ -7,12 +7,16 @@
                 v-model="textToSend"
                 @keyup.enter="handleSendText"
                 @keyup.escape="handleRemoveFocus"
+                @keyup="handleKeyUp"
                 @keydown="handleKeyDown"
                 @focus="handleFocus"
                 @blur="handleBlur"
         />
         <div class="hotkey-overlay" v-if="!isFocused" @click="handleHotkeyOverlayClick">
             Hotkey Mode -- Press ENTER for Input Mode
+        </div>
+        <div class="command-helper-overlay" ref="commandHelper" v-if="commandHelpVisible">
+            <div v-html="helpHTML"></div>
         </div>
     </div>
 </template>
@@ -28,9 +32,11 @@
                 password: '',
                 isFocused: false,
                 lastCommandHistoryIndex: -1,
+                commandHelpVisible: false,
+                helpHTML: '',
             }
         },
-        computed: mapState(['objectEditorOpen', 'forceInputFocus', 'commandHistory']),
+        computed: mapState(['objectEditorOpen', 'forceInputFocus', 'commandHistory', 'commandDictionary']),
         mounted() {
             this.$refs['inputBox'].focus();
         },
@@ -92,6 +98,151 @@
                 }
 
                 return this.commandHistory[retrieveIndex];
+            },
+
+            // test "this is" yes
+            getCommandSegments(str) {
+                let args = [];
+                let recording = '';
+                let inQuotes = false;
+
+                for(let i = 0; i < str.length; i++) {
+                    const char = str[i];
+
+                    if (char === ' ' && !inQuotes) {
+                        if (recording.length > 0) {
+                            args.push(recording);
+                            recording = '';
+                        }
+                    } else if (char === '"') {
+                        if (inQuotes) {
+                            inQuotes = false;
+                            args.push(recording);
+                            recording = '';
+                        } else {
+                            inQuotes = true;
+                        }
+                    } else {
+                        recording += char;
+                    }
+                }
+
+                // If there is anything in the buffer, push it as an element.
+                if (recording.length > 0) {
+                    args.push(recording);
+                }
+
+                // If string ends in a space or open quotes, add an empty element to the array.
+                if (!inQuotes && str.substr(str.length - 1, 1) === ' ') {
+                    args.push('');
+                }
+
+                if (inQuotes && str.substr(str.length - 1, 1) === '"') {
+                    args.push('');
+                }
+
+                return args;
+            },
+
+            renderHelp() {
+                const rawCommand = this.textToSend.substr(1);
+                const commandSegments = this.getCommandSegments(rawCommand);
+                const baseCommand = commandSegments[0].toLowerCase();
+
+                this.helpHTML = '';
+                this.commandDictionary.forEach(cmd => {
+                    if (baseCommand.length > cmd.name.length) {
+                        return;
+                    } else if (cmd.name.substr(0, baseCommand.length) !== baseCommand) {
+                        return;
+                    }
+
+                    if (commandSegments.length > 1 && cmd.args && cmd.args.length > 0) {
+                        // Arguments on a root-level command.
+                        this.helpHTML += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
+                        let argHelp = '';
+                        for(let i = 0; i < cmd.args.length; i++) {
+                            const arg = cmd.args[i];
+                            const bracketOpen = arg.Optional ? '<' : '[';
+                            const bracketClose = arg.Optional ? '>' : ']';
+
+                            if ((i + 1) <= (commandSegments.length - 1)) {
+                                this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
+                                argHelp = arg.Help;
+                            } else {
+                                this.helpHTML += `${bracketOpen}${arg.Name}${bracketClose} `;
+                            }
+                        }
+                        if (argHelp.length > 0) {
+                            this.helpHTML += ` - ${argHelp}`;
+                        }
+                        this.helpHTML += `</div>`;
+                    } else if (commandSegments.length === 2 && cmd.subCommands && cmd.subCommands.length > 0) {
+                        // Sub-commands.
+                        console.log(cmd);
+                        this.helpHTML += `<div><span style="color:#ffe500"><b>/${cmd.name}</b> &lt;sub-command&gt;</span></div>`;
+                        this.helpHTML += `<br><div><b>Sub-commands:</b></div>`;
+                        for(let i = 0; i < cmd.subCommands.length; i++) {
+                            const subcmd = cmd.subCommands[i];
+
+                            if (commandSegments[1].length > subcmd.name.length) {
+                                continue;
+                            } else if (subcmd.name.substr(0, commandSegments[1].length) !== commandSegments[1]) {
+                                continue;
+                            }
+
+                            this.helpHTML += `<div>&nbsp;&nbsp;<b><span style="color:#ffe500">${commandSegments[1]}</span>${subcmd.name.substr(commandSegments[1].length)}</b> - ${subcmd.help}</div>`;
+                        }
+                    } else if (commandSegments.length > 2 && cmd.subCommands && cmd.subCommands.length > 0) {
+                        // Arguments on a sub-command.
+                        this.helpHTML += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
+                        let subcmd = null
+                        for(let i = 0; i < cmd.subCommands.length; i++) {
+                            if (commandSegments[1] === cmd.subCommands[i].name) {
+                                subcmd = cmd.subCommands[i];
+                                break;
+                            }
+                        }
+                        let argHelp = '';
+                        if (subcmd) {
+                            this.helpHTML += `<b><span style="color:#ffe500">${subcmd.name}</span></b> `;
+                            if (subcmd.args && subcmd.args.length > 0) {
+                                for(let i = 0; i < subcmd.args.length; i++) {
+                                    const arg = subcmd.args[i];
+                                    const bracketOpen = arg.Optional ? '<' : '[';
+                                    const bracketClose = arg.Optional ? '>' : ']';
+
+                                    if ((i + 1) <= (commandSegments.length - 2)) {
+                                        this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
+                                        argHelp = arg.Help;
+                                    } else {
+                                        this.helpHTML += `${bracketOpen}${arg.Name}${bracketClose} `;
+                                    }
+                                }
+                            }
+                        }
+                        if (argHelp.length > 0) {
+                            this.helpHTML += ` - ${argHelp}`;
+                        }
+                        this.helpHTML += `</div>`;
+                    } else {
+                        this.helpHTML += `<div>` +
+                            `<b><span style="color:#ffe500">/${baseCommand}</span>${cmd.name.substr(baseCommand.length)}</b>` +
+                            ` - ${cmd.help}` +
+                            `</div>`;
+                    }
+                });
+
+                // Show or hide depending on results being found.
+                if (this.helpHTML.length === 0) {
+                    this.commandHelpVisible = false;
+                } else {
+                    this.commandHelpVisible = true;
+                    this.$nextTick(() => {
+                        const commandHelperHeight = this.$refs['commandHelper'].clientHeight;
+                        this.$refs['commandHelper'].style.top = `-${commandHelperHeight + 2}px`;
+                    });
+                }
             },
 
             handleSendText() {
@@ -160,6 +311,15 @@
                 }
             },
 
+            handleKeyUp() {
+                // Render help for slash commands.
+                if (this.textToSend.substr(0, 1) === '/' && this.textToSend.length > 1) {
+                    this.renderHelp();
+                } else {
+                    this.commandHelpVisible = false;
+                }
+            },
+
             handleHotkeyOverlayClick() {
                 this.$refs['inputBox'].focus();
             }
@@ -171,6 +331,7 @@
     .container {
         border: 1px solid #222;
         position: relative;
+        background: #000;
     }
 
     .input-box {
@@ -214,5 +375,14 @@
     .hotkey-overlay:hover {
         cursor: pointer;
         color: #bbb;
+    }
+
+    .command-helper-overlay {
+        position: absolute;
+        background: rgb(0,0,0);
+        background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 60%);
+        width: 99%;
+        padding: 20px 5px 10px 5px;
+        font-size: 12px;
     }
 </style>

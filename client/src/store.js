@@ -29,6 +29,7 @@ export default new Vuex.Store({
     itemTooltipCache: [],
     itemTooltipMouseCoords: { x: 0, y: 0 },
     money: '0',
+    commandDictionary: [],
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
@@ -181,6 +182,9 @@ export default new Vuex.Store({
       state.money = money;
     },
 
+    SET_COMMAND_DICTIONARY: (state, dictionary) => {
+      state.commandDictionary = dictionary;
+    }
   },
   actions: {
     sendSlashCommand: ({ state , commit }, payload) => {
@@ -298,6 +302,10 @@ export default new Vuex.Store({
 
     setItemTooltipHTML: ({ commit }, payload) => {
       commit('SET_ITEM_TOOLTIP_HTML', JSON.parse(payload.data));
+    },
+
+    setCommandDictionary: ({ commit }, payload) => {
+      commit('SET_COMMAND_DICTIONARY', JSON.parse(payload.data));
     },
 
     setMoney: ({ commit }, payload) => {

@@ -118,6 +118,13 @@ func (ca *ClientActions) SyncPlayerInfo() {
 	ca.parent.CallClientAction("setPlayerInfo", ca.parent.Character().Player().PlayerInfoJSON())
 }
 
+// SyncCommands sends all of the valid commands to the client (used for auto-complete).
+func (ca *ClientActions) SyncCommands() {
+	ca.parent.CallClientAction("setCommandDictionary",
+		Armeria.commandManager.CharacterCommandDictionaryJSON(ca.parent.Character().Player()),
+	)
+}
+
 // ShowObjectEditor displays the object editor on the client.
 func (ca *ClientActions) ShowObjectEditor(editorData *ObjectEditorData) {
 	// add access key

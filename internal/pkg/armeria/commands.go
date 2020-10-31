@@ -2,7 +2,10 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"encoding/json"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 const (
@@ -140,4 +143,28 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 
 	cmd.LogCtx(ctx)
 	cmd.Handler(ctx)
+}
+
+func (m *CommandManager) CharacterCommandDictionaryJSON(p *Player) string {
+	commandSlice := make([]*Command, 0)
+
+	for _, cmd := range m.Commands() {
+		if !cmd.CheckPermissions(p) {
+			continue
+		} else if cmd.Hidden {
+			continue
+		}
+
+		commandSlice = append(commandSlice, cmd)
+	}
+
+	commandMapJSON, err := json.Marshal(commandSlice)
+	if err != nil {
+		Armeria.log.Fatal("failed to marshal command dictionary data",
+			zap.String("character", p.Character().UUID),
+			zap.Error(err),
+		)
+	}
+
+	return string(commandMapJSON)
 }
