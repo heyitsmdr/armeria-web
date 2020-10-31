@@ -179,7 +179,6 @@
                         this.helpHTML += `</div>`;
                     } else if (commandSegments.length === 2 && cmd.subCommands && cmd.subCommands.length > 0) {
                         // Sub-commands.
-                        console.log(cmd);
                         this.helpHTML += `<div><span style="color:#ffe500"><b>/${cmd.name}</b> &lt;sub-command&gt;</span></div>`;
                         this.helpHTML += `<br><div><b>Sub-commands:</b></div>`;
                         for(let i = 0; i < cmd.subCommands.length; i++) {
@@ -275,7 +274,10 @@
             },
 
             handleRemoveFocus(event) {
-                event.target.blur()
+                this.commandHelpVisible = false;
+                this.$nextTick(() => {
+                    event.target.blur();
+                });
             },
 
             handleFocus() {
@@ -284,8 +286,11 @@
             },
 
             handleBlur() {
-                this.isFocused = false;
                 this.$store.dispatch('setAllowGlobalHotkeys', true);
+                this.commandHelpVisible = false;
+                this.$nextTick(() => {
+                    this.isFocused = false;
+                });
             },
 
             handleKeyDown(e) {
