@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -77,10 +78,24 @@ func WithColor(color string) TextOperation {
 	}
 }
 
+// WithColor formats the text using a specific color.
+func WithUserColor(c *Character, color int) TextOperation {
+	return TextOperation{
+		Text: "<span style='color:" + c.UserColor(color) + "'>%v</span>",
+	}
+}
+
 // WithLink formats the text creating a hyperlink.
 func WithLink(url string) TextOperation {
 	return TextOperation{
 		Text: "<a href='" + url + "' class='inline-link' target='_new'>%v</a>",
+	}
+}
+
+// WithSize formats the text using a specific size.
+func WithSize(size int) TextOperation {
+	return TextOperation{
+		Text: "<span style='font-size:" + strconv.Itoa(size) + "px'>%v</span>",
 	}
 }
 

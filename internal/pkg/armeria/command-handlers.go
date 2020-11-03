@@ -189,9 +189,9 @@ func handleLookCommand(ctx *CommandContext) {
 	}
 
 	ctx.Player.client.ShowText(
-		ctx.Character.Colorize(r.Attribute("title"), ColorRoomTitle) + "\n" +
-			r.Attribute("description") +
-			ctx.Character.Colorize(validDirString, ColorRoomDirs) +
+		TextStyle(r.Attribute(AttributeTitle), WithBold(), WithSize(14), WithUserColor(ctx.Character, ColorRoomTitle)) + "\n" +
+			r.Attribute(AttributeDescription) +
+			TextStyle(validDirString, WithUserColor(ctx.Character, ColorRoomDirs)) +
 			withYou,
 	)
 

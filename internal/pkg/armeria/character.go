@@ -222,41 +222,44 @@ func (c *Character) Room() *Room {
 	return oc.ParentRoom()
 }
 
-// Colorize will color text according to the Character's color settings.
-func (c *Character) Colorize(text string, color int) string {
-	c.RLock()
-	defer c.RUnlock()
-
+// UserColor will return the corresponding color according to the Character's color settings.
+func (c *Character) UserColor(color int) string {
 	switch color {
 	case ColorRoomTitle:
-		return fmt.Sprintf("<span style='color:#6e94ff;font-weight:600'>%s</span>", text)
+		return "#6e94ff"
 	case ColorSay:
-		return fmt.Sprintf("<span style='color:#ffeb3b'>%s</span>", text)
+		return "#ffeb3b"
 	case ColorMovement:
-		return fmt.Sprintf("<span style='color:#00bcd4'>%s</span>", text)
+		return "#00bcd4"
 	case ColorMovementAlt:
-		return fmt.Sprintf("<span style='color:#00ffc6'>%s</span>", text)
+		return "#00ffc6"
 	case ColorError:
-		return fmt.Sprintf("<span style='color:#e91e63'>%s</span>", text)
+		return "#e91e63"
 	case ColorRoomDirs:
-		return fmt.Sprintf("<span style='color:#4c9af3'>%s</span>", text)
+		return "#4c9af3"
 	case ColorWhisper:
-		return fmt.Sprintf("<span style='color:#b730f7'>%s</span>", text)
+		return "#b730f7"
 	case ColorSuccess:
-		return fmt.Sprintf("<span style='color:#8ee22b'>%s</span>", text)
+		return "#8ee22b"
 	case ColorCmdHelp:
-		return fmt.Sprintf("<span style='color:#e9761e'>%s</span>", text)
+		return "#e9761e"
 	case ColorChannelGeneral:
-		return fmt.Sprintf("<span style='color:#3bffdc'>%s</span>", text)
+		return "#3bffdc"
 	case ColorChannelCore:
-		return fmt.Sprintf("<span style='color:#ff5722'>%s</span>", text)
+		return "#ff5722"
 	case ColorChannelBuilders:
-		return fmt.Sprintf("<span style='color:#007cff'>%s</span>", text)
+		return "#007cff"
 	case ColorMoney:
-		return fmt.Sprintf("<span style='color:#fec205'>%s</span>", text)
+		return "#fec205"
 	default:
-		return text
+		return ""
 	}
+}
+
+// Colorize will color text according to the Character's color settings.
+// TODO Deprecate Character.Colorize() in favor of using TextStyles() with WithUserColor().
+func (c *Character) Colorize(text string, color int) string {
+	return fmt.Sprintf("<span style='color:%s'>%s</span>", c.UserColor(color), text)
 }
 
 // LastSeen returns the Time the Character last successfully logged into the game.
