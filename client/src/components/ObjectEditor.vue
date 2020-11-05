@@ -82,7 +82,7 @@
         methods: {
             getBackgroundUrl(objectKey) {
                 if (!this.isProduction) {
-                    return `url(http://localhost:8081/oi/${objectKey})`;
+                    return `url(http://${window.location.hostname}:8081/oi/${objectKey})`;
                 }
 
                 return `url(/oi/${objectKey})`;
@@ -245,7 +245,7 @@
                 let dev = 'false';
 
                 if (!this.isProduction) {
-                    baseUrl = 'http://localhost:8080/scripteditor.html';
+                    baseUrl = `http://${window.location.hostname}:8080/scripteditor.html`;
                     dev = 'true';
                 }
 

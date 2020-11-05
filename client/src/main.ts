@@ -13,7 +13,7 @@ let connectionString;
 if (process.env.NODE_ENV === "production") {
   connectionString = `wss://${window.location.hostname}/ws`;
 } else {
-  connectionString = "ws://localhost:8081/ws";
+  connectionString = `ws://${window.location.hostname}:8081/ws`;
 }
 
 Vue.use(VueNativeSock, connectionString, { store: store, format: 'json' })

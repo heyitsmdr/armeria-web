@@ -86,7 +86,7 @@
 
         let urlBase = '';
         if (dev === 'true') {
-            urlBase = 'http://localhost:8081'
+            urlBase = `http://${window.location.hostname}:8081`
         }
 
         $.get(`${urlBase}/script/${type}/${name}/${accessKey}`, (data) => {

@@ -85,7 +85,7 @@ export default {
     methods: {
         getBackgroundUrl() {
             if (!this.isProduction) {
-                return `url(http://localhost:8081/oi/${this.pictureKey})`;
+                return `url(http://${window.location.hostname}:8081/oi/${this.pictureKey})`;
             }
 
             return `url(/oi/${this.pictureKey})`;

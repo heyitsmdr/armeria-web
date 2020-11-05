@@ -99,7 +99,7 @@
                       if (this.isProduction) {
                         styles.push(`background-image:url(oi/${cachedItem.picture})`);
                       } else {
-                        styles.push(`background-image:url(http://localhost:8081/oi/${cachedItem.picture})`);
+                        styles.push(`background-image:url(http://${window.location.hostname}:8081/oi/${cachedItem.picture})`);
                       }
                       this.htmlData = `<div style='${styles.join(';')}'></div>${this.htmlData}`;
                     }
