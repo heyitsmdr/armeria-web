@@ -1,4 +1,4 @@
 httpPort: 8081
 production: true
-dataPath: "data"
-publicPath: "client/dist"
+dataPath: "./data"
+publicPath: "./dist"
