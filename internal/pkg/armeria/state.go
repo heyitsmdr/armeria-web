@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -81,7 +82,15 @@ func Init(configFilePath string, serveTraffic bool) {
 
 	RegisterGameCommands()
 
-	InitWeb(c.HTTPPort)
+	port := c.HTTPPort
+	// For Heroku, we must listen on a specific port.
+	if len(os.Getenv("PORT")) > 0 {
+		port, err = strconv.Atoi(os.Getenv("PORT"))
+		if err != nil {
+			log.Fatalf("error parsing PORT environment variable: %s", err)
+		}
+	}
+	InitWeb(port)
 }
 
 func (gs *GameState) setupGracefulExit() {
