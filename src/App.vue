@@ -83,8 +83,15 @@ export default {
                 } else {
                     this.$store.dispatch('showText', { data: 'If you have an existing character, you can <b>/login</b>. Otherwise, <b>/create</b> a new one.\n' });
                 }
+
+                // This "keep alive" is needed for Heroku. Otherwise, if the socket
+                // connection is idle for 55 seconds, the Heroku load balancer will
+                // terminate the connection and throw an H15 error.
+                window.socketKeepAlive = setInterval(null, 20000);
             } else {
                 window.document.title = '**DISCONNECTED** Armeria.io';
+                clearInterval(window.socketKeepAlive);
+                window.socketKeepAlive = null;
             }
         },
 
@@ -93,6 +100,10 @@ export default {
         }
     },
     methods: {
+        sendKeepAlive() {
+
+        },
+
         onWindowResize() {
             this.windowHeight = window.innerHeight;
             this.windowWidth = window.innerWidth;

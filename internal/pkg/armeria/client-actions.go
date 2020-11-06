@@ -108,6 +108,11 @@ func (ca *ClientActions) SyncPermissions() {
 	ca.parent.CallClientAction("setPermissions", ca.parent.Character().Attribute(AttributePermissions))
 }
 
+// SendPong responds to a client's ping request as part of the keep alive lifecycle.
+func (ca *ClientActions) SendPong() {
+	ca.parent.CallClientAction("pong", nil)
+}
+
 // SyncMoney sets the character's money on the client.
 func (ca *ClientActions) SyncMoney() {
 	ca.parent.CallClientAction("setMoney", ca.parent.Character().Attribute(AttributeMoney))

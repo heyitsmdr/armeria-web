@@ -30,6 +30,8 @@ export default new Vuex.Store({
     itemTooltipMouseCoords: { x: 0, y: 0 },
     money: '0',
     commandDictionary: [],
+    sentKeepAlive: 0,
+    pingTime: 0,
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
@@ -184,6 +186,10 @@ export default new Vuex.Store({
 
     SET_COMMAND_DICTIONARY: (state, dictionary) => {
       state.commandDictionary = dictionary;
+    },
+
+    KEEP_ALIVE_RESPONSE: (state) => {
+      state.pingTime = Date.now() - state.sentKeepAlive;
     }
   },
   actions: {
@@ -204,6 +210,13 @@ export default new Vuex.Store({
       Vue.prototype.$socket.sendObj({
         type: "command",
         payload: payload.command
+      });
+    },
+
+    sendKeepAlive: ({ state }) => {
+      state.sentKeepAlive = Date.now();
+      Vue.prototype.$socket.sendObj({
+        type: "ping",
       });
     },
 
@@ -278,6 +291,10 @@ export default new Vuex.Store({
 
     disconnect: () => {
       Vue.prototype.$socket.close();
+    },
+
+    pong: ({ commit }) => {
+      commit('KEEP_ALIVE_RESPONSE');
     },
 
     toggleAutoLogin: ({ state, commit }, payload) => {

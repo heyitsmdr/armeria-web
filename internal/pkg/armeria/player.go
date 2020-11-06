@@ -67,6 +67,8 @@ func (p *Player) readPump() {
 			}
 			ii := o.(*ItemInstance)
 			p.client.SetItemTooltipHTML(ii)
+		case "ping":
+			p.client.SendPong()
 		default:
 			p.client.ShowText("Your client sent invalid data.")
 		}
