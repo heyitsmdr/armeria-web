@@ -947,19 +947,20 @@ func handleWipeCommand(ctx *CommandContext) {
 			continue
 		}
 
-		matches = matches + 1
 		switch obj.Type() {
 		case ContainerObjectTypeMob:
 			m := Armeria.mobManager.MobByName(obj.Name())
 			ctx.Character.Room().Here().Remove(obj.ID())
 			if m != nil {
 				m.DeleteInstance(obj.(*MobInstance))
+				matches = matches + 1
 			}
 		case ContainerObjectTypeItem:
 			i := Armeria.itemManager.ItemByName(obj.Name())
 			ctx.Character.Room().Here().Remove(obj.ID())
 			if i != nil {
 				i.DeleteInstance(obj.(*ItemInstance))
+				matches = matches + 1
 			}
 		}
 	}
