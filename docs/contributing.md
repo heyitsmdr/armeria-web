@@ -54,7 +54,6 @@ $ go run cmd/armeria/main.go
 To build and run the web client:
 
 ```bash
-$ cd ./client
 $ yarn install
 $ yarn serve
 ```
@@ -93,7 +92,6 @@ $ yarn global upgrade @vue/cli-upgrade
 Next, use the Vue CLI UI to handle upgrades gracefully. To do this:
 
 ```bash
-$ cd client
 $ vue ui
 ```
 
@@ -111,15 +109,6 @@ files will be updated accordingly and, assuming everything is working, these
 should be committed to the repo.
 
 ### Server
-
-To upgrade the Golang version, you should first upgade Golang locally and make
-sure the server binary can be built successfully. You should then upgrade the
-build pipeline by modifying these two files:
-
-* `.github/workflows/dev.yml`
-* `.github/workflows/deploy.yml`
-
-Modify the `go-version` setting under the `with` section of the build step.
 
 To upgrade Armeria's dependencies, use:
 
