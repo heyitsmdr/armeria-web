@@ -1,6 +1,6 @@
 .idea/
 build/
-data/
-data
 .DS_Store
 .vscode/
+node_modules/
+yarn-error.log
