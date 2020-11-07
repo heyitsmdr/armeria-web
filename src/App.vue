@@ -88,6 +88,7 @@ export default {
                 // connection is idle for 55 seconds, the Heroku load balancer will
                 // terminate the connection and throw an H15 error.
                 window.socketKeepAlive = setInterval(this.sendKeepAlive, 20000);
+                this.sendKeepAlive();
             } else {
                 window.document.title = '**DISCONNECTED** Armeria.io';
                 clearInterval(window.socketKeepAlive);
