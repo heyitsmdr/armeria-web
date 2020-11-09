@@ -136,24 +136,6 @@ func handleLookCommand(ctx *CommandContext) {
 		return
 	}
 
-	var objNames []string
-	for _, o := range r.Here().All() {
-		obj := o.(ContainerObject)
-
-		if obj.Type() == ContainerObjectTypeCharacter && obj.(*Character).Player() == nil {
-			continue
-		} else if obj.Type() == ContainerObjectTypeItem {
-			objNames = append(objNames, obj.(*ItemInstance).FormattedName())
-		} else if obj.ID() != ctx.Character.ID() {
-			objNames = append(objNames, obj.FormattedName())
-		}
-	}
-
-	var withYou string
-	if len(objNames) > 0 {
-		withYou = fmt.Sprintf("\nHere with you: %s.", strings.Join(objNames, ", "))
-	}
-
 	ar := r.AdjacentRooms()
 	var validDirs []string
 	if ar.North != nil {
@@ -191,8 +173,7 @@ func handleLookCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowText(
 		TextStyle(r.Attribute(AttributeTitle), WithBold(), WithSize(14), WithUserColor(ctx.Character, ColorRoomTitle)) + "\n" +
 			r.Attribute(AttributeDescription) +
-			TextStyle(validDirString, WithUserColor(ctx.Character, ColorRoomDirs)) +
-			withYou,
+			TextStyle(validDirString, WithUserColor(ctx.Character, ColorRoomDirs)),
 	)
 
 	if ctx.PlayerInitiated {
@@ -1652,17 +1633,7 @@ func handleChannelSayCommand(ctx *CommandContext) {
 func handleSettingsCommand(ctx *CommandContext) {
 	setting := strings.ToLower(ctx.Args["name"])
 
-	if !misc.Contains(ValidSettings(), setting) {
-		if setting != "" {
-			ctx.Player.client.ShowColorizedText(
-				fmt.Sprintf(
-					"%s is not a valid setting name. Please check available settings below:",
-					TextStyle(setting, WithBold()),
-				),
-				ColorError,
-			)
-		}
-
+	if len(setting) == 0 {
 		rows := []string{TableRow(
 			TableCell{content: "Name", header: true},
 			TableCell{content: "Description", header: true},
@@ -1681,22 +1652,31 @@ func handleSettingsCommand(ctx *CommandContext) {
 			))
 		}
 		ctx.Player.client.ShowText(TextTable(rows...))
-		return
-	}
-
-	var newValue string
-	if ctx.Character.Setting(setting) == "true" || ctx.Character.Setting(setting) == "false" {
-		newValue = misc.ToggleStringBool(ctx.Character.Setting(setting))
+	} else if !misc.Contains(ValidSettings(), setting) {
+		ctx.Player.client.ShowColorizedText(
+			fmt.Sprintf(
+				"%s is not a valid setting name.",
+				TextStyle(setting, WithBold()),
+			),
+			ColorError,
+		)
 	} else {
-		newValue = ctx.Args["value"]
+		currentValue := ctx.Character.Setting(setting)
+		var newValue string
+		if misc.IsStringBool(currentValue) {
+			newValue = misc.ToggleStringBool(currentValue)
+		} else {
+			newValue = ctx.Args["value"]
+		}
+
+		_ = ctx.Character.SetSetting(setting, newValue)
+
+		ctx.Player.client.ShowColorizedText(
+			fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, WithBold()), newValue),
+			ColorSuccess,
+		)
 	}
 
-	_ = ctx.Character.SetSetting(setting, newValue)
-
-	ctx.Player.client.ShowColorizedText(
-		fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, WithBold()), newValue),
-		ColorSuccess,
-	)
 }
 
 func handleBugCommand(ctx *CommandContext) {

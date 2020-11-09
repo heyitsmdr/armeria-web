@@ -50,6 +50,7 @@ const (
 	ColorMoney
 
 	SettingBrief string = "brief"
+	SettingWrap         = "wrap"
 
 	PronounSubjective PronounType = iota
 	PronounPossessiveAdjective
@@ -61,6 +62,7 @@ const (
 func ValidSettings() []string {
 	return []string{
 		SettingBrief,
+		SettingWrap,
 	}
 }
 
@@ -69,6 +71,8 @@ func SettingDesc(name string) string {
 	switch name {
 	case SettingBrief:
 		return "Toggle short room descriptions when moving."
+	case SettingWrap:
+		return "Wrap room descriptions at this character length."
 	}
 
 	return ""
@@ -79,6 +83,8 @@ func SettingDefault(name string) string {
 	switch name {
 	case SettingBrief:
 		return "false"
+	case SettingWrap:
+		return "80"
 	}
 
 	return ""

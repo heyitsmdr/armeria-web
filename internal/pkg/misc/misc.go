@@ -1,6 +1,10 @@
 package misc
 
-import "github.com/leekchan/accounting"
+import (
+	"strings"
+
+	"github.com/leekchan/accounting"
+)
 
 var Money = accounting.Accounting{Symbol: "$", Precision: 2}
 
@@ -66,12 +70,21 @@ func ParseArguments(args []string) []string {
 	return parsed
 }
 
+// IsStringBool returns true if the string is a boolean value.
+func IsStringBool(s string) bool {
+	lc := strings.ToLower(s)
+	if lc == "true" || lc == "false" {
+		return true
+	}
+	return false
+}
+
 // ToggleStringBool toggles a string like a bool.
 func ToggleStringBool(s string) string {
-	if s == "true" {
+	lc := strings.ToLower(s)
+	if lc == "true" {
 		return "false"
-	}
-	if s == "false" {
+	} else if lc == "false" {
 		return "true"
 	}
 	return s

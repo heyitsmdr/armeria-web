@@ -731,7 +731,7 @@ func RegisterGameCommands() {
 		},
 		{
 			Name:     "settings",
-			AltNames: []string{"setting"},
+			AltNames: []string{"setting", "set"},
 			Help:     "View or change settings for your character.",
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
