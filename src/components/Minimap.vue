@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="targets-container">
         <div class="area-title">
             <div class="map-name" @click="handleAreaClick">{{ areaTitle }}</div>
             <div class="room-name">{{ roomTitle }}</div>
@@ -364,7 +364,7 @@
 </script>
 
 <style scoped>
-    .container {
+    .targets-container {
         height: 100%;
         display: flex;
         flex-direction: column;

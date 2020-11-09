@@ -1,6 +1,9 @@
 <template>
     <div class="root">
-        <div class="container" @click="handleClick">
+        <div class="banner">
+            Room Targets
+        </div>
+        <div class="targets-container" @click="handleClick">
             <Target
                 v-for="obj in sortedRoomObjects"
                 :key="obj.uuid"
@@ -52,7 +55,20 @@ export default {
         background-color: #131313;
     }
 
-    .container {
-        padding-top: 10px;
+    .banner {
+        background-color: #1b1b1b;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 4px 5px;
+        border-bottom: 1px solid #333;
+        text-align: center;
+        color: #b7b7b7;
+        position: fixed;
+        width: 236px;
+        z-index: 10;
+    }
+
+    .targets-container {
+        padding-top: 37px;
     }
 </style>

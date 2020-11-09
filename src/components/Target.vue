@@ -1,7 +1,7 @@
 <template>
     <div>
         <div
-                class="container"
+                class="targets-container"
                 ref="container"
         >
             <div class="picture">
@@ -182,7 +182,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.targets-container {
     background-color: #0c0c0c;
     margin: 0 10px 10px 10px;
     transition: all .1s ease-in-out;

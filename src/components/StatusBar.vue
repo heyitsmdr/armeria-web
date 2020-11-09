@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="targets-container">
         <div class="inner-container">Ping: {{pingTime}}ms</div>
     </div>
 </template>
@@ -14,7 +14,7 @@
 </script>
 
 <style scoped>
-.container {
+.targets-container {
     display: flex;
     align-items: center;
     height: 100%;

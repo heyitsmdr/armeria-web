@@ -1,5 +1,5 @@
 <template>
-    <div class="container" :class="{ active: isFocused }">
+    <div class="targets-container" :class="{ active: isFocused }">
         <input
                 class="input-box"
                 ref="inputBox"
@@ -333,7 +333,7 @@
 </script>
 
 <style scoped>
-    .container {
+    .targets-container {
         border: 1px solid #222;
         position: relative;
         background: #000;
@@ -351,11 +351,11 @@
         padding-left: 5px;
     }
 
-    .container.active {
+    .targets-container.active {
         border: 1px solid #adadad;
     }
 
-    .container.active .input-box {
+    .targets-container.active .input-box {
         background-color: #000;
     }
 

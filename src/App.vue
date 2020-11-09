@@ -223,62 +223,64 @@ html, body {
     flex-direction: column;
     height: 100%;
 
-.container-wrapper {
-    flex-grow: 1;
-    display: flex;
+    .container-wrapper {
+        flex-grow: 1;
+        display: flex;
 
-.container-left {
-    flex-basis: $sidebarWidth;
-    min-width: $sidebarWidth;
-    background-color: $backgroundLight;
-    display: flex;
-    flex-direction: column;
+        .container-left {
+            flex-basis: $sidebarWidth;
+            min-width: $sidebarWidth;
+            background-color: $backgroundLight;
+            display: flex;
+            flex-direction: column;
 
-.container-minimap {
-    flex-basis: 250px;
-}
+        .container-minimap {
+            flex-basis: 250px;
+        }
 
-.container-targets {
-    flex-grow: 1;
-    min-height: 100px;
-}
-}
+        .container-targets {
+            flex-grow: 1;
+            flex-basis: 100px; /* This can be any number; forces div to respect flex box height. */
+            overflow: scroll;
+            min-height: 100px;
+        }
+    }
 
-.container-center {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0px 0px 12px 1px #080808;
-    position: relative;
+    .container-center {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0px 0px 12px 1px #080808;
+        position: relative;
 
-.container-maintext {
-    flex-grow: 1;
-}
+        .container-maintext {
+            flex-grow: 1;
+        }
 
-.container-input {
-    flex-shrink: 1;
-}
+        .container-input {
+            flex-shrink: 1;
+        }
 
-.container-bars {
-    flex-basis: 30px;
-}
-}
+        .container-bars {
+            flex-basis: 30px;
+        }
+    }
 
-.container-right {
-    flex-basis: $sidebarWidth;
-    min-width: $sidebarWidth;
-    background-color: $backgroundLight;
-    display: flex;
-    flex-direction: column;
+    .container-right {
+        flex-basis: $sidebarWidth;
+        min-width: $sidebarWidth;
+        background-color: $backgroundLight;
+        display: flex;
+        flex-direction: column;
 
-.container-skills {
-    flex-grow: 1;
-}
+        .container-skills {
+            flex-grow: 1;
+        }
 
-.container-inventory {
-    flex-basis: 365px;
-}
-}
+        .container-inventory {
+            flex-basis: 365px;
+        }
+    }
 }
 
 .status-bar-container {
