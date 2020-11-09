@@ -163,13 +163,15 @@
                         let argHelp = '';
                         for(let i = 0; i < cmd.args.length; i++) {
                             const arg = cmd.args[i];
-                            const bracketOpen = arg.Optional ? '<' : '[';
-                            const bracketClose = arg.Optional ? '>' : ']';
+                            const bracketOpen = arg.Optional ? '&lt;' : '[';
+                            const bracketClose = arg.Optional ? '&gt;' : ']';
 
                             if ((i + 1) <= (commandSegments.length - 1)) {
+                                console.log('show');
                                 this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
                                 argHelp = arg.Help;
                             } else {
+                                console.log('hide');
                                 this.helpHTML += `${bracketOpen}${arg.Name}${bracketClose} `;
                             }
                         }
