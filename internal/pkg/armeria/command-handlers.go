@@ -1772,7 +1772,7 @@ func handleGiveCommand(ctx *CommandContext) {
 			ctx.Player.client.ShowColorizedText(
 				fmt.Sprintf(
 					"%s does not want that.",
-					tobj.(*MobInstance).FormattedName(),
+					toc.ParentMobInstance().FormattedName(),
 				),
 				ColorError,
 			)
