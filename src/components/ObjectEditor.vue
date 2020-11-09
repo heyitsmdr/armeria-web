@@ -44,7 +44,7 @@
                             v-if="prop.propType === 'script'"
                             @click="handleScriptEditClick"
                     >
-                        Edit Script
+                        [Edit Script]
                     </div>
                     <!-- parent type -->
                     <div
@@ -242,15 +242,13 @@
 
             handleScriptEditClick: function() {
                 let baseUrl = '/scripteditor.html';
-                let dev = 'false';
 
                 if (!this.isProduction) {
-                    baseUrl = `http://${window.location.hostname}:8080/scripteditor.html`;
-                    dev = 'true';
+                    baseUrl = `http://${window.location.hostname}:${window.location.port}/scripteditor.html`;
                 }
 
                 window.open(
-                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}&dev=${dev}`,
+                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}&dev=${!this.isProduction}`,
                     'scripteditor',
                     'width=800,height=600'
                 );
