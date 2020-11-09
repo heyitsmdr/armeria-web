@@ -1183,7 +1183,7 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 				TableCell{content: ii.FormattedName()},
 				TableCell{content: ii.ID()},
 				TableCell{
-					content: fmt.Sprintf("Mob: %s", ii.MobInstance().FormattedName()),
+					content: fmt.Sprintf("Mob: %s (%s)", ii.MobInstance().FormattedName(), ii.MobInstance().ID()),
 				},
 			))
 		}
@@ -1754,6 +1754,7 @@ func handleGiveCommand(ctx *CommandContext) {
 		toc = tobj.(*MobInstance).Inventory()
 	}
 
+	// check if the target object container can hold it
 	if toc.MaxSize() > 0 && toc.Count() >= toc.MaxSize() {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf(
@@ -1763,6 +1764,20 @@ func handleGiveCommand(ctx *CommandContext) {
 			ColorError,
 		)
 		return
+	}
+
+	// check if the mob can handle it?
+	if trt == RegistryTypeMobInstance {
+		if !misc.Contains(toc.ParentMobInstance().Parent.ScriptFuncs(), "received_item") {
+			ctx.Player.client.ShowColorizedText(
+				fmt.Sprintf(
+					"%s does not want that.",
+					tobj.(*MobInstance).FormattedName(),
+				),
+				ColorError,
+			)
+			return
+		}
 	}
 
 	ii := iobj.(*ItemInstance)

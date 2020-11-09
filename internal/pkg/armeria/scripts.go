@@ -13,16 +13,13 @@ import (
 
 // ReadMobScript returns the script contents for a mob from disk.
 func ReadMobScript(m *Mob) string {
-	b, err := ioutil.ReadFile(m.ScriptFile())
-	if err != nil {
-		return ""
-	}
-	return string(b)
+	return m.Script()
 }
 
 // WriteMobScript writes a mob script to disk.
 func WriteMobScript(m *Mob, script string) {
 	_ = ioutil.WriteFile(m.ScriptFile(), []byte(script), 0644)
+	m.CacheScript()
 }
 
 // LuaInvoker returns the Character that invoked the lua function.
@@ -382,7 +379,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("room_text", L.NewFunction(LuaRoomText))
 	L.SetGlobal("shop", L.NewFunction(LuaShop))
 
-	err := L.DoFile(mi.Parent.ScriptFile())
+	err := L.DoString(mi.Parent.Script())
 	if err != nil {
 		Armeria.log.Error("error compiling lua script",
 			zap.String("script", mi.Parent.ScriptFile()),

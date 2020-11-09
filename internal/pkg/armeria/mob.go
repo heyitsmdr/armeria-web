@@ -3,6 +3,9 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -13,13 +16,17 @@ import (
 
 type Mob struct {
 	sync.RWMutex
-	UnsafeName       string            `json:"name"`
-	UnsafeAttributes map[string]string `json:"attributes"`
-	UnsafeInstances  []*MobInstance    `json:"instances"`
+	UnsafeName        string            `json:"name"`
+	UnsafeAttributes  map[string]string `json:"attributes"`
+	UnsafeInstances   []*MobInstance    `json:"instances"`
+	UnsafeScript      string            `json:"-"`
+	UnsafeScriptFuncs []string          `json:"-"`
 }
 
 // Init is called when the Mob is created or loaded from disk.
-func (m *Mob) Init() {}
+func (m *Mob) Init() {
+	m.CacheScript()
+}
 
 // Name returns the name of the Mob.
 func (m *Mob) Name() string {
@@ -139,13 +146,59 @@ func (m *Mob) Instances() []*MobInstance {
 	return m.UnsafeInstances
 }
 
-// ScriptFile returns the full path to the associated Lua script file.
-func (m *Mob) ScriptFile() string {
-	m.RLock()
-	defer m.RUnlock()
+// scriptFile returns the full path to the associated Lua script file. This DOES NOT request a lock and IS NOT
+// thread safe.
+func (m *Mob) scriptFile() string {
 	return fmt.Sprintf(
 		"%s/scripts/mob-%s.lua",
 		Armeria.dataPath,
 		strings.ToLower(strings.ReplaceAll(m.UnsafeName, " ", "-")),
 	)
+}
+
+// ScriptFile returns the full path to the associated Lua script file.
+func (m *Mob) ScriptFile() string {
+	m.RLock()
+	defer m.RUnlock()
+	return m.scriptFile()
+}
+
+func (m *Mob) CacheScript() {
+	m.Lock()
+	defer m.Unlock()
+
+	if _, err := os.Stat(m.scriptFile()); err != nil {
+		return
+	}
+
+	b, err := ioutil.ReadFile(m.scriptFile())
+	if err != nil {
+		return
+	}
+
+	m.UnsafeScriptFuncs = []string{}
+
+	re := regexp.MustCompile("function ([a-zA-Z_]+)")
+	matches := re.FindAllSubmatch(b, -1)
+	if matches != nil {
+		for _, match := range matches {
+			m.UnsafeScriptFuncs = append(m.UnsafeScriptFuncs, string(match[1]))
+		}
+	}
+
+	m.UnsafeScript = string(b)
+}
+
+// Script returns the cached script contents.
+func (m *Mob) Script() string {
+	m.RLock()
+	defer m.RUnlock()
+	return m.UnsafeScript
+}
+
+// ScriptFuncs returns the cached functions within the Mob's script file.
+func (m *Mob) ScriptFuncs() []string {
+	m.RLock()
+	defer m.RUnlock()
+	return m.UnsafeScriptFuncs
 }
