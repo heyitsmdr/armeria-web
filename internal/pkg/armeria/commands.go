@@ -4,6 +4,7 @@ import (
 	"armeria/internal/pkg/misc"
 	"encoding/json"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -141,8 +142,10 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 		return
 	}
 
-	cmd.LogCtx(ctx)
+
+	ctx.HandlerStart = time.Now()
 	cmd.Handler(ctx)
+	cmd.LogCtx(ctx)
 }
 
 func (m *CommandManager) CharacterCommandDictionaryJSON(p *Player) string {

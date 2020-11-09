@@ -4,6 +4,7 @@ import (
 	"armeria/internal/pkg/misc"
 	"fmt"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -42,6 +43,7 @@ type CommandContext struct {
 	PlayerInitiated bool
 	Character       *Character
 	Args            map[string]string
+	HandlerStart    time.Time
 }
 
 // CheckPermissions returns whether or not a parent can see/use the command.
@@ -149,6 +151,8 @@ func (cmd *Command) ArgumentByName(name string) *CommandArgument {
 
 // LogCtx logs a parent using a command.
 func (cmd *Command) LogCtx(ctx *CommandContext) {
+	handlerDuration := time.Since(ctx.HandlerStart)
+
 	var args []string
 	for k, v := range ctx.Args {
 		a := cmd.ArgumentByName(k)
@@ -168,12 +172,14 @@ func (cmd *Command) LogCtx(ctx *CommandContext) {
 			zap.String("command", ctx.Command.Parent.Name),
 			zap.String("sub-command", ctx.Command.Name),
 			zap.Strings("arguments", args),
+			zap.Duration("duration", handlerDuration),
 		)
 	} else {
 		Armeria.log.Info("character executed command",
 			zap.String("character", c),
 			zap.String("command", ctx.Command.Name),
 			zap.Strings("arguments", args),
+			zap.Duration("duration", handlerDuration),
 		)
 	}
 }

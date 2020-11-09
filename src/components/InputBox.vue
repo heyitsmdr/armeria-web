@@ -167,11 +167,9 @@
                             const bracketClose = arg.Optional ? '&gt;' : ']';
 
                             if ((i + 1) <= (commandSegments.length - 1)) {
-                                console.log('show');
                                 this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
                                 argHelp = arg.Help;
                             } else {
-                                console.log('hide');
                                 this.helpHTML += `${bracketOpen}${arg.Name}${bracketClose} `;
                             }
                         }
