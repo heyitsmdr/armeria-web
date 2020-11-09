@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/websocket v1.4.1
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/leekchan/accounting v0.0.0-20191218023648-17a4ce5f94d4
+	github.com/muesli/reflow v0.2.0
 	github.com/onsi/ginkgo v1.10.2 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect

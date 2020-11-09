@@ -4,9 +4,11 @@ import (
 	"armeria/internal/pkg/misc"
 	"armeria/internal/pkg/sfx"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
+	"github.com/muesli/reflow/wordwrap"
 	"go.uber.org/zap"
 
 	lua "github.com/yuin/gopher-lua"
@@ -170,9 +172,14 @@ func handleLookCommand(ctx *CommandContext) {
 		}
 	}
 
+	wrapDescAt, err := strconv.Atoi(ctx.Character.Setting(SettingWrap))
+	if err != nil {
+		log.Fatalf("error converting wrap setting to int: %s", err)
+	}
+
 	ctx.Player.client.ShowText(
 		TextStyle(r.Attribute(AttributeTitle), WithBold(), WithSize(14), WithUserColor(ctx.Character, ColorRoomTitle)) + "\n" +
-			r.Attribute(AttributeDescription) +
+			wordwrap.String(r.Attribute(AttributeDescription), wrapDescAt) +
 			TextStyle(validDirString, WithUserColor(ctx.Character, ColorRoomDirs)),
 	)
 
