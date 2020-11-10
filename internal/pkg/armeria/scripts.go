@@ -84,13 +84,13 @@ func LuaSleep(L *lua.LState) int {
 	return 0
 }
 
-// LuaCharacterAttribute (c_attr) retrieves a permanent or temporary unsafeCharacter attribute.
+// LuaCharacterAttribute (c_attr) retrieves a permanent or temporary Character attribute.
 func LuaCharacterAttribute(L *lua.LState) int {
-	character := L.ToString(1)
+	uuid := L.ToString(1)
 	attr := L.ToString(2)
 	tmp := L.ToBool(3)
 
-	c := Armeria.characterManager.CharacterByName(character)
+	c := Armeria.characterManager.CharacterById(uuid)
 	if c == nil {
 		L.Push(lua.LNumber(-1))
 		return 1
@@ -107,14 +107,14 @@ func LuaCharacterAttribute(L *lua.LState) int {
 	return 1
 }
 
-// LuaSetCharacterAttribute (c_set_attr) sets a permanent or temporary unsafeCharacter attribute.
+// LuaSetCharacterAttribute (c_set_attr) sets a permanent or temporary Character attribute.
 func LuaSetCharacterAttribute(L *lua.LState) int {
-	character := L.ToString(1)
+	uuid := L.ToString(1)
 	attr := L.ToString(2)
 	val := L.ToString(3)
 	tmp := L.ToBool(4)
 
-	c := Armeria.characterManager.CharacterByName(character)
+	c := Armeria.characterManager.CharacterById(uuid)
 	if c == nil {
 		L.Push(lua.LNumber(-1))
 		return 1

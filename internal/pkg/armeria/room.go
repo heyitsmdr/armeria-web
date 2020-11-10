@@ -11,8 +11,6 @@ import (
 	"github.com/google/uuid"
 
 	"go.uber.org/zap"
-
-	lua "github.com/yuin/gopher-lua"
 )
 
 // Room is a physical room that exists within an Area.
@@ -181,7 +179,6 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 			c,
 			mi,
 			"character_entered",
-			lua.LString(c.Name()),
 		)
 	}
 }
@@ -197,7 +194,6 @@ func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 			c,
 			mi,
 			"character_left",
-			lua.LString(c.Name()),
 		)
 	}
 }

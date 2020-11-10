@@ -307,7 +307,6 @@ func handleSayCommand(ctx *CommandContext) {
 			ctx.Character,
 			mi,
 			"character_said",
-			lua.LString(ctx.Character.Name()),
 			lua.LString(ctx.Args["text"]),
 		)
 	}
