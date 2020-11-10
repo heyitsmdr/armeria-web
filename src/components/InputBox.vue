@@ -38,12 +38,12 @@
         },
         computed: {
             expandedCommandDictionary: function() {
-                const dict = this.commandDictionary;
+                const dict = [];
+                this.commandDictionary.forEach(d => dict.push(d));
                 this.commandDictionary.forEach(cmd => {
                     if (cmd.altNames) {
                         cmd.altNames.forEach(alt => {
-                            let newCmd = {};
-                            Object.assign(newCmd, cmd);
+                            let newCmd = Object.assign({}, cmd);
                             newCmd.name = alt;
                             newCmd.altNames = [];
                             dict.push(newCmd);
