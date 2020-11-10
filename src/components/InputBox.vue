@@ -36,7 +36,25 @@
                 helpHTML: '',
             }
         },
-        computed: mapState(['objectEditorOpen', 'forceInputFocus', 'commandHistory', 'commandDictionary']),
+        computed: {
+            expandedCommandDictionary: function() {
+                const dict = this.commandDictionary;
+                this.commandDictionary.forEach(cmd => {
+                    if (cmd.altNames) {
+                        cmd.altNames.forEach(alt => {
+                            let newCmd = {};
+                            Object.assign(newCmd, cmd);
+                            newCmd.name = alt;
+                            newCmd.altNames = [];
+                            dict.push(newCmd);
+                        });
+
+                    }
+                });
+                return dict;
+            },
+            ...mapState(['objectEditorOpen', 'forceInputFocus', 'commandHistory', 'commandDictionary']),
+        },
         mounted() {
             this.$refs['inputBox'].focus();
         },
@@ -100,7 +118,6 @@
                 return this.commandHistory[retrieveIndex];
             },
 
-            // test "this is" yes
             getCommandSegments(str) {
                 let args = [];
                 let recording = '';
@@ -150,15 +167,19 @@
                 const baseCommand = commandSegments[0].toLowerCase();
 
                 this.helpHTML = '';
-                this.commandDictionary.forEach(cmd => {
+                for(let i = 0; i < this.expandedCommandDictionary.length; i++) {
+                    const cmd = this.expandedCommandDictionary[i];
                     if (baseCommand.length > cmd.name.length) {
-                        return;
+                        continue;
                     } else if (cmd.name.substr(0, baseCommand.length) !== baseCommand) {
-                        return;
+                        continue;
                     }
 
                     if (commandSegments.length > 1 && cmd.args && cmd.args.length > 0) {
                         // Arguments on a root-level command.
+                        if (baseCommand !== cmd.name) {
+                            continue;
+                        }
                         this.helpHTML += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
                         let argHelp = '';
                         for(let i = 0; i < cmd.args.length; i++) {
@@ -230,7 +251,7 @@
                             ` - ${cmd.help}` +
                             `</div>`;
                     }
-                });
+                }
 
                 // Show or hide depending on results being found.
                 if (this.helpHTML.length === 0) {
