@@ -48,22 +48,47 @@
             cursor: pointer;
             background-color: #3c3a3a;
         }
+
+        #docs {
+            position: absolute;
+            z-index: 1000;
+            top: 10px;
+            right: 10px;
+            color: #fff;
+            font-family: Montserrat, sans-serif;
+            font-size: 15px;
+        }
+
+        #docs a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        #docs a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div id="overlay" class="hidden"></div>
     <div id="editor">Loading...</div>
     <div id="save">Save Script</div>
+    <div id="docs"><a href="https://github.com/heyitsmdr/armeria/blob/master/docs/scripting.md" target="_blank">Scripting Docs</a></div>
     <script src="vendor/jquery-3.3.1/jquery.min.js"></script>
-    <script src="vendor/ace-1.4.4/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="vendor/ace-1.4.4/theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
-    <script src="vendor/ace-1.4.4/mode-lua.js" type="text/javascript" charset="utf-8"></script>
-    <script src="vendor/ace-1.4.4/worker-lua.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/theme-gruvbox.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/mode-lua.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/worker-lua.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
     <script>
-        let editor = ace.edit("editor");
+        // use language tools extension
+        const langTools = ace.require("ace/ext/language_tools");
+
+        // create the editor
+        const editor = ace.edit("editor");
 
         // set theme
-        editor.setTheme("ace/theme/tomorrow_night");
+        editor.setTheme("ace/theme/gruvbox");
 
         // set mode to lua
         let LuaMode = ace.require("ace/mode/lua").Mode;
@@ -71,6 +96,28 @@
 
         // set common options
         editor.session.setTabSize(2);
+        editor.setOptions({
+            enableSnippets: false,
+            enableLiveAutocompletion: true,
+            enableBasicAutocompletion: true,
+        });
+
+        // add custom auto-completes
+        const global_vars = ['invoker_uuid', 'invoker_name', 'mob_uuid', 'mob_name'];
+        const global_funcs = ['say', 'sleep', 'start_convo', 'end_convo', 'c_attr', 'c_set_attr', 'i_name', 'inv_give', 'room_text', 'shop'];
+        const events = ['character_entered', 'character_left', 'character_said', 'received_item', 'conversation_tick'];
+        // langTools.setCompleters([langTools.keyWordCompleter]);
+        langTools.addCompleter({
+            getCompletions: function(editor, session, pos, prefix, callback) {
+                if (prefix.length === 0) { callback(null, []); return }
+                const words = [];
+                global_vars.forEach(v => words.push({ name: v, value: v, score: 5, meta: 'global vars' }));
+                global_funcs.forEach(v => words.push({ name: v, value: v, score: 5, meta: 'global funcs' }));
+                events.forEach(v => words.push({ name: v, value: v, score: 5, meta: 'events' }));
+                callback(null, words);
+            }
+        });
+
 
         function resizeEditor() {
             document.getElementById('editor').style.height = `${window.innerHeight}px`;

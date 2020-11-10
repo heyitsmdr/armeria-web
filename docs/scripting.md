@@ -4,10 +4,10 @@
 
 ### Functions
 
-- [c_attr](#c_attrcharacter_name-attribute-temp)
-- [c_set_attr](#c_set_attrcharacter_name-attribute-value-temp)
+- [c_attr](#c_attruuid-attribute-temp)
+- [c_set_attr](#c_set_attruuid-attribute-value-temp)
 - [i_name](#i_nameuuid)
-- [inv_give](#inv_givecharacter_uuid-item_uuid)
+- [inv_give](#inv_giveuuid-item_uuid)
 - [say](#saytext)
 - [sleep](#sleepduration)
 - [start_convo](#start_convo)
@@ -16,10 +16,10 @@
 
 ### Events
 
-- [character_entered](#character_enteredcharacter_name)
-- [character_left](#character_leftcharacter_name)
-- [character_said](#character_saidcharacter_name-text)
-- [received_item](#received_itemcharacter_name-uuid)
+- [character_entered](#character_entered)
+- [character_left](#character_left)
+- [character_said](#character_saidtext)
+- [received_item](#received_itemitem_uuid)
 - [conversation_tick](#conversation_ticktick_count)
 
 ### Global Variables
