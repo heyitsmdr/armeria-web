@@ -149,7 +149,7 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 
 	for _, attrName := range ValidItemInstanceAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
-			PropType:    "editable",
+			PropType:    AttributeEditorType(attrName),
 			Name:        attrName,
 			Value:       ii.InstanceAttribute(attrName),
 			ParentValue: ii.Parent.Attribute(attrName),

@@ -13,6 +13,7 @@ const (
 	AttributeEast        string = "east"
 	AttributeGender      string = "gender"
 	AttributeMoney       string = "money"
+	AttributeMusic       string = "music"
 	AttributeNorth       string = "north"
 	AttributePermissions string = "permissions"
 	AttributePicture     string = "picture"
@@ -23,17 +24,31 @@ const (
 	AttributeType        string = "type"
 	AttributeUp          string = "up"
 	AttributeWest        string = "west"
-)
 
-const (
 	TempAttributeEditorOpen string = "editorOpen"
 	TempAttributeGhost      string = "ghost"
 	TempAttributeReplyTo    string = "replyTo"
 )
 
+// AttributeEditorType returns the object editor "type" for each attribute
+func AttributeEditorType(attr string) string {
+	switch attr {
+	case AttributePicture:
+		return "picture"
+	case AttributeScript:
+		return "script"
+	case AttributeMusic:
+		return "enum:track-one|track-two"
+	}
+
+	return "editable"
+}
+
 // ValidAreaAttributes returns an array of valid attributes that can be permanently set.
 func ValidAreaAttributes() []string {
-	return []string{}
+	return []string{
+		AttributeMusic,
+	}
 }
 
 // ValidCharacterAttributes returns an array of valid attributes that can be permanently set.

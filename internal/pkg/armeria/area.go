@@ -135,7 +135,7 @@ func (a *Area) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidAreaAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: "editable",
+			PropType: AttributeEditorType(attrName),
 			Name:     attrName,
 			Value:    a.Attribute(attrName),
 		})

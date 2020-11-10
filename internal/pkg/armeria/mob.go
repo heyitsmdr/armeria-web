@@ -66,15 +66,8 @@ func (m *Mob) SetAttribute(name string, value string) {
 func (m *Mob) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidMobAttributes() {
-		propType := "editable"
-		if attrName == "picture" {
-			propType = "picture"
-		} else if attrName == "script" {
-			propType = "script"
-		}
-
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: propType,
+			PropType: AttributeEditorType(attrName),
 			Name:     attrName,
 			Value:    m.Attribute(attrName),
 		})

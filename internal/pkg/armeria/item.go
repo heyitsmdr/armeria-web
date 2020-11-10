@@ -102,15 +102,8 @@ func (i *Item) SetAttribute(name string, value string) {
 func (i *Item) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidItemAttributes() {
-		propType := "editable"
-		if attrName == "picture" {
-			propType = "picture"
-		} else if attrName == "script" {
-			propType = "script"
-		}
-
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: propType,
+			PropType: AttributeEditorType(attrName),
 			Name:     attrName,
 			Value:    i.Attribute(attrName),
 		})

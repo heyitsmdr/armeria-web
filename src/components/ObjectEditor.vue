@@ -54,6 +54,19 @@
                     >
                         {{ prop.value }}
                     </div>
+                    <!-- enum type -->
+                    <div
+                        class="enum"
+                        v-if="prop.propType.substr(0, 5) === 'enum:'"
+                    >
+                        <v-select
+                            @open="handleEnumOpen(prop.name)"
+                            @close="handleEnumClose"
+                            @input="handleEnumSelected(prop, $event)"
+                            :options="prop.propType.substr(5).split('|')"
+                            :value="prop.value"
+                        ></v-select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,13 +75,16 @@
 
 <script>
     import { mapState } from 'vuex';
+    import vSelect from 'vue-select';
 
     export default {
         name: 'ObjectEditor',
+        components: {vSelect},
         computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData']),
         data: function() {
             return {
                 propOriginal: '',
+                propEnumEditing: '',
             };
         },
         watch: {
@@ -90,6 +106,21 @@
 
             handleClose: function() {
                 this.$store.dispatch('setObjectEditorOpen', false);
+            },
+
+            handleEnumOpen: function(propName) {
+                this.$store.dispatch('setAllowGlobalHotkeys', false);
+                this.propEnumEditing = propName;
+            },
+
+            handleEnumClose: function() {
+                this.$store.dispatch('setAllowGlobalHotkeys', true);
+                this.propEnumEditing = '';
+            },
+
+            handleEnumSelected: function(prop, newPropValue) {
+                prop.value = newPropValue;
+                this.setProperty(this.propEnumEditing, newPropValue);
             },
 
             selectElementContents: function(el) {
@@ -191,6 +222,11 @@
                             command: `/mob iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`
                         });
                         break;
+                    case 'area':
+                        this.$store.dispatch('sendSlashCommand', {
+                            command: `/area set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
+                        });
+                        break;
                 }
             },
 
@@ -271,6 +307,34 @@
         }
     }
 </script>
+
+<style lang="scss">
+/* Vue-Select overrides, prior to importing defaults */
+$vs-border-width: 0px;
+$vs-dropdown-bg: #222;
+
+@import "vue-select/src/scss/vue-select.scss";
+
+/* Custom, non-variablized overrides */
+.vs__search {
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.vs__dropdown-menu {
+    .vs__dropdown-option {
+        color: #fff;
+    }
+
+    .vs__dropdown-option--highlight {
+        background-color: #444;
+    }
+}
+
+.vs__selected {
+    color: #fff;
+}
+</style>
 
 <style lang="scss" scoped>
     $hoverColor: #1f1e1e;
@@ -422,5 +486,11 @@
         background-color: $hoverColor;
         cursor: pointer;
         color: #fff;
+    }
+
+    .prop-value .enum {
+        width: 180px;
+        position: absolute;
+        padding-top: 3px;
     }
 </style>

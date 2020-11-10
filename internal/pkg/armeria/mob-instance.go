@@ -128,7 +128,7 @@ func (mi *MobInstance) EditorData() *ObjectEditorData {
 
 	for _, attrName := range ValidMobInstanceAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
-			PropType:    "editable",
+			PropType:    AttributeEditorType(attrName),
 			Name:        attrName,
 			Value:       mi.InstanceAttribute(attrName),
 			ParentValue: mi.Parent.Attribute(attrName),
