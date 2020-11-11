@@ -194,7 +194,7 @@
                 editableDiv.classList.remove('editing');
 
                 // Show inherited?
-                if (prop.value.length === 0 && prop.parentValue.length > 0) {
+                if (prop.value.length === 0 && this.objectEditorData.isChild) {
                     editableDiv.classList.add('inherited');
                 }
 
