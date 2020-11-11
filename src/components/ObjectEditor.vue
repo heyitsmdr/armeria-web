@@ -64,7 +64,7 @@
                         <div
                                 class="swatch"
                                 :style="swatchStyle(prop.value)"
-                                @click="handleSwatchClick($event)"
+                                @click="handleSwatchClick($event, prop)"
                         >
                             <p v-if="showColorPicker">SAVE</p>
                             <!--{{colors["rgba"]}}-->
@@ -73,7 +73,7 @@
                                 class="colorpicker"
                                 v-model="colors"
                                 v-if="showColorPicker"
-                                
+                                @input="updateColorPicker"
                         />
                     </div>
                     <!-- enum type -->
@@ -138,14 +138,23 @@
                 return { backgroundColor: color.toRgbString() }
             },
 
-            handleSwatchClick: function(e) {
+            handleSwatchClick: function(e, p) {
+                if (this.showColorPicker) {
+                    this.setProperty(
+                                p.name,
+                                this.colors["rgba"].r + ','
+                                + this.colors['rgba'].g + ','
+                                + this.colors['rgba'].b + '',
+                                this.objectEditorData.textCoords
+                            );
+                }
                 let c = tinycolor(e.target.style.backgroundColor);
                 this.colors = c.toHexString();
                 this.showColorPicker = !this.showColorPicker;
             },
 
             updateColorPicker: function(value) {
-                this.colors = value
+                this.colors = value;
             },
 
             handleClose: function() {
@@ -578,7 +587,7 @@ $vs-dropdown-bg: #222;
     .colorpicker {
         float: both;
         position: absolute;
-        top: 50px;
-        right: 32px;
+        top: 10px;
+        left: 310px;
     }
 </style>
