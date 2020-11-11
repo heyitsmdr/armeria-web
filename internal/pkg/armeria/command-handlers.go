@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"armeria/internal/pkg/sfx"
+	"armeria/internal/pkg/validate"
 	"fmt"
 	"log"
 	"strconv"
@@ -1638,6 +1639,7 @@ func handleChannelSayCommand(ctx *CommandContext) {
 
 func handleSettingsCommand(ctx *CommandContext) {
 	setting := strings.ToLower(ctx.Args["name"])
+	value := ctx.Args["value"]
 
 	if len(setting) == 0 {
 		rows := []string{TableRow(
@@ -1658,6 +1660,7 @@ func handleSettingsCommand(ctx *CommandContext) {
 			))
 		}
 		ctx.Player.client.ShowText(TextTable(rows...))
+		return
 	} else if !misc.Contains(ValidSettings(), setting) {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf(
@@ -1666,22 +1669,42 @@ func handleSettingsCommand(ctx *CommandContext) {
 			),
 			ColorError,
 		)
-	} else {
-		currentValue := ctx.Character.Setting(setting)
-		var newValue string
-		if misc.IsStringBool(currentValue) {
-			newValue = misc.ToggleStringBool(currentValue)
+		return
+	}
+
+	// If no value is specified, either swap the bools or set the default value.
+	if len(value) == 0 {
+		if misc.IsStringBool(ctx.Character.Setting(setting)) {
+			value = misc.ToggleStringBool(ctx.Character.Setting(setting))
 		} else {
-			newValue = ctx.Args["value"]
+			value = SettingDefault(setting)
 		}
+	} else {
+		// Validate the setting value.
+		valid := validate.Check(value, SettingValidationString(setting))
+		if !valid.Result {
+			ctx.Player.client.ShowColorizedText("You cannot use that value for that setting.",
+				ColorError,
+			)
+			return
+		}
+	}
 
-		_ = ctx.Character.SetSetting(setting, newValue)
-
+	if err := ctx.Character.SetSetting(setting, value); err != nil {
 		ctx.Player.client.ShowColorizedText(
-			fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, WithBold()), newValue),
-			ColorSuccess,
+			fmt.Sprintf(
+				"That setting cannot be changed: %s",
+				err,
+			),
+			ColorError,
 		)
 	}
+
+	ctx.Player.client.SyncSettings()
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, WithBold()), value),
+		ColorSuccess,
+	)
 
 }
 

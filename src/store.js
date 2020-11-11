@@ -32,6 +32,7 @@ export default new Vuex.Store({
     commandDictionary: [],
     sentKeepAlive: 0,
     pingTime: 0,
+    settings: {},
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
@@ -190,6 +191,10 @@ export default new Vuex.Store({
 
     KEEP_ALIVE_RESPONSE: (state) => {
       state.pingTime = Date.now() - state.sentKeepAlive;
+    },
+
+    SET_SETTINGS: (state, settings) => {
+      state.settings = settings;
     }
   },
   actions: {
@@ -332,6 +337,10 @@ export default new Vuex.Store({
     playSFX: (_, payload) => {
       const sfx = JSON.parse(payload.data);
       Vue.prototype.$soundEvent(sfx.id, sfx.volume);
+    },
+
+    setSettings: ({ commit }, payload) => {
+      commit('SET_SETTINGS', JSON.parse(payload.data));
     },
   }
 })
