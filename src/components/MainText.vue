@@ -37,10 +37,24 @@
             windowHeight: Number,
         },
         computed: {
-            ...mapState(['gameText', 'itemBeingDragged']),
+            ...mapState(['gameText', 'itemBeingDragged', 'settings']),
             containerHeight() {
                 const height = this.windowHeight - 37 - 30 - 2 - 35;
                 return `${height}px`;
+            }
+        },
+        watch: {
+            gameText: function(lines) {
+                let maxLines = this.settings['lines'];
+                if (!maxLines) {
+                    return;
+                }
+
+                maxLines = parseInt(maxLines);
+
+                if (maxLines > lines.length) {
+                    // Delete the oldest line here.
+                }
             }
         },
         updated: function () {

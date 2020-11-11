@@ -50,8 +50,9 @@ const (
 	ColorChannelBuilders
 	ColorMoney
 
-	SettingBrief string = "brief"
-	SettingWrap         = "wrap"
+	SettingBrief    string = "brief"
+	SettingWrap            = "wrap"
+	SettingMaxLines        = "lines"
 
 	PronounSubjective PronounType = iota
 	PronounPossessiveAdjective
@@ -64,6 +65,7 @@ func ValidSettings() []string {
 	return []string{
 		SettingBrief,
 		SettingWrap,
+		SettingMaxLines,
 	}
 }
 
@@ -74,6 +76,8 @@ func SettingDesc(name string) string {
 		return "Toggle short room descriptions when moving."
 	case SettingWrap:
 		return "Wrap room descriptions at this character length."
+	case SettingMaxLines:
+		return "Truncate main display after this many lines."
 	}
 
 	return ""
@@ -86,8 +90,20 @@ func SettingDefault(name string) string {
 		return "false"
 	case SettingWrap:
 		return "80"
+	case SettingMaxLines:
+		return "100"
 	}
 
+	return ""
+}
+
+func SettingValidationString(name string) string {
+	switch name {
+	case SettingWrap:
+		return "num|min:40|max:200"
+	case SettingMaxLines:
+		return "num|min:50|max:500"
+	}
 	return ""
 }
 
@@ -553,7 +569,17 @@ func (c *Character) SettingsJSON() string {
 	c.RLock()
 	defer c.RUnlock()
 
-	b, err := json.Marshal(c.UnsafeSettings)
+	obj := make(map[string]string)
+	for _, setting := range ValidSettings() {
+		s, exists := c.UnsafeSettings[setting]
+		if exists {
+			obj[setting] = s
+		} else {
+			obj[setting] = SettingDefault(setting)
+		}
+	}
+
+	b, err := json.Marshal(obj)
 	if err != nil {
 		log.Fatalf("error marshalling character settings: %s", err)
 	}
