@@ -1645,8 +1645,8 @@ func handleSettingsCommand(ctx *CommandContext) {
 		rows := []string{TableRow(
 			TableCell{content: "Name", header: true},
 			TableCell{content: "Description", header: true},
-			TableCell{content: "Default", header: true},
 			TableCell{content: "Current", header: true},
+			TableCell{content: "Default", header: true},
 		)}
 
 		valid := ValidSettings()
@@ -1655,8 +1655,8 @@ func handleSettingsCommand(ctx *CommandContext) {
 			rows = append(rows, TableRow(
 				TableCell{content: s},
 				TableCell{content: SettingDesc(s), styling: "padding:0px 2px"},
-				TableCell{content: SettingDefault(s), styling: "padding:0px 2px"},
 				TableCell{content: ctx.Character.Setting(s), styling: "padding:0px 2px"},
+				TableCell{content: SettingDefault(s), styling: "padding:0px 2px;color:#666"},
 			))
 		}
 		ctx.Player.client.ShowText(TextTable(rows...))
