@@ -59,7 +59,20 @@
                             class="color"
                             v-if="prop.propType === 'color'"
                     >
-                        <div class="swatch" :style="swatchStyle(prop.value)"></div>
+                        <div
+                                class="swatch"
+                                :style="swatchStyle(prop.value)"
+                                @click="handleSwatchClick($event)"
+                        >
+                            <p v-if="showColorPicker">SAVE</p>
+                            <!--{{colors["rgba"]}}-->
+                        </div>
+                        <chrome-picker
+                                class="colorpicker"
+                                v-model="colors"
+                                v-if="showColorPicker"
+                                
+                        />
                     </div>
                     <!-- enum type -->
                     <div
@@ -84,15 +97,21 @@
     import { mapState } from 'vuex';
     import vSelect from 'vue-select';
     import tinycolor from 'tinycolor2';
+    import { Chrome } from 'vue-color';
 
     export default {
         name: 'ObjectEditor',
-        components: {vSelect},
+        components: {
+            vSelect,
+            'chrome-picker': Chrome
+        },
         computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData']),
         data: function() {
             return {
                 propOriginal: '',
-                propEnumEditing: ''
+                propEnumEditing: '',
+                colors: '#ff00ff',
+                showColorPicker: false,
             };
         },
         watch: {
@@ -115,6 +134,16 @@
             swatchStyle(v) {
                 let color = tinycolor('rgb('+v+')')
                 return { backgroundColor: color.toRgbString() }
+            },
+
+            handleSwatchClick: function(e) {
+                let c = tinycolor(e.target.style.backgroundColor);
+                this.colors = c.toHexString();
+                this.showColorPicker = !this.showColorPicker;
+            },
+
+            updateColorPicker: function(value) {
+                this.colors = value
             },
 
             handleClose: function() {
@@ -510,5 +539,21 @@ $vs-dropdown-bg: #222;
     .prop-value .swatch {
         width: 100%;
         height: 32px;
+        text-align: center;
+    }
+
+    .prop-value .swatch p {
+        padding: 0;
+        margin: 0;
+        line-height: 32px;
+        font-weight: 700;
+        color: black;
+    }
+
+    .colorpicker {
+        float: both;
+        position: absolute;
+        top: 50px;
+        right: 32px;
     }
 </style>
