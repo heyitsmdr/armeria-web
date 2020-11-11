@@ -42,7 +42,7 @@ func NewClientActions(p *Player) ClientActions {
 	}
 }
 
-// ShowColorizedText displays color-formatted text if there is a unsafeCharacter attached to
+// ShowColorizedText displays color-formatted text if there is a Character attached to
 // the parent instance.
 func (ca *ClientActions) ShowColorizedText(text string, color int) {
 	var t string
@@ -106,6 +106,11 @@ func (ca *ClientActions) SyncInventory() {
 // SyncPermissions sets the character permissions on the client (to allow/disallow certain client actions / UI tweaks).
 func (ca *ClientActions) SyncPermissions() {
 	ca.parent.CallClientAction("setPermissions", ca.parent.Character().Attribute(AttributePermissions))
+}
+
+// SyncSettings sends the Character's setting values to the client.
+func (ca *ClientActions) SyncSettings() {
+	ca.parent.CallClientAction("setSettings", ca.parent.Character().SettingsJSON())
 }
 
 // SendPong responds to a client's ping request as part of the keep alive lifecycle.

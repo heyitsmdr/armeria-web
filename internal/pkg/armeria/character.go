@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -327,6 +328,7 @@ func (c *Character) LoggedIn() {
 	c.Player().client.SyncPlayerInfo()
 	c.Player().client.SyncMoney()
 	c.Player().client.SyncCommands()
+	c.Player().client.SyncSettings()
 
 	Armeria.log.Info("character entered the game",
 		zap.String("character", c.Name()),
@@ -545,6 +547,18 @@ func (c *Character) EditorData() *ObjectEditorData {
 		ObjectType: "character",
 		Properties: props,
 	}
+}
+
+func (c *Character) SettingsJSON() string {
+	c.RLock()
+	defer c.RUnlock()
+
+	b, err := json.Marshal(c.UnsafeSettings)
+	if err != nil {
+		log.Fatalf("error marshalling character settings: %s", err)
+	}
+
+	return string(b)
 }
 
 // HasPermission returns true if the Character has a particular permission.

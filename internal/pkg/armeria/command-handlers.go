@@ -1675,8 +1675,17 @@ func handleSettingsCommand(ctx *CommandContext) {
 			newValue = ctx.Args["value"]
 		}
 
-		_ = ctx.Character.SetSetting(setting, newValue)
+		if err := ctx.Character.SetSetting(setting, newValue); err != nil {
+			ctx.Player.client.ShowColorizedText(
+				fmt.Sprintf(
+					"That setting cannot be changed: %s",
+					err,
+				),
+				ColorError,
+			)
+		}
 
+		ctx.Player.client.SyncSettings()
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("Setting %s has been set to '%s'.", TextStyle(setting, WithBold()), newValue),
 			ColorSuccess,
