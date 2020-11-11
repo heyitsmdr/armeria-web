@@ -2,9 +2,11 @@
     <div class="object-editor" :class="{ 'visible': objectEditorOpen }">
         <div class="header">
             <div class="name">
-                <span class="type">{{ objectEditorData.objectType }}</span>
-                {{ objectEditorData.name }}
-                <small>{{ objectEditorData.textCoords }}</small>
+                <div class="type">{{ objectEditorData.objectType }}</div>
+                <div class="text">
+                    <span class="inner">{{ objectEditorData.name }}</span>
+                </div>
+                <div class="coords"><small>{{ objectEditorData.textCoords }}</small></div>
             </div>
             <div class="close" @click="handleClose">X</div>
         </div>
@@ -190,10 +192,13 @@
                 const editableDiv = e.target;
                 editableDiv.contentEditable = 'false';
                 editableDiv.classList.remove('editing');
+
+                // Show inherited?
                 if (prop.value.length === 0 && prop.parentValue.length > 0) {
                     editableDiv.classList.add('inherited');
                 }
 
+                // If not a success, animate a failure.
                 if (!editableDiv.classList.contains('success')) {
                     this.animateDivWithClass(e.target, 'failure');
                     editableDiv.innerHTML = this.propOriginal;
@@ -407,11 +412,31 @@ $vs-dropdown-bg: #222;
         font-weight: 600;
         font-size: 16px;
         flex-grow: 1;
+        display: flex;
+    }
+
+    .header .name .text {
+        color: #ffe500;
+        flex-shrink: 1;
+        max-width: 160px;
+        padding-top: 2px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .header .name .text .inner {
+        white-space:nowrap;
+    }
+
+    .header .name .coords {
+        padding-top: 2px;
     }
 
     .header .name small {
         font-size: x-small;
         vertical-align: middle;
+        padding-left: 5px;
+        color: #ffc107;
     }
 
     .header .name .type {
@@ -420,7 +445,7 @@ $vs-dropdown-bg: #222;
         text-transform: uppercase;
         background-color: #333;
         padding: 4px 7px;
-        border-radius: 10px;
+        border-radius: 5px;
         margin-right: 5px;
     }
 
@@ -430,7 +455,7 @@ $vs-dropdown-bg: #222;
         transition: all .1s ease-in-out;
         font-weight: 600;
         background-color: #383838;
-        padding: 0 7px;
+        padding: 2px 7px 0 7px;
         border-radius: 5px;
     }
 
@@ -464,7 +489,7 @@ $vs-dropdown-bg: #222;
         padding: $padding;
         text-overflow: ellipsis;
         overflow: hidden;
-        white-space: nowrap;
+        /*white-space: nowrap;*/
         max-width: 166px;
         min-height: 15px;
     }
