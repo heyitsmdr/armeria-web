@@ -54,6 +54,13 @@
                     >
                         {{ prop.value }}
                     </div>
+                    <!-- color type -->
+                    <div
+                            class="color"
+                            v-if="prop.propType === 'color'"
+                    >
+                        <div class="swatch" :style="swatchStyle(prop.value)"></div>
+                    </div>
                     <!-- enum type -->
                     <div
                         class="enum"
@@ -76,6 +83,7 @@
 <script>
     import { mapState } from 'vuex';
     import vSelect from 'vue-select';
+    import tinycolor from 'tinycolor2';
 
     export default {
         name: 'ObjectEditor',
@@ -84,7 +92,7 @@
         data: function() {
             return {
                 propOriginal: '',
-                propEnumEditing: '',
+                propEnumEditing: ''
             };
         },
         watch: {
@@ -102,6 +110,11 @@
                 }
 
                 return `url(/oi/${objectKey})`;
+            },
+
+            swatchStyle(v) {
+                let color = tinycolor('rgb('+v+')')
+                return { backgroundColor: color.toRgbString() }
             },
 
             handleClose: function() {
@@ -492,5 +505,10 @@ $vs-dropdown-bg: #222;
         width: 180px;
         position: absolute;
         padding-top: 3px;
+    }
+
+    .prop-value .swatch {
+        width: 100%;
+        height: 32px;
     }
 </style>

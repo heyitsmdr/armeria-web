@@ -146,8 +146,14 @@ func (r *Room) RoomTargetJSON() string {
 func (r *Room) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidRoomAttributes() {
+
+		propType := "editable"
+		if attrName == AttributeColor {
+			propType = "color"
+		}
+
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: AttributeEditorType(attrName),
+			PropType: propType,
 			Name:     attrName,
 			Value:    r.Attribute(attrName),
 		})
