@@ -81,8 +81,10 @@
     <script src="vendor/ace-1.4.12/worker-lua.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.12/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
     <script>
-        // use language tools extension
+        // load plugins prior to creating the editor
+        // https://github.com/ajaxorg/ace/blob/v1.2.8/lib/ace/ext/language_tools.js (for help with writing features)
         const langTools = ace.require("ace/ext/language_tools");
+        const snippetManager = ace.require("ace/snippets").snippetManager;
 
         // create the editor
         const editor = ace.edit("editor");
@@ -97,27 +99,54 @@
         // set common options
         editor.session.setTabSize(2);
         editor.setOptions({
-            enableSnippets: false,
+            enableSnippets: true,
             enableLiveAutocompletion: true,
             enableBasicAutocompletion: true,
         });
 
-        // add custom auto-completes
-        const global_vars = ['invoker_uuid', 'invoker_name', 'mob_uuid', 'mob_name'];
-        const global_funcs = ['say', 'sleep', 'start_convo', 'end_convo', 'c_attr', 'c_set_attr', 'i_name', 'inv_give', 'room_text', 'shop'];
-        const events = ['character_entered', 'character_left', 'character_said', 'received_item', 'conversation_tick'];
-        // langTools.setCompleters([langTools.keyWordCompleter]);
-        langTools.addCompleter({
-            getCompletions: function(editor, session, pos, prefix, callback) {
-                if (prefix.length === 0) { callback(null, []); return }
-                const words = [];
-                global_vars.forEach(v => words.push({ name: v, value: v, score: 5, meta: 'global vars' }));
-                global_funcs.forEach(v => words.push({ name: v, value: v, score: 5, meta: 'global funcs' }));
-                events.forEach(v => words.push({ name: v, value: v, score: 5, meta: 'events' }));
-                callback(null, words);
-            }
-        });
+        // only use snippet auto-completer
+        langTools.setCompleters([langTools.snippetCompleter]);
 
+        function stringDivider(str, width, spaceReplacer) {
+            if (str.length>width) {
+                var p = width;
+                for (;p>0 && str[p]!==' ';p--) {
+                }
+                if (p>0) {
+                    var left = str.substring(0, p);
+                    var right = str.substring(p+1);
+                    return left + spaceReplacer + stringDivider(right, width, spaceReplacer);
+                }
+            }
+            return str;
+        }
+
+        function initDocTooltips(snippets) {
+            window['snippetData'] = snippets;
+
+            langTools.addCompleter({
+                getCompletions: function(editor, session, pos, prefix, callback) {
+                    callback(null, []);
+                    return;
+                },
+                getDocTooltip: function(item) {
+                    const lines = window['snippetData'].split('\n');
+
+                    if (!item.snippet) {
+                        return '';
+                    }
+
+                    const snippetName = item.caption;
+                    for(let i = 0; i < lines.length; i++) {
+                        if (lines[i].substr(0, (4 + snippetName.length)) === `## ${snippetName}(` ||
+                            lines[i].substr(0, (4 + snippetName.length)) === `## ${snippetName}:`) {
+                            const help = lines[i].substr(3).split(': ');
+                            item.docHTML = `<b>${help[0]}</b><hr>` + stringDivider(help[1], 50, '<br>');
+                        }
+                    }
+                }
+            });
+        }
 
         function resizeEditor() {
             document.getElementById('editor').style.height = `${window.innerHeight}px`;
@@ -131,12 +160,20 @@
         const type = urlParams.get('type');
         const accessKey = urlParams.get('accessKey');
 
-        let urlBase = '';
+        let serverUrlBase = '';
+        let clientUrlBase = '';
         if (dev === 'true') {
-            urlBase = `http://${window.location.hostname}:8081`
+            serverUrlBase = `http://${window.location.hostname}:8081`
+            clientUrlBase = `http://${window.location.hostname}:8080`
         }
 
-        $.get(`${urlBase}/script/${type}/${name}/${accessKey}`, (data) => {
+        $.get(`${clientUrlBase}/script-snippets.txt`, (snippetData) => {
+            const snippets = snippetManager.parseSnippetFile(snippetData, 'lua');
+            snippetManager.register(snippets, 'lua');
+            initDocTooltips(snippetData);
+        });
+
+        $.get(`${serverUrlBase}/script/${type}/${name}/${accessKey}`, (data) => {
             editor.session.setValue(data);
             editor.gotoLine(1);
         }).fail(() => {
