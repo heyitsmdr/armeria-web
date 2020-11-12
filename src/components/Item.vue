@@ -4,7 +4,7 @@
                 class="item"
                 ref="item"
                 draggable="true"
-                :style="{ backgroundImage: getBackgroundUrl(), borderColor: color }"
+                :style="{ backgroundImage: getBackgroundUrl(), borderColor: color ? `#${color}` : '' }"
                 @dragstart="handleItemDragStart"
                 @dragend="handleItemDragEnd"
                 @dragenter="handleItemDragEnter"

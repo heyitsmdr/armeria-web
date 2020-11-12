@@ -3,6 +3,7 @@
         <div
                 class="targets-container"
                 ref="container"
+                :style="{ borderColor: color ? `#${color}`  : '' }"
         >
             <div class="picture">
                 <div class="picture-container"
