@@ -50,9 +50,9 @@ snippet c_set_attr
 snippet i_name
 	i_name(${1:uuid})
 
-## inv_give(character_uuid, item_uuid): Gives an item to a character. The item must be in the mob's inventory.
-snippet inv_give
-	inv_give(${1:character_uuid}, ${2:item_uuid})
+## give(character_uuid, item_uuid): Gives an item to a character. The item must be in the mob's inventory.
+snippet give
+	give(${1:character_uuid}, ${2:item_uuid})
 
 ## room_text(text): Sends arbitrary text to the room.
 snippet room_text

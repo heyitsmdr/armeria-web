@@ -148,7 +148,7 @@ func LuaItemName(L *lua.LState) int {
 	return 1
 }
 
-// LuaInventoryGive (inv_give) gives an item to a unsafeCharacter from the mob's inventory.
+// LuaInventoryGive (give) gives an item to a Character from the Mob's inventory.
 func LuaInventoryGive(L *lua.LState) int {
 	cuuid := L.ToString(1)
 	iuuid := L.ToString(2)
@@ -375,7 +375,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 	L.SetGlobal("i_name", L.NewFunction(LuaItemName))
-	L.SetGlobal("inv_give", L.NewFunction(LuaInventoryGive))
+	L.SetGlobal("give", L.NewFunction(LuaInventoryGive))
 	L.SetGlobal("room_text", L.NewFunction(LuaRoomText))
 	L.SetGlobal("shop", L.NewFunction(LuaShop))
 

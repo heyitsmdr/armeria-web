@@ -7,7 +7,7 @@
 - [c_attr](#c_attruuid-attribute-temp)
 - [c_set_attr](#c_set_attruuid-attribute-value-temp)
 - [i_name](#i_nameuuid)
-- [inv_give](#inv_giveuuid-item_uuid)
+- [give](#giveuuid-item_uuid)
 - [say](#saytext)
 - [sleep](#sleepduration)
 - [start_convo](#start_convo)
@@ -77,14 +77,14 @@ for the duration of the character's session.
 
 Returns the formatted name of an item based on the item UUID.
 
-### inv_give(uuid, item_uuid)
+### give(uuid, item_uuid)
 
 **Arguments**
 
 - `uuid (string)`: character uuid to give the item to
 - `item_uuid (string)`: item uuid of item in mob inventory
 
-Gives an item from the mob's inventory to a character.
+Gives an item to a character from the mob's inventory.
 
 ### say(text)
 

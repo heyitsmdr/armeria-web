@@ -140,7 +140,8 @@
                     for(let i = 0; i < lines.length; i++) {
                         if (lines[i].substr(0, (4 + snippetName.length)) === `## ${snippetName}(` ||
                             lines[i].substr(0, (4 + snippetName.length)) === `## ${snippetName}:`) {
-                            const help = lines[i].substr(3).split(': ');
+                            let help = lines[i].substr(3).split(': ');
+                            help = help.replaceAll('|', '<br>');
                             item.docHTML = `<b>${help[0]}</b><hr>` + stringDivider(help[1], 50, '<br>');
                         }
                     }
