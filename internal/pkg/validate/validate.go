@@ -71,16 +71,16 @@ func checkBool(str string) string {
 func checkMin(str, min string) string {
 	i, err := strconv.Atoi(str)
 	if err != nil {
-		return "input not convertible to an int"
+		return "not an int"
 	}
 
 	m, err := strconv.Atoi(min)
 	if err != nil {
-		return "min value not convertible to an int"
+		return "min value not an int"
 	}
 
 	if i < m {
-		return fmt.Sprintf("lower than %d", m)
+		return fmt.Sprintf("value cannot be below %d", m)
 	}
 
 	return ""
@@ -89,16 +89,16 @@ func checkMin(str, min string) string {
 func checkMax(str, max string) string {
 	i, err := strconv.Atoi(str)
 	if err != nil {
-		return "input not convertible to an int"
+		return "not an int"
 	}
 
 	m, err := strconv.Atoi(max)
 	if err != nil {
-		return "max value not convertible to an int"
+		return "max value not an int"
 	}
 
 	if i > m {
-		return fmt.Sprintf("higher than %d", m)
+		return fmt.Sprintf("value cannot exceed %d", m)
 	}
 
 	return ""
@@ -116,7 +116,7 @@ func checkIn(str, in string) string {
 	}
 
 	if !found {
-		return "not a valid option"
+		return fmt.Sprintf("not in set: %v", inSlice)
 	}
 
 	return ""
@@ -125,8 +125,20 @@ func checkIn(str, in string) string {
 func checkNum(str string) string {
 	_, err := strconv.Atoi(str)
 	if err != nil {
-		return "input not convertible to an int"
+		return "not an int"
 	}
 
 	return ""
+}
+
+// OnlyErrors returns a slice of only the error strings. Useful for sending back to the client when needed.
+func (vr ValidationResult) OnlyErrors() []string {
+	errors := make([]string, 0)
+	for name, _ := range vr.Checks {
+		if !vr.Checks[name] {
+			errors = append(errors, vr.Errors[name])
+		}
+	}
+
+	return errors
 }

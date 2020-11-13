@@ -107,7 +107,7 @@
             vSelect,
             'chrome-picker': Chrome
         },
-        computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData']),
+        computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData', 'settings']),
         data: function() {
             return {
                 propOriginal: '',
@@ -340,7 +340,7 @@
                 }
 
                 window.open(
-                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}&dev=${!this.isProduction}`,
+                    `${baseUrl}?name=${this.objectEditorData.name}&type=${this.objectEditorData.objectType}&accessKey=${this.objectEditorData.accessKey}&dev=${!this.isProduction}&theme=${this.settings['script_theme']}`,
                     'scripteditor',
                     'width=800,height=600'
                 );

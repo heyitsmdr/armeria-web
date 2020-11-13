@@ -563,6 +563,8 @@ func handleRefreshCommand(ctx *CommandContext) {
 	ctx.Player.client.SyncPermissions()
 	ctx.Player.client.SyncPlayerInfo()
 	ctx.Player.client.SyncMoney()
+	ctx.Player.client.SyncSettings()
+	ctx.Player.client.SyncCommands()
 	ctx.Player.client.ShowText("Client data has been refreshed.")
 }
 
@@ -1652,6 +1654,11 @@ func handleSettingsCommand(ctx *CommandContext) {
 		valid := ValidSettings()
 
 		for _, s := range valid {
+			reqPerm := SettingPermission(s)
+			if len(reqPerm) > 0 && !ctx.Character.HasPermission(reqPerm) {
+				continue
+			}
+
 			rows = append(rows, TableRow(
 				TableCell{content: s},
 				TableCell{content: SettingDesc(s), styling: "padding:0px 2px"},
@@ -1662,6 +1669,19 @@ func handleSettingsCommand(ctx *CommandContext) {
 		ctx.Player.client.ShowText(TextTable(rows...))
 		return
 	} else if !misc.Contains(ValidSettings(), setting) {
+		ctx.Player.client.ShowColorizedText(
+			fmt.Sprintf(
+				"%s is not a valid setting name.",
+				TextStyle(setting, WithBold()),
+			),
+			ColorError,
+		)
+		return
+	}
+
+	// Check if the character has permission to modify the setting.
+	reqPerm := SettingPermission(setting)
+	if len(reqPerm) > 0 && !ctx.Character.HasPermission(reqPerm) {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf(
 				"%s is not a valid setting name.",
@@ -1683,7 +1703,11 @@ func handleSettingsCommand(ctx *CommandContext) {
 		// Validate the setting value.
 		valid := validate.Check(value, SettingValidationString(setting))
 		if !valid.Result {
-			ctx.Player.client.ShowColorizedText("You cannot use that value for that setting.",
+			ctx.Player.client.ShowColorizedText(
+				fmt.Sprintf(
+					"You cannot use that value due to:\n- %s",
+					strings.Join(valid.OnlyErrors(), "\n- "),
+				),
 				ColorError,
 			)
 			return

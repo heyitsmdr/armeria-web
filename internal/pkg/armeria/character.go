@@ -50,62 +50,11 @@ const (
 	ColorChannelBuilders
 	ColorMoney
 
-	SettingBrief    string = "brief"
-	SettingWrap            = "wrap"
-	SettingMaxLines        = "lines"
-
 	PronounSubjective PronounType = iota
 	PronounPossessiveAdjective
 	PronounPossessiveAbsolute
 	PronounObjective
 )
-
-// ValidSettings returns all valid settings for a Character.
-func ValidSettings() []string {
-	return []string{
-		SettingBrief,
-		SettingWrap,
-		SettingMaxLines,
-	}
-}
-
-// SettingDesc is used to retrieve the description of a Character setting.
-func SettingDesc(name string) string {
-	switch name {
-	case SettingBrief:
-		return "Toggle short room descriptions when moving."
-	case SettingWrap:
-		return "Wrap room descriptions at this character length."
-	case SettingMaxLines:
-		return "Truncate main display after this many lines."
-	}
-
-	return ""
-}
-
-// SettingDefault is used as a fallback for setting values.
-func SettingDefault(name string) string {
-	switch name {
-	case SettingBrief:
-		return "false"
-	case SettingWrap:
-		return "80"
-	case SettingMaxLines:
-		return "100"
-	}
-
-	return ""
-}
-
-func SettingValidationString(name string) string {
-	switch name {
-	case SettingWrap:
-		return "num|min:40|max:200"
-	case SettingMaxLines:
-		return "num|min:50|max:500"
-	}
-	return ""
-}
 
 // Init is called when the Character is created or loaded from disk.
 func (c *Character) Init() {

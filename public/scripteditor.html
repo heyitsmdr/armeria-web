@@ -77,10 +77,20 @@
     <script src="vendor/jquery-3.3.1/jquery.min.js"></script>
     <script src="vendor/ace-1.4.12/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.12/theme-gruvbox.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/theme-nord_dark.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace-1.4.12/theme-one_dark.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.12/mode-lua.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.12/worker-lua.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace-1.4.12/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
     <script>
+        // load url params
+        const urlParams = new URLSearchParams(window.location.search);
+        const dev = urlParams.get('dev');
+        const name = urlParams.get('name');
+        const type = urlParams.get('type');
+        const accessKey = urlParams.get('accessKey');
+        const scriptTheme = urlParams.get('theme');
+
         // load plugins prior to creating the editor
         // https://github.com/ajaxorg/ace/blob/v1.2.8/lib/ace/ext/language_tools.js (for help with writing features)
         const langTools = ace.require("ace/ext/language_tools");
@@ -90,7 +100,7 @@
         const editor = ace.edit("editor");
 
         // set theme
-        editor.setTheme("ace/theme/gruvbox");
+        editor.setTheme(`ace/theme/${scriptTheme}`);
 
         // set mode to lua
         let LuaMode = ace.require("ace/mode/lua").Mode;
@@ -153,13 +163,6 @@
             document.getElementById('editor').style.height = `${window.innerHeight}px`;
             document.getElementById('editor').style.width = `${window.innerWidth}px`;
         }
-
-        let urlParams = new URLSearchParams(window.location.search);
-
-        const dev = urlParams.get('dev');
-        const name = urlParams.get('name');
-        const type = urlParams.get('type');
-        const accessKey = urlParams.get('accessKey');
 
         let serverUrlBase = '';
         let clientUrlBase = '';
