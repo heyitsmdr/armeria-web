@@ -43,6 +43,8 @@ func AttributeEditorType(attr string) string {
 		return "enum:common|uncommon"
 	case AttributeGender:
 		return "enum:male|female|thing"
+	case AttributeColor:
+		return "color"
 	}
 
 	return "editable"
