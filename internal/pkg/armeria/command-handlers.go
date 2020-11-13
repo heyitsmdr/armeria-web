@@ -388,10 +388,6 @@ func handleMoveCommand(ctx *CommandContext) {
 	} else {
 		Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
 	}
-
-	if ctx.Character.TempAttribute(TempAttributeEditorOpen) == "true" {
-		ctx.Player.client.ShowObjectEditor(newRoom.EditorData())
-	}
 }
 
 func handleRoomEditCommand(ctx *CommandContext) {
@@ -481,6 +477,49 @@ func handleRoomSetCommand(ctx *CommandContext) {
 	if editorOpen == "true" {
 		ctx.Player.client.ShowObjectEditor(tr.EditorData())
 	}
+}
+
+func handleRoomMoveCommand(ctx *CommandContext) {
+	dir := ctx.Args["direction"]
+
+	if strings.ToLower(dir) == "up" || strings.ToLower(dir) == "down" {
+		ctx.Player.client.ShowColorizedText("Rooms cannot be moved up or down.", ColorError)
+		return
+	}
+
+	oppositeDir := misc.OppositeDirection(dir)
+	if len(oppositeDir) == 0 {
+		ctx.Player.client.ShowColorizedText("That's not a valid direction to move a room to.", ColorError)
+		return
+	}
+
+	// move east (dir=east, oppositeDir=west)
+
+	// Check if there is already a room in the intended direction.
+	if ctx.Character.Room().ConnectedRoom(dir) != nil {
+		ctx.Player.client.ShowColorizedText("There's already a room in that direction.", ColorError)
+		return
+	}
+
+	// Move the room.
+	rm := ctx.Character.Room()
+	offsets := misc.DirectionOffsets(dir)
+	rm.Coords.Set(
+		rm.Coords.X()+offsets["x"],
+		rm.Coords.Y()+offsets["y"],
+		rm.Coords.Z(),
+		rm.Coords.I(),
+	)
+
+	// Sync the minimap for anyone in the area.
+	for _, char := range rm.ParentArea.Characters() {
+		char.Player().client.SyncMap()
+		if char.Room() == rm {
+			char.Player().client.SyncMapLocation()
+		}
+	}
+
+	ctx.Player.client.ShowColorizedText("The room has been moved.", ColorSuccess)
 }
 
 func handleRoomCreateCommand(ctx *CommandContext) {

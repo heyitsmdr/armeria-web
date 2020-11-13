@@ -484,9 +484,14 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 	oldRoom.CharacterEntered(c, false)
 	to.CharacterEntered(c, false)
 
-	// Stop any on-going mob conversations
+	// Stop any on-going mob conversations.
 	if c.MobConvo() != nil {
 		c.MobConvo().Cancel()
+	}
+
+	// If the object editor is open, move the editor to this room.
+	if c.TempAttribute(TempAttributeEditorOpen) == "true" {
+		c.Player().client.ShowObjectEditor(to.EditorData())
 	}
 }
 

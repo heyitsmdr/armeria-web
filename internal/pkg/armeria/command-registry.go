@@ -146,6 +146,16 @@ func RegisterGameCommands() {
 					Handler: handleRoomSetCommand,
 				},
 				{
+					Name: "move",
+					Help: "Moves a room in the specified direction.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "direction",
+						},
+					},
+					Handler: handleRoomMoveCommand,
+				},
+				{
 					Name: "create",
 					Help: "Create a new room in the specified direction.",
 					Arguments: []*CommandArgument{

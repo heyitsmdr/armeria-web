@@ -43,6 +43,26 @@ func DirectionOffsets(dir string) map[string]int {
 	return offsets[dir]
 }
 
+// OppositeDirection returns the opposite direction string.
+func OppositeDirection(dir string) string {
+	switch dir {
+	case "north":
+		return "south"
+	case "south":
+		return "north"
+	case "east":
+		return "west"
+	case "west":
+		return "east"
+	case "up":
+		return "down"
+	case "down":
+		return "up"
+	default:
+		return ""
+	}
+}
+
 // ParseArguments parses a string and returns an array of arguments.
 func ParseArguments(args []string) []string {
 	var parsed []string
