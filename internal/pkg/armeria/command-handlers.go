@@ -1139,6 +1139,10 @@ func handleItemSetCommand(ctx *CommandContext) {
 		ColorSuccess,
 	)
 
+	// Sync possible locations of the item being edited.
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.SyncRoomObjects()
+
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {
 		ctx.Player.client.ShowObjectEditor(i.EditorData())
@@ -1185,6 +1189,10 @@ func handleItemInstanceSetCommand(ctx *CommandContext) {
 		),
 		ColorSuccess,
 	)
+
+	// Sync possible locations of the item being edited.
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.SyncRoomObjects()
 
 	editorOpen := ctx.Character.TempAttribute(TempAttributeEditorOpen)
 	if editorOpen == "true" {

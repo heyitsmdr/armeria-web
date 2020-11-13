@@ -18,6 +18,11 @@ type ItemInstance struct {
 	Parent           *Item             `json:"-"`
 }
 
+const (
+	ItemRarityCommon   string = "common"
+	ItemRarityUncommon        = "uncommon"
+)
+
 // Init is called when the ItemInstance is created or loaded from disk.
 func (ii *ItemInstance) Init() {
 	Armeria.registry.Register(ii, ii.ID(), RegistryTypeItemInstance)
@@ -120,21 +125,21 @@ func (ii *ItemInstance) MobInstance() *MobInstance {
 // RarityColor returns the HTML color code that represents the rarity of the item.
 func (ii *ItemInstance) RarityColor() string {
 	switch ii.Attribute(AttributeRarity) {
-	case "0":
+	case ItemRarityCommon:
 		return "ffffff"
-	case "1":
+	case ItemRarityUncommon:
 		return "00ff00"
 	default:
 		return "ffffff"
 	}
 }
 
-// RarityName returns the name of human-readable rarity name as a string.
+// RarityName returns the capitalized name of the rarity type.
 func (ii *ItemInstance) RarityName() string {
 	switch ii.Attribute(AttributeRarity) {
-	case "0":
+	case ItemRarityCommon:
 		return "Common"
-	case "1":
+	case ItemRarityUncommon:
 		return "Uncommon"
 	default:
 		return "Common"

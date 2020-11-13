@@ -12,7 +12,7 @@ import (
 
 // SchemaVersion defines the current version of the schema. If the file system is using an older version, a
 // migration will be performed.
-const SchemaVersion int = 5
+const SchemaVersion int = 6
 
 // schemaVersionOnDisk reads the schema version from disk and returns it as an int.
 func schemaVersionOnDisk() int {
@@ -144,6 +144,55 @@ func migrateMobs(to int) {
 	}
 }
 
+// migrateMobs handles migrations for items.
+func migrateItems(to int) {
+	s := struct {
+		Items []*Item `json:"items"`
+	}{}
+
+	b, err := ioutil.ReadFile(Armeria.dataPath + "/items.json")
+	if err != nil {
+		Armeria.log.Fatal("error reading items.json", zap.Error(err))
+	}
+
+	err = json.Unmarshal(b, &s)
+	if err != nil {
+		Armeria.log.Fatal("error unmarshalling items.json", zap.Error(err))
+	}
+
+	for _, i := range s.Items {
+		switch to {
+		case 6:
+			if _, exists := i.UnsafeAttributes["rarity"]; exists {
+				i.UnsafeAttributes["rarity"] = "common"
+			}
+		}
+
+		for _, ii := range i.Instances() {
+			switch to {
+			case 6:
+				if _, exists := ii.UnsafeAttributes["rarity"]; exists {
+					ii.UnsafeAttributes["rarity"] = "common"
+				}
+			}
+		}
+
+		Armeria.log.Info("item migration successful",
+			zap.String("name", i.UnsafeName),
+		)
+	}
+
+	b, err = json.Marshal(s)
+	if err != nil {
+		Armeria.log.Fatal("error marshalling items.json", zap.Error(err))
+	}
+
+	err = ioutil.WriteFile(Armeria.dataPath+"/items.json", b, 0644)
+	if err != nil {
+		Armeria.log.Fatal("error writing items.json", zap.Error(err))
+	}
+}
+
 // migrateLedgers handles migrations for ledgers.
 func migrateLedgers(to int) {
 	if to == 5 {
@@ -170,6 +219,7 @@ func Migrate() {
 		migrateCharacters(i)
 		migrateMobs(i)
 		migrateLedgers(i)
+		migrateItems(i)
 	}
 
 	writeSchemaVersionToDisk(SchemaVersion)
