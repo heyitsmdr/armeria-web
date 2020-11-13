@@ -39,6 +39,10 @@ func AttributeEditorType(attr string) string {
 		return "script"
 	case AttributeMusic:
 		return "enum:track-one|track-two"
+	case AttributeRarity:
+		return "enum:common|uncommon"
+	case AttributeGender:
+		return "enum:male|female|thing"
 	}
 
 	return "editable"
@@ -139,7 +143,7 @@ func CharacterAttributeDefault(name string) string {
 func ItemAttributeDefault(name string) string {
 	switch name {
 	case AttributeRarity:
-		return "0"
+		return "common"
 	}
 
 	return ""
@@ -172,16 +176,6 @@ func RoomAttributeDefault(name string) string {
 // ValidateItemAttribute returns a bool indicating whether a particular value is allowed
 // for a particular attribute.
 func ValidateItemAttribute(name string, value string) (bool, string) {
-	switch name {
-	case AttributeRarity:
-		valueInt, err := strconv.Atoi(value)
-		if err != nil {
-			return false, "value must be an integer"
-		} else if valueInt < 0 || valueInt > 4 {
-			return false, "rarity out of range (valid: 0-4)"
-		}
-	}
-
 	return true, ""
 }
 

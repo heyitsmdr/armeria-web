@@ -85,8 +85,10 @@
                             @open="handleEnumOpen(prop.name)"
                             @close="handleEnumClose"
                             @input="handleEnumSelected(prop, $event)"
-                            :options="prop.propType.substr(5).split('|')"
+                            :options="['<default>', ...prop.propType.substr(5).split('|')]"
                             :value="prop.value"
+                            :clearable="false"
+                            :placeholder="(objectEditorData.isChild && prop.value.length === 0) ? 'inherited' : ''"
                         ></v-select>
                     </div>
                 </div>
@@ -172,8 +174,8 @@
             },
 
             handleEnumSelected: function(prop, newPropValue) {
-                prop.value = newPropValue;
-                this.setProperty(this.propEnumEditing, newPropValue);
+                prop.value = (newPropValue === '<default>') ? '' : newPropValue;
+                this.setProperty(this.propEnumEditing, prop.value);
             },
 
             selectElementContents: function(el) {
@@ -375,6 +377,10 @@ $vs-dropdown-bg: #222;
 .vs__search {
     color: #fff;
     font-family: 'Montserrat', sans-serif;
+
+    &::placeholder {
+        color: #666;
+    }
 }
 
 .vs__dropdown-menu {
@@ -527,7 +533,6 @@ $vs-dropdown-bg: #222;
 
     .prop-value .editable.inherited {
         color: #616161;
-        font-style: italic;
     }
 
     .prop-value .editable:hover {
