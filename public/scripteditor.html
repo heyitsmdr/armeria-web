@@ -140,6 +140,7 @@
                     return;
                 },
                 getDocTooltip: function(item) {
+                    console.log(item);
                     const lines = window['snippetData'].split('\n');
 
                     if (!item.snippet) {
@@ -151,7 +152,6 @@
                         if (lines[i].substr(0, (4 + snippetName.length)) === `## ${snippetName}(` ||
                             lines[i].substr(0, (4 + snippetName.length)) === `## ${snippetName}:`) {
                             let help = lines[i].substr(3).split(': ');
-                            help = help.replaceAll('|', '<br>');
                             item.docHTML = `<b>${help[0]}</b><hr>` + stringDivider(help[1], 50, '<br>');
                         }
                     }
