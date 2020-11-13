@@ -119,6 +119,11 @@ func (c *Coords) Set(x int, y int, z int, i int) {
 	c.UnsafeI = i
 }
 
+// SetFrom sets the coordinates from another Coords struct.
+func (c *Coords) SetFrom(co *Coords) {
+	c.Set(co.X(), co.Y(), co.Z(), co.I())
+}
+
 // JSON returns the JSON-encoded string of the coordinates.
 func (c *Coords) JSON() string {
 	c.RLock()

@@ -254,3 +254,13 @@ func (r *Room) LocationString() string {
 	a := r.ParentArea
 	return fmt.Sprintf("%s,%d,%d,%d", a.Name(), r.Coords.X(), r.Coords.Y(), r.Coords.Z())
 }
+
+// DistanceBetween returns the Coords-based distance between two rooms.
+func (r *Room) DistanceBetween(rm *Room) *Coords {
+	co := &Coords{
+		UnsafeX: rm.Coords.X() - r.Coords.X(),
+		UnsafeY: rm.Coords.Y() - r.Coords.Y(),
+		UnsafeZ: rm.Coords.Z() - r.Coords.Z(),
+	}
+	return co
+}

@@ -480,9 +480,9 @@ func handleRoomSetCommand(ctx *CommandContext) {
 }
 
 func handleRoomMoveCommand(ctx *CommandContext) {
-	dir := ctx.Args["direction"]
+	dir := strings.ToLower(ctx.Args["direction"])
 
-	if strings.ToLower(dir) == "up" || strings.ToLower(dir) == "down" {
+	if dir == "up" || dir == "down" {
 		ctx.Player.client.ShowColorizedText("Rooms cannot be moved up or down.", ColorError)
 		return
 	}
@@ -493,23 +493,30 @@ func handleRoomMoveCommand(ctx *CommandContext) {
 		return
 	}
 
-	// move east (dir=east, oppositeDir=west)
+	rm := ctx.Character.Room()
+	offsets := misc.DirectionOffsets(dir)
+	newCoords := &Coords{
+		UnsafeX: rm.Coords.X() + offsets["x"],
+		UnsafeY: rm.Coords.Y() + offsets["y"],
+		UnsafeZ: rm.Coords.Z(),
+		UnsafeI: rm.Coords.I(),
+	}
 
-	// Check if there is already a room in the intended direction.
-	if ctx.Character.Room().ConnectedRoom(dir) != nil {
-		ctx.Player.client.ShowColorizedText("There's already a room in that direction.", ColorError)
+	// Check if there is already a room at the new coords.
+	if rm.ParentArea.RoomAt(newCoords) != nil {
+		ctx.Player.client.ShowColorizedText("There's already a room at the intended new location.", ColorError)
 		return
 	}
 
 	// Move the room.
-	rm := ctx.Character.Room()
-	offsets := misc.DirectionOffsets(dir)
-	rm.Coords.Set(
-		rm.Coords.X()+offsets["x"],
-		rm.Coords.Y()+offsets["y"],
-		rm.Coords.Z(),
-		rm.Coords.I(),
-	)
+	rm.Coords.SetFrom(newCoords)
+
+	// Link the rooms (if applicable).
+	oppositeRm := rm.ConnectedRoom(oppositeDir)
+	if oppositeRm != nil {
+		oppositeRm.SetAttribute(dir, rm.Coords.String())
+		rm.SetAttribute(oppositeDir, oppositeRm.Coords.String())
+	}
 
 	// Sync the minimap for anyone in the area.
 	for _, char := range rm.ParentArea.Characters() {
