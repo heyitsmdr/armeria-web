@@ -114,6 +114,7 @@
                 propEnumEditing: '',
                 colors: '#ff00ff',
                 showColorPicker: false,
+                pickerUpdated: false
             };
         },
         watch: {
@@ -139,7 +140,7 @@
             },
 
             handleSwatchClick: function(e, p) {
-                if (this.showColorPicker) {
+                if (this.showColorPicker && this.pickerUpdated) {
                     this.setProperty(
                                 p.name,
                                 this.colors["rgba"].r + ','
@@ -151,9 +152,11 @@
                 let c = tinycolor(e.target.style.backgroundColor);
                 this.colors = c.toHexString();
                 this.showColorPicker = !this.showColorPicker;
+                this.pickerUpdated = false;
             },
 
             updateColorPicker: function(value) {
+                this.pickerUpdated = true;
                 this.colors = value;
             },
 
