@@ -111,6 +111,7 @@ func InitWeb(port int) {
 		"/gfx/",
 		"/favicon.ico",
 		"/scripteditor.html",
+		"/script-snippets.txt",
 	}
 	for _, route := range publicRoutes {
 		r.PathPrefix(route).Handler(http.FileServer(http.Dir(Armeria.publicPath)))
