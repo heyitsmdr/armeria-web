@@ -238,7 +238,12 @@ export default new Vuex.Store({
     },
 
     setObjectEditorOpen: ({ commit }, payload) => {
-      commit('SET_OBJECT_EDITOR_OPEN', payload);
+      if (payload) {
+        commit('SET_OBJECT_EDITOR_OPEN', true);
+      } else {
+        commit('SET_OBJECT_EDITOR_OPEN', false);
+        commit('SET_OBJECT_EDITOR_DATA', {});
+      }
     },
 
     setForceInputFocus: ({ commit }, payload) => {
