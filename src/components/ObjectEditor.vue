@@ -582,6 +582,12 @@ $vs-dropdown-bg: #222;
         width: 100%;
         height: 32px;
         text-align: center;
+        opacity: 0.8;
+    }
+
+    .prop-value .swatch:hover {
+        cursor: pointer;
+        opacity: 1;
     }
 
     .prop-value .swatch p {
