@@ -422,7 +422,7 @@ $vs-dropdown-bg: #222;
     .header {
         border-bottom: 1px solid #313131;
         padding: 10px;
-        background-color: #1c1c1c;
+        background: linear-gradient(180deg, rgb(53 53 53) 0%, rgba(28,28,28,1) 92%);
         display: flex;
     }
 
