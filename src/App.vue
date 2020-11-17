@@ -33,6 +33,7 @@
             <StatusBar />
         </div>
         <ItemTooltip />
+        <ContextMenu :items="['Drop %s|/look', 'Use %s']" :objectName="'Long Sword'" :objectColor="'#ff0'" />
     </div>
 </template>
 
@@ -47,6 +48,7 @@ import Vitals from '@/components/Vitals';
 import Skills from '@/components/Skills';
 import StatusBar from '@/components/StatusBar';
 import ItemTooltip from '@/components/ItemTooltip';
+import ContextMenu from '@/components/ContextMenu';
 
 export default {
     name: 'App',
@@ -59,7 +61,8 @@ export default {
         Vitals,
         Skills,
         StatusBar,
-        ItemTooltip
+        ItemTooltip,
+        ContextMenu
     },
     data: () => {
         return {
@@ -67,7 +70,12 @@ export default {
             windowWidth: 0,
         }
     },
-    computed: mapState(['allowGlobalHotkeys', 'objectEditorOpen', 'isConnected', 'playerInfo']),
+    computed: mapState([
+        'allowGlobalHotkeys',
+        'objectEditorOpen',
+        'isConnected',
+        'playerInfo',
+    ]),
     watch: {
         isConnected: function(connected) {
             let token = this.$store.state.autoLoginToken;

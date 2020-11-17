@@ -13,7 +13,13 @@
 
     export default {
         name: 'ItemTooltip',
-        computed: mapState(['isProduction', 'itemTooltipVisible', 'itemTooltipUUID', 'itemTooltipCache', 'itemTooltipMouseCoords']),
+        computed: mapState([
+            'isProduction',
+            'itemTooltipVisible',
+            'itemTooltipUUID',
+            'itemTooltipCache',
+            'itemTooltipMouseCoords'
+        ]),
         data: () => {
             return {
                 itemUUID: '',

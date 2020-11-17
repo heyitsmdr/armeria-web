@@ -5,6 +5,7 @@
                     v-for="item in items"
                     :key="item.slot"
                     :uuid="item.uuid"
+                    :name="item.name"
                     :slotNum="item.slot"
                     :pictureKey="item.picture"
                     :color="item.color"

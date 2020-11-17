@@ -33,6 +33,11 @@ export default new Vuex.Store({
     sentKeepAlive: 0,
     pingTime: 0,
     settings: {},
+    contextMenuVisible: false,
+    contextMenuItems: [],
+    contextMenuObjectName: '',
+    contextMenuObjectColor: '#fff',
+    contextMenuPosition: { x: 0, y: 0 },
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
@@ -195,6 +200,24 @@ export default new Vuex.Store({
 
     SET_SETTINGS: (state, settings) => {
       state.settings = settings;
+    },
+
+    SET_CONTEXT_MENU_ITEMS: (state, items) => {
+      if (items.length > 0) {
+        state.contextMenuVisible = true;
+        state.contextMenuItems = items;
+      } else {
+        state.contextMenuVisible = false;
+      }
+    },
+
+    SET_CONTEXT_MENU_OBJECT: (state, obj) => {
+      state.contextMenuObjectName = obj.name;
+      state.contextMenuObjectColor = obj.color;
+    },
+
+    SET_CONTEXT_MENU_POSITION: (state, pos) => {
+      state.contextMenuPosition = { x: pos.x, y: pos.y };
     }
   },
   actions: {
@@ -268,6 +291,16 @@ export default new Vuex.Store({
 
     clearItemTooltipCache: ({ commit }) => {
       commit('CLEAR_ITEM_TOOLTIP_CACHE');
+    },
+
+    showContextMenu: ({ commit }, payload) => {
+      commit('SET_CONTEXT_MENU_ITEMS', payload.items);
+      commit('SET_CONTEXT_MENU_OBJECT', payload.object);
+      commit('SET_CONTEXT_MENU_POSITION', payload.at);
+    },
+
+    hideContextMenu: ({ commit }) => {
+      commit('SET_CONTEXT_MENU_ITEMS', []);
     },
 
     //

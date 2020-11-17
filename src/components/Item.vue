@@ -27,7 +27,7 @@
 
     export default {
         name: 'Item',
-        props: ['uuid', 'slotNum', 'pictureKey', 'color', 'equipped'],
+        props: ['uuid', 'name', 'slotNum', 'pictureKey', 'color', 'equipped'],
         computed: mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
         mounted: function () {
             this.$refs['item'].classList.add('equipped');
@@ -98,11 +98,25 @@
                 }
             },
 
-            handleContextMenu: function () {
-                this.$socket.sendObj({
-                    type: 'command',
-                    payload: `/look inv:${this.uuid}`
-                });
+            handleContextMenu: function (e) {
+                this.$store.dispatch(
+                    'showContextMenu',
+                    {
+                        object: {
+                            name: this.name,
+                            color: `#${this.color}`,
+                        },
+                        at: {
+                            x: e.pageX,
+                            y: e.pageY,
+                        },
+                        items: [
+                            `Look %s|/look inv:${this.uuid}`,
+                            `Wiki %s|wiki:/items/%s`,
+                            `Drop %s|/drop ${this.uuid}`
+                        ]
+                    }
+                );
             },
 
             hideTooltip: function () {

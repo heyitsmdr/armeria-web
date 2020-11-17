@@ -597,6 +597,7 @@ func (c *Character) InventoryJSON() string {
 	for _, ii := range c.Inventory().Items() {
 		inventory = append(inventory, map[string]interface{}{
 			"uuid":    ii.ID(),
+			"name":    ii.Name(),
 			"picture": ii.Attribute(AttributePicture),
 			"slot":    c.Inventory().Slot(ii.ID()),
 			"color":   ii.RarityColor(),
