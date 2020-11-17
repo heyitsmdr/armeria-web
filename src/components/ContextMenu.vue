@@ -30,7 +30,8 @@
                     const width = this.$refs["menu"].clientWidth;
                     const windowWidth = window.innerWidth;
 
-                    if ((this.contextMenuPosition.x + width + 10) > windowWidth) {
+                    // If the context menu would appear off-screen, move it to the left of the cursor position.
+                    if ((this.contextMenuPosition.x + width + 20) > windowWidth) {
                         return `${this.contextMenuPosition.x + 5 - width}px`;
                     }
                 }
