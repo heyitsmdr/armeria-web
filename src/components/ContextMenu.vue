@@ -49,11 +49,9 @@
         },
         methods: {
             itemNameHTML: function(item) {
-                const displayText = item.split('|')[0];
-                const firstWord = displayText.split(' ')[0];
-                let remainingWords = displayText.substr(firstWord.length + 1);
-                remainingWords = remainingWords.replace('%s', `<span style="color:${this.contextMenuObjectColor}">[${this.contextMenuObjectName}]</span>`);
-                return `<strong>${firstWord}</strong> ${remainingWords}`;
+                let displayText = item.split('|')[0];
+                displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">[${this.contextMenuObjectName}]</span>`);
+                return displayText;
             },
 
             handleItemClick: function(item) {
