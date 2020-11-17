@@ -47,6 +47,7 @@
                 e.dataTransfer.setData('item_slot', this.slotNum);
                 this.hideTooltip();
                 this.$store.dispatch('setItemBeingDragged', true);
+                this.$store.dispatch('hideContextMenu');
                 this.$soundEvent(INVENTORY_DRAG_START);
             },
 
