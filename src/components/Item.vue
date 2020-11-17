@@ -99,6 +99,10 @@
             },
 
             handleContextMenu: function (e) {
+                if (!this.uuid) {
+                    return;
+                }
+
                 this.$store.dispatch(
                     'showContextMenu',
                     {
