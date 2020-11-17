@@ -75,6 +75,7 @@ export default {
         'objectEditorOpen',
         'isConnected',
         'playerInfo',
+        'contextMenuVisible'
     ]),
     watch: {
         isConnected: function(connected) {
@@ -116,8 +117,12 @@ export default {
         onWindowResize() {
             this.windowHeight = window.innerHeight;
             this.windowWidth = window.innerWidth;
-
             document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
+
+            // If the context menu is open, let's hide it since the window is being resized.
+            if (this.contextMenuVisible) {
+                this.$store.dispatch('hideContextMenu');
+            }
         },
 
         onKeyUp(event) {
