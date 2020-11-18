@@ -48,6 +48,10 @@ export default new Vuex.Store({
         }
       }
       return null;
+    },
+
+    hasPermission: (state) => (permission) => {
+      return state.permissions.indexOf(permission) >= 0;
     }
   },
   mutations: {

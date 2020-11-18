@@ -8,6 +8,7 @@
             class="item"
             v-for="item in contextMenuItems"
             :key="item"
+            :class="itemClasses(item)"
             @click="handleItemClick(item)"
         >
             <span v-html="itemNameHTML(item)"></span>
@@ -50,9 +51,22 @@
         },
         methods: {
             itemNameHTML: function(item) {
-                let displayText = item.split('|')[0];
+                const itemSections = item.split('|');
+                let displayText = itemSections[0];
+                let displayStyle = itemSections.length >= 3 ? itemSections[2] : '';
+
                 displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">[${this.contextMenuObjectName}]</span>`);
+
+                if (displayStyle.length > 0) {
+                    return `<span style="${displayStyle}">${displayText}</span>`;
+                }
+
                 return displayText;
+            },
+
+            itemClasses: function(item) {
+                const itemSections = item.split('|');
+                return itemSections.length >= 4 ? itemSections[3] : '';
             },
 
             handleItemClick: function(item) {
@@ -87,19 +101,27 @@
         z-index: 900;
         top: 200px;
         left: 800px;
-        background-color: #2d2c2c;
+        background-color: #2d2c2ce8;
         border: 1px solid #4e4e4e;
     }
 
     .item {
         padding: 5px 12px;
 
+        &.admin {
+            background-color: #61030369;
+
+            &:hover {
+                background-color: #a9070769;
+            }
+        }
+
         &:not(:last-child) {
             border-bottom: 1px solid #4e4e4e;
         }
 
         &:hover {
-            background-color: #4e4e4e;
+            background-color: #403e3ee8;
             cursor: pointer;
         }
     }

@@ -22,13 +22,16 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex';
+    import {mapState, mapGetters} from 'vuex';
     import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "../plugins/SFX";
 
     export default {
         name: 'Item',
         props: ['uuid', 'name', 'slotNum', 'pictureKey', 'color', 'equipped'],
-        computed: mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
+        computed: {
+            ...mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
+            ...mapGetters(['hasPermission']),
+        },
         mounted: function () {
             this.$refs['item'].classList.add('equipped');
         },
@@ -91,7 +94,7 @@
                     return;
                 }
 
-                if (e.shiftKey && this.$store.state.permissions.indexOf('CAN_BUILD') >= 0) {
+                if (e.shiftKey && this.hasPermission('CAN_BUILD')) {
                     this.$socket.sendObj({
                         type: 'command',
                         payload: `/item iedit ${this.uuid}`
@@ -104,6 +107,16 @@
                     return;
                 }
 
+                const items = [
+                    `Look %s|/look inv:${this.uuid}`,
+                    `Wiki %s|wiki:/items/%s`,
+                    `Drop %s|/drop ${this.uuid}`
+                ];
+
+                if (this.hasPermission('CAN_BUILD')) {
+                    items.push(`Edit-Child %s|/item iedit ${this.uuid}||admin`);
+                    items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
+                }
                 this.$store.dispatch(
                     'showContextMenu',
                     {
@@ -115,11 +128,7 @@
                             x: e.pageX,
                             y: e.pageY,
                         },
-                        items: [
-                            `Look %s|/look inv:${this.uuid}`,
-                            `Wiki %s|wiki:/items/%s`,
-                            `Drop %s|/drop ${this.uuid}`
-                        ]
+                        items: items,
                     }
                 );
             },
