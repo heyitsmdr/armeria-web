@@ -114,7 +114,7 @@
                 ];
 
                 if (this.hasPermission('CAN_BUILD')) {
-                    items.push(`Edit-Child %s|/item iedit ${this.uuid}||admin`);
+                    items.push(`Edit %s|/item iedit ${this.uuid}||admin`);
                     items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
                 }
                 this.$store.dispatch(

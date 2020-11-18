@@ -2,7 +2,7 @@
     <div
         ref="menu"
         class="menu"
-        :style="{ top: `${this.contextMenuPosition.y + 5}px`, left: this.calcLeft }"
+        :style="{ top: `${this.contextMenuPosition.y + 5}px` }"
     >
         <div
             class="item"
@@ -23,22 +23,30 @@
         mounted: function() {
             window.addEventListener('click', this.handleWindowClick);
         },
-        computed: {
-            calcLeft: function() {
-                if (!this.contextMenuVisible) {
-                    return '-500px';
-                } else if (this.$refs["menu"]) {
-                    const width = this.$refs["menu"].clientWidth;
+        watch: {
+            contextMenuItems: function() {
+                this.$nextTick(() => {
+                    const menu = this.$refs["menu"];
+                    const width = menu.clientWidth;
                     const windowWidth = window.innerWidth;
 
-                    // If the context menu would appear off-screen, move it to the left of the cursor position.
                     if ((this.contextMenuPosition.x + width + 20) > windowWidth) {
-                        return `${this.contextMenuPosition.x + 5 - width}px`;
+                        menu.style.left = `${this.contextMenuPosition.x + 5 - width}px`;
+                        return
                     }
-                }
 
-                return `${this.contextMenuPosition.x + 5}px`;
+                    menu.style.left = `${this.contextMenuPosition.x + 5}px`;
+                });
             },
+
+            contextMenuVisible: function(visible) {
+                if (!visible) {
+                    const menu = this.$refs["menu"];
+                    menu.style.left = null;
+                }
+            }
+        },
+        computed: {
             ...mapState([
                 'contextMenuVisible',
                 'contextMenuItems',
@@ -46,8 +54,6 @@
                 'contextMenuObjectColor',
                 'contextMenuPosition',
             ])
-        },
-        watch: {
         },
         methods: {
             itemNameHTML: function(item) {
@@ -99,8 +105,8 @@
     .menu {
         position: absolute;
         z-index: 900;
-        top: 200px;
-        left: 800px;
+        top: 0px;
+        left: -500px;
         background-color: #2d2c2ce8;
         border: 1px solid #4e4e4e;
     }

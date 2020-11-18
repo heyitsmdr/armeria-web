@@ -206,13 +206,12 @@ export default new Vuex.Store({
       state.settings = settings;
     },
 
+    SET_CONTEXT_MENU_VISIBLE: (state, visible) => {
+      state.contextMenuVisible = visible;
+    },
+
     SET_CONTEXT_MENU_ITEMS: (state, items) => {
-      if (items.length > 0) {
-        state.contextMenuVisible = true;
         state.contextMenuItems = items;
-      } else {
-        state.contextMenuVisible = false;
-      }
     },
 
     SET_CONTEXT_MENU_OBJECT: (state, obj) => {
@@ -301,10 +300,11 @@ export default new Vuex.Store({
       commit('SET_CONTEXT_MENU_ITEMS', payload.items);
       commit('SET_CONTEXT_MENU_OBJECT', payload.object);
       commit('SET_CONTEXT_MENU_POSITION', payload.at);
+      commit('SET_CONTEXT_MENU_VISIBLE', true);
     },
 
     hideContextMenu: ({ commit }) => {
-      commit('SET_CONTEXT_MENU_ITEMS', []);
+      commit('SET_CONTEXT_MENU_VISIBLE', false);
     },
 
     //
