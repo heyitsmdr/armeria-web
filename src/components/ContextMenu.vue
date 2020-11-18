@@ -10,6 +10,7 @@
             :key="item"
             :class="itemClasses(item)"
             @click="handleItemClick(item)"
+            @mouseenter="handleItemMouseEnter"
         >
             <span v-html="itemNameHTML(item)"></span>
         </div>
@@ -18,6 +19,7 @@
 
 <script>
     import {mapState} from 'vuex';
+    import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "@/plugins/SFX";
     export default {
         name: 'ContextMenu',
         mounted: function() {
@@ -25,6 +27,8 @@
         },
         watch: {
             contextMenuItems: function() {
+                this.$soundEvent(INVENTORY_DRAG_START);
+
                 this.$nextTick(() => {
                     const menu = this.$refs["menu"];
                     const width = menu.clientWidth;
@@ -90,6 +94,12 @@
                 });
 
                 this.$store.dispatch('hideContextMenu');
+
+                this.$soundEvent(INVENTORY_DRAG_STOP);
+            },
+
+            handleItemMouseEnter: function() {
+                this.$soundEvent(INVENTORY_DRAG_START);
             },
 
             handleWindowClick: function() {

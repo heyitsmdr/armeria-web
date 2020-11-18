@@ -131,6 +131,8 @@
                         items: items,
                     }
                 );
+
+
             },
 
             hideTooltip: function () {
