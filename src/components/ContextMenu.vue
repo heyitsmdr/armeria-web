@@ -119,6 +119,7 @@
         left: -500px;
         background-color: #2d2c2ce8;
         border: 1px solid #4e4e4e;
+        font-size: 13px;
     }
 
     .item {
