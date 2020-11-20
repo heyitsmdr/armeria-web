@@ -379,7 +379,7 @@ func (c *Character) Attribute(name string) string {
 	defer c.RUnlock()
 
 	if len(c.UnsafeAttributes[name]) == 0 {
-		return CharacterAttributeDefault(name)
+		return AttributeDefault(ObjectTypeCharacter, name)
 	}
 
 	return c.UnsafeAttributes[name]

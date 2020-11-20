@@ -170,7 +170,7 @@ func (a *Area) Attribute(name string) string {
 	defer a.RUnlock()
 
 	if len(a.UnsafeAttributes[name]) == 0 {
-		return AreaAttributeDefault(name)
+		return AttributeDefault(ObjectTypeArea, name)
 	}
 
 	return a.UnsafeAttributes[name]

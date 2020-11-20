@@ -30,33 +30,7 @@ const (
 	TempAttributeReplyTo    string = "replyTo"
 )
 
-// AttributeEditorType returns the object editor "type" for each attribute
-func AttributeEditorType(ot ObjectType, attr string) string {
-	switch attr {
-	case AttributePicture:
-		return "picture"
-	case AttributeScript:
-		return "script"
-	case AttributeMusic:
-		return "enum:track-one|track-two"
-	case AttributeRarity:
-		return "enum:common|uncommon"
-	case AttributeGender:
-		return "enum:male|female|thing"
-	case AttributeColor:
-		return "color"
-	case AttributeType:
-		switch ot {
-		case ObjectTypeItem:
-			return "enum:generic|mob-spawner"
-		default:
-			return "editable"
-		}
-	}
-
-	return "editable"
-}
-
+// AttributeList returns the valid attributes for a given ObjectType.
 func AttributeList(ot ObjectType) []string {
 	switch ot {
 	case ObjectTypeCharacter:
@@ -106,7 +80,6 @@ func AttributeList(ot ObjectType) []string {
 		}
 	case ObjectTypeMobInstance:
 		return []string{
-			AttributeGender,
 			AttributeTitle,
 		}
 	}
@@ -114,56 +87,59 @@ func AttributeList(ot ObjectType) []string {
 	return []string{}
 }
 
-// AreaAttributeDefault returns the default value for a particular attribute.
-func AreaAttributeDefault(name string) string {
-	switch name {
-
+// AttributeEditorType returns the object editor "type" string of an attribute for a given ObjectType.
+func AttributeEditorType(ot ObjectType, attr string) string {
+	switch attr {
+	case AttributePicture:
+		return "picture"
+	case AttributeScript:
+		return "script"
+	case AttributeMusic:
+		return "enum:track-one|track-two"
+	case AttributeRarity:
+		return "enum:common|uncommon"
+	case AttributeGender:
+		return "enum:male|female|thing"
+	case AttributeColor:
+		return "color"
+	case AttributeType:
+		switch ot {
+		case ObjectTypeItem:
+			return "enum:generic|mob-spawner"
+		default:
+			return "editable"
+		}
 	}
 
-	return ""
+	return "editable"
 }
 
-// CharacterAttributeDefault returns the default value for a particular attribute.
-func CharacterAttributeDefault(name string) string {
-	switch name {
+// AttributeDefault returns the default value of an attribute for a given ObjectType.
+func AttributeDefault(ot ObjectType, attr string) string {
+	switch attr {
 	case AttributeGender:
-		return "male"
+		switch ot {
+		case ObjectTypeCharacter:
+			return "male"
+		case ObjectTypeMob:
+			return "thing"
+		}
 	case AttributeMoney:
 		return "0"
-	}
-
-	return ""
-}
-
-// ItemAttributeDefault returns the default value for a particular attribute.
-func ItemAttributeDefault(name string) string {
-	switch name {
 	case AttributeRarity:
 		return "common"
 	case AttributeType:
 		return "generic"
-	}
-
-	return ""
-}
-
-// MobAttributeDefault returns the default value for a particular attribute.
-func MobAttributeDefault(name string) string {
-	switch name {
-	case AttributeGender:
-		return "thing"
-	}
-
-	return ""
-}
-
-// RoomAttributeDefault returns the default value for a particular attribute.
-func RoomAttributeDefault(name string) string {
-	switch name {
 	case AttributeTitle:
-		return "Empty Room"
+		switch ot {
+		case ObjectTypeRoom:
+			return "Empty Room"
+		}
 	case AttributeDescription:
-		return "You are in a newly created empty room. Make it a good one!"
+		switch ot {
+		case ObjectTypeRoom:
+			return "You are in a newly created empty room. Make it a good one!"
+		}
 	case AttributeColor:
 		return "190,190,190"
 	}

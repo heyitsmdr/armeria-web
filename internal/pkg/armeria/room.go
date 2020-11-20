@@ -87,7 +87,7 @@ func (r *Room) Attribute(name string) string {
 	defer r.RUnlock()
 
 	if len(r.UnsafeAttributes[name]) == 0 {
-		return RoomAttributeDefault(name)
+		return AttributeDefault(ObjectTypeRoom, name)
 	}
 
 	return r.UnsafeAttributes[name]

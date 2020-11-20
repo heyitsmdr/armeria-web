@@ -77,7 +77,7 @@ func (i *Item) Attribute(name string) string {
 	defer i.RUnlock()
 
 	if len(i.UnsafeAttributes[name]) == 0 {
-		return ItemAttributeDefault(name)
+		return AttributeDefault(ObjectTypeItem, name)
 	}
 
 	return i.UnsafeAttributes[name]

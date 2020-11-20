@@ -41,7 +41,7 @@ func (m *Mob) Attribute(name string) string {
 	defer m.RUnlock()
 
 	if len(m.UnsafeAttributes[name]) == 0 {
-		return MobAttributeDefault(name)
+		return AttributeDefault(ObjectTypeMob, name)
 	}
 
 	return m.UnsafeAttributes[name]
