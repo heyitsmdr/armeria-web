@@ -138,7 +138,7 @@ func (m *MobManager) CreateMob(name string) *Mob {
 		UnsafeAttributes: make(map[string]string),
 	}
 
-	// create script file
+	// Create the script file.
 	content := fmt.Sprintf("-- %s Script", name)
 	_ = ioutil.WriteFile(mob.ScriptFile(), []byte(content), 0644)
 
@@ -151,4 +151,33 @@ func (m *MobManager) AddMob(mob *Mob) {
 	defer m.Unlock()
 
 	m.UnsafeMobs = append(m.UnsafeMobs, mob)
+}
+
+// RemoveMob removes an existing Mob reference from memory.
+func (m *MobManager) RemoveMob(mob *Mob) {
+	m.Lock()
+	defer m.Unlock()
+
+	var found bool
+	for idx, inst := range m.UnsafeMobs {
+		if inst.Name() == mob.Name() {
+			m.UnsafeMobs[idx] = m.UnsafeMobs[len(m.UnsafeMobs)-1]
+			m.UnsafeMobs = m.UnsafeMobs[:len(m.UnsafeMobs)-1]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return
+	}
+
+	// Delete the script file.
+	_ = os.Remove(mob.ScriptFile())
+
+	// Delete the picture file.
+	picture := mob.Attribute(AttributePicture)
+	if len(picture) > 0 {
+		DeleteObjectPictureFromDisk(picture)
+	}
 }

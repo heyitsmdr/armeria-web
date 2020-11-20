@@ -782,7 +782,12 @@ func handleMobListCommand(ctx *CommandContext) {
 		if len(f) == 0 || strings.Contains(strings.ToLower(m.Name()), strings.ToLower(f)) {
 			rows = append(rows, TableRow(
 				TableCell{content: m.Name()},
-				TableCell{content: fmt.Sprintf("%d instances", len(m.Instances()))},
+				TableCell{
+					content: TextStyle(
+						fmt.Sprintf("%d instances", len(m.Instances())),
+						WithLinkCmd(fmt.Sprintf("/mob instances %s", m.Name())),
+					),
+				},
 			))
 		}
 	}
@@ -813,6 +818,25 @@ func handleMobCreateCommand(ctx *CommandContext) {
 		fmt.Sprintf("A mob named %s has been created.", TextStyle(n, WithBold())),
 		ColorSuccess,
 	)
+}
+
+func handleMobDeleteCommand(ctx *CommandContext) {
+	n := ctx.Args["name"]
+
+	mob := Armeria.mobManager.MobByName(n)
+	if mob == nil {
+		ctx.Player.client.ShowColorizedText("That mob doesn't exist.", ColorError)
+		return
+	}
+
+	if len(mob.Instances()) > 0 {
+		ctx.Player.client.ShowColorizedText("That mob has one or more instances in the game world and cannot be deleted.", ColorError)
+		return
+	}
+
+	Armeria.mobManager.RemoveMob(mob)
+
+	ctx.Player.client.ShowColorizedText("The mob has been removed from the game.", ColorSuccess)
 }
 
 func handleMobEditCommand(ctx *CommandContext) {
@@ -1051,7 +1075,12 @@ func handleItemListCommand(ctx *CommandContext) {
 		if len(f) == 0 || strings.Contains(strings.ToLower(i.Name()), strings.ToLower(f)) {
 			rows = append(rows, TableRow(
 				TableCell{content: i.Name()},
-				TableCell{content: fmt.Sprintf("%d instances", len(i.Instances()))},
+				TableCell{
+					content: TextStyle(
+						fmt.Sprintf("%d instances", len(i.Instances())),
+						WithLinkCmd(fmt.Sprintf("/item instances %s", i.Name())),
+					),
+				},
 			))
 		}
 	}
@@ -1224,7 +1253,12 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 			rows = append(rows, TableRow(
 				TableCell{content: ii.FormattedName()},
 				TableCell{content: ii.ID()},
-				TableCell{content: fmt.Sprintf("%s (%s)", ii.Room().LocationString(), ii.Room().Attribute("title"))},
+				TableCell{
+					content: TextStyle(
+						fmt.Sprintf("%s (%s)", ii.Room().LocationString(), ii.Room().Attribute("title")),
+						WithLinkCmd(fmt.Sprintf("/tp %s", ii.Room().LocationString())),
+					),
+				},
 			))
 		} else if ctr.ParentType() == ContainerParentTypeCharacter {
 			rows = append(rows, TableRow(

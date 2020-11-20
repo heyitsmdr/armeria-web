@@ -394,6 +394,17 @@ func RegisterGameCommands() {
 					},
 					Handler: handleMobInstanceSetCommand,
 				},
+				{
+					Name: "delete",
+					Help: "Delete a mob that has no remaining instances.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "name",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleMobDeleteCommand,
+				},
 			},
 		},
 		{
