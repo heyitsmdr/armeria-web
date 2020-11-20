@@ -147,7 +147,7 @@ func (r *Room) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidRoomAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: AttributeEditorType(attrName),
+			PropType: AttributeEditorType(ObjectTypeMob, attrName),
 			Name:     attrName,
 			Value:    r.Attribute(attrName),
 		})

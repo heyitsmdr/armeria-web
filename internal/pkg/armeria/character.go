@@ -499,13 +499,8 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 func (c *Character) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidCharacterAttributes() {
-		propType := "editable"
-		if attrName == AttributePicture {
-			propType = "picture"
-		}
-
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: propType,
+			PropType: AttributeEditorType(ObjectTypeCharacter, attrName),
 			Name:     attrName,
 			Value:    c.Attribute(attrName),
 		})

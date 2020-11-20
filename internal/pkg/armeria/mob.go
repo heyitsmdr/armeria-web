@@ -67,7 +67,7 @@ func (m *Mob) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidMobAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: AttributeEditorType(attrName),
+			PropType: AttributeEditorType(ObjectTypeMob, attrName),
 			Name:     attrName,
 			Value:    m.Attribute(attrName),
 		})

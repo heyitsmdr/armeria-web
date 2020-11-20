@@ -103,7 +103,7 @@ func (i *Item) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
 	for _, attrName := range ValidItemAttributes() {
 		props = append(props, &ObjectEditorDataProperty{
-			PropType: AttributeEditorType(attrName),
+			PropType: AttributeEditorType(ObjectTypeItem, attrName),
 			Name:     attrName,
 			Value:    i.Attribute(attrName),
 		})

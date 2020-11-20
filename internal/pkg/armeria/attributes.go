@@ -31,7 +31,7 @@ const (
 )
 
 // AttributeEditorType returns the object editor "type" for each attribute
-func AttributeEditorType(attr string) string {
+func AttributeEditorType(ot ObjectType, attr string) string {
 	switch attr {
 	case AttributePicture:
 		return "picture"
@@ -45,6 +45,13 @@ func AttributeEditorType(attr string) string {
 		return "enum:male|female|thing"
 	case AttributeColor:
 		return "color"
+	case AttributeType:
+		switch ot {
+		case ObjectTypeItem:
+			return "enum:generic|mob-spawner"
+		default:
+			return "editable"
+		}
 	}
 
 	return "editable"
@@ -73,6 +80,7 @@ func ValidCharacterAttributes() []string {
 func ValidItemAttributes() []string {
 	return []string{
 		AttributePicture,
+		AttributeType,
 		AttributeRarity,
 		AttributeDescription,
 	}
