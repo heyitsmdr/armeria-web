@@ -13,11 +13,18 @@ type ValidationResult struct {
 }
 
 const (
+	// Bool checks if the input string is a bool value (ie: true or false).
 	Bool string = "bool"
-	Min         = "min"
-	Max         = "max"
-	In          = "in"
-	Num         = "num"
+	// Min checks if the input string is >= the min value (inclusive).
+	Min = "min"
+	// Max checks if the input string is <= the max value (inclusive).
+	Max = "max"
+	// Min checks if the input string is in the provided set.
+	In = "in"
+	// Num checks if the input string is a number.
+	Num = "num"
+	// Empty checks if the input string is empty.
+	Empty = "empty"
 )
 
 func Check(str, validatorString string) ValidationResult {
@@ -39,6 +46,8 @@ func Check(str, validatorString string) ValidationResult {
 			validate(&result, In, checkIn(str, sections[1]))
 		case Num:
 			validate(&result, Num, checkNum(str))
+		case Empty:
+			validate(&result, Empty, checkEmpty(str))
 		}
 	}
 
@@ -71,7 +80,7 @@ func checkBool(str string) string {
 func checkMin(str, min string) string {
 	i, err := strconv.Atoi(str)
 	if err != nil {
-		return "not an int"
+		return fmt.Sprintf("less than %s", min)
 	}
 
 	m, err := strconv.Atoi(min)
@@ -80,7 +89,7 @@ func checkMin(str, min string) string {
 	}
 
 	if i < m {
-		return fmt.Sprintf("value cannot be below %d", m)
+		return fmt.Sprintf("less than %d", m)
 	}
 
 	return ""
@@ -89,7 +98,7 @@ func checkMin(str, min string) string {
 func checkMax(str, max string) string {
 	i, err := strconv.Atoi(str)
 	if err != nil {
-		return "not an int"
+		return fmt.Sprintf("greater than %s", max)
 	}
 
 	m, err := strconv.Atoi(max)
@@ -98,7 +107,7 @@ func checkMax(str, max string) string {
 	}
 
 	if i > m {
-		return fmt.Sprintf("value cannot exceed %d", m)
+		return fmt.Sprintf("greater than %d", m)
 	}
 
 	return ""
@@ -116,7 +125,7 @@ func checkIn(str, in string) string {
 	}
 
 	if !found {
-		return fmt.Sprintf("not in set: %v", inSlice)
+		return fmt.Sprintf("not in set %v", inSlice)
 	}
 
 	return ""
@@ -126,6 +135,14 @@ func checkNum(str string) string {
 	_, err := strconv.Atoi(str)
 	if err != nil {
 		return "not an int"
+	}
+
+	return ""
+}
+
+func checkEmpty(str string) string {
+	if len(str) > 0 {
+		return "not empty"
 	}
 
 	return ""
@@ -141,4 +158,10 @@ func (vr ValidationResult) OnlyErrors() []string {
 	}
 
 	return errors
+}
+
+// String returns the error(s) as a one-line comma-separated string. This can be called
+// implicitly by simply concatenating the ValidationResult to a string.
+func (vr ValidationResult) String() string {
+	return strings.Join(vr.OnlyErrors(), ", ")
 }

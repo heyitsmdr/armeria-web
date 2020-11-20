@@ -229,8 +229,8 @@
                             if (subcmd.args && subcmd.args.length > 0) {
                                 for(let i = 0; i < subcmd.args.length; i++) {
                                     const arg = subcmd.args[i];
-                                    const bracketOpen = arg.Optional ? '<' : '[';
-                                    const bracketClose = arg.Optional ? '>' : ']';
+                                    const bracketOpen = arg.Optional ? '&lt;' : '[';
+                                    const bracketClose = arg.Optional ? '&gt;' : ']';
 
                                     if ((i + 1) <= (commandSegments.length - 2)) {
                                         this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;

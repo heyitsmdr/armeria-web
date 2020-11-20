@@ -743,9 +743,9 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 	}
 
 	if len(val) > 0 {
-		valid, why := ValidateCharacterAttribute(attr, val)
-		if !valid {
-			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+		valid := AttributeValidate(ObjectTypeCharacter, attr, val)
+		if !valid.Result {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", valid), ColorError)
 			return
 		}
 	}
@@ -883,9 +883,9 @@ func handleMobSetCommand(ctx *CommandContext) {
 	}
 
 	if len(val) > 0 {
-		valid, why := ValidateMobAttribute(attr, val)
-		if !valid {
-			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+		valid := AttributeValidate(ObjectTypeMob, attr, val)
+		if !valid.Result {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", valid), ColorError)
 			return
 		}
 	}
@@ -929,9 +929,9 @@ func handleMobInstanceSetCommand(ctx *CommandContext) {
 	}
 
 	if len(val) > 0 {
-		valid, why := ValidateMobAttribute(attr, val)
-		if !valid {
-			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+		valid := AttributeValidate(ObjectTypeMob, attr, val)
+		if !valid.Result {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", valid), ColorError)
 			return
 		}
 	}
@@ -1180,9 +1180,9 @@ func handleItemSetCommand(ctx *CommandContext) {
 	}
 
 	if len(val) > 0 {
-		valid, why := ValidateItemAttribute(attr, val)
-		if !valid {
-			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+		valid := AttributeValidate(ObjectTypeItem, attr, val)
+		if !valid.Result {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", valid), ColorError)
 			return
 		}
 	}
@@ -1230,9 +1230,9 @@ func handleItemInstanceSetCommand(ctx *CommandContext) {
 	}
 
 	if len(val) > 0 {
-		valid, why := ValidateItemAttribute(attr, val)
-		if !valid {
-			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", why), ColorError)
+		valid := AttributeValidate(ObjectTypeItem, attr, val)
+		if !valid.Result {
+			ctx.Player.client.ShowColorizedText(fmt.Sprintf("The attribute value could not be validated: %s.", valid), ColorError)
 			return
 		}
 	}
@@ -1821,10 +1821,7 @@ func handleSettingsCommand(ctx *CommandContext) {
 		valid := validate.Check(value, SettingValidationString(setting))
 		if !valid.Result {
 			ctx.Player.client.ShowColorizedText(
-				fmt.Sprintf(
-					"You cannot use that value due to:\n- %s",
-					strings.Join(valid.OnlyErrors(), "\n- "),
-				),
+				fmt.Sprintf("You cannot use that value due to: %s", valid),
 				ColorError,
 			)
 			return

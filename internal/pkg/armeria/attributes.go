@@ -1,8 +1,7 @@
 package armeria
 
 import (
-	"strconv"
-	"strings"
+	"armeria/internal/pkg/validate"
 )
 
 const (
@@ -99,7 +98,12 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 	case AttributeRarity:
 		return "enum:common|uncommon"
 	case AttributeGender:
-		return "enum:male|female|thing"
+		switch ot {
+		case ObjectTypeCharacter:
+			return "enum:male|female"
+		case ObjectTypeMob:
+			return "enum:male|female|thing"
+		}
 	case AttributeColor:
 		return "color"
 	case AttributeType:
@@ -147,42 +151,38 @@ func AttributeDefault(ot ObjectType, attr string) string {
 	return ""
 }
 
-// ValidateItemAttribute returns a bool indicating whether a particular value is allowed
-// for a particular attribute.
-func ValidateItemAttribute(name string, value string) (bool, string) {
-	return true, ""
-}
-
-// ValidateMobAttribute returns a bool indicating whether a particular value is allowed
-// for a particular attribute.
-func ValidateMobAttribute(name, value string) (bool, string) {
-	switch name {
-	case AttributeScript:
-		return false, "script cannot be set explicitly"
-	case AttributeGender:
-		vlc := strings.ToLower(value)
-		if vlc != "male" && vlc != "female" && vlc != "thing" {
-			return false, "gender can only be male, female, or thing"
+// AttributeValidate returns the validation result of an attribute value for a given ObjectType.
+func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResult {
+	var validatorString string
+	switch ot {
+	case ObjectTypeMob:
+		switch attr {
+		case AttributeScript:
+			validatorString = "empty"
+			break
+		case AttributeGender:
+			validatorString = "in:thing,male,female"
+			break
+		}
+	case ObjectTypeCharacter:
+		switch attr {
+		case AttributeGender:
+			validatorString = "in:male,female"
+			break
+		case AttributeMoney:
+			validatorString = "num|min:0"
+			break
+		}
+	case ObjectTypeItem:
+		switch attr {
+		case AttributeType:
+			validatorString = "in:generic,mob-spawner"
+			break
+		case AttributeRarity:
+			validatorString = "in:common,uncommon"
+			break
 		}
 	}
 
-	return true, ""
-}
-
-// ValidateCharacterAttribute returns a bool indicating whether a particular value is allowed
-// for a particular attribute.
-func ValidateCharacterAttribute(name, value string) (bool, string) {
-	switch name {
-	case AttributeGender:
-		vlc := strings.ToLower(value)
-		if vlc != "male" && vlc != "female" {
-			return false, "gender can only be male or female"
-		}
-	case AttributeMoney:
-		if _, err := strconv.ParseFloat(value, 64); err != nil {
-			return false, "money can only be a numeric value"
-		}
-	}
-
-	return true, ""
+	return validate.Check(val, validatorString)
 }

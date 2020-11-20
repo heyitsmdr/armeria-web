@@ -89,3 +89,15 @@ func TestNum(t *testing.T) {
 	check(shouldPass, true, t)
 	check(shouldFail, false, t)
 }
+
+func TestEmpty(t *testing.T) {
+	shouldPass := []ValidationResult{
+		Check("", "empty"),
+	}
+	shouldFail := []ValidationResult{
+		Check("test", "empty"),
+	}
+
+	check(shouldPass, true, t)
+	check(shouldFail, false, t)
+}
