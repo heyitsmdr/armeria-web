@@ -133,7 +133,7 @@ func (a *Area) MinimapJSON() string {
 // EditorData returns the JSON used for the object editor.
 func (a *Area) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
-	for _, attrName := range ValidAreaAttributes() {
+	for _, attrName := range AttributeList(ObjectTypeArea) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeArea, attrName),
 			Name:     attrName,
@@ -154,7 +154,7 @@ func (a *Area) SetAttribute(name string, value string) {
 	a.Lock()
 	defer a.Unlock()
 
-	if !misc.Contains(ValidAreaAttributes(), name) {
+	if !misc.Contains(AttributeList(ObjectTypeArea), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
 			zap.String("attribute", name),
 			zap.String("value", value),

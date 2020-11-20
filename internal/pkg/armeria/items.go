@@ -163,3 +163,29 @@ func (m *ItemManager) AddItem(i *Item) {
 
 	m.UnsafeItems = append(m.UnsafeItems, i)
 }
+
+// RemoveItem removes an existing Item reference from memory.
+func (m *ItemManager) RemoveItem(item *Item) {
+	m.Lock()
+	defer m.Unlock()
+
+	var found bool
+	for idx, inst := range m.UnsafeItems {
+		if inst.Name() == item.Name() {
+			m.UnsafeItems[idx] = m.UnsafeItems[len(m.UnsafeItems)-1]
+			m.UnsafeItems = m.UnsafeItems[:len(m.UnsafeItems)-1]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return
+	}
+
+	// Delete the picture file.
+	picture := item.Attribute(AttributePicture)
+	if len(picture) > 0 {
+		DeleteObjectPictureFromDisk(picture)
+	}
+}

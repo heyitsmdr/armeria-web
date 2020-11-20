@@ -52,7 +52,7 @@ func (m *Mob) SetAttribute(name string, value string) {
 	m.Lock()
 	defer m.Unlock()
 
-	if !misc.Contains(ValidMobAttributes(), name) {
+	if !misc.Contains(AttributeList(ObjectTypeMob), name) {
 		Armeria.log.Fatal("attempted to set invalid attribute",
 			zap.String("attribute", name),
 			zap.String("value", value),
@@ -65,7 +65,7 @@ func (m *Mob) SetAttribute(name string, value string) {
 // EditorData returns the JSON used for the object editor.
 func (m *Mob) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
-	for _, attrName := range ValidMobAttributes() {
+	for _, attrName := range AttributeList(ObjectTypeMob) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeMob, attrName),
 			Name:     attrName,

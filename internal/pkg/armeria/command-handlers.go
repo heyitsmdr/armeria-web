@@ -426,7 +426,7 @@ func handleRoomEditCommand(ctx *CommandContext) {
 
 func handleRoomSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
-	if !misc.Contains(ValidRoomAttributes(), attr) {
+	if !misc.Contains(AttributeList(ObjectTypeRoom), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
 	}
@@ -737,7 +737,7 @@ func handleCharacterSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	if !misc.Contains(ValidCharacterAttributes(), attr) {
+	if !misc.Contains(AttributeList(ObjectTypeCharacter), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid character attribute.", ColorError)
 		return
 	}
@@ -877,7 +877,7 @@ func handleMobSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	if !misc.Contains(ValidMobAttributes(), attr) {
+	if !misc.Contains(AttributeList(ObjectTypeMob), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid mob attribute.", ColorError)
 		return
 	}
@@ -920,10 +920,10 @@ func handleMobInstanceSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
 	val := strings.ToLower(ctx.Args["value"])
 
-	if !misc.Contains(ValidMobAttributes(), attr) {
+	if !misc.Contains(AttributeList(ObjectTypeMob), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid mob attribute.", ColorError)
 		return
-	} else if !misc.Contains(ValidMobInstanceAttributes(), attr) {
+	} else if !misc.Contains(AttributeList(ObjectTypeMobInstance), attr) {
 		ctx.Player.client.ShowColorizedText("That's not an attribute you can set on a mob instance.", ColorError)
 		return
 	}
@@ -1063,6 +1063,25 @@ func handleItemCreateCommand(ctx *CommandContext) {
 	)
 }
 
+func handleItemDeleteCommand(ctx *CommandContext) {
+	n := ctx.Args["name"]
+
+	item := Armeria.itemManager.ItemByName(n)
+	if item == nil {
+		ctx.Player.client.ShowColorizedText("That item doesn't exist.", ColorError)
+		return
+	}
+
+	if len(item.Instances()) > 0 {
+		ctx.Player.client.ShowColorizedText("That item has one or more instances in the game world and cannot be deleted.", ColorError)
+		return
+	}
+
+	Armeria.itemManager.RemoveItem(item)
+
+	ctx.Player.client.ShowColorizedText("The item has been removed from the game.", ColorSuccess)
+}
+
 func handleItemListCommand(ctx *CommandContext) {
 	f := ctx.Args["filter"]
 
@@ -1074,7 +1093,12 @@ func handleItemListCommand(ctx *CommandContext) {
 	for _, i := range Armeria.itemManager.Items() {
 		if len(f) == 0 || strings.Contains(strings.ToLower(i.Name()), strings.ToLower(f)) {
 			rows = append(rows, TableRow(
-				TableCell{content: i.Name()},
+				TableCell{
+					content: TextStyle(
+						i.Name(),
+						WithLinkCmd(fmt.Sprintf("/item edit %s", i.Name())),
+					),
+				},
 				TableCell{
 					content: TextStyle(
 						fmt.Sprintf("%d instances", len(i.Instances())),
@@ -1150,7 +1174,7 @@ func handleItemSetCommand(ctx *CommandContext) {
 		return
 	}
 
-	if !misc.Contains(ValidItemAttributes(), attr) {
+	if !misc.Contains(AttributeList(ObjectTypeItem), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid item attribute.", ColorError)
 		return
 	}
@@ -1197,10 +1221,10 @@ func handleItemInstanceSetCommand(ctx *CommandContext) {
 	attr := strings.ToLower(ctx.Args["property"])
 	val := strings.ToLower(ctx.Args["value"])
 
-	if !misc.Contains(ValidItemAttributes(), attr) {
+	if !misc.Contains(AttributeList(ObjectTypeItem), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid item attribute.", ColorError)
 		return
-	} else if !misc.Contains(ValidItemInstanceAttributes(), attr) {
+	} else if !misc.Contains(AttributeList(ObjectTypeItemInstance), attr) {
 		ctx.Player.client.ShowColorizedText("That's not an attribute you can set on an item instance.", ColorError)
 		return
 	}
@@ -1471,10 +1495,10 @@ func handleClipboardCopyCommand(ctx *CommandContext) {
 		}
 		// validate room attributes; allow * for everything
 		if a == "*" {
-			attrs = ValidRoomAttributes()
+			attrs = AttributeList(ObjectTypeRoom)
 		}
 		for _, attr := range attrs {
-			if !misc.Contains(ValidRoomAttributes(), attr) {
+			if !misc.Contains(AttributeList(ObjectTypeRoom), attr) {
 				ctx.Player.client.ShowColorizedText(
 					fmt.Sprintf("Invalid room attribute: %s.", attr),
 					ColorError,

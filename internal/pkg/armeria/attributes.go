@@ -57,75 +57,61 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 	return "editable"
 }
 
-// ValidAreaAttributes returns an array of valid attributes that can be permanently set.
-func ValidAreaAttributes() []string {
-	return []string{
-		AttributeMusic,
+func AttributeList(ot ObjectType) []string {
+	switch ot {
+	case ObjectTypeCharacter:
+		return []string{
+			AttributePicture,
+			AttributeTitle,
+			AttributePermissions,
+			AttributeChannels,
+			AttributeGender,
+			AttributeMoney,
+		}
+	case ObjectTypeArea:
+		return []string{
+			AttributeMusic,
+		}
+	case ObjectTypeRoom:
+		return []string{
+			AttributeTitle,
+			AttributeDescription,
+			AttributeColor,
+			AttributeType,
+			AttributeNorth,
+			AttributeEast,
+			AttributeSouth,
+			AttributeWest,
+			AttributeUp,
+			AttributeDown,
+		}
+	case ObjectTypeItem:
+		return []string{
+			AttributePicture,
+			AttributeType,
+			AttributeRarity,
+			AttributeDescription,
+		}
+	case ObjectTypeItemInstance:
+		return []string{
+			AttributeRarity,
+			AttributeDescription,
+		}
+	case ObjectTypeMob:
+		return []string{
+			AttributePicture,
+			AttributeScript,
+			AttributeGender,
+			AttributeTitle,
+		}
+	case ObjectTypeMobInstance:
+		return []string{
+			AttributeGender,
+			AttributeTitle,
+		}
 	}
-}
 
-// ValidCharacterAttributes returns an array of valid attributes that can be permanently set.
-func ValidCharacterAttributes() []string {
-	return []string{
-		AttributePicture,
-		AttributeTitle,
-		AttributePermissions,
-		AttributeChannels,
-		AttributeGender,
-		AttributeMoney,
-	}
-}
-
-// ValidItemAttributes returns an array of valid attributes that can be permanently set.
-func ValidItemAttributes() []string {
-	return []string{
-		AttributePicture,
-		AttributeType,
-		AttributeRarity,
-		AttributeDescription,
-	}
-}
-
-// ValidItemInstanceAttributes returns an array of attributes that can be overriden from the parent.
-func ValidItemInstanceAttributes() []string {
-	return []string{
-		AttributeRarity,
-		AttributeDescription,
-	}
-}
-
-// ValidMobInstanceAttributes returns an array of attributes that can be overriden from the parent.
-func ValidMobInstanceAttributes() []string {
-	return []string{
-		AttributeGender,
-		AttributeTitle,
-	}
-}
-
-// ValidMobAttributes returns an array of valid attributes that can be permanently set.
-func ValidMobAttributes() []string {
-	return []string{
-		AttributePicture,
-		AttributeScript,
-		AttributeGender,
-		AttributeTitle,
-	}
-}
-
-// ValidRoomAttributes returns an array of valid attributes that can be permanently set.
-func ValidRoomAttributes() []string {
-	return []string{
-		AttributeTitle,
-		AttributeDescription,
-		AttributeColor,
-		AttributeType,
-		AttributeNorth,
-		AttributeEast,
-		AttributeSouth,
-		AttributeWest,
-		AttributeUp,
-		AttributeDown,
-	}
+	return []string{}
 }
 
 // AreaAttributeDefault returns the default value for a particular attribute.
@@ -154,6 +140,8 @@ func ItemAttributeDefault(name string) string {
 	switch name {
 	case AttributeRarity:
 		return "common"
+	case AttributeType:
+		return "generic"
 	}
 
 	return ""

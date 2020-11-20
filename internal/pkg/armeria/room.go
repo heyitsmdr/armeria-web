@@ -74,7 +74,7 @@ func (r *Room) SetAttribute(name string, value string) {
 		r.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(ValidRoomAttributes(), name) {
+	if !misc.Contains(AttributeList(ObjectTypeRoom), name) {
 		log.Fatalf("[area] attempted set-attribute on a room using an invalid attribute: %s", name)
 	}
 
@@ -145,7 +145,7 @@ func (r *Room) RoomTargetJSON() string {
 // EditorData returns the JSON used for the object editor.
 func (r *Room) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
-	for _, attrName := range ValidRoomAttributes() {
+	for _, attrName := range AttributeList(ObjectTypeRoom) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeMob, attrName),
 			Name:     attrName,

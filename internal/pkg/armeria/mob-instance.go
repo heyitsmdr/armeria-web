@@ -59,7 +59,7 @@ func (mi *MobInstance) SetAttribute(name string, value string) error {
 		mi.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(ValidMobAttributes(), name) {
+	if !misc.Contains(AttributeList(ObjectTypeMobInstance), name) {
 		return errors.New("attribute name is invalid")
 	}
 
@@ -126,7 +126,7 @@ func (mi *MobInstance) EditorData() *ObjectEditorData {
 		{PropType: "parent", Name: "parent", Value: mi.Name()},
 	}
 
-	for _, attrName := range ValidMobInstanceAttributes() {
+	for _, attrName := range AttributeList(ObjectTypeMobInstance) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType:    AttributeEditorType(ObjectTypeMobInstance, attrName),
 			Name:        attrName,

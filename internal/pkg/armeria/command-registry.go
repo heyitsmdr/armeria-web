@@ -560,6 +560,17 @@ func RegisterGameCommands() {
 					},
 					Handler: handleItemInstancesCommand,
 				},
+				{
+					Name: "delete",
+					Help: "Delete an item that has no remaining instances.",
+					Arguments: []*CommandArgument{
+						{
+							Name:             "name",
+							IncludeRemaining: true,
+						},
+					},
+					Handler: handleItemDeleteCommand,
+				},
 			},
 		},
 		{

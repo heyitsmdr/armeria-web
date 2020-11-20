@@ -67,7 +67,7 @@ func (ii *ItemInstance) SetAttribute(name string, value string) error {
 		ii.UnsafeAttributes = make(map[string]string)
 	}
 
-	if !misc.Contains(ValidItemAttributes(), name) {
+	if !misc.Contains(AttributeList(ObjectTypeItemInstance), name) {
 		return errors.New("attribute name is invalid")
 	}
 
@@ -152,7 +152,7 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 		{PropType: "parent", Name: "parent", Value: ii.Name()},
 	}
 
-	for _, attrName := range ValidItemInstanceAttributes() {
+	for _, attrName := range AttributeList(ObjectTypeItemInstance) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType:    AttributeEditorType(ObjectTypeItemInstance, attrName),
 			Name:        attrName,

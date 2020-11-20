@@ -365,7 +365,7 @@ func (c *Character) SetAttribute(name string, value string) error {
 	c.Lock()
 	defer c.Unlock()
 
-	if !misc.Contains(ValidCharacterAttributes(), name) {
+	if !misc.Contains(AttributeList(ObjectTypeCharacter), name) {
 		return errors.New("attribute name is invalid")
 	}
 
@@ -498,7 +498,7 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 // EditorData returns the JSON used for the object editor.
 func (c *Character) EditorData() *ObjectEditorData {
 	var props []*ObjectEditorDataProperty
-	for _, attrName := range ValidCharacterAttributes() {
+	for _, attrName := range AttributeList(ObjectTypeCharacter) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeCharacter, attrName),
 			Name:     attrName,
