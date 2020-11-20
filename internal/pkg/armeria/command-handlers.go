@@ -964,7 +964,12 @@ func handleMobInstancesCommand(ctx *CommandContext) {
 		rows = append(rows, TableRow(
 			TableCell{content: mi.FormattedName()},
 			TableCell{content: mi.ID()},
-			TableCell{content: fmt.Sprintf("%s (%s)", mi.Room().LocationString(), mi.Room().Attribute("title"))},
+			TableCell{
+				content: TextStyle(
+					fmt.Sprintf("%s (%s)", mi.Room().LocationString(), mi.Room().Attribute("title")),
+					WithLinkCmd(fmt.Sprintf("/tp %s", mi.Room().LocationString())),
+				),
+			},
 		))
 	}
 
