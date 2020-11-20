@@ -13,7 +13,7 @@
                 @blur="handleBlur"
         />
         <div class="hotkey-overlay" v-if="!isFocused" @click="handleHotkeyOverlayClick">
-            Hotkey Mode -- Press ENTER for Input Mode
+            You are in Hotkey Mode.
         </div>
         <div class="command-helper-overlay" ref="commandHelper" v-if="commandHelpVisible">
             <div v-html="helpHTML"></div>

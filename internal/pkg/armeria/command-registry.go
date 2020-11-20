@@ -75,6 +75,21 @@ func RegisterGameCommands() {
 			Handler: handleGlanceCommand,
 		},
 		{
+			Name: "destroy",
+			Help: "Destroys an item in your inventory.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "item",
+					IncludeRemaining: true,
+					Help:             "The name of the item to destroy.",
+				},
+			},
+			Handler: handleDestroyCommand,
+		},
+		{
 			Name: "say",
 			Help: "Say something to everyone in your current room.",
 			Permissions: &CommandPermissions{

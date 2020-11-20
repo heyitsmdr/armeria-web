@@ -3,6 +3,8 @@ package misc
 import (
 	"strings"
 
+	"github.com/google/uuid"
+
 	"github.com/leekchan/accounting"
 )
 
@@ -117,4 +119,13 @@ func BoolToWords(b bool, true string, false string) string {
 	}
 
 	return false
+}
+
+// IsUUID returns a bool indicating whether the input string is a parsable UUID.
+func IsUUID(in string) bool {
+	if _, err := uuid.Parse(in); err != nil {
+		return false
+	}
+
+	return true
 }

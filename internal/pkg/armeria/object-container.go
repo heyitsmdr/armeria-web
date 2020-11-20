@@ -180,13 +180,13 @@ func (oc *ObjectContainer) GetByName(name string) (interface{}, *ObjectContainer
 	return nil, nil, RegistryTypeUnknown
 }
 
-// GetByUUIDOrName attempts to retrieve an object by it's uuid, and then by it's name.
-func (oc *ObjectContainer) GetByUUIDOrName(UUIDOrName string) (interface{}, *ObjectContainerDefinition, RegistryType) {
-	if obj, ocd, rt := oc.Get(UUIDOrName); rt != RegistryTypeUnknown {
-		return obj, ocd, rt
+// GetByAny attempts to retrieve an object by it's uuid, and then by it's name.
+func (oc *ObjectContainer) GetByAny(uuidOrName string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+	if misc.IsUUID(uuidOrName) {
+		return oc.Get(uuidOrName)
 	}
 
-	return oc.GetByName(UUIDOrName)
+	return oc.GetByName(uuidOrName)
 }
 
 // Slot returns the slot that the uuid is within. If the uuid does not exist, slot 0 will be returned,

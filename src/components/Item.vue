@@ -110,7 +110,8 @@
                 const items = [
                     `Look %s|/look inv:${this.uuid}`,
                     `Wiki %s|wiki:/items/%s`,
-                    `Drop %s|/drop ${this.uuid}`
+                    `Drop %s|/drop ${this.uuid}`,
+                    `Destroy %s|/destroy ${this.uuid}`
                 ];
 
                 if (this.hasPermission('CAN_BUILD')) {

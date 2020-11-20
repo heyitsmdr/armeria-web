@@ -53,7 +53,8 @@ func (i *Item) CreateInstance() *ItemInstance {
 	return ii
 }
 
-// DeleteInstance removes the ItemInstance from memory.
+// DeleteInstance uninitializes the ItemInstance, unregisters it from the registrar, and
+// removes it from memory.
 func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 	i.Lock()
 	defer i.Unlock()

@@ -781,7 +781,9 @@ func handleMobListCommand(ctx *CommandContext) {
 	for _, m := range Armeria.mobManager.Mobs() {
 		if len(f) == 0 || strings.Contains(strings.ToLower(m.Name()), strings.ToLower(f)) {
 			rows = append(rows, TableRow(
-				TableCell{content: m.Name()},
+				TableCell{
+					content: TextStyle(m.Name(), WithLinkCmd("/mob edit "+m.Name())),
+				},
 				TableCell{
 					content: TextStyle(
 						fmt.Sprintf("%d instances", len(m.Instances())),
@@ -1566,10 +1568,10 @@ func handleClipboardClearCommand(ctx *CommandContext) {
 }
 
 func handleGetCommand(ctx *CommandContext) {
-	istring := ctx.Args["item"]
+	searchString := ctx.Args["item"]
 
 	roomObjects := ctx.Character.Room().Here()
-	o, _, rt := roomObjects.GetByUUIDOrName(istring)
+	o, _, rt := roomObjects.GetByAny(searchString)
 	if o == nil {
 		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
 		return
@@ -1608,23 +1610,15 @@ func handleGetCommand(ctx *CommandContext) {
 }
 
 func handleDropCommand(ctx *CommandContext) {
-	istring := ctx.Args["item"]
+	searchString := ctx.Args["item"]
 
-	var item *ItemInstance
-
-	// check using uuid first, followed by item name
-	i, _, _ := ctx.Character.Inventory().Get(istring)
-	if i != nil {
-		item = i.(*ItemInstance)
-	} else {
-		i, _, _ = ctx.Character.Inventory().GetByName(istring)
-		if i != nil {
-			item = i.(*ItemInstance)
-		} else {
-			ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
-			return
-		}
+	i, _, rt := ctx.Character.Inventory().GetByAny(searchString)
+	if rt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
+		return
 	}
+
+	item := i.(*ItemInstance)
 
 	ctx.Character.Inventory().Remove(item.ID())
 	_ = ctx.Character.Room().Here().Add(item.ID())
@@ -1886,13 +1880,13 @@ func handleGiveCommand(ctx *CommandContext) {
 	item := ctx.Args["item"]
 
 	ctr := ctx.Character.Room().Here()
-	tobj, _, trt := ctr.GetByUUIDOrName(target)
+	tobj, _, trt := ctr.GetByAny(target)
 	if trt == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
 
-	iobj, _, irt := ctx.Character.Inventory().GetByUUIDOrName(item)
+	iobj, _, irt := ctx.Character.Inventory().GetByAny(item)
 	if irt == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
 		return
@@ -2304,7 +2298,7 @@ func handleSellCommand(ctx *CommandContext) {
 
 	// Ensure item exists in the character's inventory
 	var item *ItemInstance
-	if i, _, rt := ctx.Character.Inventory().GetByUUIDOrName(itemName); rt == RegistryTypeItemInstance {
+	if i, _, rt := ctx.Character.Inventory().GetByAny(itemName); rt == RegistryTypeItemInstance {
 		item = i.(*ItemInstance)
 	}
 	if item == nil {
@@ -2355,4 +2349,23 @@ func handleSellCommand(ctx *CommandContext) {
 			),
 		)
 	}
+}
+
+func handleDestroyCommand(ctx *CommandContext) {
+	searchString := ctx.Args["item"]
+
+	i, _, rt := ctx.Character.Inventory().GetByAny(searchString)
+	if rt == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
+		return
+	}
+
+	item := i.(*ItemInstance)
+	itemParent := item.Parent
+
+	ctx.Character.Inventory().Remove(item.ID())
+	itemParent.DeleteInstance(item)
+
+	ctx.Player.client.ShowColorizedText("The item has been destroyed!", ColorSuccess)
+	ctx.Player.client.SyncInventory()
 }
