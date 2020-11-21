@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"armeria/internal/pkg/validate"
+	"strings"
 )
 
 const (
@@ -109,7 +110,7 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 	case AttributeType:
 		switch ot {
 		case ObjectTypeItem:
-			return "enum:generic|mob-spawner|trash-can"
+			return "enum:" + strings.Join(ItemTypes(), "|")
 		default:
 			return "editable"
 		}
@@ -176,7 +177,7 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 	case ObjectTypeItem:
 		switch attr {
 		case AttributeType:
-			validatorString = "in:generic,mob-spawner,trash-can"
+			validatorString = "in:" + strings.Join(ItemTypes(), ",")
 			break
 		case AttributeRarity:
 			validatorString = "in:common,uncommon"

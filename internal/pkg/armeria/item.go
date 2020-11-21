@@ -16,6 +16,24 @@ type Item struct {
 	UnsafeInstances  []*ItemInstance   `json:"instances"`
 }
 
+const (
+	ItemTypeGeneric    string = "generic"
+	ItemTypeMobSpawner        = "mob-spawner"
+	ItemTypeTrashCan          = "trash-can"
+
+	ItemRarityCommon   string = "common"
+	ItemRarityUncommon        = "uncommon"
+)
+
+// ItemTypes return the possible item types.
+func ItemTypes() []string {
+	return []string{
+		ItemTypeGeneric,
+		ItemTypeMobSpawner,
+		ItemTypeTrashCan,
+	}
+}
+
 // Init is called when the Item is created or loaded from disk.
 func (i *Item) Init() {}
 
@@ -50,6 +68,11 @@ func (i *Item) CreateInstance() *ItemInstance {
 
 	ii.Init()
 
+	Armeria.log.Info("instance created",
+		zap.String("uuid", ii.ID()),
+		zap.String("name", i.UnsafeName),
+	)
+
 	return ii
 }
 
@@ -65,6 +88,10 @@ func (i *Item) DeleteInstance(ii *ItemInstance) bool {
 		if inst.ID() == ii.ID() {
 			i.UnsafeInstances[idx] = i.UnsafeInstances[len(i.UnsafeInstances)-1]
 			i.UnsafeInstances = i.UnsafeInstances[:len(i.UnsafeInstances)-1]
+			Armeria.log.Info("instance deleted",
+				zap.String("uuid", ii.ID()),
+				zap.String("name", i.UnsafeName),
+			)
 			return true
 		}
 	}

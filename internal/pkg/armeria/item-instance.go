@@ -18,11 +18,6 @@ type ItemInstance struct {
 	Parent           *Item             `json:"-"`
 }
 
-const (
-	ItemRarityCommon   string = "common"
-	ItemRarityUncommon        = "uncommon"
-)
-
 // Init is called when the ItemInstance is created or loaded from disk.
 func (ii *ItemInstance) Init() {
 	Armeria.registry.Register(ii, ii.ID(), RegistryTypeItemInstance)
@@ -194,4 +189,10 @@ func (ii *ItemInstance) TooltipContentJSON() string {
 	}
 
 	return string(ttJSON)
+}
+
+// Delete removes the item instance from the game. It should be manually removed from containers
+// first before calling this function!
+func (ii *ItemInstance) Delete() {
+	ii.Parent.DeleteInstance(ii)
 }

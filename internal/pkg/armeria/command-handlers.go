@@ -1887,12 +1887,35 @@ func handleGiveCommand(ctx *CommandContext) {
 	}
 
 	iobj, _, irt := ctx.Character.Inventory().GetByAny(item)
-	if irt == RegistryTypeUnknown {
+	if irt != RegistryTypeItemInstance {
 		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
 		return
 	}
 
-	if trt != RegistryTypeCharacter && trt != RegistryTypeMobInstance {
+	if trt == RegistryTypeItemInstance && tobj.(*ItemInstance).Attribute(AttributeType) == ItemTypeTrashCan {
+		// Destroy the item.
+		ii := iobj.(*ItemInstance)
+		ctx.Character.Inventory().Remove(ii.ID())
+		ii.Delete()
+		ctx.Player.client.ShowColorizedText(
+			fmt.Sprintf("You put a %s into the %s. Goodbye!",
+				ii.FormattedName(),
+				tobj.(*ItemInstance).FormattedName(),
+			),
+			ColorSuccess,
+		)
+		ctx.Player.client.SyncInventory()
+		for _, c := range ctx.Character.Room().Here().Characters(true, ctx.Character) {
+			c.Player().client.ShowText(
+				fmt.Sprintf(
+					"%s put an item into the %s.",
+					ctx.Character.FormattedName(),
+					tobj.(*ItemInstance).FormattedName(),
+				),
+			)
+		}
+		return
+	} else if trt != RegistryTypeCharacter && trt != RegistryTypeMobInstance {
 		ctx.Player.client.ShowColorizedText("You can only give things to other characters or mobs!", ColorError)
 		return
 	} else if tobj.(ContainerObject).ID() == ctx.Character.ID() {
@@ -2361,10 +2384,9 @@ func handleDestroyCommand(ctx *CommandContext) {
 	}
 
 	item := i.(*ItemInstance)
-	itemParent := item.Parent
 
 	ctx.Character.Inventory().Remove(item.ID())
-	itemParent.DeleteInstance(item)
+	item.Delete()
 
 	ctx.Player.client.ShowColorizedText("The item has been destroyed!", ColorSuccess)
 	ctx.Player.client.SyncInventory()

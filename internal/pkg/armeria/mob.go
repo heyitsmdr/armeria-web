@@ -97,6 +97,11 @@ func (m *Mob) CreateInstance() *MobInstance {
 
 	mi.Init()
 
+	Armeria.log.Info("instance created",
+		zap.String("uuid", mi.ID()),
+		zap.String("name", m.UnsafeName),
+	)
+
 	return mi
 }
 
@@ -111,6 +116,10 @@ func (m *Mob) DeleteInstance(mi *MobInstance) bool {
 		if inst.ID() == mi.ID() {
 			m.UnsafeInstances[i] = m.UnsafeInstances[len(m.UnsafeInstances)-1]
 			m.UnsafeInstances = m.UnsafeInstances[:len(m.UnsafeInstances)-1]
+			Armeria.log.Info("instance deleted",
+				zap.String("uuid", mi.ID()),
+				zap.String("name", m.UnsafeName),
+			)
 			return true
 		}
 	}
@@ -156,6 +165,7 @@ func (m *Mob) ScriptFile() string {
 	return m.scriptFile()
 }
 
+// CacheScript reads the script contents and caches the contents and individual functions.
 func (m *Mob) CacheScript() {
 	m.Lock()
 	defer m.Unlock()
