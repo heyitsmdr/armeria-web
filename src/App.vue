@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <div class="container-wrapper">
-            <div class="container-left" v-if="showLeftSidebar">
+            <div class="container-left" :style="{display: leftSidebar}">
                 <div class="container-minimap">
                     <Minimap />
                 </div>
@@ -20,7 +20,7 @@
                     <Vitals />
                 </div>
             </div>
-            <div class="container-right" v-if="showRightSidebar">
+            <div class="container-right" :style="{display: rightSidebar}">
                 <div class="container-skills">
                     <Skills />
                 </div>
@@ -68,8 +68,8 @@ export default {
         return {
             windowHeight: 0,
             windowWidth: 0,
-            showRightSidebar: true,
-            showLeftSidebar: true,
+            leftSidebar: 'flex',
+            rightSidebar: 'flex',
         }
     },
     computed: mapState([
@@ -120,15 +120,17 @@ export default {
             this.windowHeight = window.innerHeight;
             this.windowWidth = window.innerWidth;
             if (this.windowWidth < 784) {
-                this.showLeftSidebar = false;
+                this.leftSidebar = 'none';
             } else {
-                this.showLeftSidebar = true;
+                this.leftSidebar = 'flex';
             }
 
             if (this.windowWidth < 1035) {
                 this.showRightSidebar = false;
+                this.rightSidebar = 'none';
             } else {
                 this.showRightSidebar = true;
+                this.rightSidebar = 'flex';
             }
             //document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
 
