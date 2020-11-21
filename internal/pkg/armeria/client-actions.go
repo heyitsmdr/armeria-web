@@ -187,10 +187,10 @@ func (ca *ClientActions) SetItemTooltipHTMLRaw(uuid, content string) {
 }
 
 // PlaySFX plays a sound effect on the client.
-func (ca *ClientActions) PlaySFX(id sfx.ClientSoundEffect, volume float32) {
+func (ca *ClientActions) PlaySFX(id sfx.ClientSoundEffect) {
 	data := map[string]interface{}{
 		"id":     string(id),
-		"volume": volume,
+		"volume": 1,
 	}
 	dataJSON, err := json.Marshal(data)
 	if err != nil {

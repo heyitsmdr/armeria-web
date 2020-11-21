@@ -1582,6 +1582,11 @@ func handleGetCommand(ctx *CommandContext) {
 
 	item := o.(*ItemInstance)
 
+	if item.Attribute(AttributeHoldable) == "false" {
+		ctx.Player.client.ShowColorizedText("You are not able to pick that up.", ColorError)
+		return
+	}
+
 	roomObjects.Remove(item.ID())
 	err := ctx.Character.Inventory().Add(item.ID())
 	if err == ErrContainerNoRoom {
@@ -1596,6 +1601,7 @@ func handleGetCommand(ctx *CommandContext) {
 
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncInventory()
+	ctx.Player.client.PlaySFX(sfx.PickupItem)
 	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf("You picked up a %s.", item.FormattedName()),
 		ColorSuccess,
@@ -2285,7 +2291,7 @@ func handleBuyCommand(ctx *CommandContext) {
 
 	ctx.Player.client.SyncMoney()
 	ctx.Player.client.SyncInventory()
-	ctx.Player.client.PlaySFX(sfx.SellBuyItem, 0.5)
+	ctx.Player.client.PlaySFX(sfx.SellBuyItem)
 	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf(
 			"You bought a %s from %s for %s.",
@@ -2352,7 +2358,7 @@ func handleSellCommand(ctx *CommandContext) {
 
 	ctx.Player.client.SyncMoney()
 	ctx.Player.client.SyncInventory()
-	ctx.Player.client.PlaySFX(sfx.SellBuyItem, 0.5)
+	ctx.Player.client.PlaySFX(sfx.SellBuyItem)
 	ctx.Player.client.ShowColorizedText(
 		fmt.Sprintf(
 			"You sold a %s to %s for %s.",

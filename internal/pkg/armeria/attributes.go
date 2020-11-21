@@ -12,6 +12,7 @@ const (
 	AttributeDown        string = "down"
 	AttributeEast        string = "east"
 	AttributeGender      string = "gender"
+	AttributeHoldable    string = "holdable"
 	AttributeMoney       string = "money"
 	AttributeMusic       string = "music"
 	AttributeNorth       string = "north"
@@ -65,11 +66,13 @@ func AttributeList(ot ObjectType) []string {
 			AttributeType,
 			AttributeRarity,
 			AttributeDescription,
+			AttributeHoldable,
 		}
 	case ObjectTypeItemInstance:
 		return []string{
 			AttributeRarity,
 			AttributeDescription,
+			AttributeHoldable,
 		}
 	case ObjectTypeMob:
 		return []string{
@@ -111,9 +114,13 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 		switch ot {
 		case ObjectTypeItem:
 			return "enum:" + strings.Join(ItemTypes(), "|")
+		case ObjectTypeRoom:
+			return "enum:generic|track|bank|armor|sword|home|wand"
 		default:
 			return "editable"
 		}
+	case AttributeHoldable:
+		return "enum:true|false"
 	}
 
 	return "editable"
@@ -147,6 +154,8 @@ func AttributeDefault(ot ObjectType, attr string) string {
 		}
 	case AttributeColor:
 		return "190,190,190"
+	case AttributeHoldable:
+		return "true"
 	}
 
 	return ""
@@ -181,6 +190,15 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 			break
 		case AttributeRarity:
 			validatorString = "in:common,uncommon"
+			break
+		case AttributeHoldable:
+			validatorString = "bool"
+			break
+		}
+	case ObjectTypeRoom:
+		switch attr {
+		case AttributeType:
+			validatorString = "in:generic,track,bank,armor,sword,home,wand"
 			break
 		}
 	}

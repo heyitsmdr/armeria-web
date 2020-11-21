@@ -41,7 +41,6 @@ const OBJECT_TYPE_CHARACTER = 0;
 const OBJECT_TYPE_MOB = 1;
 const OBJECT_TYPE_ITEM = 2;
 import { mapState } from 'vuex';
-import {PICKUP_ITEM} from "../plugins/SFX";
 
 export default {
     name: 'Target',
@@ -150,7 +149,6 @@ export default {
                     command: `/get "${this.uuid}"`
                 });
                 this.$store.dispatch('setObjectTarget', '');
-                this.$soundEvent(PICKUP_ITEM);
                 this.hideTooltip();
             }
         },
