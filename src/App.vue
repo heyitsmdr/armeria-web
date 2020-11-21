@@ -119,7 +119,6 @@ export default {
         onWindowResize() {
             this.windowHeight = window.innerHeight;
             this.windowWidth = window.innerWidth;
-            console.log(this.windowWidth);
             if (this.windowWidth < 784) {
                 this.showLeftSidebar = false;
             } else {
