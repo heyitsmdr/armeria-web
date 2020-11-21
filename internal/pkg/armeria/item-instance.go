@@ -167,14 +167,23 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 
 // TooltipContentJSON generates the HTML string to be sent to the game client in JSON format.
 func (ii *ItemInstance) TooltipContentJSON() string {
+	var cannotPickupString string
+	if ii.Attribute(AttributeHoldable) == "false" {
+		cannotPickupString = "Not Holdable"
+	}
+
 	tt := map[string]string{
 		"uuid": ii.ID(),
 		"html": fmt.Sprintf(
-			`<div class="name" style="color:%s">%s</div>
-			<div class="type">%s</div>`,
+			`
+			<div class="name" style="color:%s">%s</div>
+			<div class="type">%s</div>
+			<div>%s</div>
+			`,
 			ii.RarityColor(),
 			ii.Name(),
 			ii.RarityName(),
+			cannotPickupString,
 		),
 		"rarity":  ii.RarityColor(),
 		"picture": ii.Attribute(AttributePicture),
