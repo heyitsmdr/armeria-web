@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <div class="container-wrapper">
-            <div class="container-left">
+            <div class="container-left" v-if="showLeftSidebar">
                 <div class="container-minimap">
                     <Minimap />
                 </div>
@@ -20,7 +20,7 @@
                     <Vitals />
                 </div>
             </div>
-            <div class="container-right">
+            <div class="container-right" v-if="showRightSidebar">
                 <div class="container-skills">
                     <Skills />
                 </div>
@@ -68,6 +68,8 @@ export default {
         return {
             windowHeight: 0,
             windowWidth: 0,
+            showRightSidebar: true,
+            showLeftSidebar: true,
         }
     },
     computed: mapState([
@@ -117,7 +119,19 @@ export default {
         onWindowResize() {
             this.windowHeight = window.innerHeight;
             this.windowWidth = window.innerWidth;
-            document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
+            console.log(this.windowWidth);
+            if (this.windowWidth < 784) {
+                this.showLeftSidebar = false;
+            } else {
+                this.showLeftSidebar = true;
+            }
+
+            if (this.windowWidth < 1035) {
+                this.showRightSidebar = false;
+            } else {
+                this.showRightSidebar = true;
+            }
+            //document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
 
             // If the context menu is open, let's hide it since the window is being resized.
             if (this.contextMenuVisible) {
