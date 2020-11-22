@@ -24,6 +24,7 @@ type GameState struct {
 	itemManager      *ItemManager
 	convoManager     *ConversationManager
 	ledgerManager    *LedgerManager
+	tickManager      *TickManager
 	registry         *Registry
 	channels         map[string]*Channel
 	publicPath       string
@@ -71,12 +72,11 @@ func Init(configFilePath string, serveTraffic bool) {
 	Armeria.channels = NewChannels()
 	Armeria.convoManager = NewConversationManager()
 	Armeria.ledgerManager = NewLedgerManager()
+	Armeria.tickManager = NewTickManager()
 
 	Armeria.github = github.New()
 
 	Armeria.setupGracefulExit()
-	Armeria.setupPeriodicSaves()
-	Armeria.setupAncillaryTasks()
 
 	Armeria.startTime = time.Now()
 
@@ -100,26 +100,6 @@ func (gs *GameState) setupGracefulExit() {
 		<-sigs
 		gs.Save()
 		os.Exit(0)
-	}()
-}
-
-func (gs *GameState) setupAncillaryTasks() {
-	searchForDanglingInstances()
-
-	c := time.Tick(1 * time.Hour)
-	go func() {
-		for range c {
-			searchForDanglingInstances()
-		}
-	}()
-}
-
-func (gs *GameState) setupPeriodicSaves() {
-	c := time.Tick(2 * time.Minute)
-	go func() {
-		for range c {
-			gs.Save()
-		}
 	}()
 }
 

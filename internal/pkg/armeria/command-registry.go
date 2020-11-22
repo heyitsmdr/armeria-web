@@ -997,6 +997,15 @@ func RegisterGameCommands() {
 			},
 			Handler: handleSellCommand,
 		},
+		{
+			Name: "tickers",
+			Help: "Displays the status of server-side tickers.",
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: "CAN_SYSOP",
+			},
+			Handler: handleTickersCommand,
+		},
 	}
 
 	for _, cmd := range commands {

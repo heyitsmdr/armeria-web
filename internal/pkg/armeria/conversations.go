@@ -129,7 +129,7 @@ func (convo *Conversation) Start() {
 	}()
 }
 
-// Cancel stops the conversation, removes it from the unsafeCharacter and the manager.
+// Cancel stops the conversation, removes it from the Character and the manager.
 func (convo *Conversation) Cancel() {
 	convo.ticker.Stop()
 	convo.doneCh <- true

@@ -2397,3 +2397,25 @@ func handleDestroyCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowColorizedText("The item has been destroyed!", ColorSuccess)
 	ctx.Player.client.SyncInventory()
 }
+
+func handleTickersCommand(ctx *CommandContext) {
+	rows := []string{TableRow(
+		TableCell{content: "Ticker", header: true},
+		TableCell{content: "Interval", header: true},
+		TableCell{content: "Last Ran", header: true},
+		TableCell{content: "Execution Time", header: true},
+		TableCell{content: "Iterations", header: true},
+	)}
+
+	for _, t := range Armeria.tickManager.Tickers {
+		rows = append(rows, TableRow(
+			TableCell{content: t.Name},
+			TableCell{content: t.Interval.String()},
+			TableCell{content: t.LastRanString()},
+			TableCell{content: t.LastDurationString()},
+			TableCell{content: t.IterationsString()},
+		))
+	}
+
+	ctx.Player.client.ShowText(TextTable(rows...))
+}

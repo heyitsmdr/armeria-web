@@ -16,7 +16,7 @@ type Command struct {
 	Help         string                  `json:"help"`
 	Hidden       bool                    `json:"-"`
 	Alias        string                  `json:"alias"`
-	Permissions  *CommandPermissions     `json:"-"`
+	Permissions  *CommandPermissions     `json:"permissions"`
 	AllowedRoles []int                   `json:"-"`
 	Arguments    []*CommandArgument      `json:"args"`
 	Subcommands  []*Command              `json:"subCommands"`
