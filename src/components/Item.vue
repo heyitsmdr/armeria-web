@@ -111,10 +111,10 @@
                     `Look %s|/look inv:${this.uuid}`,
                     `Wiki %s|wiki:/items/%s`,
                     `Drop %s|/drop ${this.uuid}`,
-                    `Destroy %s|/destroy ${this.uuid}`
                 ];
 
                 if (this.hasPermission('CAN_BUILD')) {
+                    items.push(`Destroy %s|/destroy ${this.uuid}||admin`);
                     items.push(`Edit %s|/item iedit ${this.uuid}||admin`);
                     items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
                 }

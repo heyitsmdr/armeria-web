@@ -78,7 +78,8 @@ func RegisterGameCommands() {
 			Name: "destroy",
 			Help: "Destroys an item in your inventory.",
 			Permissions: &CommandPermissions{
-				RequireCharacter: true,
+				RequireCharacter:  true,
+				RequirePermission: "CAN_BUILD",
 			},
 			Arguments: []*CommandArgument{
 				{
