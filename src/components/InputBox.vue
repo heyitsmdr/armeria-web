@@ -249,6 +249,7 @@
                         this.helpHTML += `<div>` +
                             `<b><span style="color:#ffe500">/${baseCommand}</span>${cmd.name.substr(baseCommand.length)}</b>` +
                             ` - ${cmd.help}` +
+                            ` <span style="color:#f00;font-weight:600">${(cmd.permissions && cmd.permissions.RequirePermission) ? '['+cmd.permissions.RequirePermission+']' : ''}</span>` +
                             `</div>`;
                     }
                 }
