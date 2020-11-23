@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -81,6 +82,27 @@ func (ii *ItemInstance) Attribute(name string) string {
 	}
 
 	return ii.UnsafeAttributes[name]
+}
+
+// AttributeBool returns an attribute on the ItemInstance as a bool.
+func (ii *ItemInstance) AttributeBool(name string) bool {
+	v := ii.Attribute(name)
+	if v == "true" {
+		return true
+	}
+
+	return false
+}
+
+// AttributeInt returns an attribute on the ItemInstance as an int.
+func (ii *ItemInstance) AttributeInt(name string) int {
+	v := ii.Attribute(name)
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return 0
+	}
+
+	return i
 }
 
 // InstanceAttribute returns an attribute on the ItemInstance, with no fallback to the parent Item.

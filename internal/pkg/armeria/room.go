@@ -117,7 +117,7 @@ func (r *Room) RoomTargetJSON(char *Character) string {
 
 		var rarityColor string
 		if o.Type() == ContainerObjectTypeItem {
-			if o.(*ItemInstance).Attribute(AttributeVisible) == "false" && !char.HasPermission("CAN_BUILD") {
+			if !o.(*ItemInstance).AttributeBool(AttributeVisible) && !char.HasPermission("CAN_BUILD") {
 				continue
 			}
 			rarityColor = o.(*ItemInstance).RarityColor()

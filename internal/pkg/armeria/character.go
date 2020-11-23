@@ -458,10 +458,19 @@ func (c *Character) MoveAllowed(r *Room) (bool, string) {
 // Move will move the Character to a new location (no move checks are performed).
 func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew string) {
 	oldRoom := c.Room()
+	if oldRoom == nil {
+		// If the character logged out in a room that no longer exists, allow movement to still work so they
+		// can be teleported by a staff member to a "real" room.
+		oldRoom = to
+	}
 
 	oldRoom.Here().Remove(c.ID())
 	if err := to.Here().Add(c.ID()); err != nil {
-		Armeria.log.Fatal("error adding unsafeCharacter to destination room")
+		Armeria.log.Fatal("error adding character to destination room")
+	}
+
+	if !c.Online() {
+		return
 	}
 
 	for _, char := range oldRoom.Here().Characters(true) {
