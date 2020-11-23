@@ -119,7 +119,7 @@
     }
 </script>
 
-<<<<<<< HEAD
+
 <style>
     .tooltip .qualities {
         color: #aaa;
@@ -127,11 +127,8 @@
 </style>
 
 <style scoped lang="scss">
-=======
-<style scoped lang="scss">
     @import "@/styles/common";
 
->>>>>>> Start standardizing html class names and clean up
     .tooltip {
         display: none;
         position: absolute;
@@ -140,11 +137,7 @@
         z-index: 999;
         background-color: $defaultBackgroundColor;
         padding: 5px;
-<<<<<<< HEAD
         box-shadow: 0px 0px 10px #000;
-=======
-    }
->>>>>>> Start standardizing html class names and clean up
 
         &.visible {
             display: block;
