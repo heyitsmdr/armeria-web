@@ -49,6 +49,7 @@
         display: flex;
         height: 29px;
         background-color:#0c0c0c;
+        justify-content: space-between;
     }
 
     .root .bar-container {
@@ -57,6 +58,14 @@
         z-index: 2;
         position: relative;
         overflow: hidden;
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+    .root .bar-container:first-child {
+        margin-left: 0;
+    }
+    .root .bar-container:last-child {
+        margin-right: 0;
     }
 
     .root .bar-container .border-overlay {
