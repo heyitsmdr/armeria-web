@@ -24,6 +24,7 @@ const (
 	AttributeTitle       string = "title"
 	AttributeType        string = "type"
 	AttributeUp          string = "up"
+	AttributeVisible     string = "visible"
 	AttributeWest        string = "west"
 
 	TempAttributeEditorOpen string = "editorOpen"
@@ -67,12 +68,14 @@ func AttributeList(ot ObjectType) []string {
 			AttributeRarity,
 			AttributeDescription,
 			AttributeHoldable,
+			AttributeVisible,
 		}
 	case ObjectTypeItemInstance:
 		return []string{
 			AttributeRarity,
 			AttributeDescription,
 			AttributeHoldable,
+			AttributeVisible,
 		}
 	case ObjectTypeMob:
 		return []string{
@@ -121,6 +124,8 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 		}
 	case AttributeHoldable:
 		return "enum:true|false"
+	case AttributeVisible:
+		return "enum:true|false"
 	}
 
 	return "editable"
@@ -155,6 +160,8 @@ func AttributeDefault(ot ObjectType, attr string) string {
 	case AttributeColor:
 		return "190,190,190"
 	case AttributeHoldable:
+		return "true"
+	case AttributeVisible:
 		return "true"
 	}
 
@@ -192,6 +199,9 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 			validatorString = "in:common,uncommon"
 			break
 		case AttributeHoldable:
+			validatorString = "bool"
+			break
+		case AttributeVisible:
 			validatorString = "bool"
 			break
 		}

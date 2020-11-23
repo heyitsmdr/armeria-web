@@ -80,7 +80,7 @@ func (ca *ClientActions) SyncMapLocation() {
 
 // SyncRoomObjects sets the current room objects on the client.
 func (ca *ClientActions) SyncRoomObjects() {
-	obj := ca.parent.Character().Room().RoomTargetJSON()
+	obj := ca.parent.Character().Room().RoomTargetJSON(ca.parent.Character())
 	ca.parent.CallClientAction("setRoomObjects", obj)
 }
 

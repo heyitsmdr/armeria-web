@@ -119,7 +119,13 @@
     }
 </script>
 
-<style scoped>
+<style>
+    .tooltip .qualities {
+        color: #aaa;
+    }
+</style>
+
+<style scoped lang="scss">
     .tooltip {
         display: none;
         position: absolute;
@@ -131,9 +137,9 @@
         border-radius: 5px;
         padding: 5px;
         box-shadow: 0px 0px 10px #000;
-    }
 
-    .tooltip.visible {
-        display: block;
+        &.visible {
+            display: block;
+        }
     }
 </style>

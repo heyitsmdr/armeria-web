@@ -102,7 +102,7 @@ func (r *Room) Here() *ObjectContainer {
 }
 
 // RoomTargetJSON returns the JSON used for rendering the room objects on the client.
-func (r *Room) RoomTargetJSON() string {
+func (r *Room) RoomTargetJSON(char *Character) string {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -115,8 +115,11 @@ func (r *Room) RoomTargetJSON() string {
 			continue
 		}
 
-		rarityColor := ""
+		var rarityColor string
 		if o.Type() == ContainerObjectTypeItem {
+			if o.(*ItemInstance).Attribute(AttributeVisible) == "false" && !char.HasPermission("CAN_BUILD") {
+				continue
+			}
 			rarityColor = o.(*ItemInstance).RarityColor()
 		}
 
