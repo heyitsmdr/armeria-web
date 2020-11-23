@@ -5,31 +5,35 @@
             <div class="level">0</div>
         </div>
         <div class="skill-items-container">
-            <div class="no-skills">No Skills</div>
+            <!--<div class="no-skills">No Skills</div>-->
+            <Skill name="Test Skill" level="7"/>
         </div>
     </div>
 </template>
 
 <script>
-    //import Skill from '@/components/Skill';
+    import Skill from '@/components/Skill';
 
     export default {
         name: 'Skills',
-        //components: { Skill },
+        components: { Skill },
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import "@/styles/common";
+
     .root {
         display: flex;
         flex-direction: column;
         height: 100%;
+        box-sizing: border-box;
+        border: $defaultBorder;
     }
 
     .root .skill-level-container {
         flex-basis: 40px;
         display: flex;
-        box-shadow: 0px 0px 7px #000;
     }
 
     .root .skill-level-container .text {
@@ -38,7 +42,7 @@
         align-items: center;
         font-size: 16px;
         padding-left: 10px;
-        background-color: #1b1b1b;
+        background-color: $defaultBackgroundColor;
     }
 
     .root .skill-level-container .level {
@@ -48,8 +52,8 @@
         align-items: center;
         font-size: 20px;
         font-weight: 600;
-        background-color: #111;
-        color: #03A9F4;
+        background-color: $defaultBackgroundColor;
+        color: $defaultTextColor;
     }
 
     .root .skill-items-container {
@@ -61,6 +65,6 @@
         justify-content: center;
         align-items: center;
         height: 100%;
-        color: #666;
+        color: $defaultTextColor;
     }
 </style>
