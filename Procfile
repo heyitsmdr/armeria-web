@@ -1,1 +1,0 @@
-web: bin/armeria -config=config/production.yml
