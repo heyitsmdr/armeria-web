@@ -39,6 +39,11 @@ func NewTickManager() *TickManager {
 				Handler:  PeriodicGameSave,
 				Interval: 2 * time.Minute,
 			},
+			{
+				Name:     "MobSpawner",
+				Handler:  MobSpawner,
+				Interval: 1 * time.Minute,
+			},
 		},
 	}
 
@@ -135,4 +140,20 @@ func WipeDanglingInstances() {
 // PeriodicGameSave flushes the game data to disk.
 func PeriodicGameSave() {
 	Armeria.Save()
+}
+
+// MobSpawner handles the spawning of mobs into the game world from mob spawners.
+func MobSpawner() {
+	//mobSpawnerItems := Armeria.itemManager.ItemsByAttribute(AttributeType, ItemTypeMobSpawner)
+	//for _, spawner := range mobSpawnerItems {
+	//	for _, inst := range spawner.Instances() {
+	//		mobStr := inst.Attribute(AttributeSpawn)
+	//		mob := Armeria.mobManager.MobByName(mobStr)
+	//		if mob == nil {
+	//			continue
+	//		}
+	//		existingSpawns := mob.InstancesFromSpawner(inst)
+	//
+	//	}
+	//}
 }

@@ -1392,15 +1392,27 @@ func handlePasswordCommand(ctx *CommandContext) {
 func handleTeleportCommand(ctx *CommandContext) {
 	t := ctx.Args["destination"]
 
+	charToMove := ctx.Character
 	var destination *Room
 	var moveMsg string
-	if t[0:1] == "@" {
+	if t[0:2] == "@@" {
+		cn := t[2:]
+		c := Armeria.characterManager.CharacterByName(cn)
+		if c == nil {
+			ctx.Player.client.ShowColorizedText("There is no character by that name.", ColorError)
+			return
+		}
+		charToMove = c
+		destination = ctx.Character.Room()
+		moveMsg = fmt.Sprintf("You were teleported far away by %s!", ctx.Character.FormattedName())
+		ctx.Player.client.ShowColorizedText(fmt.Sprintf("You summoned %s here.", c.FormattedName()), ColorMovement)
+	} else if t[0:1] == "@" {
 		cn := t[1:]
 		c := Armeria.characterManager.CharacterByName(cn)
 		if c == nil {
 			ctx.Player.client.ShowColorizedText("There is no character by that name.", ColorError)
 			return
-		} else if c.Player() == nil {
+		} else if !c.Online() {
 			ctx.Player.client.ShowColorizedText("That character is not online.", ColorError)
 			return
 		}
@@ -1440,14 +1452,16 @@ func handleTeleportCommand(ctx *CommandContext) {
 		return
 	}
 
-	ctx.Character.Move(
+	charToMove.Move(
 		destination,
-		ctx.Character.Colorize(moveMsg, ColorMovement),
-		ctx.Character.Colorize(fmt.Sprintf("%s teleported away!", ctx.Character.FormattedName()), ColorMovement),
-		ctx.Character.Colorize(fmt.Sprintf("%s teleported here!", ctx.Character.FormattedName()), ColorMovement),
+		TextStyle(moveMsg, WithUserColor(charToMove, ColorMovement)),
+		TextStyle(fmt.Sprintf("%s teleported away!", charToMove.FormattedName()), WithUserColor(charToMove, ColorMovement)),
+		TextStyle(fmt.Sprintf("%s teleported here!", charToMove.FormattedName()), WithUserColor(charToMove, ColorMovement)),
 	)
 
-	Armeria.commandManager.ProcessCommand(ctx.Player, "look", false)
+	if charToMove.Online() {
+		Armeria.commandManager.ProcessCommand(charToMove.Player(), "look", false)
+	}
 }
 
 func handleCommandsCommand(ctx *CommandContext) {

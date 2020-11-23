@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"errors"
+	"strconv"
 	"sync"
 )
 
@@ -13,6 +14,7 @@ type MobInstance struct {
 	UnsafeInventory   *ObjectContainer  `json:"inventory"`
 	UnsafeItemLedgers []*Ledger         `json:"-"`
 	Parent            *Mob              `json:"-"`
+	MobSpawnerUUID    string            `json:"spawnerUUID"`
 }
 
 // Init is called when the MobInstance is created or loaded from disk.
@@ -77,6 +79,27 @@ func (mi *MobInstance) Attribute(name string) string {
 	}
 
 	return mi.UnsafeAttributes[name]
+}
+
+// AttributeBool returns an attribute on the MobInstance as a bool.
+func (mi *MobInstance) AttributeBool(name string) bool {
+	v := mi.Attribute(name)
+	if v == "true" {
+		return true
+	}
+
+	return false
+}
+
+// AttributeInt returns an attribute on the MobInstance as an int.
+func (mi *MobInstance) AttributeInt(name string) int {
+	v := mi.Attribute(name)
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return 0
+	}
+
+	return i
 }
 
 // InstanceAttribute returns an attribute on the MobInstance, with no fallback to the parent Mob.

@@ -148,6 +148,21 @@ func (m *ItemManager) Items() []*Item {
 	return m.UnsafeItems
 }
 
+// ItemsByAttribute returns all of the in-memory Items that have a particular attribute + value defined.
+func (m *ItemManager) ItemsByAttribute(a, t string) []*Item {
+	m.RLock()
+	defer m.RUnlock()
+
+	matches := make([]*Item, 0)
+	for _, i := range m.UnsafeItems {
+		if i.Attribute(a) == t {
+			matches = append(matches, i)
+		}
+	}
+
+	return matches
+}
+
 // CreateItem creates a new Item instance, but doesn't add it to memory.
 func (m *ItemManager) CreateItem(name string) *Item {
 	return &Item{

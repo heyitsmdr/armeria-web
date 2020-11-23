@@ -20,10 +20,13 @@ const (
 	AttributePicture     string = "picture"
 	AttributeRarity      string = "rarity"
 	AttributeScript      string = "script"
+	AttributeSpawn       string = "spawn"
+	AttributeSpawnLimit  string = "spawnLimit"
 	AttributeSouth       string = "south"
 	AttributeTitle       string = "title"
 	AttributeType        string = "type"
 	AttributeUp          string = "up"
+	AttributeVisible     string = "visible"
 	AttributeWest        string = "west"
 
 	TempAttributeEditorOpen string = "editorOpen"
@@ -67,12 +70,17 @@ func AttributeList(ot ObjectType) []string {
 			AttributeRarity,
 			AttributeDescription,
 			AttributeHoldable,
+			AttributeVisible,
+			AttributeSpawn,
+			AttributeSpawnLimit,
 		}
 	case ObjectTypeItemInstance:
 		return []string{
 			AttributeRarity,
 			AttributeDescription,
 			AttributeHoldable,
+			AttributeVisible,
+			AttributeSpawnLimit,
 		}
 	case ObjectTypeMob:
 		return []string{
@@ -121,6 +129,8 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 		}
 	case AttributeHoldable:
 		return "enum:true|false"
+	case AttributeVisible:
+		return "enum:true|false"
 	}
 
 	return "editable"
@@ -156,6 +166,10 @@ func AttributeDefault(ot ObjectType, attr string) string {
 		return "190,190,190"
 	case AttributeHoldable:
 		return "true"
+	case AttributeVisible:
+		return "true"
+	case AttributeSpawnLimit:
+		return "0"
 	}
 
 	return ""
@@ -193,6 +207,12 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 			break
 		case AttributeHoldable:
 			validatorString = "bool"
+			break
+		case AttributeVisible:
+			validatorString = "bool"
+			break
+		case AttributeSpawnLimit:
+			validatorString = "num|min:0|max:100"
 			break
 		}
 	case ObjectTypeRoom:

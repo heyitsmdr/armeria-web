@@ -119,9 +119,14 @@
     }
 </script>
 
+<style>
+    .tooltip .qualities {
+        color: #aaa;
+    }
+</style>
+
 <style scoped lang="scss">
     @import "@/styles/common";
-
     .tooltip {
         display: none;
         position: absolute;
@@ -130,9 +135,10 @@
         z-index: 999;
         background-color: $defaultBackgroundColor;
         padding: 5px;
-    }
+        box-shadow: 0px 0px 10px #000;
 
-    .tooltip.visible {
-        display: block;
+        &.visible {
+            display: block;
+        }
     }
 </style>

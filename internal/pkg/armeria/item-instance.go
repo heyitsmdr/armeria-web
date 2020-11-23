@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -80,6 +82,27 @@ func (ii *ItemInstance) Attribute(name string) string {
 	}
 
 	return ii.UnsafeAttributes[name]
+}
+
+// AttributeBool returns an attribute on the ItemInstance as a bool.
+func (ii *ItemInstance) AttributeBool(name string) bool {
+	v := ii.Attribute(name)
+	if v == "true" {
+		return true
+	}
+
+	return false
+}
+
+// AttributeInt returns an attribute on the ItemInstance as an int.
+func (ii *ItemInstance) AttributeInt(name string) int {
+	v := ii.Attribute(name)
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return 0
+	}
+
+	return i
 }
 
 // InstanceAttribute returns an attribute on the ItemInstance, with no fallback to the parent Item.
@@ -167,9 +190,14 @@ func (ii *ItemInstance) EditorData() *ObjectEditorData {
 
 // TooltipContentJSON generates the HTML string to be sent to the game client in JSON format.
 func (ii *ItemInstance) TooltipContentJSON() string {
-	var cannotPickupString string
+	qualitiesSlice := make([]string, 0)
+
 	if ii.Attribute(AttributeHoldable) == "false" {
-		cannotPickupString = "Not Holdable"
+		qualitiesSlice = append(qualitiesSlice, "Not Holdable")
+	}
+
+	if ii.Attribute(AttributeVisible) == "false" {
+		qualitiesSlice = append(qualitiesSlice, "Not Visible")
 	}
 
 	tt := map[string]string{
@@ -178,12 +206,12 @@ func (ii *ItemInstance) TooltipContentJSON() string {
 			`
 			<div class="name" style="color:%s">%s</div>
 			<div class="type">%s</div>
-			<div>%s</div>
+			<div class="qualities">%s</div>
 			`,
 			ii.RarityColor(),
 			ii.Name(),
 			ii.RarityName(),
-			cannotPickupString,
+			strings.Join(qualitiesSlice, "<br />"),
 		),
 		"rarity":  ii.RarityColor(),
 		"picture": ii.Attribute(AttributePicture),

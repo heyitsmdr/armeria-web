@@ -148,6 +148,21 @@ func (m *Mob) Instances() []*MobInstance {
 	return m.UnsafeInstances
 }
 
+// InstancesFromSpawner returns all MobInstance's from a mob spawner ItemInstance.
+func (m *Mob) InstancesFromSpawner(spawner *ItemInstance) []*MobInstance {
+	m.RLock()
+	defer m.RUnlock()
+
+	matches := make([]*MobInstance, 0)
+	for _, mobInst := range m.UnsafeInstances {
+		if mobInst.MobSpawnerUUID == spawner.ID() {
+			matches = append(matches, mobInst)
+		}
+	}
+
+	return matches
+}
+
 // scriptFile returns the full path to the associated Lua script file. This DOES NOT request a lock and IS NOT
 // thread safe.
 func (m *Mob) scriptFile() string {
