@@ -1,5 +1,5 @@
 <template>
-    <div class="inventory">
+    <div class="root">
         <div class="item-container">
             <Item
                     v-for="item in items"
@@ -62,9 +62,11 @@
     }
 </script>
 
-<style scoped>
-    .inventory {
-        background-color: #131313;
+<style scoped lang="scss">
+    @import "@/styles/common";
+
+    .root {
+        background-color: $defaultBackgroundColor;
         height: 100%;
     }
 
@@ -72,16 +74,15 @@
         display: flex;
         flex-wrap: wrap;
         padding: 10px 10px 0px 10px;
+        justify-content: space-between;
     }
 
     .currency-container {
         margin-left: 10px;
         margin-right: 14px;
-        border: 1px solid #bf9109;
         color: #ffc107;
         padding: 4px;
-        box-shadow: inset 0px 0px 5px #cc9904;
-        background-color: #000;
+        background-color: $defaultBackgroundColor;
         font-size: 13px;
     }
 </style>

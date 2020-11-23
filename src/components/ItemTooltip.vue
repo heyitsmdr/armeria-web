@@ -119,18 +119,17 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import "@/styles/common";
+
     .tooltip {
         display: none;
         position: absolute;
         max-width: 400px;
         min-width: 150px;
         z-index: 999;
-        background-color: #111;
-        border: 2px solid #ccc;
-        border-radius: 5px;
+        background-color: $defaultBackgroundColor;
         padding: 5px;
-        box-shadow: 0px 0px 10px #000;
     }
 
     .tooltip.visible {

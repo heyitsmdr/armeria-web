@@ -54,7 +54,6 @@
 
     .skills-container .skill-items-container {
         flex-grow: 1;
-        border-bottom: 1px solid #333;
     }
 
     .skills-container .skill-items-container .no-skills {

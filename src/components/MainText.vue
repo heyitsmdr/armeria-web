@@ -155,9 +155,14 @@
         padding: 0px 3px;
     }
 </style>
-<style scoped>
+<style scoped lang="scss">
+    @import "@/styles/common";
+    
     .main-text-container {
         display: flex;
+        border: solid thin #333;
+        
+        box-sizing: border-box;
     }
 
     .main-text-container .item-drag-overlay {
