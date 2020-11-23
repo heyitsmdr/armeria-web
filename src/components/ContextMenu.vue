@@ -112,13 +112,13 @@
 </script>
 
 <style scoped lang="scss">
+    @import "@/styles/common";
     .menu {
         position: absolute;
         z-index: 900;
         top: 0px;
         left: -500px;
-        background-color: #2d2c2ce8;
-        border: 1px solid #4e4e4e;
+        background-color: $defaultBackgroundColor;
         font-size: 13px;
     }
 
