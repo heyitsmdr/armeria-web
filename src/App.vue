@@ -311,10 +311,12 @@ html, body {
 
         .container-skills {
             flex-grow: 1;
+            margin-bottom: 2px;
         }
 
         .container-inventory {
             flex-basis: 365px;
+            margin-top: 2px;
         }
     }
 }
