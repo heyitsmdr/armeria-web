@@ -287,14 +287,17 @@ html, body {
 
         .container-maintext {
             flex-grow: 1;
+            margin-bottom: 2px;
         }
 
         .container-input {
             flex-shrink: 1;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
 
         .container-bars {
-            flex-basis: 30px;
+            margin-top: 2px;
         }
     }
 
@@ -304,6 +307,7 @@ html, body {
         background-color: $defaultBackgroundColor;
         display: flex;
         flex-direction: column;
+        padding: 2px;
 
         .container-skills {
             flex-grow: 1;
@@ -319,6 +323,7 @@ html, body {
     flex-basis: 30px;
     position: relative;
     background-color: $defaultBackgroundColor;
+    padding: 2px;
 }
 }
 </style>

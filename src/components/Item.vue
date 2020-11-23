@@ -171,8 +171,7 @@
         height: 40px;
         background-color: $defaultBackgroundColor;
         background-size: contain;
-        margin-right: 4px;
-        margin-bottom: 4px;
+        margin: 2px;
         transition: all .1s ease-in-out;
         overflow: hidden;
         border: $defaultBorder;

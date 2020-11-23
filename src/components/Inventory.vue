@@ -68,20 +68,19 @@
     .root {
         background-color: $defaultBackgroundColor;
         height: 100%;
+        box-sizing: border-box;
+        border: $defaultBorder;
     }
 
     .item-container {
         display: flex;
         flex-wrap: wrap;
-        padding: 10px 10px 0px 10px;
-        justify-content: space-between;
+        padding: 10px;
+        justify-content: space-evenly;
     }
 
     .currency-container {
-        margin-left: 10px;
-        margin-right: 14px;
         color: #ffc107;
-        padding: 4px;
         background-color: $defaultBackgroundColor;
         font-size: 13px;
     }

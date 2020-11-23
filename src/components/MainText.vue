@@ -1,5 +1,5 @@
 <template>
-    <div class="main-text-container" :style="{ height: containerHeight }">
+    <div class="root" :style="{ height: containerHeight }">
         <ObjectEditor :style="{ height: containerHeight }"></ObjectEditor>
         <div class="scrollable-container" ref="mainTextContainer">
             <div class="lines">
@@ -158,14 +158,14 @@
 <style scoped lang="scss">
     @import "@/styles/common";
     
-    .main-text-container {
+    .root {
         display: flex;
         border: solid thin #333;
         
         box-sizing: border-box;
     }
 
-    .main-text-container .item-drag-overlay {
+    .root .item-drag-overlay {
         position: absolute;
         z-index: 100;
         top: 0;
@@ -180,7 +180,7 @@
         border: 2px dashed #666;
     }
 
-    .main-text-container .item-drag-overlay.item-over {
+    .root .item-drag-overlay.item-over {
         background-color: #1d1c1cb8;
         border: 2px dashed #aaa;
         color: #aaa;
