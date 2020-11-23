@@ -1,5 +1,5 @@
 <template>
-    <div class="targets-container">
+    <div class="root">
         <h1>Room Targets</h1>
         <div class="targets-list" @click="handleClick">
             <Target
@@ -50,7 +50,7 @@ export default {
 <style scoped lang="scss">
     @import "@/styles/common";
 
-    .targets-container {
+    .root {
         height: 100%;
         background-color: #131313;
         box-sizing: border-box;

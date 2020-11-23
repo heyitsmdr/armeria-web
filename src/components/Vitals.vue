@@ -1,5 +1,5 @@
 <template>
-    <div class="targets-container">
+    <div class="root">
         <div class="bar-container">
             <div class="health" ref="health-bar"></div>
             <div class="text">
@@ -44,14 +44,14 @@
     }
 </script>
 
-<style scoped>
-    .targets-container {
+<style scoped lang="scss">
+    .root {
         display: flex;
         height: 29px;
         background-color:#0c0c0c;
     }
 
-    .targets-container .bar-container {
+    .root .bar-container {
         flex-basis: 33.333%;
         background-color: rgba(0,0,0,0);
         z-index: 2;
@@ -59,21 +59,20 @@
         overflow: hidden;
     }
 
-    .targets-container .bar-container .border-overlay {
+    .root .bar-container .border-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0,0,0,0);
-        box-shadow: inset 0px 0px 5px 4px #000;
     }
 
-    .targets-container .bar-container .border-overlay:hover {
+    .root .bar-container .border-overlay:hover {
         cursor: pointer;
     }
 
-    .targets-container .bar-container .health {
+    .root .bar-container .health {
         position: absolute;
         top: 0;
         left: 0;
@@ -83,7 +82,7 @@
         border-right: 2px solid #e0628c;
     }
 
-    .targets-container .bar-container .magic {
+    .root .bar-container .magic {
         position: absolute;
         top: 0;
         left: 0;
@@ -93,7 +92,7 @@
         border-right: 2px solid #6dc5ec;
     }
 
-    .targets-container .bar-container .stamina {
+    .root .bar-container .stamina {
         position: absolute;
         top: 0;
         left: 0;
@@ -103,7 +102,7 @@
         border-right: 2px solid #e2a895;
     }
 
-    .targets-container .bar-container .text {
+    .root .bar-container .text {
         position: absolute;
         top: 0;
         left: 0;
@@ -117,23 +116,23 @@
         text-shadow: 0px 0px 4px #000;
     }
 
-    .targets-container .bar-container .text .visible {
+    .root .bar-container .text .visible {
         position: absolute;
         transition: all 0.1s ease-in-out;
         top: 6px;
     }
 
-    .targets-container .bar-container .text .extended {
+    .root .bar-container .text .extended {
         position: absolute;
         transition: all 0.1s ease-in-out;
         top: -50px;
     }
 
-    .targets-container .bar-container .text.show-extended .extended {
+    .root .bar-container .text.show-extended .extended {
         top: 6px;
     }
 
-    .targets-container .bar-container .text.show-extended .visible {
+    .root .bar-container .text.show-extended .visible {
         top: 50px;
     }
 </style>
