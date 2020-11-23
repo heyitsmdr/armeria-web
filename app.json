@@ -3,6 +3,9 @@
   "description": "Server and client for Armeria.",
   "website": "https://armeria.io",
   "repository": "https://github.com/heyitsmdr/armeria",
+  "scripts": {
+    "postdeploy": "node utils/slack.js"
+  },
   "buildpacks": [
     {
       "url": "heroku/nodejs"
