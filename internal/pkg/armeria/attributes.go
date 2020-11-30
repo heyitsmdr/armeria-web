@@ -20,8 +20,8 @@ const (
 	AttributePicture     string = "picture"
 	AttributeRarity      string = "rarity"
 	AttributeScript      string = "script"
-	AttributeSpawn       string = "spawn"
 	AttributeSpawnLimit  string = "spawnLimit"
+	AttributeSpawnMob    string = "spawnMob"
 	AttributeSouth       string = "south"
 	AttributeTitle       string = "title"
 	AttributeType        string = "type"
@@ -71,7 +71,7 @@ func AttributeList(ot ObjectType) []string {
 			AttributeDescription,
 			AttributeHoldable,
 			AttributeVisible,
-			AttributeSpawn,
+			AttributeSpawnMob,
 			AttributeSpawnLimit,
 		}
 	case ObjectTypeItemInstance:

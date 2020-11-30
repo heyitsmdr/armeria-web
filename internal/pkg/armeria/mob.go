@@ -155,7 +155,7 @@ func (m *Mob) InstancesFromSpawner(spawner *ItemInstance) []*MobInstance {
 
 	matches := make([]*MobInstance, 0)
 	for _, mobInst := range m.UnsafeInstances {
-		if mobInst.MobSpawnerUUID == spawner.ID() {
+		if mobInst.MobSpawnerUUID() == spawner.ID() {
 			matches = append(matches, mobInst)
 		}
 	}

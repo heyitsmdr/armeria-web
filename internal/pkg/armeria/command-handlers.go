@@ -1166,8 +1166,8 @@ func handleItemInstanceEditCommand(ctx *CommandContext) {
 }
 
 func handleItemSetCommand(ctx *CommandContext) {
-	item := strings.ToLower(ctx.Args["item"])
-	attr := strings.ToLower(ctx.Args["property"])
+	item := ctx.Args["item"]
+	attr := ctx.Args["property"]
 	val := ctx.Args["value"]
 
 	i := Armeria.itemManager.ItemByName(item)

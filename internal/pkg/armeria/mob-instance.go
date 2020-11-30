@@ -9,12 +9,12 @@ import (
 
 type MobInstance struct {
 	sync.RWMutex
-	UUID              string            `json:"uuid"`
-	UnsafeAttributes  map[string]string `json:"attributes"`
-	UnsafeInventory   *ObjectContainer  `json:"inventory"`
-	UnsafeItemLedgers []*Ledger         `json:"-"`
-	Parent            *Mob              `json:"-"`
-	MobSpawnerUUID    string            `json:"spawnerUUID"`
+	UUID                 string            `json:"uuid"`
+	UnsafeAttributes     map[string]string `json:"attributes"`
+	UnsafeInventory      *ObjectContainer  `json:"inventory"`
+	UnsafeItemLedgers    []*Ledger         `json:"-"`
+	Parent               *Mob              `json:"-"`
+	UnsafeMobSpawnerUUID string            `json:"spawnerUUID"`
 }
 
 // Init is called when the MobInstance is created or loaded from disk.
@@ -50,6 +50,22 @@ func (mi *MobInstance) Name() string {
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
 	return TextStyle(mi.Parent.Name(), WithBold())
+}
+
+// MobSpawnerUUID returns the UUID of the associated mob spawner, if any.
+func (mi *MobInstance) MobSpawnerUUID() string {
+	mi.RLock()
+	defer mi.RUnlock()
+
+	return mi.UnsafeMobSpawnerUUID
+}
+
+// SetMobSpawnerUUID sets the UUID of the mob spawner.
+func (mi *MobInstance) SetMobSpawnerUUID(uuid string) {
+	mi.Lock()
+	defer mi.Unlock()
+
+	mi.UnsafeMobSpawnerUUID = uuid
 }
 
 // SetAttribute sets a permanent attribute on the MobInstance.

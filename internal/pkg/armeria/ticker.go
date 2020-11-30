@@ -144,16 +144,32 @@ func PeriodicGameSave() {
 
 // MobSpawner handles the spawning of mobs into the game world from mob spawners.
 func MobSpawner() {
-	//mobSpawnerItems := Armeria.itemManager.ItemsByAttribute(AttributeType, ItemTypeMobSpawner)
-	//for _, spawner := range mobSpawnerItems {
-	//	for _, inst := range spawner.Instances() {
-	//		mobStr := inst.Attribute(AttributeSpawn)
-	//		mob := Armeria.mobManager.MobByName(mobStr)
-	//		if mob == nil {
-	//			continue
-	//		}
-	//		existingSpawns := mob.InstancesFromSpawner(inst)
-	//
-	//	}
-	//}
+	mobSpawnerItems := Armeria.itemManager.ItemsByAttribute(AttributeType, ItemTypeMobSpawner)
+	for _, spawner := range mobSpawnerItems {
+		for _, inst := range spawner.Instances() {
+			// Find the mob.
+			mobStr := inst.Attribute(AttributeSpawnMob)
+			mob := Armeria.mobManager.MobByName(mobStr)
+			if mob == nil {
+				continue
+			}
+			// Check the limit. If we reached it, move on.
+			mobLimit := inst.AttributeInt(AttributeSpawnLimit)
+			existingSpawns := mob.InstancesFromSpawner(inst)
+			if len(existingSpawns) >= mobLimit {
+				continue
+			}
+			// Spawn the mob.
+			mobInst := mob.CreateInstance()
+			mobInst.SetMobSpawnerUUID(inst.ID())
+			_ = inst.Room().Here().Add(mobInst.ID())
+			// Refresh the room.
+			for _, c := range inst.Room().Here().Characters(true) {
+				c.Player().client.ShowText(
+					fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mobInst.FormattedName()),
+				)
+				c.Player().client.SyncRoomObjects()
+			}
+		}
+	}
 }

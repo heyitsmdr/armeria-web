@@ -10,10 +10,10 @@ import (
 
 var Money = accounting.Accounting{Symbol: "$", Precision: 2}
 
-// Contains tells whether a contains x.
+// Contains tells whether a contains x. Case insensitive.
 func Contains(a []string, x string) bool {
 	for _, n := range a {
-		if x == n {
+		if strings.ToLower(x) == strings.ToLower(n) {
 			return true
 		}
 	}
