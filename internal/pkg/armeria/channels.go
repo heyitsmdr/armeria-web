@@ -78,10 +78,13 @@ func (c *Channel) Broadcast(from *Character, text string) {
 		switch textType {
 		case TextQuestion:
 			verbs = []string{"ask", "asks"}
+			break
 		case TextExclaim:
 			verbs = []string{"exclaim", "exclaims"}
-		default:
+			break
+		case TextStatement:
 			verbs = []string{"say", "says"}
+			break
 		}
 		msgToOthers = fmt.Sprintf("[%s] %s %s, \"%s\"", TextStyle(c.Name, WithBold()), from.FormattedNameWithTitle(), verbs[1], normalizedText)
 		msgToFrom = fmt.Sprintf("[%s] You %s, \"%s\"", TextStyle(c.Name, WithBold()), verbs[0], normalizedText)
