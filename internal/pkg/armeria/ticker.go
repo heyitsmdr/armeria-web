@@ -159,6 +159,10 @@ func MobSpawner() {
 			if len(existingSpawns) >= mobLimit {
 				continue
 			}
+			// Check that the mob spawner is in a room (and not on a character, etc).
+			if inst.Room() == nil {
+				continue
+			}
 			// Spawn the mob.
 			mobInst := mob.CreateInstance()
 			mobInst.SetMobSpawnerUUID(inst.ID())

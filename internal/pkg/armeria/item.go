@@ -21,8 +21,8 @@ const (
 	ItemTypeMobSpawner        = "mob-spawner"
 	ItemTypeTrashCan          = "trash-can"
 
-	ItemRarityCommon   string = "common"
-	ItemRarityUncommon        = "uncommon"
+	ItemRarityCommon    string = "common"
+	ItemRarityUncommon         = "uncommon"
 )
 
 // ItemTypes return the possible item types.

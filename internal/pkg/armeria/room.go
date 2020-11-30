@@ -115,12 +115,14 @@ func (r *Room) RoomTargetJSON(char *Character) string {
 			continue
 		}
 
-		var rarityColor string
+		rarityColor := ""
+		visible := true
 		if o.Type() == ContainerObjectTypeItem {
 			if !o.(*ItemInstance).AttributeBool(AttributeVisible) && !char.HasPermission("CAN_BUILD") {
 				continue
 			}
 			rarityColor = o.(*ItemInstance).RarityColor()
+			visible = o.(*ItemInstance).AttributeBool(AttributeVisible)
 		}
 
 		roomObjects = append(roomObjects, map[string]interface{}{
@@ -131,6 +133,7 @@ func (r *Room) RoomTargetJSON(char *Character) string {
 			"picture": o.Attribute(AttributePicture),
 			"color":   rarityColor,
 			"title":   o.Attribute(AttributeTitle),
+			"visible": visible,
 		})
 	}
 

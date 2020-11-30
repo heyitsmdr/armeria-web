@@ -3,7 +3,10 @@
         <div
                 class="targets-container"
                 ref="container"
-                :style="{ borderColor: color ? `#${color}`  : '' }"
+                :style="{
+                    borderColor: color ? `#${color}`  : '',
+                    opacity: visible ? '1' : '0.3'
+                }"
         >
             <div class="picture">
                 <div class="picture-container"
@@ -44,7 +47,7 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'Target',
-    props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color'],
+    props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color', 'visible'],
     computed: mapState([
         'isProduction',
         'objectTargetUUID',

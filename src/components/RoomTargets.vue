@@ -13,6 +13,7 @@
                 :objectType="obj.type"
                 :title="obj.title"
                 :color="obj.color"
+                :visible="obj.visible"
             />
         </div>
     </div>
