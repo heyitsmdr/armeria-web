@@ -82,7 +82,7 @@ func (c *Channel) Broadcast(from *Character, text string) {
 		case TextExclaim:
 			verbs = []string{"exclaim", "exclaims"}
 			break
-		case TextStatement:
+		default:
 			verbs = []string{"say", "says"}
 			break
 		}

@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/sfx"
 	"fmt"
 	"strconv"
 	"sync"
@@ -151,6 +152,15 @@ func MobSpawner() {
 			mobStr := inst.Attribute(AttributeSpawnMob)
 			mob := Armeria.mobManager.MobByName(mobStr)
 			if mob == nil {
+				// Let builders know.
+				Armeria.channels[ChannelBuilders].Broadcast(
+					nil,
+					fmt.Sprintf(
+						"%s cannot spawn mob '%s' as it does not match any existing mobs.",
+						inst.FormattedName(),
+						mobStr,
+					),
+				)
 				continue
 			}
 			// Check the limit. If we reached it, move on.
@@ -168,11 +178,15 @@ func MobSpawner() {
 			mobInst.SetMobSpawnerUUID(inst.ID())
 			_ = inst.Room().Here().Add(mobInst.ID())
 			// Refresh the room.
+			spawnSFX := mob.Attribute(AttributeSpawnSFX)
 			for _, c := range inst.Room().Here().Characters(true) {
 				c.Player().client.ShowText(
 					fmt.Sprintf("With a flash of light, a %s appeared out of nowhere!", mobInst.FormattedName()),
 				)
 				c.Player().client.SyncRoomObjects()
+				if len(spawnSFX) > 0 {
+					c.Player().client.PlaySFX(sfx.ClientSoundEffect(spawnSFX))
+				}
 			}
 		}
 	}

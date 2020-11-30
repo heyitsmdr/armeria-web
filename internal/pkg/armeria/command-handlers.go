@@ -425,7 +425,7 @@ func handleRoomEditCommand(ctx *CommandContext) {
 }
 
 func handleRoomSetCommand(ctx *CommandContext) {
-	attr := strings.ToLower(ctx.Args["property"])
+	attr := AttributeCasing(ctx.Args["property"])
 	if !misc.Contains(AttributeList(ObjectTypeRoom), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid room attribute.", ColorError)
 		return
@@ -727,8 +727,8 @@ func handleCharacterListCommand(ctx *CommandContext) {
 }
 
 func handleCharacterSetCommand(ctx *CommandContext) {
-	char := strings.ToLower(ctx.Args["character"])
-	attr := strings.ToLower(ctx.Args["property"])
+	char := ctx.Args["character"]
+	attr := ctx.Args["property"]
 	val := ctx.Args["value"]
 
 	c := Armeria.characterManager.CharacterByName(char)
@@ -869,8 +869,8 @@ func handleMobInstanceEditCommand(ctx *CommandContext) {
 }
 
 func handleMobSetCommand(ctx *CommandContext) {
-	mob := strings.ToLower(ctx.Args["mob"])
-	attr := strings.ToLower(ctx.Args["property"])
+	mob := ctx.Args["mob"]
+	attr := AttributeCasing(ctx.Args["property"])
 	val := ctx.Args["value"]
 
 	m := Armeria.mobManager.MobByName(mob)
@@ -919,8 +919,8 @@ func handleMobInstanceSetCommand(ctx *CommandContext) {
 	}
 
 	mi := o.(*MobInstance)
-	attr := strings.ToLower(ctx.Args["property"])
-	val := strings.ToLower(ctx.Args["value"])
+	attr := AttributeCasing(ctx.Args["property"])
+	val := ctx.Args["value"]
 
 	if !misc.Contains(AttributeList(ObjectTypeMob), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid mob attribute.", ColorError)
@@ -1167,7 +1167,7 @@ func handleItemInstanceEditCommand(ctx *CommandContext) {
 
 func handleItemSetCommand(ctx *CommandContext) {
 	item := ctx.Args["item"]
-	attr := ctx.Args["property"]
+	attr := AttributeCasing(ctx.Args["property"])
 	val := ctx.Args["value"]
 
 	i := Armeria.itemManager.ItemByName(item)
@@ -1220,8 +1220,8 @@ func handleItemInstanceSetCommand(ctx *CommandContext) {
 	}
 
 	ii := o.(*ItemInstance)
-	attr := strings.ToLower(ctx.Args["property"])
-	val := strings.ToLower(ctx.Args["value"])
+	attr := AttributeCasing(ctx.Args["property"])
+	val := ctx.Args["value"]
 
 	if !misc.Contains(AttributeList(ObjectTypeItem), attr) {
 		ctx.Player.client.ShowColorizedText("That's not a valid item attribute.", ColorError)

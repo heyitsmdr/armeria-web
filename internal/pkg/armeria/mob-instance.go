@@ -4,6 +4,7 @@ import (
 	"armeria/internal/pkg/misc"
 	"errors"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -81,7 +82,7 @@ func (mi *MobInstance) SetAttribute(name string, value string) error {
 		return errors.New("attribute name is invalid")
 	}
 
-	mi.UnsafeAttributes[name] = value
+	mi.UnsafeAttributes[strings.ToLower(name)] = value
 	return nil
 }
 

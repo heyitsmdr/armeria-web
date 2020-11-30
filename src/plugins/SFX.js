@@ -7,6 +7,7 @@ export const INVENTORY_DRAG_START = 'INVENTORY_DRAG_START';
 export const INVENTORY_DRAG_STOP = 'INVENTORY_DRAG_STOP';
 export const PICKUP_ITEM = 'PICKUP_ITEM';
 export const SELL_BUY_ITEM = 'SELL_BUY_ITEM';
+export const CAT_MEOW = 'CAT_MEOW';
 
 function preload(soundFile) {
     const sfx = new Howl({
@@ -30,6 +31,7 @@ export default {
         sfxCache[INVENTORY_DRAG_STOP] = preload('sfx/mouse-release.wav');
         sfxCache[PICKUP_ITEM] = preload('sfx/pickup.wav');
         sfxCache[SELL_BUY_ITEM] = preload('sfx/sell-buy-item.wav');
+        sfxCache[CAT_MEOW] = preload('sfx/cat_meow.wav');
 
         Vue.prototype.$soundEvent = function(event) {
             sfxCache[event].play();

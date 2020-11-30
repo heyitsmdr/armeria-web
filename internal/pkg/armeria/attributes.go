@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/sfx"
 	"armeria/internal/pkg/validate"
 	"strings"
 )
@@ -22,6 +23,7 @@ const (
 	AttributeScript      string = "script"
 	AttributeSpawnLimit  string = "spawnLimit"
 	AttributeSpawnMob    string = "spawnMob"
+	AttributeSpawnSFX    string = "spawnSFX"
 	AttributeSouth       string = "south"
 	AttributeTitle       string = "title"
 	AttributeType        string = "type"
@@ -33,6 +35,26 @@ const (
 	TempAttributeGhost      string = "ghost"
 	TempAttributeReplyTo    string = "replyTo"
 )
+
+// AttributeCasing returns the correct casing for a given object type and attribute.
+func AttributeCasing(attr string) string {
+	allAttrs := make([]string, 0)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeCharacter)...)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeArea)...)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeRoom)...)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeItem)...)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeItemInstance)...)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeMob)...)
+	allAttrs = append(allAttrs, AttributeList(ObjectTypeMobInstance)...)
+
+	for _, a := range allAttrs {
+		if strings.ToLower(a) == strings.ToLower(attr) {
+			return a
+		}
+	}
+
+	return ""
+}
 
 // AttributeList returns the valid attributes for a given ObjectType.
 func AttributeList(ot ObjectType) []string {
@@ -88,6 +110,7 @@ func AttributeList(ot ObjectType) []string {
 			AttributeScript,
 			AttributeGender,
 			AttributeTitle,
+			AttributeSpawnSFX,
 		}
 	case ObjectTypeMobInstance:
 		return []string{
@@ -98,7 +121,7 @@ func AttributeList(ot ObjectType) []string {
 	return []string{}
 }
 
-// AttributeEditorType returns the object editor "type" string of an attribute for a given ObjectType.
+// AttributeEditorType returns the object editor "type" string of an attribute for a given ObjectType. Case sensitive.
 func AttributeEditorType(ot ObjectType, attr string) string {
 	switch attr {
 	case AttributePicture:
@@ -131,12 +154,14 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 		return "enum:true|false"
 	case AttributeVisible:
 		return "enum:true|false"
+	case AttributeSpawnSFX:
+		return "enum:" + strings.Join(sfx.List(), "|")
 	}
 
 	return "editable"
 }
 
-// AttributeDefault returns the default value of an attribute for a given ObjectType.
+// AttributeDefault returns the default value of an attribute for a given ObjectType. Case sensitive.
 func AttributeDefault(ot ObjectType, attr string) string {
 	switch attr {
 	case AttributeGender:
@@ -175,7 +200,7 @@ func AttributeDefault(ot ObjectType, attr string) string {
 	return ""
 }
 
-// AttributeValidate returns the validation result of an attribute value for a given ObjectType.
+// AttributeValidate returns the validation result of an attribute value for a given ObjectType. Case sensitive.
 func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResult {
 	var validatorString string
 	switch ot {
@@ -186,6 +211,9 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 			break
 		case AttributeGender:
 			validatorString = "in:thing,male,female"
+			break
+		case AttributeSpawnSFX:
+			validatorString = "in:" + strings.Join(sfx.List(), ",")
 			break
 		}
 	case ObjectTypeCharacter:
