@@ -88,7 +88,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 50%;
+        width: 100%;
         height: 100%;
         background: rgb(224,82,82);
 background: linear-gradient(180deg, rgba(224,82,82,1) 15%, rgba(217,38,38,1) 16%, rgba(217,38,38,1) 84%, rgba(173,31,31,1) 85%);
