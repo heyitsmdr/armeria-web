@@ -371,7 +371,8 @@
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
-        border: $defaultBorder;
+        /*border: $defaultBorder;*/
+        @include defaultBorderImage;
     }
 
     .area-title {

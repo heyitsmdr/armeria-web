@@ -362,7 +362,7 @@
         position: relative;
         background: $defaultBackgroundColor;
         padding-left: 5px;
-        border: 1px solid #666;
+        border: 1px solid #5b6576;
     }
 
     .input-box {
@@ -379,7 +379,7 @@
     }
 
     .root.active {
-        border: 1px solid #333;
+        border: 1px solid #5b6576;
     }
 
     .root.active .input-box {

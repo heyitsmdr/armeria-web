@@ -183,7 +183,7 @@ export default {
 <style lang="scss" scoped>
 .targets-container {
     background-color: #0c0c0c;
-    margin: 0 10px 10px 10px;
+    margin: 0 0 2px 4px;
     transition: all .1s ease-in-out;
     transform: scale(1);
     display: flex;

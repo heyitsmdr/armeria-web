@@ -45,6 +45,8 @@
 </script>
 
 <style scoped lang="scss">
+    @import "@/styles/common";
+
     .root {
         display: flex;
         height: 29px;
@@ -60,6 +62,7 @@
         overflow: hidden;
         margin-left: 2px;
         margin-right: 2px;
+        @include defaultBorderImage;
     }
     .root .bar-container:first-child {
         margin-left: 0;
@@ -85,9 +88,10 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 50%;
         height: 100%;
-        background-color: #e91e63;
+        background: rgb(224,82,82);
+background: linear-gradient(180deg, rgba(224,82,82,1) 15%, rgba(217,38,38,1) 16%, rgba(217,38,38,1) 84%, rgba(173,31,31,1) 85%);
         border-right: 2px solid #e0628c;
     }
 
@@ -97,7 +101,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #03a9f4;
+        background: rgb(82,177,224);
+background: linear-gradient(180deg, rgba(82,177,224,1) 15%, rgba(38,157,217,1) 16%, rgba(38,157,217,1) 84%, rgba(31,126,173,1) 85%);
         border-right: 2px solid #6dc5ec;
     }
 
@@ -107,7 +112,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #ff5722;
+        background: rgb(224,170,82);
+background: linear-gradient(180deg, rgba(224,170,82,1) 15%, rgba(217,148,38,1) 16%, rgba(217,148,38,1) 84%, rgba(173,119,31,1) 85%);
         border-right: 2px solid #e2a895;
     }
 

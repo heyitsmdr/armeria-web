@@ -1,6 +1,6 @@
 <template>
     <div class="root">
-        <h1>Room Targets</h1>
+        <div class="banner">Room Targets</div>
         <div class="targets-list" @click="handleClick">
             <Target
                 v-for="obj in sortedRoomObjects"
@@ -54,11 +54,15 @@ export default {
         height: 100%;
         background-color: #131313;
         box-sizing: border-box;
-        border: $defaultBorder;
+        /*border: $defaultBorder;*/
+        
     }
 
     .banner {
-        
+        text-align: center;
+        font-size: 1.2em;
+        font-weight: 500;
+        margin-bottom: 3px;
     }
 
     .targets-list {

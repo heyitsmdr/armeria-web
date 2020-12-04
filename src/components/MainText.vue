@@ -159,10 +159,11 @@
     @import "@/styles/common";
     
     .root {
-        display: flex;
-        border: solid thin #333;
-        
         box-sizing: border-box;
+        display: flex;
+
+        /*border: $defaultBorder;*/
+        @include defaultBorderImage;
     }
 
     .root .item-drag-overlay {

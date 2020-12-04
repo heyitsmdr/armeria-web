@@ -275,6 +275,10 @@ html, body {
             overflow-y: scroll;
             min-height: 100px;
             margin-top: 2px;
+
+            border-width:3px;
+            border-style: solid;
+            border-image: url(../public/gfx/border-image-01.png) 3 3 repeat;
         }
     }
 
@@ -326,6 +330,8 @@ html, body {
     position: relative;
     background-color: $defaultBackgroundColor;
     padding: 2px;
+    margin-top:2px;
+    background-image: url(../public/gfx/status-bg-01.png);
 }
 }
 </style>

@@ -22,7 +22,6 @@
         align-items: center;
         font-size: 12px;
         box-sizing: border-box;
-        border: $defaultBorder;
     }
 
     .ping {

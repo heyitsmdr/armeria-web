@@ -69,7 +69,8 @@
         background-color: $defaultBackgroundColor;
         height: 100%;
         box-sizing: border-box;
-        border: $defaultBorder;
+        /*border: $defaultBorder;*/
+        @include defaultBorderImage;
     }
 
     .item-container {

@@ -28,7 +28,8 @@
         flex-direction: column;
         height: 100%;
         box-sizing: border-box;
-        border: $defaultBorder;
+        /*border: $defaultBorder;*/
+        @include defaultBorderImage;
     }
 
     .root .skill-level-container {
