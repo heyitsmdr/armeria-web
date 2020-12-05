@@ -1,5 +1,5 @@
 <template>
-    <div class="main-text-container" :style="{ height: containerHeight }">
+    <div class="root" :style="{ height: containerHeight }">
         <ObjectEditor :style="{ height: containerHeight }"></ObjectEditor>
         <div class="scrollable-container" ref="mainTextContainer">
             <div class="lines">
@@ -155,12 +155,18 @@
         padding: 0px 3px;
     }
 </style>
-<style scoped>
-    .main-text-container {
+<style scoped lang="scss">
+    @import "@/styles/common";
+    
+    .root {
+        box-sizing: border-box;
         display: flex;
+
+        /*border: $defaultBorder;*/
+        @include defaultBorderImage;
     }
 
-    .main-text-container .item-drag-overlay {
+    .root .item-drag-overlay {
         position: absolute;
         z-index: 100;
         top: 0;
@@ -175,7 +181,7 @@
         border: 2px dashed #666;
     }
 
-    .main-text-container .item-drag-overlay.item-over {
+    .root .item-drag-overlay.item-over {
         background-color: #1d1c1cb8;
         border: 2px dashed #aaa;
         color: #aaa;

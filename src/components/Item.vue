@@ -163,17 +163,19 @@
         font-weight: 600;
     }
 </style>
-<style scoped>
+<style scoped lang="scss">
+    @import "@/styles/common";
+
     .item {
         width: 40px;
         height: 40px;
-        background-color: #000000;
+        background-color: $defaultBackgroundColor;
         background-size: contain;
-        border: 1px solid #333;
-        margin-right: 4px;
-        margin-bottom: 4px;
+        margin: 2px;
         transition: all .1s ease-in-out;
         overflow: hidden;
+        border: $defaultBorder;
+        box-sizing: border-box;
     }
 
     .item:hover {
@@ -215,11 +217,8 @@
         min-width: 150px;
         z-index: 999;
         top: 50px;
-        background-color: #111;
-        border: 2px solid #ccc;
-        border-radius: 5px;
+        background-color: $defaultBackgroundColor;
         padding: 5px;
-        box-shadow: 0px 0px 10px #000;
     }
 
     .tooltip.visible {

@@ -9,3 +9,12 @@
 
 /* Global Colors */
 $defaultTextColor: #cacaca;
+$defaultBackgroundColor: #0d1419;
+$defaultBorder: solid 1px #333;
+
+/* Mixins */
+@mixin defaultBorderImage {
+  border-width:3px;
+  border-style: solid;
+  border-image: url(../../public/gfx/border-image-01.png) 3 3 repeat;
+}

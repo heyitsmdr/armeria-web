@@ -1,5 +1,5 @@
 <template>
-    <div class="targets-container" :class="{ active: isFocused }">
+    <div class="root" :class="{ active: isFocused }">
         <input
                 class="input-box"
                 ref="inputBox"
@@ -13,7 +13,7 @@
                 @blur="handleBlur"
         />
         <div class="hotkey-overlay" v-if="!isFocused" @click="handleHotkeyOverlayClick">
-            You are in Hotkey Mode.
+            Hotkey Mode Active. Click/Enter to type.
         </div>
         <div class="command-helper-overlay" ref="commandHelper" v-if="commandHelpVisible">
             <div v-html="helpHTML"></div>
@@ -354,34 +354,42 @@
     }
 </script>
 
-<style scoped>
-    .targets-container {
-        border: 1px solid #222;
+<style scoped lang="scss">
+    @import "@/styles/common";
+    $height: 35px;
+    
+    .root {
         position: relative;
-        background: #000;
+        background: $defaultBackgroundColor;
+        padding-left: 5px;
+        border: 1px solid #5b6576;
     }
 
     .input-box {
-        background-color: #0c0c0c;
+        display:block;
+        width:100%;
+        padding:0;
+        border-width:0;
         border: 0;
-        height: 35px;
-        width: 99%;
-        color: #fff;
+        height: $height;
+        color: $defaultTextColor;
         font-family: 'Montserrat', sans-serif;
         font-weight: 500;
         font-size: 13px;
-        padding-left: 5px;
     }
 
-    .targets-container.active {
-        border: 1px solid #adadad;
+    .root.active {
+        border: 1px solid #5b6576;
     }
 
-    .targets-container.active .input-box {
-        background-color: #000;
+    .root.active .input-box {
+        background-color: $defaultBackgroundColor;
     }
 
     .input-box:focus {
+        margin: 0;
+        padding: 0;
+        border: 0;
         outline: none;
     }
 
@@ -391,23 +399,23 @@
         left: 0;
         width: 100%;
         z-index: 10;
-        height: 100%;
+        height: $height;
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: #888;
+        background-color: $defaultBackgroundColor;
+        color: $defaultTextColor;
     }
 
     .hotkey-overlay:hover {
         cursor: pointer;
-        color: #bbb;
+        color: $defaultTextColor;
     }
 
     .command-helper-overlay {
         position: absolute;
-        background: rgb(0,0,0);
-        background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 60%);
+        background: $defaultBackgroundColor;
+        background: $defaultBackgroundColor;
         width: 99%;
         padding: 20px 5px 10px 5px;
         font-size: 12px;

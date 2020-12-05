@@ -1,5 +1,5 @@
 <template>
-    <div class="targets-container">
+    <div class="root">
         <div class="bar-container">
             <div class="health" ref="health-bar"></div>
             <div class="text">
@@ -44,66 +44,80 @@
     }
 </script>
 
-<style scoped>
-    .targets-container {
+<style scoped lang="scss">
+    @import "@/styles/common";
+
+    .root {
         display: flex;
         height: 29px;
         background-color:#0c0c0c;
+        justify-content: space-between;
     }
 
-    .targets-container .bar-container {
+    .root .bar-container {
         flex-basis: 33.333%;
         background-color: rgba(0,0,0,0);
         z-index: 2;
         position: relative;
         overflow: hidden;
+        margin-left: 2px;
+        margin-right: 2px;
+        @include defaultBorderImage;
+    }
+    .root .bar-container:first-child {
+        margin-left: 0;
+    }
+    .root .bar-container:last-child {
+        margin-right: 0;
     }
 
-    .targets-container .bar-container .border-overlay {
+    .root .bar-container .border-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0,0,0,0);
-        box-shadow: inset 0px 0px 5px 4px #000;
     }
 
-    .targets-container .bar-container .border-overlay:hover {
+    .root .bar-container .border-overlay:hover {
         cursor: pointer;
     }
 
-    .targets-container .bar-container .health {
+    .root .bar-container .health {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #e91e63;
+        background: rgb(224,82,82);
+background: linear-gradient(180deg, rgba(224,82,82,1) 15%, rgba(217,38,38,1) 16%, rgba(217,38,38,1) 84%, rgba(173,31,31,1) 85%);
         border-right: 2px solid #e0628c;
     }
 
-    .targets-container .bar-container .magic {
+    .root .bar-container .magic {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #03a9f4;
+        background: rgb(82,177,224);
+background: linear-gradient(180deg, rgba(82,177,224,1) 15%, rgba(38,157,217,1) 16%, rgba(38,157,217,1) 84%, rgba(31,126,173,1) 85%);
         border-right: 2px solid #6dc5ec;
     }
 
-    .targets-container .bar-container .stamina {
+    .root .bar-container .stamina {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #ff5722;
+        background: rgb(224,170,82);
+background: linear-gradient(180deg, rgba(224,170,82,1) 15%, rgba(217,148,38,1) 16%, rgba(217,148,38,1) 84%, rgba(173,119,31,1) 85%);
         border-right: 2px solid #e2a895;
     }
 
-    .targets-container .bar-container .text {
+    .root .bar-container .text {
         position: absolute;
         top: 0;
         left: 0;
@@ -117,23 +131,23 @@
         text-shadow: 0px 0px 4px #000;
     }
 
-    .targets-container .bar-container .text .visible {
+    .root .bar-container .text .visible {
         position: absolute;
         transition: all 0.1s ease-in-out;
         top: 6px;
     }
 
-    .targets-container .bar-container .text .extended {
+    .root .bar-container .text .extended {
         position: absolute;
         transition: all 0.1s ease-in-out;
         top: -50px;
     }
 
-    .targets-container .bar-container .text.show-extended .extended {
+    .root .bar-container .text.show-extended .extended {
         top: 6px;
     }
 
-    .targets-container .bar-container .text.show-extended .visible {
+    .root .bar-container .text.show-extended .visible {
         top: 50px;
     }
 </style>

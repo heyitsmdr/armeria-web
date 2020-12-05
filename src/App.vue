@@ -217,6 +217,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/styles/common";
 @import url('https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
 @import url('https://fonts.googleapis.com/css?family=Inconsolata:400,700&display=swap');
 $backgroundNormal: #111;
@@ -227,7 +228,7 @@ html, body {
     padding: 0;
     margin: 0;
     height: 100%;
-    background-color: $backgroundNormal;
+    background-color: $defaultBackgroundColor;
     user-select: none;
 }
 
@@ -246,7 +247,7 @@ html, body {
     font-size: 14px;
     margin: 0;
     padding: 0;
-    color: #dbe3e6;
+    color: $defaultTextColor;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -258,19 +259,26 @@ html, body {
         .container-left {
             flex-basis: $sidebarWidth;
             min-width: $sidebarWidth;
-            background-color: $backgroundLight;
+            background-color: $defaultBackgroundColor;
             display: flex;
             flex-direction: column;
+            padding: 2px;
 
         .container-minimap {
             flex-basis: 250px;
+            margin-bottom: 2px;
         }
 
         .container-targets {
             flex-grow: 1;
             flex-basis: 100px; /* This can be any number; forces div to respect flex box height. */
-            overflow: scroll;
+            overflow-y: scroll;
             min-height: 100px;
+            margin-top: 2px;
+
+            border-width:3px;
+            border-style: solid;
+            border-image: url(../public/gfx/border-image-01.png) 3 3 repeat;
         }
     }
 
@@ -278,44 +286,52 @@ html, body {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        box-shadow: 0px 0px 12px 1px #080808;
         position: relative;
+        padding: 2px;
 
         .container-maintext {
             flex-grow: 1;
+            margin-bottom: 2px;
         }
 
         .container-input {
             flex-shrink: 1;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
 
         .container-bars {
-            flex-basis: 30px;
+            margin-top: 2px;
         }
     }
 
     .container-right {
         flex-basis: $sidebarWidth;
         min-width: $sidebarWidth;
-        background-color: $backgroundLight;
+        background-color: $defaultBackgroundColor;
         display: flex;
         flex-direction: column;
+        padding: 2px;
 
         .container-skills {
             flex-grow: 1;
+            margin-bottom: 2px;
         }
 
         .container-inventory {
             flex-basis: 365px;
+            margin-top: 2px;
         }
     }
 }
 
 .status-bar-container {
     flex-basis: 30px;
-    border-top: 1px solid #333;
     position: relative;
-    background-color: #0e0e0e;
+    background-color: $defaultBackgroundColor;
+    padding: 2px;
+    margin-top:2px;
+    background-image: url(../public/gfx/status-bg-01.png);
 }
 }
 </style>

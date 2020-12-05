@@ -1,5 +1,5 @@
 <template>
-    <div class="targets-container">
+    <div class="root">
         <div class="area-title">
             <div class="map-name" @click="handleAreaClick">{{ areaTitle }}</div>
             <div class="room-name">{{ roomTitle }}</div>
@@ -363,17 +363,22 @@
     }
 </script>
 
-<style scoped>
-    .targets-container {
+<style scoped lang="scss">
+    @import "@/styles/common";
+
+    .root {
         height: 100%;
         display: flex;
         flex-direction: column;
+        box-sizing: border-box;
+        /*border: $defaultBorder;*/
+        @include defaultBorderImage;
     }
 
     .area-title {
         text-align: center;
         padding: 5px;
-        background-color: #1b1b1b;
+        background-color: $defaultBackgroundColor;
         border-bottom: 1px solid #313131;
         color: #fff;
         flex-shrink: 1;
@@ -391,8 +396,7 @@
     }
 
     .map {
-        background-color: #0c0c0c;
-        border-bottom: 1px solid #313131;
+        background-color: $defaultBackgroundColor;
         flex-basis: 205px;
         position: relative;
         overflow: hidden;

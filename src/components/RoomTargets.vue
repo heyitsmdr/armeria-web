@@ -1,9 +1,7 @@
 <template>
     <div class="root">
-        <div class="banner">
-            Room Targets
-        </div>
-        <div class="targets-container" @click="handleClick">
+        <div class="banner">Room Targets</div>
+        <div class="targets-list" @click="handleClick">
             <Target
                 v-for="obj in sortedRoomObjects"
                 :key="obj.uuid"
@@ -50,26 +48,24 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import "@/styles/common";
+
     .root {
         height: 100%;
         background-color: #131313;
+        box-sizing: border-box;
+        /*border: $defaultBorder;*/
+        
     }
 
     .banner {
-        background-color: #1b1b1b;
-        font-weight: 800;
-        text-transform: uppercase;
-        padding: 4px 5px;
-        border-bottom: 1px solid #333;
         text-align: center;
-        color: #b7b7b7;
-        position: fixed;
-        width: 236px;
-        z-index: 10;
+        font-size: 1.2em;
+        font-weight: 500;
+        margin-bottom: 3px;
     }
 
-    .targets-container {
-        padding-top: 37px;
+    .targets-list {
     }
 </style>

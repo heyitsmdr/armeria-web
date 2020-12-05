@@ -20,7 +20,8 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+
     .skill-container {
         display: flex;
         flex-direction: column;

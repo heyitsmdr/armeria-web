@@ -1,5 +1,5 @@
 <template>
-    <div class="targets-container">
+    <div class="root">
         <div class="inner-container">Ping: {{pingTime}}ms</div>
     </div>
 </template>
@@ -13,16 +13,18 @@
     }
 </script>
 
-<style scoped>
-.targets-container {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    margin: 0 5px;
-    font-size: 12px;
-}
+<style scoped lang="scss">
+    @import "@/styles/common";
 
-.ping {
+    .root {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        font-size: 12px;
+        box-sizing: border-box;
+    }
 
-}
+    .ping {
+
+    }
 </style>
