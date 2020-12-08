@@ -56,6 +56,7 @@
                 'contextMenuItems',
                 'contextMenuObjectName',
                 'contextMenuObjectColor',
+                'contextMenuObjectBrackets',
                 'contextMenuPosition',
             ])
         },
@@ -65,7 +66,11 @@
                 let displayText = itemSections[0];
                 let displayStyle = itemSections.length >= 3 ? itemSections[2] : '';
 
-                displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">[${this.contextMenuObjectName}]</span>`);
+                if (this.contextMenuObjectBrackets) {
+                    displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">[${this.contextMenuObjectName}]</span>`);
+                } else {
+                    displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">${this.contextMenuObjectName}</span>`);
+                }
 
                 if (displayStyle.length > 0) {
                     return `<span style="${displayStyle}">${displayText}</span>`;

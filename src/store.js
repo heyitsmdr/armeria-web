@@ -37,6 +37,7 @@ export default new Vuex.Store({
     contextMenuItems: [],
     contextMenuObjectName: '',
     contextMenuObjectColor: '#fff',
+    contextMenuObjectBrackets: true,
     contextMenuPosition: { x: 0, y: 0 },
   },
   getters: {
@@ -217,6 +218,7 @@ export default new Vuex.Store({
     SET_CONTEXT_MENU_OBJECT: (state, obj) => {
       state.contextMenuObjectName = obj.name;
       state.contextMenuObjectColor = obj.color;
+      state.contextMenuObjectBrackets = (typeof obj.subjectBrackets !== 'undefined') ? obj.subjectBrackets : true;
     },
 
     SET_CONTEXT_MENU_POSITION: (state, pos) => {

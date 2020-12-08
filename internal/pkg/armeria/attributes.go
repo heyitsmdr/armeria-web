@@ -12,6 +12,7 @@ const (
 	AttributeDescription string = "description"
 	AttributeDown        string = "down"
 	AttributeEast        string = "east"
+	AttributeFollowCrumb string = "followCrumb"
 	AttributeGender      string = "gender"
 	AttributeHoldable    string = "holdable"
 	AttributeMoney       string = "money"
@@ -111,6 +112,7 @@ func AttributeList(ot ObjectType) []string {
 			AttributeGender,
 			AttributeTitle,
 			AttributeSpawnSFX,
+			AttributeFollowCrumb,
 		}
 	case ObjectTypeMobInstance:
 		return []string{

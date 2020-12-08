@@ -1090,6 +1090,7 @@ func handleItemListCommand(ctx *CommandContext) {
 	rows := []string{TableRow(
 		TableCell{content: "Item", header: true},
 		TableCell{content: "Instances", header: true},
+		TableCell{content: "Type", header: true},
 	)}
 
 	for _, i := range Armeria.itemManager.Items() {
@@ -1103,9 +1104,12 @@ func handleItemListCommand(ctx *CommandContext) {
 				},
 				TableCell{
 					content: TextStyle(
-						fmt.Sprintf("%d instances", len(i.Instances())),
+						fmt.Sprintf("x%d", len(i.Instances())),
 						WithLinkCmd(fmt.Sprintf("/item instances %s", i.Name())),
 					),
+				},
+				TableCell{
+					content: i.Attribute(AttributeType),
 				},
 			))
 		}

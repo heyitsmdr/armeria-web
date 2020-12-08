@@ -156,10 +156,22 @@ export default {
             }
         },
 
-        onContextMenu: function() {
-            this.$store.dispatch('sendSlashCommand', {
-                command: `/look "${this.uuid}"`
-            });
+        onContextMenu: function(e) {
+            this.$store.dispatch(
+                'showContextMenu',
+                {
+                    object: {
+                        name: this.name,
+                        color: `#${this.color}`,
+                        subjectBrackets: (this.objectType === OBJECT_TYPE_ITEM),
+                    },
+                    at: {
+                        x: e.pageX,
+                        y: e.pageY,
+                    },
+                    items: [`Look %s|/look ${this.uuid}`],
+                }
+            );
         },
 
         handleDragEnter: function() {

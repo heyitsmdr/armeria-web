@@ -33,7 +33,7 @@
             <StatusBar />
         </div>
         <ItemTooltip />
-        <ContextMenu :items="['Drop %s|/look', 'Use %s']" :objectName="'Long Sword'" :objectColor="'#ff0'" />
+        <ContextMenu />
     </div>
 </template>
 
