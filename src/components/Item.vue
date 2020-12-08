@@ -114,10 +114,11 @@
                 ];
 
                 if (this.hasPermission('CAN_BUILD')) {
-                    items.push(`Destroy %s|/destroy ${this.uuid}||admin`);
                     items.push(`Edit %s|/item iedit ${this.uuid}||admin`);
                     items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
+                    items.push(`Destroy %s|/destroy ${this.uuid}||admin`);
                 }
+
                 this.$store.dispatch(
                     'showContextMenu',
                     {

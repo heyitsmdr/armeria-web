@@ -2399,21 +2399,32 @@ func handleSellCommand(ctx *CommandContext) {
 }
 
 func handleDestroyCommand(ctx *CommandContext) {
-	searchString := ctx.Args["item"]
+	searchString := ctx.Args["object"]
 
-	i, _, rt := ctx.Character.Inventory().GetByAny(searchString)
-	if rt == RegistryTypeUnknown {
-		ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
+	if i, _, rt := ctx.Character.Inventory().GetByAny(searchString); rt == RegistryTypeItemInstance {
+		item := i.(*ItemInstance)
+		ctx.Character.Inventory().Remove(item.ID())
+		item.Delete()
+		ctx.Player.client.ShowColorizedText("The item has been destroyed!", ColorSuccess)
+		ctx.Player.client.SyncInventory()
+		return
+	} else if i, _, rt := ctx.Character.Room().Here().GetByAny(searchString); rt == RegistryTypeItemInstance {
+		item := i.(*ItemInstance)
+		ctx.Character.Room().Here().Remove(item.ID())
+		item.Delete()
+	} else if m, _, rt := ctx.Character.Room().Here().GetByAny(searchString); rt == RegistryTypeMobInstance {
+		mob := m.(*MobInstance)
+		ctx.Character.Room().Here().Remove(mob.ID())
+		mob.Delete()
+	} else {
+		ctx.Player.client.ShowColorizedText("There were no matches in the room or your inventory.", ColorError)
 		return
 	}
 
-	item := i.(*ItemInstance)
-
-	ctx.Character.Inventory().Remove(item.ID())
-	item.Delete()
-
-	ctx.Player.client.ShowColorizedText("The item has been destroyed!", ColorSuccess)
-	ctx.Player.client.SyncInventory()
+	for _, c := range ctx.Character.Room().Here().Characters(true) {
+		c.Player().client.ShowText("The atmosphere around the room feels different.")
+		c.Player().client.SyncRoomObjects()
+	}
 }
 
 func handleTickersCommand(ctx *CommandContext) {

@@ -220,3 +220,9 @@ func (mi *MobInstance) Pronoun(pt PronounType) string {
 
 	return ""
 }
+
+// Delete removes the mob instance from the game. It should be manually removed from containers
+// first before calling this function!
+func (mi *MobInstance) Delete() {
+	mi.Parent.DeleteInstance(mi)
+}

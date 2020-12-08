@@ -43,19 +43,22 @@
 const OBJECT_TYPE_CHARACTER = 0;
 const OBJECT_TYPE_MOB = 1;
 const OBJECT_TYPE_ITEM = 2;
-import { mapState } from 'vuex';
+import {mapGetters, mapState} from 'vuex';
 
 export default {
     name: 'Target',
     props: ['uuid', 'name', 'objectType', 'pictureKey', 'title', 'color', 'visible'],
-    computed: mapState([
-        'isProduction',
-        'objectTargetUUID',
-        'playerInfo',
-        'itemTooltipMouseCoords',
-        'itemTooltipUUID',
-        'itemTooltipVisible'
-    ]),
+    computed: {
+        ...mapState([
+             'isProduction',
+             'objectTargetUUID',
+             'playerInfo',
+             'itemTooltipMouseCoords',
+             'itemTooltipUUID',
+             'itemTooltipVisible'
+         ]),
+        ...mapGetters(['hasPermission']),
+    },
     watch: {
         objectTargetUUID: function(target) {
             if (this.uuid === target) {
@@ -157,6 +160,18 @@ export default {
         },
 
         onContextMenu: function(e) {
+            const items = [
+                `Look %s|/look ${this.uuid}`,
+                `Wiki %s|wiki:/items/%s`,
+                `Get %s|/get ${this.uuid}`,
+            ];
+
+            if (this.hasPermission('CAN_BUILD')) {
+                items.push(`Edit %s|/item iedit ${this.uuid}||admin`);
+                items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
+                items.push(`Destroy %s|/destroy ${this.uuid}||admin`);
+            }
+
             this.$store.dispatch(
                 'showContextMenu',
                 {
@@ -169,7 +184,7 @@ export default {
                         x: e.pageX,
                         y: e.pageY,
                     },
-                    items: [`Look %s|/look ${this.uuid}`],
+                    items: items,
                 }
             );
         },

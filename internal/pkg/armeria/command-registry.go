@@ -76,16 +76,16 @@ func RegisterGameCommands() {
 		},
 		{
 			Name: "destroy",
-			Help: "Destroys an item in your inventory.",
+			Help: "Destroys an item or mob in the room or your inventory.",
 			Permissions: &CommandPermissions{
 				RequireCharacter:  true,
 				RequirePermission: "CAN_BUILD",
 			},
 			Arguments: []*CommandArgument{
 				{
-					Name:             "item",
+					Name:             "object",
 					IncludeRemaining: true,
-					Help:             "The name of the item to destroy.",
+					Help:             "The name, or uuid, of the item or mob to destroy.",
 				},
 			},
 			Handler: handleDestroyCommand,
