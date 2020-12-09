@@ -160,17 +160,35 @@ export default {
         },
 
         onContextMenu: function(e) {
-            const items = [
-                `Look %s|/look ${this.uuid}`,
-                `Wiki %s|wiki:/items/%s`,
-                `Get %s|/get ${this.uuid}`,
-            ];
+            const menu = [];
 
-            if (this.hasPermission('CAN_BUILD')) {
-                items.push(`Edit %s|/item iedit ${this.uuid}||admin`);
-                items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
-                items.push(`Destroy %s|/destroy ${this.uuid}||admin`);
+            switch(this.objectType) {
+                case OBJECT_TYPE_CHARACTER:
+                    menu.push(`Look %s|/look ${this.uuid}`);
+                    if (this.hasPermission('CAN_CHAREDIT')) {
+                        menu.push(`Edit %s|/character edit ${this.name}||admin`);
+                    }
+                    break;
+                case OBJECT_TYPE_ITEM:
+                    menu.push(`Look %s|/look ${this.uuid}`);
+                    menu.push(`Wiki %s|wiki:/items/%s`);
+                    menu.push(`Get %s|/get ${this.uuid}`);
+                    if (this.hasPermission('CAN_BUILD')) {
+                        menu.push(`Edit %s|/item iedit ${this.uuid}||admin`);
+                        menu.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
+                        menu.push(`Destroy %s|/destroy ${this.uuid}||admin`);
+                    }
+                    break;
+                case OBJECT_TYPE_MOB:
+                    menu.push(`Look %s|/look ${this.uuid}`);
+                    if (this.hasPermission('CAN_BUILD')) {
+                        menu.push(`Edit %s|/mob iedit ${this.uuid}||admin`);
+                        menu.push(`Edit-Parent %s|/mob edit ${this.name}||admin`);
+                        menu.push(`Destroy %s|/destroy ${this.uuid}||admin`);
+                    }
+                    break;
             }
+
 
             this.$store.dispatch(
                 'showContextMenu',
@@ -184,7 +202,7 @@ export default {
                         x: e.pageX,
                         y: e.pageY,
                     },
-                    items: items,
+                    items: menu,
                 }
             );
         },
