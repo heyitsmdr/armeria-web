@@ -2,7 +2,13 @@
     <div
         ref="menu"
         class="menu"
-        :style="{ top: `${this.contextMenuPosition.y + 5}px` }"
+        :style="{
+            top: `${this.contextMenuPosition.y + 5}px`,
+            opacity: (this.contextMenuVisible) ? 1 : 0,
+        }"
+        :class="{
+            visible: this.contextMenuVisible,
+        }"
     >
         <div
             class="item"
@@ -25,6 +31,11 @@
         mounted: function() {
             window.addEventListener('click', this.handleWindowClick);
         },
+        data: function() {
+            return {
+                hideTimeout: null,
+            }
+        },
         watch: {
             contextMenuItems: function() {
                 this.$soundEvent(INVENTORY_DRAG_START);
@@ -45,8 +56,15 @@
 
             contextMenuVisible: function(visible) {
                 if (!visible) {
-                    const menu = this.$refs["menu"];
-                    menu.style.left = null;
+                    // The timeout (200s) should match the transition duration of the .menu class.
+                    this.hideTimeout = setTimeout(() => {
+                        const menu = this.$refs["menu"];
+                        menu.style.left = null;
+                        this.hideTimeout = null;
+                    }, 200);
+                } else if (this.hideTimeout !== null) {
+                    clearTimeout(this.hideTimeout);
+                    this.hideTimeout = null;
                 }
             }
         },
@@ -117,14 +135,22 @@
 </script>
 
 <style scoped lang="scss">
-    @import "@/styles/common";
+    @import "~@/styles/common";
+    $borderColor: #4e4e4e;
     .menu {
         position: absolute;
         z-index: 900;
         top: 0px;
         left: -500px;
         background-color: $defaultBackgroundColor;
-        font-size: 13px;
+        font-size: 12px;
+        border: 2px solid $borderColor;
+        box-shadow: 0px 0px 10px #000;
+        transition: opacity .2s ease-in-out;
+
+        &.visible {
+            max-height: 500px;
+        }
     }
 
     .item {
@@ -139,7 +165,7 @@
         }
 
         &:not(:last-child) {
-            border-bottom: 1px solid #4e4e4e;
+            border-bottom: 1px solid $borderColor;
         }
 
         &:hover {

@@ -172,7 +172,7 @@ export default {
                 case OBJECT_TYPE_ITEM:
                     menu.push(`Look %s|/look ${this.uuid}`);
                     menu.push(`Wiki %s|wiki:/items/%s`);
-                    menu.push(`Get %s|/get ${this.uuid}`);
+                    menu.push(`Pickup %s|/get ${this.uuid}`);
                     if (this.hasPermission('CAN_BUILD')) {
                         menu.push(`Edit %s|/item iedit ${this.uuid}||admin`);
                         menu.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
