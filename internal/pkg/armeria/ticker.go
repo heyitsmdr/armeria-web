@@ -217,6 +217,15 @@ func MobMovement() {
 			possibleRooms := mi.Room().AdjacentRoomsWithItem(mi.Attribute(AttributeFollowCrumb))
 			dirStr, newRoom := possibleRooms.Random()
 			if newRoom == nil {
+				// Let builders know.
+				Armeria.channels[ChannelBuilders].Broadcast(
+					nil,
+					fmt.Sprintf(
+						"Mob %s tried to follow breadcrumb '%s' but cannot find an adjacent room with the breadcrumb.",
+						mi.FormattedName(),
+						mi.Attribute(AttributeFollowCrumb),
+					),
+				)
 				continue
 			}
 			// Move the mob.

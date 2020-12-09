@@ -21,7 +21,7 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
+import {mapGetters, mapState} from 'vuex'
     import ObjectEditor from "./ObjectEditor";
 
     export default {
@@ -38,6 +38,7 @@
         },
         computed: {
             ...mapState(['gameText', 'itemBeingDragged', 'settings']),
+            ...mapGetters(['hasPermission']),
             containerHeight() {
                 const height = this.windowHeight - 37 - 30 - 2 - 35;
                 return `${height}px`;
@@ -76,6 +77,50 @@
                     this.lastItemTooltipUUID = '';
                     this.$store.dispatch('hideItemTooltip');
                 }
+            }, false);
+
+            document.addEventListener('contextmenu', e => {
+                let menuSpan;
+                if (e.target.className === 'hover-item-tooltip') {
+                  if (e.path[1].className === 'dynamic-context-menu') {
+                      menuSpan = e.path[1];
+                  }
+                } else if (e.target.className === 'dynamic-context-menu') {
+                    menuSpan = e.target;
+                }
+
+                if (!menuSpan) {
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                let menuItems = menuSpan.getAttribute('data-content').replaceAll('@', '%s').split(';');
+                menuItems = menuItems.filter(c => {
+                    const sections = c.split('|');
+                    if (sections.length >= 4 && sections[3] === 'admin') {
+                        return this.hasPermission('CAN_BUILD');
+                    }
+
+                    return true;
+                });
+
+                this.$store.dispatch(
+                    'showContextMenu',
+                    {
+                        object: {
+                            name: menuSpan.getAttribute('data-name'),
+                            color: `#${menuSpan.getAttribute('data-color')}`,
+                            subjectBrackets: (menuSpan.getAttribute('data-type') === 'item'),
+                        },
+                        at: {
+                            x: e.pageX,
+                            y: e.pageY,
+                        },
+                        items: menuItems,
+                    }
+                );
             }, false);
         },
         methods: {
@@ -140,6 +185,11 @@
     }
 
     .line .hover-item-tooltip:hover {
+        cursor: pointer;
+        border-bottom: 1px dotted #666;
+    }
+
+    .line .dynamic-context-menu:hover {
         cursor: pointer;
         border-bottom: 1px dotted #666;
     }

@@ -160,6 +160,8 @@ func (r *Room) RoomTargetJSON(char *Character) string {
 			}
 			rarityColor = o.(*ItemInstance).RarityColor()
 			visible = o.(*ItemInstance).AttributeBool(AttributeVisible)
+		} else if o.Type() == ContainerObjectTypeMob {
+			rarityColor = "d48a3e"
 		}
 
 		roomObjects = append(roomObjects, map[string]interface{}{

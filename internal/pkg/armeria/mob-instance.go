@@ -3,6 +3,7 @@ package armeria
 import (
 	"armeria/internal/pkg/misc"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -51,7 +52,22 @@ func (mi *MobInstance) Name() string {
 
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
-	return TextStyle(mi.Parent.Name(), WithBold())
+	return TextStyle(
+		mi.Parent.Name(),
+		WithContextMenu(
+			mi.Name(),
+			"mob",
+			"d48a3e",
+			[]string{
+				fmt.Sprintf("Look @|/look %s", mi.ID()),
+				fmt.Sprintf("Jump @|/tp %s||admin", mi.Room().LocationString()),
+				fmt.Sprintf("Edit @|/mob iedit %s||admin", mi.ID()),
+				fmt.Sprintf("Edit-Parent @|/mob edit %s||admin", mi.Name()),
+			},
+		),
+		WithBold(),
+		WithColor("d48a3e"),
+	)
 }
 
 // MoveTicks returns the number of mob movement ticks that have passed.

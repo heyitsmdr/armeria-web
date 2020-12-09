@@ -106,6 +106,18 @@ func WithItemTooltip(uuid string) TextOperation {
 	}
 }
 
+func WithContextMenu(name, objType, color string, content []string) TextOperation {
+	return TextOperation{
+		Text: fmt.Sprintf(
+			"<span class='dynamic-context-menu' data-name='%s' data-type='%s' data-color='%s' data-content='%s'>%%v</span>",
+			name,
+			objType,
+			color,
+			strings.Join(content, ";"),
+		),
+	}
+}
+
 // TextPunctuation will automatically punctuate a string and return the punctuation type.
 func TextPunctuation(text string) (string, int) {
 	lastChar := text[len(text)-1:]

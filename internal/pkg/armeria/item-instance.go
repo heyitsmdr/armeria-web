@@ -50,6 +50,14 @@ func (ii *ItemInstance) FormattedName() string {
 	return TextStyle(
 		fmt.Sprintf("[%s]", ii.Parent.Name()),
 		WithItemTooltip(ii.ID()),
+		WithContextMenu(
+			ii.Name(),
+			"item",
+			ii.RarityColor(),
+			[]string{
+				fmt.Sprintf("Look @|/look %s", ii.ID()),
+			},
+		),
 		WithBold(),
 		WithColor(ii.RarityColor()),
 	)
