@@ -12,7 +12,7 @@
     >
         <div
             class="item"
-            v-for="item in contextMenuItems"
+            v-for="item in filteredMenuItems"
             :key="item"
             :class="itemClasses(item)"
             @click="handleItemClick(item)"
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex';
+import {mapGetters, mapState} from 'vuex';
     import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "@/plugins/SFX";
     export default {
         name: 'ContextMenu',
@@ -76,7 +76,18 @@
                 'contextMenuObjectColor',
                 'contextMenuObjectBrackets',
                 'contextMenuPosition',
-            ])
+            ]),
+            ...mapGetters(['hasPermission']),
+            filteredMenuItems: function() {
+                return this.contextMenuItems.filter(item => {
+                    const sections = item.split('|');
+                    if (sections.length >= 4) {
+                        return this.hasPermission(sections[3]);
+                    }
+
+                    return true;
+                });
+            },
         },
         methods: {
             itemNameHTML: function(item) {
@@ -157,7 +168,7 @@
     .item {
         padding: 5px 12px;
 
-        &.admin {
+        &.CAN_BUILD, &.CAN_CHAREDIT {
             background-color: #61030369;
 
             &:hover {

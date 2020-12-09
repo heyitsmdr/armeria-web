@@ -111,13 +111,10 @@
                     `Look %s|/look inv:${this.uuid}`,
                     `Wiki %s|wiki:/items/%s`,
                     `Drop %s|/drop ${this.uuid}`,
+                    `Edit %s|/item iedit ${this.uuid}||CAN_BUILD`,
+                    `Edit-Parent %s|/item edit ${this.name}||CAN_BUILD`,
+                    `Destroy %s|/destroy ${this.uuid}||CAN_BUILD`,
                 ];
-
-                if (this.hasPermission('CAN_BUILD')) {
-                    items.push(`Edit %s|/item iedit ${this.uuid}||admin`);
-                    items.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
-                    items.push(`Destroy %s|/destroy ${this.uuid}||admin`);
-                }
 
                 this.$store.dispatch(
                     'showContextMenu',

@@ -44,7 +44,7 @@
 const OBJECT_TYPE_CHARACTER = 0;
 const OBJECT_TYPE_MOB = 1;
 const OBJECT_TYPE_ITEM = 2;
-import {mapGetters, mapState} from 'vuex';
+import {mapState} from 'vuex';
 
 export default {
     name: 'Target',
@@ -58,7 +58,6 @@ export default {
              'itemTooltipUUID',
              'itemTooltipVisible'
          ]),
-        ...mapGetters(['hasPermission']),
     },
     watch: {
         objectTargetUUID: function(target) {
@@ -166,27 +165,21 @@ export default {
             switch(this.objectType) {
                 case OBJECT_TYPE_CHARACTER:
                     menu.push(`Look %s|/look ${this.uuid}`);
-                    if (this.hasPermission('CAN_CHAREDIT')) {
-                        menu.push(`Edit %s|/character edit ${this.name}||admin`);
-                    }
+                    menu.push(`Edit %s|/character edit ${this.name}||CAN_CHAREDIT`);
                     break;
                 case OBJECT_TYPE_ITEM:
                     menu.push(`Look %s|/look ${this.uuid}`);
                     menu.push(`Wiki %s|wiki:/items/%s`);
                     menu.push(`Pickup %s|/get ${this.uuid}`);
-                    if (this.hasPermission('CAN_BUILD')) {
-                        menu.push(`Edit %s|/item iedit ${this.uuid}||admin`);
-                        menu.push(`Edit-Parent %s|/item edit ${this.name}||admin`);
-                        menu.push(`Destroy %s|/destroy ${this.uuid}||admin`);
-                    }
+                    menu.push(`Edit %s|/item iedit ${this.uuid}||CAN_BUILD`);
+                    menu.push(`Edit-Parent %s|/item edit ${this.name}||CAN_BUILD`);
+                    menu.push(`Destroy %s|/destroy ${this.uuid}||CAN_BUILD`);
                     break;
                 case OBJECT_TYPE_MOB:
                     menu.push(`Look %s|/look ${this.uuid}`);
-                    if (this.hasPermission('CAN_BUILD')) {
-                        menu.push(`Edit %s|/mob iedit ${this.uuid}||admin`);
-                        menu.push(`Edit-Parent %s|/mob edit ${this.name}||admin`);
-                        menu.push(`Destroy %s|/destroy ${this.uuid}||admin`);
-                    }
+                    menu.push(`Edit %s|/mob iedit ${this.uuid}||CAN_BUILD`);
+                    menu.push(`Edit-Parent %s|/mob edit ${this.name}||CAN_BUILD`);
+                    menu.push(`Destroy %s|/destroy ${this.uuid}||CAN_BUILD`);
                     break;
             }
 

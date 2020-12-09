@@ -60,9 +60,9 @@ func (mi *MobInstance) FormattedName() string {
 			"d48a3e",
 			[]string{
 				fmt.Sprintf("Look @|/look %s", mi.ID()),
-				fmt.Sprintf("Jump @|/tp %s||admin", mi.Room().LocationString()),
-				fmt.Sprintf("Edit @|/mob iedit %s||admin", mi.ID()),
-				fmt.Sprintf("Edit-Parent @|/mob edit %s||admin", mi.Name()),
+				fmt.Sprintf("Jump @|/tp %s||CAN_BUILD", mi.Room().LocationString()),
+				fmt.Sprintf("Edit @|/mob iedit %s||CAN_BUILD", mi.ID()),
+				fmt.Sprintf("Edit-Parent @|/mob edit %s||CAN_BUILD", mi.Name()),
 			},
 		),
 		WithBold(),
