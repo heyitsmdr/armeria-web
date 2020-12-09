@@ -8,17 +8,19 @@ export const INVENTORY_DRAG_STOP = 'INVENTORY_DRAG_STOP';
 export const PICKUP_ITEM = 'PICKUP_ITEM';
 export const SELL_BUY_ITEM = 'SELL_BUY_ITEM';
 export const CAT_MEOW = 'CAT_MEOW';
+export const TELEPORT = 'TELEPORT';
 
-function preload(soundFile) {
+function preload(soundFile, volume) {
     const sfx = new Howl({
         src: [soundFile],
         autoplay: false,
         loop: false,
         preload: true,
+        volume: volume,
     });
 
     sfx.once('load', () => {
-        console.log(`Sound ready: ${soundFile}`);
+        console.log(`Sound preloaded: ${soundFile}`);
     });
 
     return sfx;
@@ -27,11 +29,17 @@ function preload(soundFile) {
 export default {
     install: function(Vue) {
         // Preload.
-        sfxCache[INVENTORY_DRAG_START] = preload('sfx/mouse-click.wav');
-        sfxCache[INVENTORY_DRAG_STOP] = preload('sfx/mouse-release.wav');
-        sfxCache[PICKUP_ITEM] = preload('sfx/pickup.wav');
-        sfxCache[SELL_BUY_ITEM] = preload('sfx/sell-buy-item.wav');
-        sfxCache[CAT_MEOW] = preload('sfx/cat_meow.wav');
+        const preloadMap = {
+            INVENTORY_DRAG_START: ['sfx/mouse-click.wav', 1],
+            INVENTORY_DRAG_STOP: ['sfx/mouse-release.wav', 1],
+            PICKUP_ITEM: ['sfx/pickup.wav', 1],
+            SELL_BUY_ITEM: ['sfx/sell-buy-item.wav', 1],
+            CAT_MEOW: ['sfx/cat_meow.wav', 1],
+            TELEPORT: ['sfx/teleport.wav', 0.1],
+        };
+        Object.keys(preloadMap).forEach(k => {
+            sfxCache[k] = preload(preloadMap[k][0], preloadMap[k][1]);
+        });
 
         Vue.prototype.$soundEvent = function(event) {
             sfxCache[event].play();

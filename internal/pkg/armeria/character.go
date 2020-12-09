@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"armeria/internal/pkg/sfx"
 	"crypto/md5"
 	"encoding/json"
 	"errors"
@@ -456,7 +457,7 @@ func (c *Character) MoveAllowed(r *Room) (bool, string) {
 }
 
 // Move will move the Character to a new location (no move checks are performed).
-func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew string) {
+func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew string, sfx sfx.ClientSoundEffect) {
 	oldRoom := c.Room()
 	if oldRoom == nil {
 		// If the character logged out in a room that no longer exists, allow movement to still work so they
@@ -475,13 +476,22 @@ func (c *Character) Move(to *Room, msgToChar string, msgToOld string, msgToNew s
 
 	for _, char := range oldRoom.Here().Characters(true) {
 		char.Player().client.ShowText(msgToOld)
+		if len(sfx) > 0 {
+			char.Player().client.PlaySFX(sfx)
+		}
 	}
 
 	for _, char := range to.Here().Characters(true, c) {
 		char.Player().client.ShowText(msgToNew)
+		if len(sfx) > 0 {
+			char.Player().client.PlaySFX(sfx)
+		}
 	}
 
 	c.Player().client.ShowText(msgToChar)
+	if len(sfx) > 0 {
+		c.Player().client.PlaySFX(sfx)
+	}
 
 	oldArea := oldRoom.ParentArea
 	newArea := to.ParentArea

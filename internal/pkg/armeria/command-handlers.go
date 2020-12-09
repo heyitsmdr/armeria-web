@@ -374,6 +374,7 @@ func handleMoveCommand(ctx *CommandContext) {
 		ctx.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s walks to %s.", ctx.Character.FormattedName(), walkDir), ColorMovement),
 		ctx.Character.Colorize(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), arriveDir), ColorMovement),
+		"",
 	)
 
 	if newRoom.ParentArea.ID() != oldAreaUUID {
@@ -1461,6 +1462,7 @@ func handleTeleportCommand(ctx *CommandContext) {
 		TextStyle(moveMsg, WithUserColor(charToMove, ColorMovement)),
 		TextStyle(fmt.Sprintf("%s teleported away!", charToMove.FormattedName()), WithUserColor(charToMove, ColorMovement)),
 		TextStyle(fmt.Sprintf("%s teleported here!", charToMove.FormattedName()), WithUserColor(charToMove, ColorMovement)),
+		sfx.Teleport,
 	)
 
 	if charToMove.Online() {
