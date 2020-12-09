@@ -49,7 +49,7 @@ func LuaMobSay(L *lua.LState) int {
 	mid := lua.LVAsString(L.GetGlobal("mob_uuid"))
 
 	m := Armeria.mobManager.MobByName(mname)
-	mi := m.InstanceByUUID(mid)
+	mi := m.Instance(mid)
 
 	normalizedText, textType := TextPunctuation(text)
 

@@ -189,7 +189,6 @@ export default {
                     break;
             }
 
-
             this.$store.dispatch(
                 'showContextMenu',
                 {

@@ -127,8 +127,8 @@ func (m *Mob) DeleteInstance(mi *MobInstance) bool {
 	return false
 }
 
-// InstanceByUUID returns a MobInstance by the instance identifier.
-func (m *Mob) InstanceByUUID(uuid string) *MobInstance {
+// Instance returns a MobInstance by the instance identifier.
+func (m *Mob) Instance(uuid string) *MobInstance {
 	m.RLock()
 	defer m.RUnlock()
 

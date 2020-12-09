@@ -45,6 +45,11 @@ func NewTickManager() *TickManager {
 				Handler:  MobSpawner,
 				Interval: 1 * time.Minute,
 			},
+			{
+				Name:     "MobMovement",
+				Handler:  MobMovement,
+				Interval: 5 * time.Second,
+			},
 		},
 	}
 
@@ -187,6 +192,17 @@ func MobSpawner() {
 				if len(spawnSFX) > 0 {
 					c.Player().client.PlaySFX(sfx.ClientSoundEffect(spawnSFX))
 				}
+			}
+		}
+	}
+}
+
+// MobMovement handles the movement of mobs around the game world.
+func MobMovement() {
+	for _, m := range Armeria.mobManager.Mobs() {
+		for _, mi := range m.Instances() {
+			if len(mi.Attribute(AttributeFollowCrumb)) == 0 {
+				continue
 			}
 		}
 	}
