@@ -33,6 +33,43 @@ type AdjacentRooms struct {
 	Down  *Room
 }
 
+// Random returns a random not-nil Room, or nil if every adjacent Room is nil.
+func (ar *AdjacentRooms) Random() (string, *Room) {
+	possibilities := make([]*Room, 0)
+	directions := make([]string, 0)
+	if ar.North != nil {
+		possibilities = append(possibilities, ar.North)
+		directions = append(directions, "north")
+	}
+	if ar.South != nil {
+		possibilities = append(possibilities, ar.South)
+		directions = append(directions, "south")
+	}
+	if ar.East != nil {
+		possibilities = append(possibilities, ar.East)
+		directions = append(directions, "east")
+	}
+	if ar.West != nil {
+		possibilities = append(possibilities, ar.West)
+		directions = append(directions, "west")
+	}
+	if ar.Up != nil {
+		possibilities = append(possibilities, ar.Up)
+		directions = append(directions, "up")
+	}
+	if ar.Down != nil {
+		possibilities = append(possibilities, ar.Down)
+		directions = append(directions, "down")
+	}
+
+	if len(possibilities) == 0 {
+		return "", nil
+	}
+
+	i := misc.RandomInt(len(possibilities))
+	return directions[i], possibilities[i]
+}
+
 // ID returns the uuid of the room.
 func (r *Room) ID() string {
 	r.RLock()
@@ -170,7 +207,7 @@ func (r *Room) EditorData() *ObjectEditorData {
 	}
 }
 
-// CharacterEntered is called when the unsafeCharacter is moved to the room (or logged in).
+// CharacterEntered is called when the Character is moved to the room (or logged in).
 func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 	ca := c.Player().client
 	ca.SyncMapLocation()
@@ -189,7 +226,7 @@ func (r *Room) CharacterEntered(c *Character, causedByLogin bool) {
 	}
 }
 
-// CharacterLeft is called when the unsafeCharacter left the room (or logged out).
+// CharacterLeft is called when the Character left the room (or logged out).
 func (r *Room) CharacterLeft(c *Character, causedByLogout bool) {
 	for _, char := range r.Here().Characters(true, c) {
 		char.Player().client.SyncRoomObjects()
@@ -214,6 +251,45 @@ func (r *Room) AdjacentRooms() *AdjacentRooms {
 		Up:    r.ConnectedRoom(UpDirection),
 		Down:  r.ConnectedRoom(DownDirection),
 	}
+}
+
+// AdjacentRoomsWithItem returns the adjacent Room objects that contain a matching ItemInstance.
+func (r *Room) AdjacentRoomsWithItem(itemName string) *AdjacentRooms {
+	baseAR := r.AdjacentRooms()
+	ar := &AdjacentRooms{}
+
+	if baseAR.North != nil {
+		if _, _, rt := baseAR.North.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+			ar.North = baseAR.North
+		}
+	}
+	if baseAR.South != nil {
+		if _, _, rt := baseAR.South.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+			ar.South = baseAR.South
+		}
+	}
+	if baseAR.East != nil {
+		if _, _, rt := baseAR.East.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+			ar.East = baseAR.East
+		}
+	}
+	if baseAR.West != nil {
+		if _, _, rt := baseAR.West.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+			ar.West = baseAR.West
+		}
+	}
+	if baseAR.Up != nil {
+		if _, _, rt := baseAR.Up.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+			ar.Up = baseAR.Up
+		}
+	}
+	if baseAR.Down != nil {
+		if _, _, rt := baseAR.Down.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+			ar.Down = baseAR.Down
+		}
+	}
+
+	return ar
 }
 
 // ConnectedRoom returns the adjacent explicit or implicit Room object.

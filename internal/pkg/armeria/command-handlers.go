@@ -315,41 +315,16 @@ func handleSayCommand(ctx *CommandContext) {
 
 func handleMoveCommand(ctx *CommandContext) {
 	d := ctx.Args["direction"]
-	walkDir := ""
-	arriveDir := ""
-	switch strings.ToLower(d) {
-	case "north", "n":
-		d = "north"
-		walkDir = "the north"
-		arriveDir = "the south"
-	case "south", "s":
-		d = "south"
-		walkDir = "the south"
-		arriveDir = "the north"
-	case "east", "e":
-		d = "east"
-		walkDir = "the east"
-		arriveDir = "the west"
-	case "west", "w":
-		d = "west"
-		walkDir = "the west"
-		arriveDir = "the east"
-	case "up", "u":
-		d = "up"
-		walkDir = "up"
-		arriveDir = "below"
-	case "down", "d":
-		d = "down"
-		walkDir = "down"
-		arriveDir = "above"
-	default:
+
+	normDir := misc.NormalizeDirection(d)
+	if len(normDir) == 0 {
 		ctx.Player.client.ShowColorizedText("That's not a valid direction to move in.", ColorError)
 		return
 	}
 
-	newRoom := ctx.Character.Room().ConnectedRoom(d)
+	newRoom := ctx.Character.Room().ConnectedRoom(normDir)
 	if newRoom == nil {
-		currentRoomAttr := ctx.Character.Room().Attribute(d)
+		currentRoomAttr := ctx.Character.Room().Attribute(normDir)
 		if len(currentRoomAttr) > 0 && currentRoomAttr[0:1] == "!" {
 			if len(currentRoomAttr) > 1 {
 				ctx.Player.client.ShowColorizedText(currentRoomAttr[1:], ColorError)
@@ -371,9 +346,9 @@ func handleMoveCommand(ctx *CommandContext) {
 	oldAreaUUID := ctx.Character.Room().ParentArea.ID()
 	ctx.Character.Move(
 		newRoom,
-		ctx.Character.Colorize(fmt.Sprintf("You walk to %s.", walkDir), ColorMovement),
-		ctx.Character.Colorize(fmt.Sprintf("%s walks to %s.", ctx.Character.FormattedName(), walkDir), ColorMovement),
-		ctx.Character.Colorize(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), arriveDir), ColorMovement),
+		TextStyle(fmt.Sprintf("You walk %s.", misc.MoveToStringFromDir("to the", normDir)), WithUserColor(ctx.Character, ColorMovement)),
+		TextStyle(fmt.Sprintf("%s walks %s.", ctx.Character.FormattedName(), misc.MoveToStringFromDir("to the", normDir)), WithUserColor(ctx.Character, ColorMovement)),
+		TextStyle(fmt.Sprintf("%s walked in from %s.", ctx.Character.FormattedName(), misc.MoveFromStringFromDir("the", misc.OppositeDirection(normDir))), WithUserColor(ctx.Character, ColorMovement)),
 		"",
 	)
 

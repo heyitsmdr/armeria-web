@@ -137,6 +137,7 @@
 <style scoped lang="scss">
     @import "~@/styles/common";
     $borderColor: #4e4e4e;
+
     .menu {
         position: absolute;
         z-index: 900;

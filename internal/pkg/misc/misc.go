@@ -1,10 +1,11 @@
 package misc
 
 import (
+	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/leekchan/accounting"
 )
 
@@ -45,6 +46,26 @@ func DirectionOffsets(dir string) map[string]int {
 	return offsets[dir]
 }
 
+// NormalizeDirection returns the normalized direction, or an empty string if the input was not valid.
+func NormalizeDirection(dir string) string {
+	switch strings.ToLower(dir) {
+	case "north", "n":
+		return "north"
+	case "south", "s":
+		return "south"
+	case "east", "e":
+		return "east"
+	case "west", "w":
+		return "west"
+	case "up", "u":
+		return "up"
+	case "down", "d":
+		return "down"
+	default:
+		return ""
+	}
+}
+
 // OppositeDirection returns the opposite direction string.
 func OppositeDirection(dir string) string {
 	switch dir {
@@ -63,6 +84,36 @@ func OppositeDirection(dir string) string {
 	default:
 		return ""
 	}
+}
+
+// MoveToStringFromDir returns a string which can be used for directional movement messages.
+func MoveToStringFromDir(prefix, dir string) string {
+	switch dir {
+	case "up":
+		return "up"
+	case "down":
+		return "down"
+	default:
+		return prefix + " " + dir
+	}
+}
+
+// MoveFromStringFromDir returns a string which can be used for directional movement messages.
+func MoveFromStringFromDir(prefix, dir string) string {
+	switch dir {
+	case "up":
+		return "above"
+	case "down":
+		return "below"
+	default:
+		return prefix + " " + dir
+	}
+}
+
+// RandomInt returns an int between [0,max].
+func RandomInt(max int) int {
+	rand.Seed(time.Now().Unix())
+	return rand.Intn(max)
 }
 
 // ParseArguments parses a string and returns an array of arguments.

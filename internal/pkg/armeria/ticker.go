@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/misc"
 	"armeria/internal/pkg/sfx"
 	"fmt"
 	"strconv"
@@ -203,6 +204,50 @@ func MobMovement() {
 		for _, mi := range m.Instances() {
 			if len(mi.Attribute(AttributeFollowCrumb)) == 0 {
 				continue
+			}
+
+			// Increment the ticks and determine if we should attempt mob movement.
+			mi.IncMoveTicks()
+			if mi.MoveTicks() < mi.AttributeInt(AttributeFollowSpeed) {
+				continue
+			}
+			// Reset the tick counter and attempt movement.
+			mi.ResetMoveTicks()
+			// Find a new random direction, following the crumb.
+			possibleRooms := mi.Room().AdjacentRoomsWithItem(mi.Attribute(AttributeFollowCrumb))
+			dirStr, newRoom := possibleRooms.Random()
+			if newRoom == nil {
+				continue
+			}
+			// Move the mob.
+			oldRoom := mi.Room()
+			oldRoom.Here().Remove(mi.ID())
+			newRoom.Here().Add(mi.ID())
+			mobNameString := fmt.Sprintf("A %s", mi.FormattedName())
+			if mi.Attribute(AttributeGender) != "thing" {
+				mobNameString = mi.FormattedName()
+			}
+			for _, c := range oldRoom.Here().Characters(true) {
+				c.Player().client.ShowText(
+					TextStyle(
+						fmt.Sprintf("%s travels %s.", mobNameString, misc.MoveToStringFromDir("to the", dirStr)),
+						WithUserColor(c, ColorMovement),
+					),
+				)
+				c.Player().client.SyncRoomObjects()
+			}
+			for _, c := range newRoom.Here().Characters(true) {
+				c.Player().client.ShowText(
+					TextStyle(
+						fmt.Sprintf(
+							"%s entered from %s.",
+							mobNameString,
+							misc.MoveToStringFromDir("the", misc.OppositeDirection(dirStr)),
+						),
+						WithUserColor(c, ColorMovement),
+					),
+				)
+				c.Player().client.SyncRoomObjects()
 			}
 		}
 	}

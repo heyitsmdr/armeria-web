@@ -13,6 +13,7 @@ const (
 	AttributeDown        string = "down"
 	AttributeEast        string = "east"
 	AttributeFollowCrumb string = "followCrumb"
+	AttributeFollowSpeed string = "followSpeed"
 	AttributeGender      string = "gender"
 	AttributeHoldable    string = "holdable"
 	AttributeMoney       string = "money"
@@ -113,6 +114,7 @@ func AttributeList(ot ObjectType) []string {
 			AttributeTitle,
 			AttributeSpawnSFX,
 			AttributeFollowCrumb,
+			AttributeFollowSpeed,
 		}
 	case ObjectTypeMobInstance:
 		return []string{
@@ -197,6 +199,8 @@ func AttributeDefault(ot ObjectType, attr string) string {
 		return "true"
 	case AttributeSpawnLimit:
 		return "0"
+	case AttributeFollowSpeed:
+		return "12"
 	}
 
 	return ""
@@ -216,6 +220,9 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 			break
 		case AttributeSpawnSFX:
 			validatorString = "in:" + strings.Join(sfx.List(), ",")
+			break
+		case AttributeFollowSpeed:
+			validatorString = "num|min:1|max:60"
 			break
 		}
 	case ObjectTypeCharacter:

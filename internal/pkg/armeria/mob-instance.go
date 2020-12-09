@@ -16,6 +16,7 @@ type MobInstance struct {
 	UnsafeItemLedgers    []*Ledger         `json:"-"`
 	Parent               *Mob              `json:"-"`
 	UnsafeMobSpawnerUUID string            `json:"spawnerUUID"`
+	UnsafeMoveTicks      int               `json:"moveTicks"`
 }
 
 // Init is called when the MobInstance is created or loaded from disk.
@@ -51,6 +52,27 @@ func (mi *MobInstance) Name() string {
 // FormattedName returns the formatted Mob name.
 func (mi *MobInstance) FormattedName() string {
 	return TextStyle(mi.Parent.Name(), WithBold())
+}
+
+// MoveTicks returns the number of mob movement ticks that have passed.
+func (mi *MobInstance) MoveTicks() int {
+	mi.RLock()
+	defer mi.RUnlock()
+	return mi.UnsafeMoveTicks
+}
+
+// IncMoveTicks increments the number of mob movement ticks since the last move.
+func (mi *MobInstance) IncMoveTicks() {
+	mi.Lock()
+	defer mi.Unlock()
+	mi.UnsafeMoveTicks = mi.UnsafeMoveTicks + 1
+}
+
+// ResetMoveTicks resets the number of mob movement ticks.
+func (mi *MobInstance) ResetMoveTicks() {
+	mi.Lock()
+	defer mi.Unlock()
+	mi.UnsafeMoveTicks = 0
 }
 
 // MobSpawnerUUID returns the UUID of the associated mob spawner, if any.
