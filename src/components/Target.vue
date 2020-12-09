@@ -5,7 +5,8 @@
                 ref="container"
                 :style="{
                     borderColor: color ? `#${color}`  : '',
-                    opacity: visible ? '1' : '0.3'
+                    borderStyle: visible ? 'solid' : 'dashed',
+                    opacity: visible ? 1 : 0.7,
                 }"
         >
             <div class="picture">
