@@ -274,10 +274,6 @@ html, body {
             flex-basis: 100px; /* This can be any number; forces div to respect flex box height. */
             min-height: 100px;
             margin-top: 2px;
-
-            border-width:3px;
-            border-style: solid;
-            border-image: url(../public/gfx/border-image-01.png) 3 3 repeat;
         }
     }
 

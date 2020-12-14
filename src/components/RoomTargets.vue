@@ -58,6 +58,7 @@ export default {
         /*border: $defaultBorder;*/
         display: flex;
         flex-direction: column;
+        @include defaultBorderImage;
         
     }
 
