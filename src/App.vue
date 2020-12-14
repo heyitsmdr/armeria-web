@@ -272,7 +272,6 @@ html, body {
         .container-targets {
             flex-grow: 1;
             flex-basis: 100px; /* This can be any number; forces div to respect flex box height. */
-            overflow-y: scroll;
             min-height: 100px;
             margin-top: 2px;
 
