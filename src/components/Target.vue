@@ -226,6 +226,7 @@ export default {
     transition: all .1s ease-in-out;
     transform: scale(1);
     display: flex;
+    border-width: 0 !important;
 
     &.can-drop-item {
          transform: scale(1.1) !important;

@@ -283,7 +283,7 @@ html, body {
         display: flex;
         flex-direction: column;
         position: relative;
-        padding: 4px 0 4px 0;
+        padding: 4px 2px;
 
         .container-maintext {
             flex-grow: 1;
