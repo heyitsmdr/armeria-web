@@ -109,6 +109,7 @@ func InitWeb(port int) {
 		"/vendor/",
 		"/sfx/",
 		"/gfx/",
+		"/icons/",
 		"/favicon.ico",
 		"/scripteditor.html",
 		"/script-snippets.txt",
