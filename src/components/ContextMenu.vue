@@ -154,7 +154,7 @@ import {mapGetters, mapState} from 'vuex';
         z-index: 900;
         top: 0px;
         left: -500px;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         font-size: 12px;
         border: 2px solid $borderColor;
         box-shadow: 0px 0px 10px #000;

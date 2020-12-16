@@ -167,7 +167,7 @@
     .item {
         width: 40px;
         height: 40px;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         background-size: contain;
         margin: 2px;
         transition: all .1s ease-in-out;
@@ -215,7 +215,7 @@
         min-width: 150px;
         z-index: 999;
         top: 50px;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         padding: 5px;
     }
 

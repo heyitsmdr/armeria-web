@@ -228,7 +228,7 @@ html, body {
     padding: 0;
     margin: 0;
     height: 100%;
-    background-color: $defaultBackgroundColor;
+    background-color: $bg-color;
     user-select: none;
 }
 
@@ -259,10 +259,11 @@ html, body {
         .container-left {
             flex-basis: $sidebarWidth;
             min-width: $sidebarWidth;
-            background-color: $defaultBackgroundColor;
+            background-color: $bg-color-light;
             display: flex;
             flex-direction: column;
-            padding: 2px;
+            padding: 4px;
+            border-right: solid 4px $bg-color-dark;
 
         .container-minimap {
             flex-basis: 250px;
@@ -282,7 +283,7 @@ html, body {
         display: flex;
         flex-direction: column;
         position: relative;
-        padding: 2px;
+        padding: 4px 0 4px 0;
 
         .container-maintext {
             flex-grow: 1;
@@ -303,10 +304,11 @@ html, body {
     .container-right {
         flex-basis: $sidebarWidth;
         min-width: $sidebarWidth;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color-light;
         display: flex;
         flex-direction: column;
-        padding: 2px;
+        padding: 4px;
+        border-left: solid 4px $bg-color-dark;
 
         .container-skills {
             flex-grow: 1;
@@ -323,7 +325,7 @@ html, body {
 .status-bar-container {
     flex-basis: 30px;
     position: relative;
-    background-color: $defaultBackgroundColor;
+    background-color: $bg-color;
     padding: 2px;
     margin-top:2px;
     background-image: url(../public/gfx/status-bg-01.png);

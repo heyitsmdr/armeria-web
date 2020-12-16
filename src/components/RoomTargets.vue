@@ -53,7 +53,6 @@ export default {
 
     .root {
         height: 100%;
-        background-color: #131313;
         box-sizing: border-box;
         /*border: $defaultBorder;*/
         display: flex;

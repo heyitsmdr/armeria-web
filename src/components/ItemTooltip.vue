@@ -135,7 +135,7 @@
         max-width: 400px;
         min-width: 150px;
         z-index: 999;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         padding: 5px;
         box-shadow: 0px 0px 10px #000;
 

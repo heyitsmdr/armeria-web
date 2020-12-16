@@ -223,8 +223,6 @@ export default {
 
 <style lang="scss" scoped>
 .targets-container {
-    background-color: #0c0c0c;
-    margin: 0 0 2px 4px;
     transition: all .1s ease-in-out;
     transform: scale(1);
     display: flex;
@@ -264,7 +262,7 @@ export default {
 
     &:hover {
         cursor: pointer;
-        transform: scale(1.05);
+        
     }
 
     .picture {
@@ -302,6 +300,7 @@ export default {
             text-transform: uppercase;
             font-size: 12px;
             transition: all .1s ease-in-out;
+            border-bottom-left-radius: 3px;
 
             &.selected {
                  background-color: #eedb38;
