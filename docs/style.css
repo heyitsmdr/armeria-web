@@ -3,9 +3,9 @@ body {
     color: #cacaca;
     font-family: 'Montserrat', sans-serif;
 }
-h1 {
-    font-variant: small-caps;
-    text-align:center;
+.logo {
+    width: 50%;
+    margin: 20px auto;
 }
 a {
     color:#5786a8;
@@ -29,7 +29,7 @@ a:hover {
 ::-webkit-resizer { background-color: #666; }
 
 header {
-    border: solid 1px #1d2e39;
+    border: solid 1px #cacaca;
     border-left: none;
     border-right: none;
     margin-bottom: 20px;
