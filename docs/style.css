@@ -1,5 +1,5 @@
 body {
-    background-color: #111;
+    background-color: #0c1318;
     color: #cacaca;
     font-family: 'Montserrat', sans-serif;
 }
@@ -8,13 +8,13 @@ h1 {
     text-align:center;
 }
 a {
-    color:#1565c0;
+    color:#5786a8;
     font-variant: small-caps;
     text-decoration: none;
     font-weight:bold;
 }
 a:visited {
-    color: #1565c0;
+    color: #5786a8;
 }
 a:hover {
     color: #cacaca;
@@ -29,7 +29,7 @@ a:hover {
 ::-webkit-resizer { background-color: #666; }
 
 header {
-    border: solid 1px #cacaca;
+    border: solid 1px #1d2e39;
     border-left: none;
     border-right: none;
     margin-bottom: 20px;
