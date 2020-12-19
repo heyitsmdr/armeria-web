@@ -7,8 +7,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     isProduction: process.env.NODE_ENV === "production",
-    deployAppName: process.env.HEROKU_APP_NAME ? process.env.HEROKU_APP_NAME : 'development',
-    deployVersion: process.env.HEROKU_RELEASE_VERSION ? process.env.HEROKU_RELEASE_VERSION : '',
+    deployAppName: process.env.VUE_APP_HEROKU_APP_NAME,
+    deployVersion: process.env.VUE_APP_HEROKU_RELEASE_VERSION,
     isConnected: false,
     gameText: [],
     allowGlobalHotkeys: true,
