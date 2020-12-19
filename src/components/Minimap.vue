@@ -378,8 +378,8 @@
     .area-title {
         text-align: center;
         padding: 5px;
-        background-color: $defaultBackgroundColor;
-        border-bottom: 1px solid #313131;
+        background-color: $bg-color;
+        border-bottom: $defaultBorder;
         color: #fff;
         flex-shrink: 1;
     }
@@ -396,7 +396,7 @@
     }
 
     .map {
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         flex-basis: 205px;
         position: relative;
         overflow: hidden;

@@ -43,7 +43,7 @@
         align-items: center;
         font-size: 16px;
         padding-left: 10px;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
     }
 
     .root .skill-level-container .level {
@@ -53,7 +53,7 @@
         align-items: center;
         font-size: 20px;
         font-weight: 600;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         color: $defaultTextColor;
     }
 

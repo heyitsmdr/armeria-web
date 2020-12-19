@@ -360,9 +360,9 @@
     
     .root {
         position: relative;
-        background: $defaultBackgroundColor;
+        background: $bg-color;
         padding-left: 5px;
-        border: 1px solid #5b6576;
+        border: $defaultBorder;
     }
 
     .input-box {
@@ -379,11 +379,11 @@
     }
 
     .root.active {
-        border: 1px solid #5b6576;
+        border: $defaultBorder;
     }
 
     .root.active .input-box {
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
     }
 
     .input-box:focus {
@@ -403,7 +403,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         color: $defaultTextColor;
     }
 
@@ -414,8 +414,8 @@
 
     .command-helper-overlay {
         position: absolute;
-        background: $defaultBackgroundColor;
-        background: $defaultBackgroundColor;
+        background: $bg-color;
+        background: $bg-color;
         width: 99%;
         padding: 20px 5px 10px 5px;
         font-size: 12px;

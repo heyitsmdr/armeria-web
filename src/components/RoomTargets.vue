@@ -53,9 +53,11 @@ export default {
 
     .root {
         height: 100%;
-        background-color: #131313;
         box-sizing: border-box;
         /*border: $defaultBorder;*/
+        display: flex;
+        flex-direction: column;
+        @include defaultBorderImage;
         
     }
 
@@ -67,5 +69,8 @@ export default {
     }
 
     .targets-list {
+        overflow-y: scroll;
+        overflow-x: hidden;
+        flex-grow: 1;
     }
 </style>

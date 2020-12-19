@@ -167,18 +167,20 @@
     .item {
         width: 40px;
         height: 40px;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color-light2;
         background-size: contain;
         margin: 2px;
         transition: all .1s ease-in-out;
         overflow: hidden;
         border: $defaultBorder;
+        border-top-color: $bg-color;
+        border-left-color: $bg-color;
         box-sizing: border-box;
     }
 
     .item:hover {
         cursor: pointer;
-        transform: scale(1.1);
+        border-color: $bg-color-light3;//transform: scale(1.1);
     }
 
     .item.equipped {
@@ -215,7 +217,7 @@
         min-width: 150px;
         z-index: 999;
         top: 50px;
-        background-color: $defaultBackgroundColor;
+        background-color: $bg-color;
         padding: 5px;
     }
 

@@ -66,7 +66,6 @@
     @import "@/styles/common";
 
     .root {
-        background-color: $defaultBackgroundColor;
         height: 100%;
         box-sizing: border-box;
         /*border: $defaultBorder;*/
@@ -82,7 +81,6 @@
 
     .currency-container {
         color: #ffc107;
-        background-color: $defaultBackgroundColor;
         font-size: 13px;
     }
 </style>

@@ -1,20 +1,20 @@
 body {
-    background-color: #111;
+    background-color: #0c1318;
     color: #cacaca;
     font-family: 'Montserrat', sans-serif;
 }
-h1 {
-    font-variant: small-caps;
-    text-align:center;
+.logo {
+    width: 50%;
+    margin: 20px auto;
 }
 a {
-    color:#1565c0;
+    color:#5786a8;
     font-variant: small-caps;
     text-decoration: none;
     font-weight:bold;
 }
 a:visited {
-    color: #1565c0;
+    color: #5786a8;
 }
 a:hover {
     color: #cacaca;
