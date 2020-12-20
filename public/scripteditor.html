@@ -189,7 +189,7 @@
         resizeEditor()
 
         document.getElementById('save').addEventListener('click', (evt) => {
-            $.post(`${urlBase}/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
+            $.post(`${serverUrlBase}/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
                 if (status === 'success' && !evt.shiftKey) {
                     window.close();
                 }
