@@ -240,7 +240,9 @@ export default new Vuex.Store({
         // Hide the actual token from the command echo'd to the main text area.
         echoCmd = `${payload.command.split(':')[0]}:&lt;redacted&gt;`
       }
-      commit('ADD_GAME_TEXT', `<div class="inline-loopback">${echoCmd}</div>`);
+      if (typeof payload.noEcho !== 'boolean' || !payload.noEcho) {
+        commit('ADD_GAME_TEXT', `<div class="inline-loopback">${echoCmd}</div>`);
+      }
 
       Vue.prototype.$socket.sendObj({
         type: "command",

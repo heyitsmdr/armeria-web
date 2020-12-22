@@ -65,6 +65,32 @@ import {mapGetters, mapState} from 'vuex'
             });
         },
         mounted: function () {
+            document.addEventListener('click', e => {
+                if (e.target.className === 'convo-select') {
+                    const optionDisabled = e.target.getAttribute('data-disabled');
+                    const groupId = e.target.getAttribute('data-group');
+                    const convoOptionId = e.target.getAttribute('data-convo-option-id');
+                    const mobUUID = e.target.getAttribute('data-mob-uuid');
+
+                    if (optionDisabled && optionDisabled === 'true') {
+                        return;
+                    }
+
+                    const groupSpans = document.querySelectorAll(`.convo-select[data-group="${groupId}"]`);
+                    groupSpans.forEach(span => {
+                        span.style.color = '#444';
+                        span.style.borderLeftColor = '#444';
+                        span.style.borderBottomColor = '#292929';
+                        span.setAttribute('data-disabled', 'true');
+                    });
+
+                    this.$store.dispatch('sendSlashCommand', {
+                        command: `/select "${mobUUID}" "${convoOptionId}"`,
+                        noEcho: true,
+                    });
+                }
+            });
+
             document.addEventListener('mousemove', e => {
                 if (e.target.className === 'hover-item-tooltip') {
                     const uuid = e.target.getAttribute('data-uuid');
@@ -194,6 +220,21 @@ import {mapGetters, mapState} from 'vuex'
         border-bottom: 1px dotted #666;
     }
 
+    .line .convo-select {
+        border-left: 2px solid #86949e;
+        padding-left: 5px;
+        margin-left: 10px;
+        border-bottom: 1px solid #2b3740;
+        padding-bottom: 2px;
+        transition: all .1s ease-in-out;
+    }
+
+    .line .convo-select:hover {
+        cursor: pointer;
+        border-left-width: 4px;
+        color: #fff;
+
+    }
     .line table tr th {
         text-align: left;
         background: linear-gradient(to bottom, #111111 0%, #232323 100%);

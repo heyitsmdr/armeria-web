@@ -2425,3 +2425,24 @@ func handleTickersCommand(ctx *CommandContext) {
 
 	ctx.Player.client.ShowText(TextTable(rows...))
 }
+
+func handleSelectCommand(ctx *CommandContext) {
+	mob := ctx.Args["mob"]
+	optionId := ctx.Args["option_id"]
+
+	mobGeneric, _, rt := ctx.Character.Room().Here().GetByAny(mob)
+	if rt != RegistryTypeMobInstance {
+		ctx.Player.client.ShowColorizedText("There are no mobs here with that name.", ColorError)
+		return
+	}
+	mobInst := mobGeneric.(*MobInstance)
+
+	Armeria.commandManager.ProcessCommand(ctx.Player, fmt.Sprintf("say %s", mobInst.ConvoText(optionId)), false)
+
+	go CallMobFunc(
+		ctx.Character,
+		mobInst,
+		"conversation_select",
+		lua.LString(optionId),
+	)
+}

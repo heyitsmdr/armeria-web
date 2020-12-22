@@ -268,6 +268,27 @@ func LuaEndConvo(L *lua.LState) int {
 	return 0
 }
 
+// LuaConvoSelect (convo_select) displays a conversational line that can be selected by the player.
+func LuaConvoSelect(L *lua.LState) int {
+	displayId := L.ToString(1)
+	displayText := L.ToString(2)
+
+	if len(displayId) == 0 || len(displayText) == 0 {
+		panic(fmt.Sprintf("must specify both an id and display text"))
+	}
+
+	char := LuaInvoker(L)
+	mi := LuaMobInstance(L)
+
+	mi.SetConvoText(displayId, displayText)
+
+	char.Player().client.ShowText(
+		TextStyle(displayText, WithConvoSelection(displayId, mi.ID(), time.Now().Unix())),
+	)
+
+	return 0
+}
+
 // LuaShop (shop) displays shop items to the character that invoked the command.
 func LuaShop(L *lua.LState) int {
 	ledgerName := L.ToString(1)
@@ -372,6 +393,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("sleep", L.NewFunction(LuaSleep))
 	L.SetGlobal("start_convo", L.NewFunction(LuaStartConvo))
 	L.SetGlobal("end_convo", L.NewFunction(LuaEndConvo))
+	L.SetGlobal("convo_select", L.NewFunction(LuaConvoSelect))
 	L.SetGlobal("c_attr", L.NewFunction(LuaCharacterAttribute))
 	L.SetGlobal("c_set_attr", L.NewFunction(LuaSetCharacterAttribute))
 	L.SetGlobal("i_name", L.NewFunction(LuaItemName))

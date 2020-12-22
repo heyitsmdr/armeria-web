@@ -18,16 +18,19 @@ type MobInstance struct {
 	Parent               *Mob              `json:"-"`
 	UnsafeMobSpawnerUUID string            `json:"spawnerUUID"`
 	UnsafeMoveTicks      int               `json:"moveTicks"`
+	UnsafeConvoText      map[string]string `json:"-"`
 }
 
 // Init is called when the MobInstance is created or loaded from disk.
 func (mi *MobInstance) Init() {
-	// register mob instance with registry
+	// Register mob instance with registry.
 	Armeria.registry.Register(mi, mi.ID(), RegistryTypeMobInstance)
-	// attach self as container's parent
+	// Attach self as container's parent.
 	mi.UnsafeInventory.AttachParent(mi, ContainerParentTypeMobInstance)
-	// sync container
+	// Sync container.
 	mi.UnsafeInventory.Sync()
+	// Initialize some properties.
+	mi.UnsafeConvoText = make(map[string]string)
 }
 
 // Deinit is called when the MobInstance is deleted.
@@ -89,6 +92,23 @@ func (mi *MobInstance) ResetMoveTicks() {
 	mi.Lock()
 	defer mi.Unlock()
 	mi.UnsafeMoveTicks = 0
+}
+
+// SetConvoText sets the display text for a particular conversation option. Used for caching.
+func (mi *MobInstance) SetConvoText(optionId, displayText string) {
+	mi.Lock()
+	defer mi.Unlock()
+	mi.UnsafeConvoText[optionId] = displayText
+}
+
+// ConvoText retrieves the cached display text for a particular conversation option. No entry returns a blank string.
+func (mi *MobInstance) ConvoText(optionId string) string {
+	mi.RLock()
+	defer mi.RUnlock()
+	if displayText, found := mi.UnsafeConvoText[optionId]; found {
+		return displayText
+	}
+	return ""
 }
 
 // MobSpawnerUUID returns the UUID of the associated mob spawner, if any.

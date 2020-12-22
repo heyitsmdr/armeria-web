@@ -106,6 +106,7 @@ func WithItemTooltip(uuid string) TextOperation {
 	}
 }
 
+// WithContextMenu formats the text to display a context menu when right-clicking.
 func WithContextMenu(name, objType, color string, content []string) TextOperation {
 	return TextOperation{
 		Text: fmt.Sprintf(
@@ -114,6 +115,18 @@ func WithContextMenu(name, objType, color string, content []string) TextOperatio
 			objType,
 			color,
 			strings.Join(content, ";"),
+		),
+	}
+}
+
+// WithConvoSelection formats the text as a conversation answer.
+func WithConvoSelection(id, mobUUID string, groupId int64) TextOperation {
+	return TextOperation{
+		Text: fmt.Sprintf(
+			"<span class='convo-select' data-group='%d' data-convo-option-id='%s' data-mob-uuid='%s'>%%v</span>",
+			groupId,
+			id,
+			mobUUID,
 		),
 	}
 }

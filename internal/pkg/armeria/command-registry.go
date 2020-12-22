@@ -72,7 +72,27 @@ func RegisterGameCommands() {
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
+
 			Handler: handleGlanceCommand,
+		},
+		{
+			Name: "select",
+			Help: "Selects a mob's conversation option.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name: "mob",
+					Help: "The name (or uuid) of the mob.",
+				},
+				{
+					Name: "option_id",
+					IncludeRemaining: true,
+					Help: "The option identifier for the mob.",
+				},
+			},
+			Handler: handleSelectCommand,
 		},
 		{
 			Name: "destroy",

@@ -62,6 +62,10 @@ snippet room_text
 snippet shop
 	shop("${1:ledger_name}")
 
+## convo_select(option_id, display_text): Displays a conversation option that can be selected.
+snippet convo_select
+	convo_select("${1:option_id}", "${2:display_text}")
+
 #
 # EVENTS
 #
@@ -93,5 +97,11 @@ snippet received_item
 ## conversation_tick(tick): Triggered each second (tick) during a conversation.
 snippet conversation_tick
 	function conversation_tick(tick)
+	  $1
+	end
+
+## conversation_select(option_id): Triggered when a conversation option is selected by the player.
+snippet conversation_select
+	function conversation_select(option_id)
 	  $1
 	end
