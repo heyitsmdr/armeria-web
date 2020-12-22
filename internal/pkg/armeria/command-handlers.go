@@ -2437,6 +2437,11 @@ func handleSelectCommand(ctx *CommandContext) {
 	}
 	mobInst := mobGeneric.(*MobInstance)
 
+	if len(mobInst.ConvoText(optionId)) == 0 {
+		ctx.Player.client.ShowColorizedText("That is not a valid selection.", ColorError)
+		return
+	}
+
 	Armeria.commandManager.ProcessCommand(ctx.Player, fmt.Sprintf("say %s", mobInst.ConvoText(optionId)), false)
 
 	go CallMobFunc(
@@ -2444,5 +2449,22 @@ func handleSelectCommand(ctx *CommandContext) {
 		mobInst,
 		"conversation_select",
 		lua.LString(optionId),
+	)
+}
+
+func handleInteractCommand(ctx *CommandContext) {
+	mob := ctx.Args["mob"]
+
+	mobGeneric, _, rt := ctx.Character.Room().Here().GetByAny(mob)
+	if rt != RegistryTypeMobInstance {
+		ctx.Player.client.ShowColorizedText("There are no mobs here with that name.", ColorError)
+		return
+	}
+	mobInst := mobGeneric.(*MobInstance)
+
+	go CallMobFunc(
+		ctx.Character,
+		mobInst,
+		"interact",
 	)
 }

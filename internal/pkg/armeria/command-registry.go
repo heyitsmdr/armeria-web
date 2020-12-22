@@ -87,12 +87,27 @@ func RegisterGameCommands() {
 					Help: "The name (or uuid) of the mob.",
 				},
 				{
-					Name: "option_id",
+					Name:             "option_id",
 					IncludeRemaining: true,
-					Help: "The option identifier for the mob.",
+					Help:             "The option identifier for the mob.",
 				},
 			},
 			Handler: handleSelectCommand,
+		},
+		{
+			Name: "interact",
+			Help: "Interacts with a mob.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "mob",
+					IncludeRemaining: true,
+					Help:             "The name (or uuid) of the mob.",
+				},
+			},
+			Handler: handleInteractCommand,
 		},
 		{
 			Name: "destroy",

@@ -105,3 +105,9 @@ snippet conversation_select
 	function conversation_select(option_id)
 	  $1
 	end
+
+## interact(): Triggered when a mob is interacted with (double-clicked on).
+snippet interact
+	function interact()
+	  $1
+	end

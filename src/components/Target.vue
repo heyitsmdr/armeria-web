@@ -150,12 +150,21 @@ export default {
         },
 
         handleDoubleClick: function() {
-            if (this.objectType === OBJECT_TYPE_ITEM) {
-                this.$store.dispatch('sendSlashCommand', {
-                    command: `/get "${this.uuid}"`
-                });
-                this.$store.dispatch('setObjectTarget', '');
-                this.hideTooltip();
+            switch(this.objectType) {
+                case OBJECT_TYPE_ITEM:
+                    this.$store.dispatch('sendSlashCommand', {
+                        command: `/get "${this.uuid}"`
+                    });
+                    this.$store.dispatch('setObjectTarget', '');
+                    this.hideTooltip();
+                    break;
+                case OBJECT_TYPE_MOB:
+                    this.$store.dispatch('sendSlashCommand', {
+                        command: `/interact "${this.uuid}"`,
+                        noEcho: true,
+                    });
+                    this.$store.dispatch('setObjectTarget', '');
+                    break;
             }
         },
 
@@ -177,6 +186,7 @@ export default {
                     break;
                 case OBJECT_TYPE_MOB:
                     menu.push(`Look %s|/look ${this.uuid}`);
+                    menu.push(`Interact %s|/interact ${this.uuid}`);
                     menu.push(`Edit %s|/mob iedit ${this.uuid}||CAN_BUILD`);
                     menu.push(`Edit-Parent %s|/mob edit ${this.name}||CAN_BUILD`);
                     menu.push(`Destroy %s|/destroy ${this.uuid}||CAN_BUILD`);
