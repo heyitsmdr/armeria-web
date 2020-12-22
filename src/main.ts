@@ -1,6 +1,8 @@
 import Vue from 'vue'
 // @ts-ignore
 import VueNativeSock from 'vue-native-websocket'
+// @ts-ignore
+import VueAnimXYZ from '@animxyz/vue'
 import App from './App.vue'
 // @ts-ignore
 import store from './store'
@@ -18,6 +20,7 @@ if (process.env.NODE_ENV === "production") {
 
 Vue.use(VueNativeSock, connectionString, { store: store, format: 'json' })
 Vue.use(SFX)
+Vue.use(VueAnimXYZ)
 
 // @ts-ignore
 window['Armeria'] = new Vue({

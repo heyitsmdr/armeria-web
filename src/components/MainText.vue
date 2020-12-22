@@ -235,19 +235,31 @@ import {mapGetters, mapState} from 'vuex'
         color: #fff;
 
     }
+
+    .line table {
+        border: 2px solid #1d2e39;
+    }
+
     .line table tr th {
         text-align: left;
-        background: linear-gradient(to bottom, #111111 0%, #232323 100%);
-        border-bottom: 1px solid #403e3e;
+        background: linear-gradient(to bottom, #1d2e39 0%, #132029 100%);
+        border-bottom: 2px solid #1d2e39;
         padding: 3px;
     }
 
+    .line table tr {
+        background-color: #132029;
+    }
+
+    .line table tr:hover {
+        background-color: #0d181f;
+    }
     .line table tr td {
-        padding: 0px 3px;
+        padding: 2px 3px;
     }
 </style>
 <style scoped lang="scss">
-    @import "@/styles/common";
+    @import "~@/styles/common";
     
     .root {
         box-sizing: border-box;

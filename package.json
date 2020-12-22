@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@animxyz/core": "^0.1.1",
+    "@animxyz/vue": "^0.1.1",
     "discord.js": "^12.5.0",
     "howler": "^2.2.0",
     "pixi-ease": "^3.0.6",
