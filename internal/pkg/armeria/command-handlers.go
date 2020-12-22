@@ -702,6 +702,20 @@ func handleCharacterListCommand(ctx *CommandContext) {
 	ctx.Player.client.ShowText(TextTable(rows...))
 }
 
+func handleCharacterCreateCommand(ctx *CommandContext) {
+	charName := ctx.Args["character"]
+	charPass := ctx.Args["password"]
+
+	if char := Armeria.characterManager.CharacterByName(charName); char != nil {
+		ctx.Player.client.ShowColorizedText("A character with that name already exists.", ColorError)
+		return
+	}
+
+	Armeria.characterManager.CreateCharacter(charName, charPass)
+
+	ctx.Player.client.ShowColorizedText("The character has been created!", ColorSuccess)
+}
+
 func handleCharacterSetCommand(ctx *CommandContext) {
 	char := ctx.Args["character"]
 	attr := ctx.Args["property"]
@@ -1694,13 +1708,13 @@ func handleChannelListCommand(ctx *CommandContext) {
 				rows = append(rows, TableRow(
 					TableCell{content: TextStyle(c.Name, WithBold())},
 					TableCell{content: c.Description},
-					TableCell{content: "Yes"},
+					TableCell{content: TextStyle("Yes", WithUserColor(ctx.Character, ColorSuccess))},
 				))
 			} else {
 				rows = append(rows, TableRow(
 					TableCell{content: TextStyle(c.Name, WithBold())},
 					TableCell{content: c.Description},
-					TableCell{content: ""},
+					TableCell{content: TextStyle("No", WithUserColor(ctx.Character, ColorError))},
 				))
 			}
 		}

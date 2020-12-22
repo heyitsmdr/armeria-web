@@ -276,6 +276,21 @@ func RegisterGameCommands() {
 					},
 					Handler: handleCharacterEditCommand,
 				},
+				{
+					Name: "create",
+					Help: "Creates a new character.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "character",
+							Help: "The name of the character to create.",
+						},
+						{
+							Name: "password",
+							Help: "The password of the character.",
+						},
+					},
+					Handler: handleCharacterCreateCommand,
+				},
 			},
 		},
 		{

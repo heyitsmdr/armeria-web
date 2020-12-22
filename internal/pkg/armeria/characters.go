@@ -6,6 +6,9 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
+
+	"github.com/google/uuid"
 
 	"go.uber.org/zap"
 )
@@ -114,6 +117,32 @@ func (m *CharacterManager) CharacterById(uuid string) *Character {
 	}
 
 	return nil
+}
+
+// CreateCharacter creates a new Character, adds it to memory, initializes it and returns the Character.
+func (m *CharacterManager) CreateCharacter(name, password string) *Character {
+	m.Lock()
+	defer m.Unlock()
+	c := &Character{
+		UUID:                 uuid.New().String(),
+		UnsafeName:           name,
+		UnsafeAttributes:     make(map[string]string),
+		UnsafeSettings:       make(map[string]string),
+		UnsafeTempAttributes: make(map[string]string),
+		UnsafeLastSeen:       time.Time{},
+	}
+
+	c.SetPassword(password)
+
+	m.UnsafeCharacters = append(m.UnsafeCharacters, c)
+
+	c.Init()
+
+	Armeria.log.Info("character created",
+		zap.String("name", name),
+	)
+
+	return c
 }
 
 // OnlineCharacters returns the characters logged in to the game.
