@@ -1,11 +1,13 @@
 function character_said(text)
   if text == "shop" then
     shop("WOBGI_TAVERN")
-  elseif text == "convo" then
-    say("What is it you'd like to learn more about?")
-    convo_select("weather", "Can you tell me about the weather here?")
-    convo_select("whereami", "What is this place?")
   end
+end
+
+function interact()
+  say("What is it you'd like to learn more about?")
+  convo_select("weather", "Can you tell me about the weather here?")
+  convo_select("whereami", "What is this place?")
 end
 
 function conversation_select(option_id)
