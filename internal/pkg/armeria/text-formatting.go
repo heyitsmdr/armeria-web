@@ -131,6 +131,16 @@ func WithConvoSelection(id, mobUUID string, groupId int64) TextOperation {
 	}
 }
 
+// WithChannelLabel formats the text as a channel header label.
+func WithChannelLabel(color string) TextOperation {
+	return TextOperation{
+		Text: fmt.Sprintf(
+			"<span style='background-color:%s;padding:3px 8px;color:#fff;border-radius:12px;margin-right:2px'>%%v</span>",
+			color,
+		),
+	}
+}
+
 // TextPunctuation will automatically punctuate a string and return the punctuation type.
 func TextPunctuation(text string) (string, int) {
 	lastChar := text[len(text)-1:]

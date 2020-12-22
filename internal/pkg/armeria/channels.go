@@ -87,7 +87,13 @@ func (c *Channel) Broadcast(from *Character, text string) {
 			break
 		}
 		msgToOthers = fmt.Sprintf("[%s] %s %s, \"%s\"", TextStyle(c.Name, WithBold()), from.FormattedNameWithTitle(), verbs[1], normalizedText)
-		msgToFrom = fmt.Sprintf("[%s] You %s, \"%s\"", TextStyle(c.Name, WithBold()), verbs[0], normalizedText)
+		msgToFrom = fmt.Sprintf(
+			"%s You %s, \"%s\"",
+			TextStyle(c.Name, WithChannelLabel(from.UserColor(c.Color))),
+			verbs[0],
+			normalizedText,
+		)
+
 	} else {
 		msgToOthers = fmt.Sprintf("[%s] %s", TextStyle(c.Name, WithBold()), text)
 	}

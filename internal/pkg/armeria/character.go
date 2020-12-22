@@ -217,7 +217,7 @@ func (c *Character) UserColor(color int) string {
 	case ColorCmdHelp:
 		return "#e9761e"
 	case ColorChannelGeneral:
-		return "#3bffdc"
+		return "#009688"
 	case ColorChannelCore:
 		return "#ff5722"
 	case ColorChannelBuilders:
@@ -600,6 +600,19 @@ func (c *Character) JoinChannel(ch *Channel) {
 		chs[0] = ch.Name
 	} else {
 		chs = append(chs, ch.Name)
+	}
+	_ = c.SetAttribute(AttributeChannels, strings.Join(chs, ","))
+}
+
+// LeaveChannel removes the channel from the Character's channel list.
+func (c *Character) LeaveChannel(ch *Channel) {
+	chs := strings.Split(c.Attribute(AttributeChannels), ",")
+	for i, cname := range chs {
+		if cname == ch.Name {
+			chs[i] = chs[len(chs)-1]
+			chs = chs[:len(chs)-1]
+			break
+		}
 	}
 	_ = c.SetAttribute(AttributeChannels, strings.Join(chs, ","))
 }

@@ -812,6 +812,16 @@ func RegisterGameCommands() {
 					Handler: handleChannelJoinCommand,
 				},
 				{
+					Name: "leave",
+					Help: "Leave a channel.",
+					Arguments: []*CommandArgument{
+						{
+							Name: "channel",
+						},
+					},
+					Handler: handleChannelLeaveCommand,
+				},
+				{
 					Name: "say",
 					Help: "Say someting to a channel.",
 					Arguments: []*CommandArgument{

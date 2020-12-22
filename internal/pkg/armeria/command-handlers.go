@@ -1747,6 +1747,29 @@ func handleChannelJoinCommand(ctx *CommandContext) {
 	)
 }
 
+func handleChannelLeaveCommand(ctx *CommandContext) {
+	channelName := ctx.Args["channel"]
+
+	ch := ChannelByName(channelName)
+	if ch == nil {
+		ctx.Player.client.ShowColorizedText("You must enter a valid channel name to leave.", ColorError)
+		return
+	}
+
+	if !ctx.Character.InChannel(ch) {
+		ctx.Player.client.ShowColorizedText("You are not in that channel.", ColorError)
+		return
+	}
+
+	ctx.Character.LeaveChannel(ch)
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You left the %s channel.",
+			TextStyle(ch.Name, WithBold()),
+		),
+		ColorSuccess,
+	)
+}
+
 func handleChannelSayCommand(ctx *CommandContext) {
 	channelName := ctx.Args["channel"]
 	sayText := ctx.Args["text"]

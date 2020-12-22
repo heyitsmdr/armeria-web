@@ -133,6 +133,7 @@ func (m *CharacterManager) CreateCharacter(name, password string) *Character {
 	}
 
 	c.SetPassword(password)
+	_ = c.SetAttribute(AttributeChannels, "General")
 
 	m.UnsafeCharacters = append(m.UnsafeCharacters, c)
 
