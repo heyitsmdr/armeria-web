@@ -38,15 +38,17 @@
             z-index: 1000;
             bottom: 20px;
             right: 20px;
-            background-color: #585858;
+            background-color: #0d111b;
             color: #fff;
             padding: 10px 15px;
             font-size: 14px;
+            border: 2px solid #404248;
+            border-radius: 20px;
         }
 
         #save:hover {
             cursor: pointer;
-            background-color: #3c3a3a;
+            background-color: #292e3a;
         }
 
         #docs {
@@ -72,7 +74,7 @@
 <body>
     <div id="overlay" class="hidden"></div>
     <div id="editor">Loading...</div>
-    <div id="save">Save Script</div>
+    <div id="save">Save & Close</div>
     <div id="docs"><a href="https://github.com/heyitsmdr/armeria/blob/master/docs/scripting.md" target="_blank">Scripting Docs</a></div>
     <script src="vendor/jquery-3.3.1/jquery.min.js"></script>
     <script src="vendor/ace-1.4.12/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -187,6 +189,18 @@
 
         window.addEventListener('resize', resizeEditor);
         resizeEditor()
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'Shift') {
+                document.querySelector('#save').innerHTML = 'Save';
+            }
+        });
+
+        window.addEventListener('keyup', e => {
+            if (e.key === 'Shift') {
+                document.querySelector('#save').innerHTML = 'Save & Close';
+            }
+        });
 
         document.getElementById('save').addEventListener('click', (evt) => {
             $.post(`${serverUrlBase}/script/${type}/${name}/${accessKey}`, editor.getValue(), (data, status) => {
