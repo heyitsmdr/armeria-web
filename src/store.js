@@ -55,7 +55,15 @@ export default new Vuex.Store({
 
     hasPermission: (state) => (permission) => {
       return state.permissions.indexOf(permission) >= 0;
-    }
+    },
+
+    normalizedDeployVersion: (state) => {
+      if (state.deployVersion.length > 0 && state.deployVersion.substr(0, 1) === 'v') {
+        return `v${(parseInt(state.deployVersion.substr(1)) + 1)}`;
+      }
+
+      return state.deployVersion;
+    },
   },
   mutations: {
     DEBUG_ALTER_STATE: (state, key, val) => {

@@ -4,18 +4,21 @@
             <div class="ping">Ping: {{ pingTime }}ms</div>
             <div class="version">
                 {{ deployAppName }}
-                <span v-if="deployVersion.length > 0">({{ deployVersion }})</span>
+                <span v-if="normalizedDeployVersion.length > 0">({{ normalizedDeployVersion }})</span>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import {mapState} from "vuex";
+    import {mapState, mapGetters} from "vuex";
 
     export default {
         name: 'StatusBar',
-        computed: mapState(['pingTime', 'deployAppName', 'deployVersion']),
+        computed: {
+            ...mapState(['pingTime', 'deployAppName']),
+            ...mapGetters(['normalizedDeployVersion']),
+        }
     }
 </script>
 
