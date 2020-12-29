@@ -232,19 +232,24 @@ func (oc *ObjectContainer) AtSlot(slot int) *ObjectContainerResult {
 	return &ObjectContainerResult{Type: RegistryTypeUnknown}
 }
 
-// AtSlotName retrieves an object from a specific slot name (eg: equipment), else nil.
-func (oc *ObjectContainer) AtSlotName(slotName string) *ObjectContainerResult {
+// AtSlotName retrieves object(s) from a specific slot name (eg: equipment). Can be multiple if the slot allows.
+func (oc *ObjectContainer) AtSlotName(slot EquipmentSlot) []*ObjectContainerResult {
 	oc.RLock()
 	defer oc.RUnlock()
 
+	matches := make([]*ObjectContainerResult, 0)
 	for _, ocd := range oc.UnsafeObjects {
-		if ocd.SlotName == slotName {
+		if ocd.SlotName == string(slot) {
 			o, ot := Armeria.registry.Get(ocd.UUID)
-			return &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot}
+			matches = append(matches, &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot})
 		}
 	}
 
-	return &ObjectContainerResult{Type: RegistryTypeUnknown}
+	if len(matches) > 0 {
+		return matches
+	}
+
+	return []*ObjectContainerResult{}
 }
 
 // Count returns the number of objects within the container.

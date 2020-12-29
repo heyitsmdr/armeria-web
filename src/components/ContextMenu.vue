@@ -124,7 +124,8 @@ import {mapGetters, mapState} from 'vuex';
                 }
 
                 this.$store.dispatch('sendSlashCommand', {
-                    command: cmd
+                    command: cmd,
+                    hidden: true,
                 });
 
                 this.$store.dispatch('hideContextMenu');

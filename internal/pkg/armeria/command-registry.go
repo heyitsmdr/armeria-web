@@ -1067,6 +1067,14 @@ func RegisterGameCommands() {
 			},
 			Handler: handleTickersCommand,
 		},
+		{
+			Name: "equip",
+			Help: "Display items equipped to your character.",
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Handler: handleEquipCommand,
+		},
 	}
 
 	for _, cmd := range commands {

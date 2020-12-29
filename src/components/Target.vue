@@ -153,7 +153,8 @@ export default {
             switch(this.objectType) {
                 case OBJECT_TYPE_ITEM:
                     this.$store.dispatch('sendSlashCommand', {
-                        command: `/get "${this.uuid}"`
+                        command: `/get "${this.uuid}"`,
+                        hidden: true,
                     });
                     this.$store.dispatch('setObjectTarget', '');
                     this.hideTooltip();
@@ -161,7 +162,7 @@ export default {
                 case OBJECT_TYPE_MOB:
                     this.$store.dispatch('sendSlashCommand', {
                         command: `/interact "${this.uuid}"`,
-                        noEcho: true,
+                        hidden: true,
                     });
                     this.$store.dispatch('setObjectTarget', '');
                     break;

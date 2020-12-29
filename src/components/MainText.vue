@@ -86,7 +86,7 @@ import {mapGetters, mapState} from 'vuex'
 
                     this.$store.dispatch('sendSlashCommand', {
                         command: `/select "${mobUUID}" "${convoOptionId}"`,
-                        noEcho: true,
+                        hidden: true,
                     });
                 }
             });
@@ -162,7 +162,8 @@ import {mapGetters, mapState} from 'vuex'
                 this.$refs['item-overlay'].classList.remove('item-over');
                 let iuuid = e.dataTransfer.getData("item_uuid");
                 this.$store.dispatch('sendSlashCommand', {
-                    command: `/drop "${iuuid}"`
+                    command: `/drop "${iuuid}"`,
+                    hidden: true,
                 });
             }
         },

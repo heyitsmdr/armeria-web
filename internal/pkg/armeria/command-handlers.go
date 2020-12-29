@@ -2501,24 +2501,25 @@ func handleInteractCommand(ctx *CommandContext) {
 }
 
 func handleEquipCommand(ctx *CommandContext) {
-	// eq := ctx.Character.Equipment()
+	eq := ctx.Character.Equipment()
 
 	rows := []string{TableRow(
 		TableCell{content: "Slot", header: true},
-		TableCell{content: "Item", header: true},
+		TableCell{content: "Item(s)", header: true},
 	)}
 
-	//for _, slot := range ValidEquipmentSlots() {
-	//
-	//}
-
-	for _, t := range Armeria.tickManager.Tickers {
+	for _, slot := range ValidEquipmentSlots() {
+		items := eq.AtSlotName(slot)
+		itemNames := "&lt;nothing&gt;"
+		if len(items) > 0 {
+			itemNames = ""
+			for _, itemResult := range items {
+				itemNames = fmt.Sprintf("%s%s\n", itemNames, itemResult.Object.FormattedName())
+			}
+		}
 		rows = append(rows, TableRow(
-			TableCell{content: t.Name},
-			TableCell{content: t.Interval.String()},
-			TableCell{content: t.LastRanString()},
-			TableCell{content: t.LastDurationString()},
-			TableCell{content: t.IterationsString()},
+			TableCell{content: EquipSlotFormalName(slot)},
+			TableCell{content: itemNames},
 		))
 	}
 

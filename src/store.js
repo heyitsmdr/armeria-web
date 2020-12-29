@@ -248,7 +248,7 @@ export default new Vuex.Store({
         // Hide the actual token from the command echo'd to the main text area.
         echoCmd = `${payload.command.split(':')[0]}:&lt;redacted&gt;`
       }
-      if (typeof payload.noEcho !== 'boolean' || !payload.noEcho) {
+      if (typeof payload.hidden !== 'boolean' || !payload.hidden) {
         commit('ADD_GAME_TEXT', `<div class="inline-loopback">${echoCmd}</div>`);
       }
 

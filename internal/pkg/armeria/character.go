@@ -61,15 +61,6 @@ const (
 	PronounObjective
 )
 
-// ValidEquipmentSlots returns the valid slots for equippable items.
-func ValidEquipmentSlots() []string {
-	return []string{
-		"wallet-1",
-		"wallet-2",
-		"wallet-3",
-	}
-}
-
 // Init is called when the Character is created or loaded from disk.
 func (c *Character) Init() {
 	// Initialize the inventory, if not defined.
