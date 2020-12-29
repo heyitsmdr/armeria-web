@@ -66,7 +66,8 @@
                 let slot = e.dataTransfer.getData("item_slot");
                 if (slot) {
                     this.$store.dispatch('sendSlashCommand', {
-                        command: `/swap ${slot} ${this.slotNum}`
+                        command: `/swap ${slot} ${this.slotNum}`,
+                        hidden: true,
                     });
                 }
             },
@@ -162,7 +163,7 @@
     }
 </style>
 <style scoped lang="scss">
-    @import "@/styles/common";
+    @import "~@/styles/common";
 
     .item {
         width: 40px;

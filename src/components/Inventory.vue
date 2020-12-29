@@ -63,7 +63,7 @@
 </script>
 
 <style scoped lang="scss">
-    @import "@/styles/common";
+    @import "~@/styles/common";
 
     .root {
         height: 100%;
