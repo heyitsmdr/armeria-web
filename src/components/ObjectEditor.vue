@@ -255,37 +255,44 @@
                 switch(this.objectEditorData.objectType) {
                     case 'room':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/room set "${target}" "${propName}" "${propValue}"`
+                            command: `/room set "${target}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                     case 'character':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/character set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
+                            command: `/character set "${this.objectEditorData.name}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                     case 'mob':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/mob set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
+                            command: `/mob set "${this.objectEditorData.name}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                     case 'item':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/item set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
+                            command: `/item set "${this.objectEditorData.name}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                     case 'specific-item':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/item iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`
+                            command: `/item iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                     case 'specific-mob':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/mob iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`
+                            command: `/mob iset "${this.objectEditorData.uuid}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                     case 'area':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/area set "${this.objectEditorData.name}" "${propName}" "${propValue}"`
+                            command: `/area set "${this.objectEditorData.name}" "${propName}" "${propValue}"`,
+                            hidden: true,
                         });
                         break;
                 }
@@ -355,12 +362,14 @@
                 switch(this.objectEditorData.objectType) {
                     case 'specific-item':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/item edit "${parentName}"`
+                            command: `/item edit "${parentName}"`,
+                            hidden: true,
                         });
                         break;
                     case 'specific-mob':
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/mob edit "${parentName}"`
+                            command: `/mob edit "${parentName}"`,
+                            hidden: true,
                         });
                         break;
                 }

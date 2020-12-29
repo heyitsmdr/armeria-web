@@ -10,17 +10,16 @@ import (
 )
 
 type Command struct {
-	Parent       *Command                `json:"-"`
-	Name         string                  `json:"name"`
-	AltNames     []string                `json:"altNames"`
-	Help         string                  `json:"help"`
-	Hidden       bool                    `json:"-"`
-	Alias        string                  `json:"alias"`
-	Permissions  *CommandPermissions     `json:"permissions"`
-	AllowedRoles []int                   `json:"-"`
-	Arguments    []*CommandArgument      `json:"args"`
-	Subcommands  []*Command              `json:"subCommands"`
-	Handler      func(r *CommandContext) `json:"-"`
+	Parent      *Command                `json:"-"`
+	Name        string                  `json:"name"`
+	AltNames    []string                `json:"altNames"`
+	Help        string                  `json:"help"`
+	Hidden      bool                    `json:"-"`
+	Alias       string                  `json:"alias"`
+	Permissions *CommandPermissions     `json:"permissions"`
+	Arguments   []*CommandArgument      `json:"args"`
+	Subcommands []*Command              `json:"subCommands"`
+	Handler     func(r *CommandContext) `json:"-"`
 }
 
 type CommandArgument struct {

@@ -271,11 +271,13 @@
 
                 if (slashCommand.length === 0) {
                     this.$store.dispatch('sendSlashCommand', {
-                        command: '/look'
+                        command: '/look',
+                        hidden: true,
                     });
                 } else if (slashCommand.substr(0, 1) !== '/') {
                     this.$store.dispatch('sendSlashCommand', {
-                        command: `/say ${slashCommand}`
+                        command: `/say ${slashCommand}`,
+                        hidden: true,
                     });
                 } else if (slashCommand.substr(0, 6).toLowerCase() === '/login') {
                     let characterName = slashCommand.split(' ')[1];

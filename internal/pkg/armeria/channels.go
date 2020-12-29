@@ -26,21 +26,21 @@ func NewChannels() map[string]*Channel {
 	return map[string]*Channel{
 		ChannelGeneral: {
 			Name:         "General",
-			Description:  "Chat about anything game-related.",
+			Description:  "Message the General channel about anything game-related.",
 			Color:        ColorChannelGeneral,
-			SlashCommand: "/general",
+			SlashCommand: "general",
 		},
 		ChannelCore: {
 			Name:              "Core",
-			Description:       "Chat with other Armeria Core developers.",
-			SlashCommand:      "/core",
+			Description:       "Message the Core channel to chat with other Armeria developers.",
+			SlashCommand:      "core",
 			Color:             ColorChannelCore,
 			RequirePermission: "CAN_SYSOP",
 		},
 		ChannelBuilders: {
 			Name:              "Builders",
-			Description:       "Chat with other Armeria builders.",
-			SlashCommand:      "/builders",
+			Description:       "Message the Builders channel to chat with other Armeria builders.",
+			SlashCommand:      "builders",
 			Color:             ColorChannelBuilders,
 			RequirePermission: "CAN_BUILD",
 		},
@@ -86,6 +86,7 @@ func (c *Channel) Broadcast(from *Character, text string) {
 			verbs = []string{"say", "says"}
 			break
 		}
+		normalizedText = TextCapitalization(normalizedText)
 		msgToOthers = fmt.Sprintf("[%s] %s %s, \"%s\"", TextStyle(c.Name, WithBold()), from.FormattedNameWithTitle(), verbs[1], normalizedText)
 		msgToFrom = fmt.Sprintf(
 			"%s You %s, \"%s\"",

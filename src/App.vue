@@ -89,7 +89,8 @@ export default {
                     const char = token.split(':')[0];
                     this.$store.dispatch('showText', { data: `You are automatically being logged in as '${char}'.\n` });
                     this.$store.dispatch('sendSlashCommand', {
-                        command: `/logintoken ${token}`
+                        command: `/logintoken ${token}`,
+                        hidden: true,
                     });
                 } else {
                     this.$store.dispatch('showText', { data: 'If you have an existing character, you can <b>/login</b>. Otherwise, <b>/create</b> a new one.\n' });
@@ -187,7 +188,8 @@ export default {
                 }
 
                 this.$store.dispatch('sendSlashCommand', {
-                    command: moveCommand
+                    command: moveCommand,
+                    hidden: true,
                 });
             }
         }

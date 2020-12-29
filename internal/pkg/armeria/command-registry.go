@@ -1068,13 +1068,34 @@ func RegisterGameCommands() {
 			Handler: handleTickersCommand,
 		},
 		{
-			Name: "equip",
-			Help: "Display items equipped to your character.",
+			Name:     "equip",
+			Help:     "Display items equipped to your character.",
+			AltNames: []string{"eq"},
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
 			Handler: handleEquipCommand,
 		},
+	}
+
+	// Register commands for communicating on channels.
+	for _, ch := range Armeria.channels {
+		commands = append(commands, &Command{
+			Name: ch.SlashCommand,
+			Help: ch.Description,
+			Permissions: &CommandPermissions{
+				RequireCharacter:  true,
+				RequirePermission: ch.RequirePermission,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "message",
+					Help:             "The message to send to the channel.",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleChannelShorthandSayCommand,
+		})
 	}
 
 	for _, cmd := range commands {

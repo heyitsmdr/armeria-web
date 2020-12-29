@@ -125,15 +125,18 @@ export default {
                 if (e.shiftKey) {
                     if (this.objectType === OBJECT_TYPE_CHARACTER) {
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/character edit "${this.name}"`
+                            command: `/character edit "${this.name}"`,
+                            hidden: true,
                         });
                     } else if (this.objectType === OBJECT_TYPE_MOB) {
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/mob iedit "${this.uuid}"`
+                            command: `/mob iedit "${this.uuid}"`,
+                            hidden: true,
                         });
                     } else if (this.objectType === OBJECT_TYPE_ITEM) {
                         this.$store.dispatch('sendSlashCommand', {
-                            command: `/item iedit "${this.uuid}"`
+                            command: `/item iedit "${this.uuid}"`,
+                            hidden: true,
                         });
                     }
                     return

@@ -112,7 +112,7 @@ func (c *Character) FormattedNameWithTitle() string {
 
 	title := c.UnsafeAttributes["title"]
 	if title != "" {
-		return fmt.Sprintf("%s (%s)", TextStyle(c.UnsafeName, WithBold()), title)
+		return fmt.Sprintf("%s &lt;%s&gt;", TextStyle(c.UnsafeName, WithBold()), title)
 	}
 
 	return TextStyle(c.UnsafeName, WithBold())

@@ -283,6 +283,8 @@ func handleSayCommand(ctx *CommandContext) {
 		verbs = []string{"say", "says"}
 	}
 
+	normalizedText = TextCapitalization(normalizedText)
+
 	ctx.Player.client.ShowText(
 		ctx.Player.Character().Colorize(fmt.Sprintf("You %s, \"%s\"", verbs[0], normalizedText), ColorSay),
 	)
@@ -631,25 +633,26 @@ func handleReplyCommand(ctx *CommandContext) {
 func handleWhoCommand(ctx *CommandContext) {
 	chars := Armeria.characterManager.OnlineCharacters()
 
-	noun := "characters"
-	verb := "are"
-	if len(chars) < 2 {
-		noun = "character"
-		verb = "is"
-	}
+	rows := []string{TableRow(
+		TableCell{content: "Character", header: true},
+		TableCell{content: "Organization", header: true},
+		TableCell{content: "Role", header: true},
+		TableCell{content: "Location", header: true},
+	)}
 
-	var fn []string
 	for _, c := range chars {
-		fn = append(fn, c.FormattedNameWithTitle())
+		rows = append(rows, TableRow(
+			TableCell{content: fmt.Sprintf("[%d] %s", 0, c.FormattedNameWithTitle())},
+			TableCell{content: "Armeria Industries, Inc."},
+			TableCell{content: "CEO"},
+			TableCell{content: c.Room().ParentArea.Name()},
+		))
 	}
 
+	ctx.Player.client.ShowText(TextTable(rows...))
 	ctx.Player.client.ShowText(
-		fmt.Sprintf(
-			"There %s %d %s playing right now:\n%s",
-			verb,
-			len(chars),
-			noun,
-			strings.Join(fn, ", ")+".",
+		fmt.Sprintf("There are %s characters online.",
+			TextStyle(strconv.Itoa(len(chars)), WithBold()),
 		),
 	)
 }
@@ -1780,6 +1783,14 @@ func handleChannelSayCommand(ctx *CommandContext) {
 	}
 
 	ch.Broadcast(ctx.Character, sayText)
+}
+
+func handleChannelShorthandSayCommand(ctx *CommandContext) {
+	Armeria.commandManager.ProcessCommand(
+		ctx.Player,
+		fmt.Sprintf("channel say %s %s", ctx.Command.Name, ctx.Args["message"]),
+		false,
+	)
 }
 
 func handleSettingsCommand(ctx *CommandContext) {

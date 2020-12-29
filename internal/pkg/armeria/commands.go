@@ -101,24 +101,6 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 		return
 	}
 
-	// short-circuit for channel commands
-	for _, ch := range Armeria.channels {
-		if ch.SlashCommand == "/"+strings.ToLower(sections[0]) {
-			if ch.HasPermission(p.Character()) {
-				if p.Character().InChannel(ch) {
-					remainingText := sections[1:]
-					sections = []string{"channel", "say", ch.Name}
-					sections = append(sections, remainingText...)
-				} else {
-					p.client.ShowColorizedText("You are not in that channel.", ColorError)
-					return
-				}
-			} else {
-				p.client.ShowColorizedText("You are not able to chat on that channel.", ColorError)
-				return
-			}
-		}
-	}
 	cmd, cmdArgs, errorMsg := m.FindCommand(p, m.commands, strings.Join(sections, " "), []string{})
 
 	if cmd == nil {
@@ -141,7 +123,6 @@ func (m *CommandManager) ProcessCommand(p *Player, command string, playerInitiat
 		m.ProcessCommand(p, cmd.Alias, playerInitiated)
 		return
 	}
-
 
 	ctx.HandlerStart = time.Now()
 	cmd.Handler(ctx)
