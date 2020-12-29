@@ -17,6 +17,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Force verify that Character implements ContainerObject.
+var _ ContainerObject = (*Character)(nil)
+
 // A Character is the player's logged in character.
 type Character struct {
 	sync.RWMutex
@@ -26,6 +29,7 @@ type Character struct {
 	UnsafeAttributes     map[string]string `json:"attributes"`
 	UnsafeSettings       map[string]string `json:"settings"`
 	UnsafeInventory      *ObjectContainer  `json:"inventory"`
+	UnsafeEquipment      *ObjectContainer  `json:"equipment"`
 	UnsafeTempAttributes map[string]string `json:"-"`
 	UnsafeLastSeen       time.Time         `json:"lastSeen"`
 	UnsafeMobConvo       *Conversation     `json:"-"`
@@ -57,17 +61,32 @@ const (
 	PronounObjective
 )
 
+// ValidEquipmentSlots returns the valid slots for equippable items.
+func ValidEquipmentSlots() []string {
+	return []string{
+		"wallet-1",
+		"wallet-2",
+		"wallet-3",
+	}
+}
+
 // Init is called when the Character is created or loaded from disk.
 func (c *Character) Init() {
-	// initialize UnsafeInventory on characters that don't have it defined
+	// Initialize the inventory, if not defined.
 	if c.UnsafeInventory == nil {
 		c.UnsafeInventory = NewObjectContainer(35)
 	}
-	// attach self as container's parent
+	// Initialize the equipment, if not defined.
+	if c.UnsafeEquipment == nil {
+		c.UnsafeEquipment = NewObjectContainer(0)
+	}
+	// Attach parents to the child containers.
 	c.UnsafeInventory.AttachParent(c, ContainerParentTypeCharacter)
-	// sync container
+	c.UnsafeEquipment.AttachParent(c, ContainerParentTypeCharacter)
+	// Sync the containers.
 	c.UnsafeInventory.Sync()
-	// register the Character with registry
+	c.UnsafeEquipment.Sync()
+	// Register the Character with global registry.
 	Armeria.registry.Register(c, c.ID(), RegistryTypeCharacter)
 }
 
@@ -146,12 +165,20 @@ func (c *Character) PasswordHash() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
-// Inventory returns the unsafeCharacter's inventory.
+// Inventory returns the Character's inventory.
 func (c *Character) Inventory() *ObjectContainer {
 	c.RLock()
 	defer c.RUnlock()
 
 	return c.UnsafeInventory
+}
+
+// Equipment returns the Character's equipment.
+func (c *Character) Equipment() *ObjectContainer {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.UnsafeEquipment
 }
 
 // Player returns the parent that is playing the Character.

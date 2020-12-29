@@ -79,8 +79,6 @@ func handleLookCommand(ctx *CommandContext) {
 
 	// Look _at_ something?
 	if len(at) > 0 {
-		var o interface{}
-		var rt RegistryType
 		var oc *ObjectContainer
 		var searchInv bool
 		if len(at) > 4 && at[0:4] == "inv:" {
@@ -92,21 +90,17 @@ func handleLookCommand(ctx *CommandContext) {
 			searchInv = false
 		}
 
-		o, _, rt = oc.Get(at)
-		if rt == RegistryTypeUnknown {
-			o, _, rt = oc.GetByName(at)
-			if rt == RegistryTypeUnknown {
-				ctx.Player.client.ShowColorizedText("You don't see anything by that name.", ColorError)
-				return
-			}
+		result := oc.GetByAny(at)
+		if result.Type == RegistryTypeUnknown {
+			ctx.Player.client.ShowColorizedText("You don't see anything by that name.", ColorError)
+			return
 		}
 
-		co := o.(ContainerObject)
 		var lookResult string
-		if rt == RegistryTypeItemInstance {
-			lookResult = co.Attribute(AttributeDescription)
-		} else if rt == RegistryTypeCharacter {
-			lookResult = fmt.Sprintf("There is nothing special about %s.", co.(*Character).Pronoun(PronounObjective))
+		if result.Type == RegistryTypeItemInstance {
+			lookResult = result.Object.Attribute(AttributeDescription)
+		} else if result.Type == RegistryTypeCharacter {
+			lookResult = fmt.Sprintf("There is nothing special about %s.", result.Object.(*Character).Pronoun(PronounObjective))
 		}
 
 		if len(lookResult) == 0 {
@@ -114,7 +108,7 @@ func handleLookCommand(ctx *CommandContext) {
 		}
 
 		ctx.Player.client.ShowText(
-			fmt.Sprintf("You take a look at %s.\n%s", TextStyle(co.FormattedName(), WithBold()), lookResult),
+			fmt.Sprintf("You take a look at %s.\n%s", TextStyle(result.Object.FormattedName(), WithBold()), lookResult),
 		)
 
 		if ctx.PlayerInitiated {
@@ -130,7 +124,7 @@ func handleLookCommand(ctx *CommandContext) {
 					c.Player().client.ShowText(
 						fmt.Sprintf("%s is taking a look at %s.",
 							ctx.Character.FormattedName(),
-							TextStyle(co.FormattedName(), WithBold()),
+							TextStyle(result.Object.FormattedName(), WithBold()),
 						),
 					)
 				}
@@ -1580,16 +1574,16 @@ func handleGetCommand(ctx *CommandContext) {
 	searchString := ctx.Args["item"]
 
 	roomObjects := ctx.Character.Room().Here()
-	o, _, rt := roomObjects.GetByAny(searchString)
-	if o == nil {
+	result := roomObjects.GetByAny(searchString)
+	if result.Type == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
 		return
-	} else if rt != RegistryTypeItemInstance {
+	} else if result.Type != RegistryTypeItemInstance {
 		ctx.Player.client.ShowColorizedText("You cannot pick that up.", ColorError)
 		return
 	}
 
-	item := o.(*ItemInstance)
+	item := result.Object.(*ItemInstance)
 
 	if item.Attribute(AttributeHoldable) == "false" {
 		ctx.Player.client.ShowColorizedText("You are not able to pick that up.", ColorError)
@@ -1627,13 +1621,13 @@ func handleGetCommand(ctx *CommandContext) {
 func handleDropCommand(ctx *CommandContext) {
 	searchString := ctx.Args["item"]
 
-	i, _, rt := ctx.Character.Inventory().GetByAny(searchString)
-	if rt == RegistryTypeUnknown {
+	result := ctx.Character.Inventory().GetByAny(searchString)
+	if result.Type == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
 		return
 	}
 
-	item := i.(*ItemInstance)
+	item := result.Object.(*ItemInstance)
 
 	ctx.Character.Inventory().Remove(item.ID())
 	_ = ctx.Character.Room().Here().Add(item.ID())
@@ -1679,13 +1673,13 @@ func handleSwapCommand(ctx *CommandContext) {
 		return
 	}
 
-	sitem, _, _ := ctx.Character.Inventory().AtSlot(snum)
-	ditem, _, _ := ctx.Character.Inventory().AtSlot(dnum)
-	if sitem != nil {
-		ctx.Character.Inventory().SetSlot(sitem.(*ItemInstance).ID(), dnum)
+	sourceSlot := ctx.Character.Inventory().AtSlot(snum)
+	destSlot := ctx.Character.Inventory().AtSlot(dnum)
+	if sourceSlot.Type != RegistryTypeUnknown {
+		ctx.Character.Inventory().SetSlot(sourceSlot.Object.(*ItemInstance).ID(), dnum)
 	}
-	if ditem != nil {
-		ctx.Character.Inventory().SetSlot(ditem.(*ItemInstance).ID(), snum)
+	if destSlot.Type != RegistryTypeUnknown {
+		ctx.Character.Inventory().SetSlot(destSlot.Object.(*ItemInstance).ID(), snum)
 	}
 
 	ctx.Player.client.SyncInventory()
@@ -1918,27 +1912,27 @@ func handleGiveCommand(ctx *CommandContext) {
 	item := ctx.Args["item"]
 
 	ctr := ctx.Character.Room().Here()
-	tobj, _, trt := ctr.GetByAny(target)
-	if trt == RegistryTypeUnknown {
+	targetResult := ctr.GetByAny(target)
+	if targetResult.Type == RegistryTypeUnknown {
 		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
 
-	iobj, _, irt := ctx.Character.Inventory().GetByAny(item)
-	if irt != RegistryTypeItemInstance {
+	itemResult := ctx.Character.Inventory().GetByAny(item)
+	if itemResult.Type != RegistryTypeItemInstance {
 		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
 		return
 	}
 
-	if trt == RegistryTypeItemInstance && tobj.(*ItemInstance).Attribute(AttributeType) == ItemTypeTrashCan {
+	if targetResult.Type == RegistryTypeItemInstance && targetResult.Object.(*ItemInstance).Attribute(AttributeType) == ItemTypeTrashCan {
 		// Destroy the item.
-		ii := iobj.(*ItemInstance)
+		ii := itemResult.Object.(*ItemInstance)
 		ctx.Character.Inventory().Remove(ii.ID())
 		ii.Delete()
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf("You put a %s into the %s. Goodbye!",
 				ii.FormattedName(),
-				tobj.(*ItemInstance).FormattedName(),
+				targetResult.Object.(*ItemInstance).FormattedName(),
 			),
 			ColorSuccess,
 		)
@@ -1948,25 +1942,25 @@ func handleGiveCommand(ctx *CommandContext) {
 				fmt.Sprintf(
 					"%s put an item into the %s.",
 					ctx.Character.FormattedName(),
-					tobj.(*ItemInstance).FormattedName(),
+					targetResult.Object.(*ItemInstance).FormattedName(),
 				),
 			)
 		}
 		return
-	} else if trt != RegistryTypeCharacter && trt != RegistryTypeMobInstance {
+	} else if targetResult.Type != RegistryTypeCharacter && targetResult.Type != RegistryTypeMobInstance {
 		ctx.Player.client.ShowColorizedText("You can only give things to other characters or mobs!", ColorError)
 		return
-	} else if tobj.(ContainerObject).ID() == ctx.Character.ID() {
+	} else if targetResult.Object.ID() == ctx.Character.ID() {
 		ctx.Player.client.ShowColorizedText("You cannot give things to yourself.", ColorError)
 		return
 	}
 
 	// set the target object container
 	var toc *ObjectContainer
-	if trt == RegistryTypeCharacter {
-		toc = tobj.(*Character).Inventory()
+	if targetResult.Type == RegistryTypeCharacter {
+		toc = targetResult.Object.(*Character).Inventory()
 	} else {
-		toc = tobj.(*MobInstance).Inventory()
+		toc = targetResult.Object.(*MobInstance).Inventory()
 	}
 
 	// check if the target object container can hold it
@@ -1974,7 +1968,7 @@ func handleGiveCommand(ctx *CommandContext) {
 		ctx.Player.client.ShowColorizedText(
 			fmt.Sprintf(
 				"%s does not have enough room to hold that!",
-				tobj.(ContainerObject).FormattedName(),
+				targetResult.Object.FormattedName(),
 			),
 			ColorError,
 		)
@@ -1982,7 +1976,7 @@ func handleGiveCommand(ctx *CommandContext) {
 	}
 
 	// check if the mob can handle it?
-	if trt == RegistryTypeMobInstance {
+	if targetResult.Type == RegistryTypeMobInstance {
 		if !misc.Contains(toc.ParentMobInstance().Parent.ScriptFuncs(), "received_item") {
 			ctx.Player.client.ShowColorizedText(
 				fmt.Sprintf(
@@ -1995,8 +1989,8 @@ func handleGiveCommand(ctx *CommandContext) {
 		}
 	}
 
-	ii := iobj.(*ItemInstance)
-	tco := tobj.(ContainerObject)
+	ii := itemResult.Object.(*ItemInstance)
+	tco := targetResult.Object
 
 	// remove item from source
 	ctx.Character.Inventory().Remove(ii.ID())
@@ -2014,19 +2008,19 @@ func handleGiveCommand(ctx *CommandContext) {
 	)
 	ctx.Player.client.SyncInventory()
 
-	if trt == RegistryTypeCharacter {
-		tobj.(*Character).Player().client.ShowText(
+	if targetResult.Type == RegistryTypeCharacter {
+		targetResult.Object.(*Character).Player().client.ShowText(
 			fmt.Sprintf(
 				"%s gave you a %s.",
 				ctx.Character.FormattedName(),
 				ii.FormattedName(),
 			),
 		)
-		tobj.(*Character).Player().client.SyncInventory()
-	} else if trt == RegistryTypeMobInstance {
+		targetResult.Object.(*Character).Player().client.SyncInventory()
+	} else if targetResult.Type == RegistryTypeMobInstance {
 		go CallMobFunc(
 			ctx.Character,
-			tobj.(*MobInstance),
+			targetResult.Object.(*MobInstance),
 			"received_item",
 			lua.LString(ctx.Character.ID()),
 			lua.LString(ii.ID()),
@@ -2034,8 +2028,8 @@ func handleGiveCommand(ctx *CommandContext) {
 	}
 
 	roomExceptions := []*Character{ctx.Character}
-	if trt == RegistryTypeCharacter {
-		roomExceptions = append(roomExceptions, tobj.(*Character))
+	if targetResult.Type == RegistryTypeCharacter {
+		roomExceptions = append(roomExceptions, targetResult.Object.(*Character))
 	}
 	for _, c := range ctx.Character.Room().Here().Characters(true, roomExceptions...) {
 		c.Player().client.ShowText(
@@ -2273,12 +2267,12 @@ func handleBuyCommand(ctx *CommandContext) {
 	itemName := ctx.Args["item"]
 
 	// Ensure mob is present in the room
-	m, _, rt := ctx.Character.Room().Here().GetByName(mobName)
-	if rt != RegistryTypeMobInstance {
+	result := ctx.Character.Room().Here().GetByName(mobName)
+	if result.Type != RegistryTypeMobInstance {
 		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
-	mobInstance := m.(*MobInstance)
+	mobInstance := result.Object.(*MobInstance)
 
 	// Ensure mob is aware of a ledger that contains the item
 	var item *ItemInstance
@@ -2288,8 +2282,8 @@ func handleBuyCommand(ctx *CommandContext) {
 		if ledgerEntry != nil {
 			itemLedger = ledgerEntry
 			mobInstance.Inventory().PopulateFromLedger(ledger)
-			if i, _, rt := mobInstance.Inventory().GetByName(ledgerEntry.ItemName); rt == RegistryTypeItemInstance {
-				item = i.(*ItemInstance)
+			if result := mobInstance.Inventory().GetByName(ledgerEntry.ItemName); result.Type == RegistryTypeItemInstance {
+				item = result.Object.(*ItemInstance)
 				break
 			}
 		}
@@ -2350,17 +2344,17 @@ func handleSellCommand(ctx *CommandContext) {
 	itemName := ctx.Args["item"]
 
 	// Ensure mob is present in the room
-	m, _, rt := ctx.Character.Room().Here().GetByName(mobName)
-	if rt != RegistryTypeMobInstance {
+	result := ctx.Character.Room().Here().GetByName(mobName)
+	if result.Type != RegistryTypeMobInstance {
 		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
-	mobInstance := m.(*MobInstance)
+	mobInstance := result.Object.(*MobInstance)
 
 	// Ensure item exists in the character's inventory
 	var item *ItemInstance
-	if i, _, rt := ctx.Character.Inventory().GetByAny(itemName); rt == RegistryTypeItemInstance {
-		item = i.(*ItemInstance)
+	if result := ctx.Character.Inventory().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
+		item = result.Object.(*ItemInstance)
 	}
 	if item == nil {
 		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
@@ -2415,19 +2409,19 @@ func handleSellCommand(ctx *CommandContext) {
 func handleDestroyCommand(ctx *CommandContext) {
 	searchString := ctx.Args["object"]
 
-	if i, _, rt := ctx.Character.Inventory().GetByAny(searchString); rt == RegistryTypeItemInstance {
-		item := i.(*ItemInstance)
+	if result := ctx.Character.Inventory().GetByAny(searchString); result.Type == RegistryTypeItemInstance {
+		item := result.Object.(*ItemInstance)
 		ctx.Character.Inventory().Remove(item.ID())
 		item.Delete()
 		ctx.Player.client.ShowColorizedText("The item has been destroyed!", ColorSuccess)
 		ctx.Player.client.SyncInventory()
 		return
-	} else if i, _, rt := ctx.Character.Room().Here().GetByAny(searchString); rt == RegistryTypeItemInstance {
-		item := i.(*ItemInstance)
+	} else if result := ctx.Character.Room().Here().GetByAny(searchString); result.Type == RegistryTypeItemInstance {
+		item := result.Object.(*ItemInstance)
 		ctx.Character.Room().Here().Remove(item.ID())
 		item.Delete()
-	} else if m, _, rt := ctx.Character.Room().Here().GetByAny(searchString); rt == RegistryTypeMobInstance {
-		mob := m.(*MobInstance)
+	} else if result := ctx.Character.Room().Here().GetByAny(searchString); result.Type == RegistryTypeMobInstance {
+		mob := result.Object.(*MobInstance)
 		ctx.Character.Room().Here().Remove(mob.ID())
 		mob.Delete()
 	} else {
@@ -2467,12 +2461,12 @@ func handleSelectCommand(ctx *CommandContext) {
 	mob := ctx.Args["mob"]
 	optionId := ctx.Args["option_id"]
 
-	mobGeneric, _, rt := ctx.Character.Room().Here().GetByAny(mob)
-	if rt != RegistryTypeMobInstance {
+	result := ctx.Character.Room().Here().GetByAny(mob)
+	if result.Type != RegistryTypeMobInstance {
 		ctx.Player.client.ShowColorizedText("There are no mobs here with that name.", ColorError)
 		return
 	}
-	mobInst := mobGeneric.(*MobInstance)
+	mobInst := result.Object.(*MobInstance)
 
 	if len(mobInst.ConvoText(optionId)) == 0 {
 		ctx.Player.client.ShowColorizedText("That is not a valid selection.", ColorError)
@@ -2492,16 +2486,41 @@ func handleSelectCommand(ctx *CommandContext) {
 func handleInteractCommand(ctx *CommandContext) {
 	mob := ctx.Args["mob"]
 
-	mobGeneric, _, rt := ctx.Character.Room().Here().GetByAny(mob)
-	if rt != RegistryTypeMobInstance {
+	result := ctx.Character.Room().Here().GetByAny(mob)
+	if result.Type != RegistryTypeMobInstance {
 		ctx.Player.client.ShowColorizedText("There are no mobs here with that name.", ColorError)
 		return
 	}
-	mobInst := mobGeneric.(*MobInstance)
+	mobInst := result.Object.(*MobInstance)
 
 	go CallMobFunc(
 		ctx.Character,
 		mobInst,
 		"interact",
 	)
+}
+
+func handleEquipCommand(ctx *CommandContext) {
+	// eq := ctx.Character.Equipment()
+
+	rows := []string{TableRow(
+		TableCell{content: "Slot", header: true},
+		TableCell{content: "Item", header: true},
+	)}
+
+	//for _, slot := range ValidEquipmentSlots() {
+	//
+	//}
+
+	for _, t := range Armeria.tickManager.Tickers {
+		rows = append(rows, TableRow(
+			TableCell{content: t.Name},
+			TableCell{content: t.Interval.String()},
+			TableCell{content: t.LastRanString()},
+			TableCell{content: t.LastDurationString()},
+			TableCell{content: t.IterationsString()},
+		))
+	}
+
+	ctx.Player.client.ShowText(TextTable(rows...))
 }

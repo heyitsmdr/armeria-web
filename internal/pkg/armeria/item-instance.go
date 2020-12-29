@@ -12,6 +12,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// Force verify that ItemInstance implements ContainerObject.
+var _ ContainerObject = (*ItemInstance)(nil)
+
 // ItemInstance is an instance of an Item.
 type ItemInstance struct {
 	sync.RWMutex

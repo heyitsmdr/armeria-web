@@ -9,6 +9,9 @@ import (
 	"sync"
 )
 
+// Force verify that MobInstance implements ContainerObject.
+var _ ContainerObject = (*MobInstance)(nil)
+
 type MobInstance struct {
 	sync.RWMutex
 	UUID                 string            `json:"uuid"`

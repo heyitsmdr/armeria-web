@@ -261,32 +261,32 @@ func (r *Room) AdjacentRoomsWithItem(itemName string) *AdjacentRooms {
 	ar := &AdjacentRooms{}
 
 	if baseAR.North != nil {
-		if _, _, rt := baseAR.North.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+		if result := baseAR.North.Here().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
 			ar.North = baseAR.North
 		}
 	}
 	if baseAR.South != nil {
-		if _, _, rt := baseAR.South.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+		if result := baseAR.South.Here().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
 			ar.South = baseAR.South
 		}
 	}
 	if baseAR.East != nil {
-		if _, _, rt := baseAR.East.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+		if result := baseAR.East.Here().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
 			ar.East = baseAR.East
 		}
 	}
 	if baseAR.West != nil {
-		if _, _, rt := baseAR.West.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+		if result := baseAR.West.Here().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
 			ar.West = baseAR.West
 		}
 	}
 	if baseAR.Up != nil {
-		if _, _, rt := baseAR.Up.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+		if result := baseAR.Up.Here().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
 			ar.Up = baseAR.Up
 		}
 	}
 	if baseAR.Down != nil {
-		if _, _, rt := baseAR.Down.Here().GetByAny(itemName); rt == RegistryTypeItemInstance {
+		if result := baseAR.Down.Here().GetByAny(itemName); result.Type == RegistryTypeItemInstance {
 			ar.Down = baseAR.Down
 		}
 	}

@@ -19,8 +19,16 @@ type ObjectContainer struct {
 
 // ObjectContainerDefinition contains a definition for an object within a container.
 type ObjectContainerDefinition struct {
-	UUID string `json:"uuid"`
-	Slot int    `json:"slot"`
+	UUID     string `json:"uuid"`
+	Slot     int    `json:"slot"`
+	SlotName string `json:"slotName"`
+}
+
+// ObjectContainerResult contains the struct returned on functions that retrieve items from the container.
+type ObjectContainerResult struct {
+	Object     ContainerObject
+	Definition *ObjectContainerDefinition
+	Type       RegistryType
 }
 
 // ContainerObject is an interface that describes an object that can go within an ObjectContainer.
@@ -146,42 +154,41 @@ func (oc *ObjectContainer) MaxSize() int {
 // Contains returns a bool indicating whether the object container contains something with the
 // specified uuid.
 func (oc *ObjectContainer) Contains(uuid string) bool {
-	o, _, _ := oc.Get(uuid)
-	return o != nil
+	return oc.Get(uuid).Type != RegistryTypeUnknown
 }
 
 // Get retrieves an object from the object container, based on the uuid.
-func (oc *ObjectContainer) Get(uuid string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+func (oc *ObjectContainer) Get(uuid string) *ObjectContainerResult {
 	oc.RLock()
 	defer oc.RUnlock()
 
 	for _, ocd := range oc.UnsafeObjects {
 		if ocd.UUID == uuid {
 			o, ot := Armeria.registry.Get(ocd.UUID)
-			return o, ocd, ot
+			return &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot}
 		}
 	}
 
-	return nil, nil, RegistryTypeUnknown
+	return &ObjectContainerResult{Type: RegistryTypeUnknown}
 }
 
 // GetByName retrieves an object from the object container, based on the name of the object.
-func (oc *ObjectContainer) GetByName(name string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+func (oc *ObjectContainer) GetByName(name string) *ObjectContainerResult {
 	oc.RLock()
 	defer oc.RUnlock()
 
 	for _, ocd := range oc.UnsafeObjects {
 		o, ot := Armeria.registry.Get(ocd.UUID)
 		if strings.ToLower(o.(ContainerObject).Name()) == strings.ToLower(name) {
-			return o, ocd, ot
+			return &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot}
 		}
 	}
 
-	return nil, nil, RegistryTypeUnknown
+	return &ObjectContainerResult{Type: RegistryTypeUnknown}
 }
 
 // GetByAny attempts to retrieve an object by it's uuid, and then by it's name.
-func (oc *ObjectContainer) GetByAny(uuidOrName string) (interface{}, *ObjectContainerDefinition, RegistryType) {
+func (oc *ObjectContainer) GetByAny(uuidOrName string) *ObjectContainerResult {
 	if misc.IsUUID(uuidOrName) {
 		return oc.Get(uuidOrName)
 	}
@@ -190,40 +197,54 @@ func (oc *ObjectContainer) GetByAny(uuidOrName string) (interface{}, *ObjectCont
 }
 
 // Slot returns the slot that the uuid is within. If the uuid does not exist, slot 0 will be returned,
-// which could result in a false positive. Check existance of the uuid before using this function.
+// which could result in a false positive. Check existence of the uuid before using this function.
 func (oc *ObjectContainer) Slot(uuid string) int {
-	o, ocd, _ := oc.Get(uuid)
-	if o == nil {
+	result := oc.Get(uuid)
+	if result.Type == RegistryTypeUnknown {
 		return 0
 	}
 
-	return ocd.Slot
+	return result.Definition.Slot
 }
 
 // SetSlot explicitly sets an item slot without checking if another item already exists in that slot. Use this
 // function carefully and as-needed (ie: swapping items).
 func (oc *ObjectContainer) SetSlot(uuid string, slot int) {
-	_, ocd, _ := oc.Get(uuid)
-	ocd.Slot = slot
+	oc.Get(uuid).Definition.Slot = slot
 }
 
 // AtSlot retrieves an object from a specific slot, or nil if the container is unbounded.
-func (oc *ObjectContainer) AtSlot(slot int) (interface{}, *ObjectContainerDefinition, RegistryType) {
+func (oc *ObjectContainer) AtSlot(slot int) *ObjectContainerResult {
 	oc.RLock()
 	defer oc.RUnlock()
 
 	if oc.UnsafeMaxSize == 0 {
-		return nil, nil, RegistryTypeUnknown
+		return &ObjectContainerResult{Type: RegistryTypeUnknown}
 	}
 
 	for _, ocd := range oc.UnsafeObjects {
 		if ocd.Slot == slot {
 			o, ot := Armeria.registry.Get(ocd.UUID)
-			return o, ocd, ot
+			return &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot}
 		}
 	}
 
-	return nil, nil, RegistryTypeUnknown
+	return &ObjectContainerResult{Type: RegistryTypeUnknown}
+}
+
+// AtSlotName retrieves an object from a specific slot name (eg: equipment), else nil.
+func (oc *ObjectContainer) AtSlotName(slotName string) *ObjectContainerResult {
+	oc.RLock()
+	defer oc.RUnlock()
+
+	for _, ocd := range oc.UnsafeObjects {
+		if ocd.SlotName == slotName {
+			o, ot := Armeria.registry.Get(ocd.UUID)
+			return &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot}
+		}
+	}
+
+	return &ObjectContainerResult{Type: RegistryTypeUnknown}
 }
 
 // Count returns the number of objects within the container.
@@ -326,8 +347,7 @@ func (oc *ObjectContainer) NextAvailableSlot() (int, error) {
 	}
 
 	for s := 0; s < oc.UnsafeMaxSize; s++ {
-		o, _, _ := oc.AtSlot(s)
-		if o == nil {
+		if oc.AtSlot(s).Type == RegistryTypeUnknown {
 			return s, nil
 		}
 	}
@@ -387,10 +407,9 @@ func (oc *ObjectContainer) PopulateFromLedger(ledger *Ledger) {
 		if entry.BuyPrice > 0 {
 			item := Armeria.itemManager.ItemByName(entry.ItemName)
 			if item != nil {
-				_, _, rt := oc.GetByName(item.Name())
-				if rt == RegistryTypeUnknown {
+				if oc.GetByName(item.Name()).Type == RegistryTypeUnknown {
 					ii := item.CreateInstance()
-					oc.Add(ii.ID())
+					_ = oc.Add(ii.ID())
 				}
 			}
 		}
