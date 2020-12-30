@@ -88,6 +88,13 @@ import {mapGetters, mapState} from 'vuex'
                         command: `/select "${mobUUID}" "${convoOptionId}"`,
                         hidden: true,
                     });
+                } else if (e.target.className === 'inline-command') {
+                    const commandEncoded = e.target.getAttribute('data-command');
+                    const buff = new Buffer(commandEncoded, 'base64');
+                    this.$store.dispatch('sendSlashCommand', {
+                        command: buff.toString('ascii'),
+                        hidden: true,
+                    });
                 }
             });
 
@@ -122,7 +129,9 @@ import {mapGetters, mapState} from 'vuex'
                 e.preventDefault();
                 e.stopPropagation();
 
-                let menuItems = menuSpan.getAttribute('data-content').replaceAll('@', '%s').split(';');
+                const contentEncoded = menuSpan.getAttribute('data-content');
+                const buff = new Buffer(contentEncoded, 'base64');
+                let menuItems = buff.toString('ascii').replaceAll('@', '%s').split(';');
                 menuItems = menuItems.filter(c => {
                     const sections = c.split('|');
                     if (sections.length >= 4 && sections[3] === 'admin') {

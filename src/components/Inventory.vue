@@ -7,6 +7,7 @@
                     :uuid="item.uuid"
                     :name="item.name"
                     :slotNum="item.slot"
+                    :equipSlot="item.equipSlot"
                     :pictureKey="item.picture"
                     :color="item.color"
             />

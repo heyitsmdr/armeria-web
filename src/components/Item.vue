@@ -27,7 +27,7 @@
 
     export default {
         name: 'Item',
-        props: ['uuid', 'name', 'slotNum', 'pictureKey', 'color', 'equipped'],
+        props: ['uuid', 'name', 'slotNum', 'equipSlot', 'pictureKey', 'color', 'equipped'],
         computed: {
             ...mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
             ...mapGetters(['hasPermission']),
@@ -108,14 +108,19 @@
                     return;
                 }
 
-                const items = [
-                    `Look %s|/look inv:${this.uuid}`,
+                const items = [`Look %s|/look inv:${this.uuid}`];
+
+                if (this.equipSlot.length > 0) {
+                    items.push(`Equip %s|/equip ${this.uuid}`);
+                }
+
+                items.push(
                     `Wiki %s|wiki:/items/%s`,
                     `Drop %s|/drop ${this.uuid}`,
                     `Edit %s|/item iedit ${this.uuid}||CAN_BUILD`,
                     `Edit-Parent %s|/item edit ${this.name}||CAN_BUILD`,
                     `Destroy %s|/destroy ${this.uuid}||CAN_BUILD`,
-                ];
+                );
 
                 this.$store.dispatch(
                     'showContextMenu',

@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"encoding/base64"
 	"fmt"
 	"strconv"
 	"strings"
@@ -63,10 +64,11 @@ func WithButton(cmd, promptData string) TextOperation {
 
 // WithLinkCmd formats the text creating a hyperlink that executes a specific command when clicked on.
 func WithLinkCmd(cmd string) TextOperation {
-	normalizedCmd := strings.ReplaceAll(cmd, "\"", "\\\"")
+	enc := base64.StdEncoding.EncodeToString([]byte(cmd))
 	return TextOperation{
 		Text: "<a href='#' class='inline-command' " +
-			"onclick='window.Armeria.$store.dispatch(\"sendSlashCommand\", {command:\"" + normalizedCmd + "\"})'>" +
+			"data-command='" + enc + "' " +
+			"tooltip='Run: " + cmd + "'>" +
 			"%v</a>",
 	}
 }
@@ -108,13 +110,14 @@ func WithItemTooltip(uuid string) TextOperation {
 
 // WithContextMenu formats the text to display a context menu when right-clicking.
 func WithContextMenu(name, objType, color string, content []string) TextOperation {
+	enc := base64.StdEncoding.EncodeToString([]byte(strings.Join(content, ";")))
 	return TextOperation{
 		Text: fmt.Sprintf(
 			"<span class='dynamic-context-menu' data-name='%s' data-type='%s' data-color='%s' data-content='%s'>%%v</span>",
 			name,
 			objType,
 			color,
-			strings.Join(content, ";"),
+			enc,
 		),
 	}
 }

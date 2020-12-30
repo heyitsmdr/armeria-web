@@ -122,12 +122,12 @@
 
 <style>
     .tooltip .qualities {
-        color: #aaa;
+        color: #888;
     }
 </style>
 
 <style scoped lang="scss">
-    @import "@/styles/common";
+    @import "~@/styles/common";
 
     .tooltip {
         display: none;

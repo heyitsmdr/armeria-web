@@ -13,6 +13,15 @@ func ValidEquipmentSlots() []EquipmentSlot {
 	}
 }
 
+// ValidEquipmentSlotsAsString returns the valid slots for equippable items as strings.
+func ValidEquipmentSlotsAsString() []string {
+	s := make([]string, 0)
+	for _, eq := range ValidEquipmentSlots() {
+		s = append(s, string(eq))
+	}
+	return s
+}
+
 // EquipSlotMax returns the number of items that can be equipped to a given slot.
 func EquipSlotMax(slot EquipmentSlot) int {
 	switch slot {

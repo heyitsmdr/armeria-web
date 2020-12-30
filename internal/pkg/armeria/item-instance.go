@@ -211,6 +211,10 @@ func (ii *ItemInstance) TooltipContentJSON() string {
 		qualitiesSlice = append(qualitiesSlice, "Not Visible")
 	}
 
+	if len(ii.Attribute(AttributeEquipSlot)) > 0 {
+		qualitiesSlice = append(qualitiesSlice, "Equippable")
+	}
+
 	tt := map[string]string{
 		"uuid": ii.ID(),
 		"html": fmt.Sprintf(

@@ -12,6 +12,7 @@ const (
 	AttributeDescription string = "description"
 	AttributeDown        string = "down"
 	AttributeEast        string = "east"
+	AttributeEquipSlot   string = "equipSlot"
 	AttributeFollowCrumb string = "followCrumb"
 	AttributeFollowSpeed string = "followSpeed"
 	AttributeGender      string = "gender"
@@ -19,6 +20,7 @@ const (
 	AttributeMoney       string = "money"
 	AttributeMusic       string = "music"
 	AttributeNorth       string = "north"
+	AttributeOwner       string = "owner"
 	AttributePermissions string = "permissions"
 	AttributePicture     string = "picture"
 	AttributeRarity      string = "rarity"
@@ -91,12 +93,15 @@ func AttributeList(ot ObjectType) []string {
 		return []string{
 			AttributePicture,
 			AttributeType,
+			AttributeEquipSlot,
 			AttributeRarity,
 			AttributeDescription,
+			AttributeOwner,
 			AttributeHoldable,
 			AttributeVisible,
 			AttributeSpawnMob,
 			AttributeSpawnLimit,
+			AttributeMoney,
 		}
 	case ObjectTypeItemInstance:
 		return []string{
@@ -160,6 +165,8 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 		return "enum:true|false"
 	case AttributeSpawnSFX:
 		return "enum:" + strings.Join(sfx.List(), "|")
+	case AttributeEquipSlot:
+		return "enum:" + strings.Join(ValidEquipmentSlotsAsString(), "|")
 	}
 
 	return "editable"
@@ -250,6 +257,9 @@ func AttributeValidate(ot ObjectType, attr, val string) validate.ValidationResul
 			break
 		case AttributeSpawnLimit:
 			validatorString = "num|min:0|max:100"
+			break
+		case AttributeEquipSlot:
+			validatorString = "in:" + strings.Join(ValidEquipmentSlotsAsString(), ",")
 			break
 		}
 	case ObjectTypeRoom:

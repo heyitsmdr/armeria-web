@@ -21,6 +21,7 @@ const (
 	ItemTypeMobSpawner        = "mob-spawner"
 	ItemTypeTrashCan          = "trash-can"
 	ItemTypeBreadcrumb        = "mob-breadcrumb"
+	ItemTypeBankCard          = "bank-card"
 
 	ItemRarityCommon   string = "common"
 	ItemRarityUncommon        = "uncommon"
@@ -33,6 +34,7 @@ func ItemTypes() []string {
 		ItemTypeMobSpawner,
 		ItemTypeBreadcrumb,
 		ItemTypeTrashCan,
+		ItemTypeBankCard,
 	}
 }
 
