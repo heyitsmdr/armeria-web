@@ -636,15 +636,17 @@ func handleWhoCommand(ctx *CommandContext) {
 	rows := []string{TableRow(
 		TableCell{content: "Character", header: true},
 		TableCell{content: "Organization", header: true},
-		TableCell{content: "Role", header: true},
 		TableCell{content: "Location", header: true},
 	)}
 
 	for _, c := range chars {
 		rows = append(rows, TableRow(
 			TableCell{content: fmt.Sprintf("[%d] %s", 0, c.FormattedNameWithTitle())},
-			TableCell{content: "Armeria Industries, Inc."},
-			TableCell{content: "CEO"},
+			TableCell{content: fmt.Sprintf(
+				"%s of %s",
+				TextStyle("CEO", WithBold()),
+				"Armeria Industries, Inc.",
+			)},
 			TableCell{content: c.Room().ParentArea.Name()},
 		))
 	}
