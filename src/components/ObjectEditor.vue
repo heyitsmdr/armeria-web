@@ -11,25 +11,30 @@
             <div class="close" @click="handleClose">X</div>
         </div>
         <div class="properties">
-            <div class="prop-container" v-for="prop in objectEditorData.properties" :key="objectEditorData.uuid+'-'+prop.name">
-                <div class="prop-name">{{ prop.name }}</div>
-                <div class="prop-value">
-                    <!-- editable type -->
-                    <div
-                        class="editable"
-                        :class="{ inherited: prop.value.length === 0 && objectEditorData.isChild }"
-                        v-if="prop.propType === 'editable'"
-                        @click="handleEditablePropClick($event, prop)"
-                        @blur="handleEditablePropBlur($event, prop)"
-                        @keydown.enter.stop.prevent
-                        @keydown.esc.stop.prevent
-                        @keyup.esc.stop.prevent="handleEditablePropEscapeKey($event)"
-                        @keyup.enter.stop.prevent="handleEditablePropEnterKey($event, prop)"
-                    >
-                        {{ prop.value || "&nbsp;" }}
-                    </div>
-                    <!-- picture type -->
-                    <div
+            <div v-for="group in groups" :key="group">
+                <div class="prop-group">{{ group }}</div>
+                <div class="prop-container"
+                    v-for="prop in propsForGroup(group)"
+                    :key="objectEditorData.uuid+'-'+prop.name"
+                >
+                    <div class="prop-name">{{ prop.name }}</div>
+                    <div class="prop-value">
+                        <!-- editable type -->
+                        <div
+                            class="editable"
+                            :class="{ inherited: prop.value.length === 0 && objectEditorData.isChild }"
+                            v-if="prop.propType === 'editable'"
+                            @click="handleEditablePropClick($event, prop)"
+                            @blur="handleEditablePropBlur($event, prop)"
+                            @keydown.enter.stop.prevent
+                            @keydown.esc.stop.prevent
+                            @keyup.esc.stop.prevent="handleEditablePropEscapeKey($event)"
+                            @keyup.enter.stop.prevent="handleEditablePropEnterKey($event, prop)"
+                        >
+                            {{ prop.value || "&nbsp;" }}
+                        </div>
+                        <!-- picture type -->
+                        <div
                             class="picture"
                             ref="picture"
                             :style="{ backgroundImage: getBackgroundUrl(prop.value) }"
@@ -38,58 +43,59 @@
                             @drop.stop.prevent="handlePictureDragDrop"
                             @dragleave.stop.prevent="handlePictureDragLeave"
                             @dragover.stop.prevent
-                    >
-                    </div>
-                    <!-- script type -->
-                    <div
+                        >
+                        </div>
+                        <!-- script type -->
+                        <div
                             class="script"
                             v-if="prop.propType === 'script'"
                             @click="handleScriptEditClick"
-                    >
-                        [Edit Script]
-                    </div>
-                    <!-- parent type -->
-                    <div
+                        >
+                            [Edit Script]
+                        </div>
+                        <!-- parent type -->
+                        <div
                             class="script"
                             v-if="prop.propType === 'parent'"
                             @click="handleParentClick(prop.value)"
-                    >
-                        {{ prop.value }}
-                    </div>
-                    <!-- color type -->
-                    <div
+                        >
+                            {{ prop.value }}
+                        </div>
+                        <!-- color type -->
+                        <div
                             class="color"
                             v-if="prop.propType === 'color'"
-                    >
-                        <div
+                        >
+                            <div
                                 class="swatch"
                                 :style="swatchStyle(prop.value)"
                                 @click="handleSwatchClick($event, prop)"
-                        >
-                            <p v-if="showColorPicker">SAVE</p>
-                            <!--{{colors["rgba"]}}-->
-                        </div>
-                        <chrome-picker
+                            >
+                                <p v-if="showColorPicker">SAVE</p>
+                                <!--{{colors["rgba"]}}-->
+                            </div>
+                            <chrome-picker
                                 class="colorpicker"
                                 v-model="colors"
                                 v-if="showColorPicker"
                                 @input="updateColorPicker"
-                        />
-                    </div>
-                    <!-- enum type -->
-                    <div
-                        class="enum"
-                        v-if="prop.propType.substr(0, 5) === 'enum:'"
-                    >
-                        <v-select
-                            @open="handleEnumOpen(prop.name)"
-                            @close="handleEnumClose"
-                            @input="handleEnumSelected(prop, $event)"
-                            :options="['<default>', ...prop.propType.substr(5).split('|')]"
-                            :value="prop.value"
-                            :clearable="false"
-                            :placeholder="(objectEditorData.isChild && prop.value.length === 0) ? 'inherited' : ''"
-                        ></v-select>
+                            />
+                        </div>
+                        <!-- enum type -->
+                        <div
+                            class="enum"
+                            v-if="prop.propType.substr(0, 5) === 'enum:'"
+                        >
+                            <v-select
+                                @open="handleEnumOpen(prop.name)"
+                                @close="handleEnumClose"
+                                @input="handleEnumSelected(prop, $event)"
+                                :options="['<default>', ...prop.propType.substr(5).split('|')]"
+                                :value="prop.value"
+                                :clearable="false"
+                                :placeholder="(objectEditorData.isChild && prop.value.length === 0) ? 'inherited' : ''"
+                            ></v-select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,7 +115,23 @@
             vSelect,
             'chrome-picker': Chrome
         },
-        computed: mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData', 'settings']),
+        computed: {
+            ...mapState(['isProduction', 'objectTarget', 'objectEditorOpen', 'objectEditorData', 'settings']),
+            groups: function() {
+                const groups = [];
+                if (!this.objectEditorData.properties) {
+                    return groups;
+                }
+
+                this.objectEditorData.properties.forEach(prop => {
+                    if (groups.indexOf(prop.group) === -1) {
+                        groups.push(prop.group);
+                    }
+                });
+
+                return groups;
+            },
+        },
         data: function() {
             return {
                 propOriginal: '',
@@ -128,6 +150,21 @@
             }
         },
         methods: {
+            propsForGroup(group) {
+                const props = [];
+                if (!this.objectEditorData.properties) {
+                    return props;
+                }
+
+                this.objectEditorData.properties.forEach(prop => {
+                    if (prop.group === group) {
+                        props.push(prop);
+                    }
+                });
+
+                return props;
+            },
+
             getBackgroundUrl(objectKey) {
                 if (!this.isProduction) {
                     return `url(http://${window.location.hostname}:8081/oi/${objectKey})`;
@@ -498,6 +535,15 @@ $vs-dropdown-bg: #222;
         border-right: 1px solid #313131;
         border-left: 1px solid #313131;
         font-size: 12px;
+    }
+
+    .prop-group {
+        background-color: #313131;
+        padding: 7px 5px;
+        font-size: 12px;
+        font-weight: 400;
+        text-transform: uppercase;
+        color: #ababab;
     }
 
     .prop-name {

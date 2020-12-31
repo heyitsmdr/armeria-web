@@ -137,6 +137,7 @@ func (i *Item) EditorData() *ObjectEditorData {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeItem, attrName),
 			Name:     attrName,
+			Group:    AttributeGroup(attrName),
 			Value:    i.Attribute(attrName),
 		})
 	}

@@ -69,6 +69,7 @@ func (m *Mob) EditorData() *ObjectEditorData {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeMob, attrName),
 			Name:     attrName,
+			Group:    AttributeGroup(attrName),
 			Value:    m.Attribute(attrName),
 		})
 	}

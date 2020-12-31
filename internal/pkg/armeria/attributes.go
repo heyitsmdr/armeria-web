@@ -172,6 +172,18 @@ func AttributeEditorType(ot ObjectType, attr string) string {
 	return "editable"
 }
 
+// AttributeGroup returns the group the attribute should appear under within the object editor.
+func AttributeGroup(attr string) string {
+	switch attr {
+	case AttributeSpawnMob, AttributeSpawnLimit:
+		return "Mob Spawning"
+	case AttributeMoney:
+		return "Bank Cards"
+	}
+
+	return "General"
+}
+
 // AttributeDefault returns the default value of an attribute for a given ObjectType. Case sensitive.
 func AttributeDefault(ot ObjectType, attr string) string {
 	switch attr {

@@ -232,6 +232,7 @@ func (mi *MobInstance) EditorData() *ObjectEditorData {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType:    AttributeEditorType(ObjectTypeMobInstance, attrName),
 			Name:        attrName,
+			Group:       AttributeGroup(attrName),
 			Value:       mi.InstanceAttribute(attrName),
 			ParentValue: mi.Parent.Attribute(attrName),
 		})

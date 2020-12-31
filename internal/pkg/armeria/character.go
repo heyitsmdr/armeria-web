@@ -539,6 +539,7 @@ func (c *Character) EditorData() *ObjectEditorData {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeCharacter, attrName),
 			Name:     attrName,
+			Group:    AttributeGroup(attrName),
 			Value:    c.Attribute(attrName),
 		})
 	}

@@ -178,13 +178,14 @@ func (ii *ItemInstance) RarityName() string {
 // EditorData returns the JSON used for the object editor.
 func (ii *ItemInstance) EditorData() *ObjectEditorData {
 	props := []*ObjectEditorDataProperty{
-		{PropType: "parent", Name: "parent", Value: ii.Name()},
+		{PropType: "parent", Name: "parent", Group: "General", Value: ii.Name()},
 	}
 
 	for _, attrName := range AttributeList(ObjectTypeItemInstance) {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType:    AttributeEditorType(ObjectTypeItemInstance, attrName),
 			Name:        attrName,
+			Group:       AttributeGroup(attrName),
 			Value:       ii.InstanceAttribute(attrName),
 			ParentValue: ii.Parent.Attribute(attrName),
 		})

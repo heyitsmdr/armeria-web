@@ -137,6 +137,7 @@ func (a *Area) EditorData() *ObjectEditorData {
 		props = append(props, &ObjectEditorDataProperty{
 			PropType: AttributeEditorType(ObjectTypeArea, attrName),
 			Name:     attrName,
+			Group:    AttributeGroup(attrName),
 			Value:    a.Attribute(attrName),
 		})
 	}

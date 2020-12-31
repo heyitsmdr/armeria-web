@@ -29,6 +29,7 @@ type ObjectEditorData struct {
 // ObjectEditorDataProperty is a struct that contains the json fields for each individual property within the
 // Object Editor.
 type ObjectEditorDataProperty struct {
+	Group       string `json:"group"`
 	Name        string `json:"name"`
 	Value       string `json:"value"`
 	ParentValue string `json:"parentValue"`
