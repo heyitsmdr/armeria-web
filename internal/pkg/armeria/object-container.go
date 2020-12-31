@@ -229,6 +229,16 @@ func (oc *ObjectContainer) Slot(uuid string) int {
 	return result.Definition.Slot
 }
 
+// SlotName returns the slot name that the uuid is using. If the uuid does not exist, an empty string is returned.
+func (oc *ObjectContainer) SlotName(uuid string) string {
+	result := oc.Get(uuid)
+	if result.Type == RegistryTypeUnknown {
+		return ""
+	}
+
+	return result.Definition.SlotName
+}
+
 // SetSlot explicitly sets an item slot without checking if another item already exists in that slot. Use this
 // function carefully and as-needed (ie: swapping items).
 func (oc *ObjectContainer) SetSlot(uuid string, slot int) {

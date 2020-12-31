@@ -1280,17 +1280,24 @@ func handleItemInstancesCommand(ctx *CommandContext) {
 				},
 			))
 		} else if ctr.ParentType() == ContainerParentTypeCharacter {
+			var loc string
+			if ii.Character().Equipment().Get(ii.ID()) != nil {
+				loc = fmt.Sprintf(
+					"Character: %s (equipment; %s)",
+					ii.Character().FormattedName(),
+					ii.Character().Equipment().SlotName(ii.ID()),
+				)
+			} else {
+				loc = fmt.Sprintf(
+					"Character: %s (inventory; slot %d)",
+					ii.Character().FormattedName(),
+					ii.Character().Inventory().Slot(ii.ID()),
+				)
+			}
 			rows = append(rows, TableRow(
 				TableCell{content: ii.FormattedName()},
 				TableCell{content: ii.ID()},
-				TableCell{
-					content: fmt.Sprintf(
-						"Character: %s (slot %d)",
-						ii.Character().FormattedName(),
-						ii.Character().Inventory().Slot(ii.ID()),
-					),
-					styling: "",
-				},
+				TableCell{content: loc},
 			))
 		} else if ctr.ParentType() == ContainerParentTypeMobInstance {
 			rows = append(rows, TableRow(
@@ -2555,7 +2562,7 @@ func handleEquipCommand(ctx *CommandContext) {
 		return
 	}
 
-	atSlot := ctx.Character.Inventory().AtSlotName(EquipmentSlot(equipSlot))
+	atSlot := ctx.Character.Equipment().AtSlotName(EquipmentSlot(equipSlot))
 	maxAtSlot := EquipSlotMax(EquipmentSlot(equipSlot))
 	if len(atSlot) >= maxAtSlot {
 		ctx.Player.client.ShowColorizedText("You have an item of that type already equipped.", ColorError)

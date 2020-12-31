@@ -3,13 +3,15 @@ package armeria
 type EquipmentSlot string
 
 const (
-	EquipSlotWallet EquipmentSlot = "wallet"
+	EquipSlotWalletBank   EquipmentSlot = "wallet-bank"
+	EquipSlotWalletAccess EquipmentSlot = "wallet-access"
 )
 
 // ValidEquipmentSlots returns the valid slots for equippable items.
 func ValidEquipmentSlots() []EquipmentSlot {
 	return []EquipmentSlot{
-		EquipSlotWallet,
+		EquipSlotWalletBank,
+		EquipSlotWalletAccess,
 	}
 }
 
@@ -25,8 +27,8 @@ func ValidEquipmentSlotsAsString() []string {
 // EquipSlotMax returns the number of items that can be equipped to a given slot.
 func EquipSlotMax(slot EquipmentSlot) int {
 	switch slot {
-	case EquipSlotWallet:
-		return 3
+	case EquipSlotWalletAccess:
+		return 5
 	}
 
 	return 1
@@ -35,8 +37,10 @@ func EquipSlotMax(slot EquipmentSlot) int {
 // EquipSlotFormalName returns the formal name, with proper capitalization, for a given slot.
 func EquipSlotFormalName(slot EquipmentSlot) string {
 	switch slot {
-	case EquipSlotWallet:
-		return "Wallet"
+	case EquipSlotWalletBank:
+		return "Wallet (Bank Card)"
+	case EquipSlotWalletAccess:
+		return "Wallet (Access Cards)"
 	}
 
 	return string(slot)
