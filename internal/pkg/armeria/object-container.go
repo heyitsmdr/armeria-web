@@ -196,6 +196,28 @@ func (oc *ObjectContainer) GetByAny(uuidOrName string) *ObjectContainerResult {
 	return oc.GetByName(uuidOrName)
 }
 
+// GetLoose attempts to retrieve an object by it's uuid, and then loosely by it's name. Loosely refers to partial
+// name matching. If you don't want to support partial name matching, use ObjectContainer.GetByAny() instead.
+func (oc *ObjectContainer) GetLoose(id string) *ObjectContainerResult {
+	if misc.IsUUID(id) {
+		return oc.Get(id)
+	}
+
+	oc.RLock()
+	defer oc.RUnlock()
+
+	match := strings.ToLower(id)
+	for _, ocd := range oc.UnsafeObjects {
+		o, ot := Armeria.registry.Get(ocd.UUID)
+		iname := strings.ToLower(o.(ContainerObject).Name())
+		if len(match) <= len(iname) && iname[0:len(match)] == match {
+			return &ObjectContainerResult{Object: o.(ContainerObject), Definition: ocd, Type: ot}
+		}
+	}
+
+	return &ObjectContainerResult{Type: RegistryTypeUnknown}
+}
+
 // Slot returns the slot that the uuid is within. If the uuid does not exist, slot 0 will be returned,
 // which could result in a false positive. Check existence of the uuid before using this function.
 func (oc *ObjectContainer) Slot(uuid string) int {
@@ -211,6 +233,11 @@ func (oc *ObjectContainer) Slot(uuid string) int {
 // function carefully and as-needed (ie: swapping items).
 func (oc *ObjectContainer) SetSlot(uuid string, slot int) {
 	oc.Get(uuid).Definition.Slot = slot
+}
+
+// SetSlotName explicitly sets an item slot name.
+func (oc *ObjectContainer) SetSlotName(uuid string, slotName EquipmentSlot) {
+	oc.Get(uuid).Definition.SlotName = string(slotName)
 }
 
 // AtSlot retrieves an object from a specific slot, or nil if the container is unbounded.

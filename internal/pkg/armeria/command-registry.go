@@ -1069,12 +1069,36 @@ func RegisterGameCommands() {
 		},
 		{
 			Name:     "equip",
-			Help:     "Display items equipped to your character.",
+			Help:     "Display equipment or equip an item.",
 			AltNames: []string{"eq"},
 			Permissions: &CommandPermissions{
 				RequireCharacter: true,
 			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "item",
+					Help:             "The name of the item you wish to equip.",
+					Optional:         true,
+					IncludeRemaining: true,
+				},
+			},
 			Handler: handleEquipCommand,
+		},
+		{
+			Name:     "remove",
+			Help:     "Remove an equipped item.",
+			AltNames: []string{"eq"},
+			Permissions: &CommandPermissions{
+				RequireCharacter: true,
+			},
+			Arguments: []*CommandArgument{
+				{
+					Name:             "item",
+					Help:             "The name of the item you wish to unequip.",
+					IncludeRemaining: true,
+				},
+			},
+			Handler: handleRemoveCommand,
 		},
 	}
 

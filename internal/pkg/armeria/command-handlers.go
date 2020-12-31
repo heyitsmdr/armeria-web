@@ -1579,9 +1579,9 @@ func handleGetCommand(ctx *CommandContext) {
 	searchString := ctx.Args["item"]
 
 	roomObjects := ctx.Character.Room().Here()
-	result := roomObjects.GetByAny(searchString)
+	result := roomObjects.GetLoose(searchString)
 	if result.Type == RegistryTypeUnknown {
-		ctx.Player.client.ShowColorizedText("There is nothing here by that name.", ColorError)
+		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	} else if result.Type != RegistryTypeItemInstance {
 		ctx.Player.client.ShowColorizedText("You cannot pick that up.", ColorError)
@@ -1595,17 +1595,15 @@ func handleGetCommand(ctx *CommandContext) {
 		return
 	}
 
-	roomObjects.Remove(item.ID())
 	err := ctx.Character.Inventory().Add(item.ID())
 	if err == ErrContainerNoRoom {
-		_ = roomObjects.Add(item.ID())
 		ctx.Player.client.ShowColorizedText("You have no room in your inventory.", ColorError)
 		return
 	} else if err == ErrContainerDuplicate {
-		_ = roomObjects.Add(item.ID())
 		ctx.Player.client.ShowColorizedText("You already have that item instance in your inventory.", ColorError)
 		return
 	}
+	roomObjects.Remove(item.ID())
 
 	ctx.Player.client.SyncRoomObjects()
 	ctx.Player.client.SyncInventory()
@@ -1626,9 +1624,9 @@ func handleGetCommand(ctx *CommandContext) {
 func handleDropCommand(ctx *CommandContext) {
 	searchString := ctx.Args["item"]
 
-	result := ctx.Character.Inventory().GetByAny(searchString)
+	result := ctx.Character.Inventory().GetLoose(searchString)
 	if result.Type == RegistryTypeUnknown {
-		ctx.Player.client.ShowColorizedText("You don't have that item in your inventory.", ColorError)
+		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
 		return
 	}
 
@@ -2476,7 +2474,7 @@ func handleSelectCommand(ctx *CommandContext) {
 
 	result := ctx.Character.Room().Here().GetByAny(mob)
 	if result.Type != RegistryTypeMobInstance {
-		ctx.Player.client.ShowColorizedText("There are no mobs here with that name.", ColorError)
+		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
 	mobInst := result.Object.(*MobInstance)
@@ -2501,7 +2499,7 @@ func handleInteractCommand(ctx *CommandContext) {
 
 	result := ctx.Character.Room().Here().GetByAny(mob)
 	if result.Type != RegistryTypeMobInstance {
-		ctx.Player.client.ShowColorizedText("There are no mobs here with that name.", ColorError)
+		ctx.Player.client.ShowColorizedText(CommonTargetNotFoundHere, ColorError)
 		return
 	}
 	mobInst := result.Object.(*MobInstance)
@@ -2514,27 +2512,86 @@ func handleInteractCommand(ctx *CommandContext) {
 }
 
 func handleEquipCommand(ctx *CommandContext) {
-	eq := ctx.Character.Equipment()
+	itemName := ctx.Args["item"]
 
-	rows := []string{TableRow(
-		TableCell{content: "Slot", header: true},
-		TableCell{content: "Item(s)", header: true},
-	)}
+	// If no item is specified, display the character's equipment.
+	if len(itemName) == 0 {
+		eq := ctx.Character.Equipment()
 
-	for _, slot := range ValidEquipmentSlots() {
-		items := eq.AtSlotName(slot)
-		itemNames := "&lt;nothing&gt;"
-		if len(items) > 0 {
-			itemNames = ""
-			for _, itemResult := range items {
-				itemNames = fmt.Sprintf("%s%s\n", itemNames, itemResult.Object.FormattedName())
+		rows := []string{TableRow(
+			TableCell{content: "Slot", header: true},
+			TableCell{content: "Item(s)", header: true},
+		)}
+
+		for _, slot := range ValidEquipmentSlots() {
+			items := eq.AtSlotName(slot)
+			itemNames := "&lt;nothing&gt;"
+			if len(items) > 0 {
+				itemNames = ""
+				for _, itemResult := range items {
+					itemNames = fmt.Sprintf("%s%s\n", itemNames, itemResult.Object.FormattedName())
+				}
 			}
+			rows = append(rows, TableRow(
+				TableCell{content: EquipSlotFormalName(slot)},
+				TableCell{content: itemNames},
+			))
 		}
-		rows = append(rows, TableRow(
-			TableCell{content: EquipSlotFormalName(slot)},
-			TableCell{content: itemNames},
-		))
+
+		ctx.Player.client.ShowText(TextTable(rows...))
+		return
 	}
 
-	ctx.Player.client.ShowText(TextTable(rows...))
+	res := ctx.Character.Inventory().GetLoose(itemName)
+	if res.Type == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText(CommonItemNotFoundOnCharacter, ColorError)
+		return
+	}
+
+	item := res.Object.(*ItemInstance)
+	equipSlot := item.Attribute(AttributeEquipSlot)
+	if len(equipSlot) == 0 {
+		ctx.Player.client.ShowColorizedText("You cannot equip that to your character.", ColorError)
+		return
+	}
+
+	atSlot := ctx.Character.Inventory().AtSlotName(EquipmentSlot(equipSlot))
+	maxAtSlot := EquipSlotMax(EquipmentSlot(equipSlot))
+	if len(atSlot) >= maxAtSlot {
+		ctx.Player.client.ShowColorizedText("You have an item of that type already equipped.", ColorError)
+		return
+	}
+
+	ctx.Character.Inventory().Remove(item.ID())
+	_ = ctx.Character.Equipment().Add(item.ID())
+	ctx.Character.Equipment().SetSlotName(item.ID(), EquipmentSlot(equipSlot))
+
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You equipped a %s to yourself.", item.FormattedName()),
+		ColorSuccess,
+	)
+}
+
+func handleRemoveCommand(ctx *CommandContext) {
+	itemName := ctx.Args["item"]
+
+	res := ctx.Character.Equipment().GetLoose(itemName)
+	if res.Type == RegistryTypeUnknown {
+		ctx.Player.client.ShowColorizedText("You don't have an item equipped by that name.", ColorError)
+		return
+	}
+
+	item := res.Object.(*ItemInstance)
+	if err := ctx.Character.Inventory().Add(item.ID()); err != nil {
+		ctx.Player.client.ShowColorizedText(CommonInventoryFilled, ColorError)
+		return
+	}
+	ctx.Character.Equipment().Remove(item.ID())
+
+	ctx.Player.client.SyncInventory()
+	ctx.Player.client.ShowColorizedText(
+		fmt.Sprintf("You removed a %s from yourself.", item.FormattedName()),
+		ColorSuccess,
+	)
 }
