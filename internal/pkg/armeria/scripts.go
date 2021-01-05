@@ -2,6 +2,7 @@ package armeria
 
 import (
 	"armeria/internal/pkg/misc"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -383,12 +384,18 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L := lua.NewState()
 	defer L.Close()
 
-	// global variables
+	// Set a max timeout for script execution.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	L.SetContext(ctx)
+
+	// Set global variables.
 	L.SetGlobal("invoker_uuid", lua.LString(invoker.ID()))
 	L.SetGlobal("invoker_name", lua.LString(invoker.Name()))
 	L.SetGlobal("mob_uuid", lua.LString(mi.UUID))
 	L.SetGlobal("mob_name", lua.LString(mi.Name()))
-	// global functions
+
+	// Set global functions.
 	L.SetGlobal("say", L.NewFunction(LuaMobSay))
 	L.SetGlobal("sleep", L.NewFunction(LuaSleep))
 	L.SetGlobal("start_convo", L.NewFunction(LuaStartConvo))
