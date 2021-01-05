@@ -392,7 +392,7 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	// Set global variables.
 	L.SetGlobal("invoker_uuid", lua.LString(invoker.ID()))
 	L.SetGlobal("invoker_name", lua.LString(invoker.Name()))
-	L.SetGlobal("mob_uuid", lua.LString(mi.UUID))
+	L.SetGlobal("mob_uuid", lua.LString(mi.ID()))
 	L.SetGlobal("mob_name", lua.LString(mi.Name()))
 
 	// Set global functions.
@@ -407,6 +407,15 @@ func CallMobFunc(invoker *Character, mi *MobInstance, funcName string, args ...l
 	L.SetGlobal("give", L.NewFunction(LuaInventoryGive))
 	L.SetGlobal("room_text", L.NewFunction(LuaRoomText))
 	L.SetGlobal("shop", L.NewFunction(LuaShop))
+
+	// Set "room" module.
+	L.PreloadModule("room", func(state *lua.LState) int {
+		mod := state.SetFuncs(state.NewTable(), map[string]lua.LGFunction{
+			"text": LuaRoomText,
+		})
+		state.Push(mod)
+		return 1
+	})
 
 	err := L.DoString(mi.Parent.Script())
 	if err != nil {
