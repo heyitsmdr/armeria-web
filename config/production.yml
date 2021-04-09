@@ -2,3 +2,4 @@ httpPort: 8081
 production: true
 dataPath: "./data"
 publicPath: "./dist"
+gcsBucket: armeria-development

@@ -33,21 +33,9 @@ func (m *MobManager) LoadMobs() {
 	m.Lock()
 	defer m.Unlock()
 
-	mobsFile, err := os.Open(m.dataFile)
-	defer mobsFile.Close()
-
+	err := json.Unmarshal(Armeria.storageManager.ReadFile("mobs.json"), m)
 	if err != nil {
-		Armeria.log.Fatal("failed to load data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
-
-	jsonParser := json.NewDecoder(mobsFile)
-
-	err = jsonParser.Decode(m)
-	if err != nil {
-		Armeria.log.Fatal("failed to decode data file",
+		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
 			zap.Error(err),
 		)

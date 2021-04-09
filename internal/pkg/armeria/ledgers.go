@@ -32,21 +32,9 @@ func (m *LedgerManager) LoadLedgers() {
 	m.Lock()
 	defer m.Unlock()
 
-	ledgersFile, err := os.Open(m.dataFile)
-	defer ledgersFile.Close()
-
+	err := json.Unmarshal(Armeria.storageManager.ReadFile("ledgers.json"), m)
 	if err != nil {
-		Armeria.log.Fatal("failed to load data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
-
-	jsonParser := json.NewDecoder(ledgersFile)
-
-	err = jsonParser.Decode(m)
-	if err != nil {
-		Armeria.log.Fatal("failed to decode data file",
+		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
 			zap.Error(err),
 		)

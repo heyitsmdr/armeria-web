@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/cloud"
 	"armeria/internal/pkg/github"
 	"log"
 	"os"
@@ -16,6 +17,7 @@ import (
 type GameState struct {
 	log              *zap.Logger
 	production       bool
+	storageManager   *cloud.StorageManager
 	playerManager    *PlayerManager
 	commandManager   *CommandManager
 	characterManager *CharacterManager
@@ -62,6 +64,7 @@ func Init(configFilePath string, serveTraffic bool) {
 
 	verifySchemaVersion()
 
+	Armeria.storageManager = cloud.NewStorageManager(c.GCSBucket, c.GCSServiceAccount)
 	Armeria.registry = NewRegistry()
 	Armeria.commandManager = NewCommandManager()
 	Armeria.playerManager = NewPlayerManager()
@@ -110,4 +113,5 @@ func (gs *GameState) Save() {
 	gs.mobManager.SaveMobs()
 	gs.itemManager.SaveItems()
 	gs.ledgerManager.SaveLedgers()
+	gs.storageManager.CloseClient()
 }

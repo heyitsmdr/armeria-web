@@ -34,21 +34,9 @@ func (m *ItemManager) LoadItems() {
 	m.Lock()
 	defer m.Unlock()
 
-	itemsFile, err := os.Open(m.dataFile)
-	defer itemsFile.Close()
-
+	err := json.Unmarshal(Armeria.storageManager.ReadFile("items.json"), m)
 	if err != nil {
-		Armeria.log.Fatal("failed to load data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
-
-	jsonParser := json.NewDecoder(itemsFile)
-
-	err = jsonParser.Decode(m)
-	if err != nil {
-		Armeria.log.Fatal("failed to decode data file",
+		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
 			zap.Error(err),
 		)

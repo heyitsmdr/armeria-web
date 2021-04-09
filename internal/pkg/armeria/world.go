@@ -32,21 +32,9 @@ func (m *WorldManager) LoadWorld() {
 	m.Lock()
 	defer m.Unlock()
 
-	worldFile, err := os.Open(m.dataFile)
-	defer worldFile.Close()
-
+	err := json.Unmarshal(Armeria.storageManager.ReadFile("world.json"), m)
 	if err != nil {
-		Armeria.log.Fatal("failed to load data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
-
-	jsonParser := json.NewDecoder(worldFile)
-
-	err = jsonParser.Decode(m)
-	if err != nil {
-		Armeria.log.Fatal("failed to decode data file",
+		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
 			zap.Error(err),
 		)

@@ -33,21 +33,9 @@ func (m *CharacterManager) LoadCharacters() {
 	m.Lock()
 	defer m.Unlock()
 
-	charactersFile, err := os.Open(m.dataFile)
+	err := json.Unmarshal(Armeria.storageManager.ReadFile("characters.json"), m)
 	if err != nil {
-		Armeria.log.Fatal("failed to load data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
-	defer charactersFile.Close()
-
-	jsonParser := json.NewDecoder(charactersFile)
-
-	err = jsonParser.Decode(m)
-	if err != nil {
-		Armeria.log.Fatal("failed to decode data file",
-			zap.String("file", m.dataFile),
+		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.Error(err),
 		)
 	}

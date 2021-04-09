@@ -16,11 +16,7 @@ const SchemaVersion int = 6
 
 // schemaVersionOnDisk reads the schema version from disk and returns it as an int.
 func schemaVersionOnDisk() int {
-	b, err := ioutil.ReadFile(Armeria.dataPath + "/schema-version")
-	if err != nil {
-		Armeria.log.Fatal("error reading schema version from disk", zap.Error(err))
-	}
-
+	b := Armeria.storageManager.ReadFile("schema-version")
 	sv, err := strconv.Atoi(string(b))
 	if err != nil {
 		Armeria.log.Fatal("error parsing schema version from disk", zap.Error(err))
