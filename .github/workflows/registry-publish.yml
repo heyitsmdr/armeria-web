@@ -2,6 +2,8 @@
 
 name: Create and publish the Armeria image
 
+on: push
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
