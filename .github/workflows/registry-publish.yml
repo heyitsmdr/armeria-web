@@ -40,7 +40,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       # Setup gcloud cli.
@@ -70,7 +70,7 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
-          ./kustomize edit set image ghcr.io/heyitsmdr/armeria:TAG=$GITHUB_SHA
+          ./kustomize edit set image ghcr.io/heyitsmdr/armeria:TAG=sha256:$GITHUB_SHA
           ./kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/armeria
           kubectl get services -o wide
