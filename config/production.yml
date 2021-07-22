@@ -1,5 +1,10 @@
+# Core settings.
 httpPort: 8081
 production: true
+
+# Data paths.
 dataPath: "./data"
 publicPath: "./dist"
+
+# Google Cloud settings.
 gcsBucket: armeria-development

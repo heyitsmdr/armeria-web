@@ -16,10 +16,11 @@ type StorageManager struct {
 }
 
 // NewStorageManager creates a new cloud storage manager instance.
-func NewStorageManager(bucketName string, serviceAccount string) *StorageManager {
+func NewStorageManager(bucketName string) *StorageManager {
 	sm := &StorageManager{}
 
-	client, err := storage.NewClient(context.Background(), option.WithCredentialsJSON([]byte(serviceAccount)))
+	//client, err := storage.NewClient(context.Background(), option.WithCredentialsJSON([]byte(serviceAccount)))
+	client, err := storage.NewClient(context.Background(), option.WithoutAuthentication())
 	if err != nil {
 		log.Fatalf("failed to create client: %v\n", err)
 	}

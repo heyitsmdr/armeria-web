@@ -57,14 +57,13 @@ func Init(configFilePath string, serveTraffic bool) {
 		log.Fatalf("error initializing zap logger: %s", err)
 	}
 	Armeria.log = logger
+	Armeria.storageManager = cloud.NewStorageManager(c.GCSBucket)
 
 	if !serveTraffic {
 		return
 	}
 
 	verifySchemaVersion()
-
-	Armeria.storageManager = cloud.NewStorageManager(c.GCSBucket, c.GCSServiceAccount)
 	Armeria.registry = NewRegistry()
 	Armeria.commandManager = NewCommandManager()
 	Armeria.playerManager = NewPlayerManager()
@@ -101,6 +100,7 @@ func (gs *GameState) setupGracefulExit() {
 	signal.Notify(sigs, syscall.SIGTERM)
 	go func() {
 		<-sigs
+		Armeria.log.Info("see you later")
 		gs.Save()
 		os.Exit(0)
 	}()

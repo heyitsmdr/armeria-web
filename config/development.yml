@@ -6,18 +6,5 @@ production: false
 dataPath: "./data"
 publicPath: "./dist"
 
-# Read-only GCS service account details.
+# Google Cloud settings.
 gcsBucket: armeria-development
-gcsServiceAccount: |
-  {
-    "type": "service_account",
-    "project_id": "armeria",
-    "private_key_id": "0702a28a4bdb4fbb8b6089a9404d8d59ade6d6ac",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCavnlWQHC7zZSQ\nY2jXEd64b/0IgIi1D3Cq2Lm9kYfJvQrLlqM6n5msDVbk9AQdBnZLC401hGyfgCeK\nmho1tBnh5aTsBQoW3OpPrHX9eDu7k3ngkVLzisVKG1LWdK7XHpWmipU5Tukjf2oo\n5ptsPPwhA63P/O4vsen8nS/Pg3S8rjWxMwqeHlnBGeFufRK09gAdGmmv626WZiy1\nxZuZZKWGOW7gGjecV6OljVrRhaVqlGk7WSmLfAFxY9SExBMoPTBu44xagvFyON9a\nr4zhmVc6pfw9OcvBf9DiWjfYAY7NjmoPgbnZbzYAqvlzJRuyREUyLZ9XQrqwuKGm\nIt0L7C7RAgMBAAECggEARh1uHy29purEmRPiCik3sHxVu4d56ghf9ZmTt5h8XWWB\nwbO0rDhqyfGVYNJMFta5vNE0H36sNS09PWkL3S+I1rlWG/dAlhFtPcKYB8x1zE1L\nWPygCGflcumkhDWEj0Z1amu6p6fgrUvrTzMGU2nimBbxp58kUYocynBynGUk/OSC\nQr3ztu3bV5FubwdsOLgAN2Rpaofuadko8/sOpBGj5lpRn6gaBv/+eNH3u6jyiB9p\nEQH17Scb7/KdmR+SMeoM3npExGdS+5K8D1EaxQbvlpM1JNrNMb4ZfN16HlWfBqMq\nsueoox2BbCF01oasfT0dZPIvCjcSSQF11Qb1XRo8XQKBgQDOpaFXspzifzzSlzxF\nTSn/dJ9c3/+v9mapJrBVV6Npu76aQ0+pyNjPE9MVyuBkEGd/or10c78wKU/u48yO\nuLyeJ2pNTVBrjorm8osfMQclx9rpHy63dXyf1TZMYSspK3vldo2BjXPUT2zbMfNw\ndsbYm8+3Vo6o56TNKTofqTMFnwKBgQC/s4EFoXJTN8mb6RvBf6hoN/RHqNSSaO5T\nTCZUevp8WoAA2NAXZhy8nPcwd9d88s91nU5yXYhgFDe/N0fjUo86m58vY9rK5rU9\nsXQlW8t90212PagpZ67rZxm9EVYYsn5fRJyie72vbBhFuL7Pucpr2qPW+0M5o7vL\nQl/ep0oVjwKBgCcVRmWav3dLD0rZFaoZxQaunPFo4Cf8l0AItDL/50U5H/x3HJsF\nBJRtsG+ftj7Wp2yJcAGVXqSSO6734JlhsTLMS5uhMsOU6wpw9wUINczcdre+kQxb\nqR1lquZZPluEAOPOP0cwZKbT+seeM+eiX0tadLe9JDAn15CB6p9QVfkLAoGBAId5\nqQW8qdnLxCvt2pKtz+sPGBCIbOmnRD4Tw8bSPjEhl/KBRtYycL6Ow1Y6a0w/IIQD\nDoxeM2GLCDaXL7OkBdqqXh4UmGvqDU2zGdzI+Y9LmsEEI9JXFtP/wb3PAaRkiFB1\nYaimgE/3uVOUkyykJTyBgGYOndyfLLkhiDUGzqFbAoGAdoh3q5qwXlu8MRJT/SId\nde2/ECSe79726PHyKxac03d8jcPX36fm3iTqZr75oAEndQ2nW3B1E96iMtvUwcru\nfyRIJDZrk/4mh0tv984eviEx0cL5qZi3CEoVH6P4oKAs90aT+iLqGc1UNKrkOYHF\nZDVa5kqkeKVAUhIiPK3H3CY=\n-----END PRIVATE KEY-----\n",
-    "client_email": "svc-armeria-public@armeria.iam.gserviceaccount.com",
-    "client_id": "114465152032092229389",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/svc-armeria-public%40armeria.iam.gserviceaccount.com"
-  }

@@ -8,12 +8,11 @@ import (
 )
 
 type config struct {
-	HTTPPort          int    `yaml:"httpPort"`
-	PublicPath        string `yaml:"publicPath"`
-	Production        bool   `yaml:"production"`
-	DataPath          string `yaml:"dataPath"`
-	GCSBucket         string `yaml:"gcsBucket"`
-	GCSServiceAccount string `yaml:"gcsServiceAccount"`
+	HTTPPort   int    `yaml:"httpPort"`
+	PublicPath string `yaml:"publicPath"`
+	Production bool   `yaml:"production"`
+	DataPath   string `yaml:"dataPath"`
+	GCSBucket  string `yaml:"gcsBucket"`
 }
 
 func parseConfigFile(filePath string) config {
