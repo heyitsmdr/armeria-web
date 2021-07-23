@@ -20,10 +20,17 @@ spec:
           args:
             - -config=/opt/armeria/config/config.yml
           ports:
-            - containerPort: 8081
-      volumeMounts:
-        - name: armeria-config-volume
-          mountPath: /opt/armeria/config
+            - name: http
+              containerPort: 8081
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: armeria-config-volume
+              mountPath: /opt/armeria/config
 volumes:
   - name: armeria-config-volume
     configMap:
