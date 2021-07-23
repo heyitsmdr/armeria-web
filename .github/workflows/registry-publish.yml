@@ -36,6 +36,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
+        id: image
         uses: docker/build-push-action@master
         with:
           context: .
@@ -70,7 +71,7 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |-
-          ./kustomize edit set image ghcr.io/heyitsmdr/armeria@sha256:$GITHUB_SHA
+          ./kustomize edit set image ghcr.io/heyitsmdr/armeria@${{ steps.image.outputs.digest }}
           ./kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/armeria
           kubectl get services -o wide
