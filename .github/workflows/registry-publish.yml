@@ -12,7 +12,7 @@ env:
 
 jobs:
   deploy:
-    name: Build and Publish Image
+    name: Build, Publish, and Deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
