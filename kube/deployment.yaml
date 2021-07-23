@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: armeria
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: armeria
+  template:
+    metadata:
+      labels:
+        app: armeria
+    spec:
+      containers:
+        - name: armeria
+          image: ghcr.io/heyitsmdr/armeria
+          ports:
+            - containerPort: 80
