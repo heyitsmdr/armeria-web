@@ -31,7 +31,7 @@ spec:
           volumeMounts:
             - name: armeria-config-volume
               mountPath: /opt/armeria/config
-volumes:
-  - name: armeria-config-volume
-    configMap:
-      name: armeria-config
+      volumes:
+        - name: armeria-config-volume
+          configMap:
+            - name: armeria-config
