@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
         - name: armeria
-          image: ghcr.io/heyitsmdr/armeria
+          image: ghcr.io/heyitsmdr/armeria # Kustomize will replace this with the correct tag.
+          imagePullPolicy: Always
           args:
             - -config=/opt/armeria/config/config.yml
           ports:
