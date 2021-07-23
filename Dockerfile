@@ -1,13 +1,13 @@
-FROM golang:1.15-alpine
+FROM SCRATCH
 
-# Build from source.
-COPY . $GOPATH/src/armeria
-RUN \
-	cd $GOPATH/src/armeria && \
-	go build -o $GOPATH/bin/armeria cmd/armeria/main.go
+# Move server to container.
+COPY ./build/armeria /go/bin/armeria
 
-# Remove the source code from the image.
-RUN rm -rf $GOPATH/src/armeria
+# Move client to container.
+COPY ./dist /opt/armeria/client
+
+# Expose port 8081.
+EXPOSE 8081
 
 # Entrypoint.
-CMD ["$GOPATH/bin/armeria"]
+CMD ["/go/bin/armeria"]

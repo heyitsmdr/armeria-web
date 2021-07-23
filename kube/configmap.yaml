@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: armeria-config
+  namespace: armeria
+data:
+  config.yml: |
+    httpPort: 8081
+    production: true
+    dataPath: "./data"
+    publicPath: "/opt/armeria/client"

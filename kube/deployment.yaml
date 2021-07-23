@@ -17,5 +17,14 @@ spec:
       containers:
         - name: armeria
           image: ghcr.io/heyitsmdr/armeria
+          args:
+            - -config=/opt/armeria/config/config.yml
           ports:
-            - containerPort: 80
+            - containerPort: 8081
+      volumeMounts:
+        - name: armeria-config-volume
+          mountPath: /opt/armeria/config
+volumes:
+  - name: armeria-config-volume
+    configMap:
+      name: armeria-config
