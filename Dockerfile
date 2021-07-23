@@ -10,4 +10,5 @@ COPY ./dist /opt/armeria/client
 EXPOSE 8081
 
 # Entrypoint.
+ENTRYPOINT ["/go/bin/armeria"]
 CMD ["/go/bin/armeria"]
