@@ -1,4 +1,4 @@
-FROM SCRATCH
+FROM scratch
 
 # Move server to container.
 COPY ./build/armeria /go/bin/armeria
