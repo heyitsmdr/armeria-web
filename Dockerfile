@@ -1,4 +1,4 @@
-FROM scratch
+FROM busybox
 
 # Move server to container.
 COPY ./build/armeria /go/bin/armeria
