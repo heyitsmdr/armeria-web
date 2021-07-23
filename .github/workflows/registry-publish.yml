@@ -71,6 +71,6 @@ jobs:
       - name: Deploy
         run: |-
           ./kustomize edit set image ghcr.io/heyitsmdr/armeria@sha256:$GITHUB_SHA
-          ./kustomize build ./kube | kubectl apply -f -
+          ./kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/armeria
           kubectl get services -o wide
