@@ -7,6 +7,7 @@ on: push
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  BRANCH_NAME: ${GITHUB_REF##*/}
   GKE_CLUSTER: cosmos
   GKE_ZONE: us-central1-c
 
@@ -29,20 +30,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@master
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Build and push Docker image
-        id: image
-        uses: docker/build-push-action@master
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+        run: |-
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }} .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}
 
       # Setup gcloud cli.
       - name: Setup Gcloud CLI
@@ -50,10 +41,6 @@ jobs:
         with:
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
-
-      # Configure docker to use the gcloud cli as a credential helper
-      - run: |-
-          gcloud --quiet auth configure-docker
 
       # Get the GKE credentials so we can deploy to the cluster.
       - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
@@ -68,10 +55,10 @@ jobs:
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
 
-      # Deploy the Docker image to the GKE cluster
+      # Deploy the Docker image to the GKE cluster.
       - name: Deploy
         run: |-
-          ./kustomize edit set image ghcr.io/heyitsmdr/armeria@${{ steps.image.outputs.digest }}
+          ./kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}
           ./kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/armeria
           kubectl get services -o wide
