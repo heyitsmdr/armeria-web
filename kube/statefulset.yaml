@@ -35,4 +35,4 @@ spec:
       volumes:
         - name: armeria-config-volume
           configMap:
-            - name: armeria-config
+            name: armeria-config
