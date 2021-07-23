@@ -1,14 +1,20 @@
-FROM busybox
+# Golang builder.
+FROM golang:1.15-alpine AS golang-builder
+WORKDIR /go/src/armeria
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o build/armeria cmd/armeria/main.go
 
-# Move server to container.
-COPY ./build/armeria /go/bin/armeria
+# Nodejs builder.
+FROM node:16-alpine AS node-builder
+WORKDIR /go/src/armeria
+COPY . .
+RUN yarn install
+RUN yarn build
 
-# Move client to container.
-COPY ./dist /opt/armeria/client
-
-# Expose port 8081.
+# Armeria container.
+FROM scratch
+COPY --from=golang-builder /go/src/armeria/build/armeria /go/bin/armeria
+COPY --from=node-builder /go/src/armeria/dist /opt/armeria/client
 EXPOSE 8081
-
-# Entrypoint.
 ENTRYPOINT ["/go/bin/armeria"]
 CMD ["/go/bin/armeria"]

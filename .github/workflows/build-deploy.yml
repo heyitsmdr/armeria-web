@@ -23,23 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Build the server.
-      - uses: actions/setup-go@v2
-        with:
-          go-version: '1.15.2'
-      - run: |-
-          GOOS=linux GOARCH=amd64 go build -o build/armeria cmd/armeria/main.go
-
-      # Build the client.
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-          cache: 'yarn'
-      - run: |-
-          yarn install
-          yarn build
-
-      # Prepare docker.
+      # Build the docker container.
       - name: Log in to the Container registry
         uses: docker/login-action@master
         with:
