@@ -21,6 +21,12 @@ spec:
           volumeMounts:
             - name: postgresql-pvc
               mountPath: /data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
           env:
             - name: POSTGRES_DB
               value: armeria
