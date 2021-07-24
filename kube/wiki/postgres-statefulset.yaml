@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql-db
+  namespace: armeria-wiki
+spec:
+  serviceName: postgresql-db
+  selector:
+    matchLabels:
+      app: postgresql-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql-db
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:latest
+          volumeMounts:
+            - name: postgresql-pvc
+              mountPath: /data
+          env:
+            - name: POSTGRES_DB
+              value: armeria
+            - name: POSTGRES_PASSWORD
+              value: wiki
+            - name: POSTGRES_USER
+              value: wiki
+            - name: PGDATA
+              value: /data/pgdata
+  # Volume Claim
+  volumeClaimTemplates:
+    - metadata:
+        name: postgresql-pvc
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 25Gi
