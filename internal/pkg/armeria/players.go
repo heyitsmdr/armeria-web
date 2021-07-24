@@ -13,7 +13,7 @@ type PlayerManager struct {
 	players map[*Player]bool
 }
 
-// Init creates a new parent Manager instance
+// NewPlayerManager creates a new PlayerManager instance
 func NewPlayerManager() *PlayerManager {
 	return &PlayerManager{
 		players: make(map[*Player]bool),

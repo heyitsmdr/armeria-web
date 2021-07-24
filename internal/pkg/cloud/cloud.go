@@ -15,6 +15,10 @@ type StorageManager struct {
 	bucket *storage.BucketHandle
 }
 
+const (
+	CharactersFile = "characters.json"
+)
+
 // NewStorageManager creates a new cloud storage manager instance.
 func NewStorageManager(bucketName string) *StorageManager {
 	sm := &StorageManager{}
@@ -46,6 +50,22 @@ func (sm *StorageManager) ReadFile(f string) []byte {
 	}
 
 	return slurp
+}
+
+// WriteFile writes contents to a cloud file.
+func (sm *StorageManager) WriteFile(f, ct string, contents []byte) int {
+	wc := sm.bucket.Object(f).NewWriter(context.Background())
+	wc.ContentType = ct
+	b, err := wc.Write(contents)
+	if err != nil {
+		log.Fatalf("failed to write cloud file %s: %v", f, err)
+		return 0
+	}
+	if err := wc.Close(); err != nil {
+		log.Fatalf("failed to close cloud file %s: %v", f, err)
+		return 0
+	}
+	return b
 }
 
 // CloseClient terminates the cloud client connection.
