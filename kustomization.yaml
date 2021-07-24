@@ -9,4 +9,5 @@ resources:
 
 - kube/wiki/namespace.yaml
 - kube/wiki/postgres-statefulset.yaml
+- kube/wiki/postgres-service.yaml
 - kube/wiki/wikijs-statefulset.yaml
