@@ -1,0 +1,8 @@
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: wikijs-cert
+spec:
+  domains:
+    - wiki.armeria.io

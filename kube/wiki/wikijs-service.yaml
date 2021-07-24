@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wikijs
+spec:
+  selector:
+    app: wikijs
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: http
