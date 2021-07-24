@@ -36,7 +36,9 @@ spec:
               value: wiki
             - name: PGDATA
               value: /data/pgdata
-  # Volume Claim
+          ports:
+            - name: psql
+              containerPort: 5432
   volumeClaimTemplates:
     - metadata:
         name: postgresql-pvc

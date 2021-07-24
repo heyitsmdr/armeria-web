@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wikijs
+  namespace: armeria-wiki
+spec:
+  serviceName: wikijs
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikijs
+  template:
+    metadata:
+      labels:
+        app: wikijs
+    spec:
+      containers:
+        - name: wikijs
+          image: requarks/wiki:latest
+          imagePullPolicy: Always
+          env:
+            - name: DB_TYPE
+              value: postgres
+            - name: DB_HOST
+              value: postgres.armeria-wiki.svc
+            - name: DB_PORT
+              value: 5432
+            - name: DB_NAME
+              value: armeria
+            - name: DB_USER
+              value: wiki
+            - name: DB_PASS
+              value: wiki
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 128Mi
