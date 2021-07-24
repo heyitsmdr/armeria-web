@@ -2,7 +2,10 @@
 
 name: Deploy Armeria
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 env:
   REGISTRY: ghcr.io
