@@ -71,6 +71,6 @@ jobs:
       # Deploy Armeria and the Wiki.
       - name: Deploy
         run: |-
-          ./kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }}
+          cd deploy/armeria && ./kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }}
           ./kustomize build ./deploy/armeria | kubectl apply -f -
           ./kustomize build ./deploy/wiki | kubectl apply -f -
