@@ -8,5 +8,5 @@ resources:
   - templates/statefulset.yaml
 secretGenerator:
   - name: armeria-service-account
-    envs:
-      - .env.GKE_SA_KEY
+    files:
+      - secrets/GKE_SA_KEY

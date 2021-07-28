@@ -60,7 +60,8 @@ jobs:
       # Write secrets to disk for deploying.
       - name: Write secrets to disk
         run: |-
-          echo "${{ secrets.GKE_SA_KEY }}" > deploy/armeria/.env.GKE_SA_KEY
+          mkdir deploy/armeria/secrets
+          echo "${{ secrets.GKE_SA_KEY }}" > deploy/armeria/secrets/GKE_SA_KEY
 
       # Setup Kustomize.
       - name: Setup Kustomize
