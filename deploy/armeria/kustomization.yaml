@@ -6,3 +6,7 @@ resources:
   - templates/namespace.yaml
   - templates/configmap.yaml
   - templates/statefulset.yaml
+secretGenerator:
+  - name: armeria-service-account
+    envs:
+      - .env.GKE_SA_KEY

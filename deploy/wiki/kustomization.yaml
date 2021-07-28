@@ -10,7 +10,3 @@ resources:
   - templates/wikijs-service.yaml
   - templates/wikijs-cert.yaml
   - templates/wikijs-ingress.yaml
-secretGenerator:
-  - name: armeria-service-account
-    envs:
-      - .env.GKE_SA_KEY
