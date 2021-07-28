@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: wikijs
-  namespace: armeria-wiki
 spec:
   serviceName: wikijs
   replicas: 1

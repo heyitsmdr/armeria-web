@@ -34,10 +34,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Calculate the short sha
+        id: shagen
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
       - name: Build and push Docker image
         run: |-
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }} .
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }} .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }}
 
       # Setup gcloud cli.
       - name: Setup Gcloud CLI
@@ -53,14 +57,20 @@ jobs:
           location: ${{ env.GKE_ZONE }}
           credentials: ${{ secrets.GKE_SA_KEY }}
 
+      # Write secrets to disk for deploying.
+      - name: Write secrets to disk
+        run: |-
+          echo "${{ secrets.GKE_SA_KEY }}" > .env.GKE_SA_KEY
+
       # Setup Kustomize.
       - name: Setup Kustomize
         run: |-
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
 
-      # Deploy the Docker image to the GKE cluster.
+      # Deploy Armeria and the Wiki.
       - name: Deploy
         run: |-
-          ./kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}
-          ./kustomize build . | kubectl apply -f -
+          ./kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }}
+          ./kustomize build ./deploy/armeria | kubectl apply -f -
+          ./kustomize build ./deploy/wiki | kubectl apply -f -
