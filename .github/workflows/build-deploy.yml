@@ -68,9 +68,13 @@ jobs:
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
 
+      # Deploy Armeria image.
+      - name: Set Armeria image
+        run: ../../kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }}
+        working-directory: deploy/armeria
+
       # Deploy Armeria and the Wiki.
       - name: Deploy
         run: |-
-          cd deploy/armeria && ./kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.shagen.outputs.sha_short }}
           ./kustomize build ./deploy/armeria | kubectl apply -f -
           ./kustomize build ./deploy/wiki | kubectl apply -f -
