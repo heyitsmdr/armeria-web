@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/cloud"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -32,7 +33,7 @@ func (m *LedgerManager) LoadLedgers() {
 	m.Lock()
 	defer m.Unlock()
 
-	err := json.Unmarshal(Armeria.storageManager.ReadFile("ledgers.json"), m)
+	err := json.Unmarshal(Armeria.storageManager.ReadFile(cloud.LedgersFile), m)
 	if err != nil {
 		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
@@ -60,18 +61,9 @@ func (m *LedgerManager) SaveLedgers() {
 		)
 	}
 
-	bytes, err := ledgersFile.Write(raw)
-	if err != nil {
-		Armeria.log.Fatal("failed to write data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
+	bytes := Armeria.storageManager.WriteFile(cloud.LedgersFile, "application/json", raw)
 
-	_ = ledgersFile.Sync()
-
-	Armeria.log.Info("wrote data to file",
-		zap.String("file", m.dataFile),
+	Armeria.log.Info("wrote data to cloud",
 		zap.Int("bytes", bytes),
 	)
 }

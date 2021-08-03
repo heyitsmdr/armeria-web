@@ -17,6 +17,10 @@ type StorageManager struct {
 
 const (
 	CharactersFile = "characters.json"
+	WorldFile      = "world.json"
+	MobsFile       = "mobs.json"
+	ItemsFile      = "items.json"
+	LedgersFile    = "ledgers.json"
 )
 
 // NewStorageManager creates a new cloud storage manager instance.

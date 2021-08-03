@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/cloud"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -32,7 +33,7 @@ func (m *WorldManager) LoadWorld() {
 	m.Lock()
 	defer m.Unlock()
 
-	err := json.Unmarshal(Armeria.storageManager.ReadFile("world.json"), m)
+	err := json.Unmarshal(Armeria.storageManager.ReadFile(cloud.WorldFile), m)
 	if err != nil {
 		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
@@ -67,18 +68,9 @@ func (m *WorldManager) SaveWorld() {
 		)
 	}
 
-	bytes, err := worldFile.Write(raw)
-	if err != nil {
-		Armeria.log.Fatal("failed to write data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
+	bytes := Armeria.storageManager.WriteFile(cloud.WorldFile, "application/json", raw)
 
-	_ = worldFile.Sync()
-
-	Armeria.log.Info("wrote data to file",
-		zap.String("file", m.dataFile),
+	Armeria.log.Info("wrote data to cloud",
 		zap.Int("bytes", bytes),
 	)
 }

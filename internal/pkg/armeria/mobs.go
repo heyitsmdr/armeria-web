@@ -1,6 +1,7 @@
 package armeria
 
 import (
+	"armeria/internal/pkg/cloud"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -33,7 +34,7 @@ func (m *MobManager) LoadMobs() {
 	m.Lock()
 	defer m.Unlock()
 
-	err := json.Unmarshal(Armeria.storageManager.ReadFile("mobs.json"), m)
+	err := json.Unmarshal(Armeria.storageManager.ReadFile(cloud.MobsFile), m)
 	if err != nil {
 		Armeria.log.Fatal("failed to unmarshal data file",
 			zap.String("file", m.dataFile),
@@ -69,18 +70,9 @@ func (m *MobManager) SaveMobs() {
 		)
 	}
 
-	bytes, err := mobsFile.Write(raw)
-	if err != nil {
-		Armeria.log.Fatal("failed to write data file",
-			zap.String("file", m.dataFile),
-			zap.Error(err),
-		)
-	}
+	bytes := Armeria.storageManager.WriteFile(cloud.MobsFile, "application/json", raw)
 
-	_ = mobsFile.Sync()
-
-	Armeria.log.Info("wrote data to file",
-		zap.String("file", m.dataFile),
+	Armeria.log.Info("wrote data to cloud",
 		zap.Int("bytes", bytes),
 	)
 }
