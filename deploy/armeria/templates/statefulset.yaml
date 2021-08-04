@@ -32,7 +32,23 @@ spec:
           volumeMounts:
             - name: armeria-config-volume
               mountPath: /opt/armeria/config
+        - name: filebrowser
+          image: filebrowser/filebrowser
+          volumeMounts:
+            - name: armeria-data-pvc
+              mountPath: /srv
+          ports:
+            - name: data-http
+              containerPort: 80
       volumes:
         - name: armeria-config-volume
           configMap:
             name: armeria-config
+  volumeClaimTemplates:
+    - metadata:
+        name: armeria-data-pvc
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi
