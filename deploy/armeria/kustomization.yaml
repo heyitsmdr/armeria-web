@@ -9,6 +9,7 @@ resources:
   - templates/cert.yaml
   - templates/service.yaml
   - templates/ingress.yaml
+  - templates/backend-config.yaml
 secretGenerator:
   - name: armeria-service-account
     files:

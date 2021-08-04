@@ -1,0 +1,8 @@
+---
+# This manually configures the GCP load balancer to be able to handle long-living websocket connections.
+apiVersion: cloud.google.com/v1beta1
+kind: BackendConfig
+metadata:
+  name: armeria-backend-config
+spec:
+  timeoutSec: 43200 # 12 hours.
