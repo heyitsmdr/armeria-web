@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: wikijs
-  type: NodePort
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 3000
