@@ -6,6 +6,9 @@ resources:
   - templates/namespace.yaml
   - templates/configmap.yaml
   - templates/statefulset.yaml
+  - templates/cert.yaml
+  - templates/service.yaml
+  - templates/ingress.yaml
 secretGenerator:
   - name: armeria-service-account
     files:

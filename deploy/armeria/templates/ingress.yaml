@@ -1,0 +1,14 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: armeria
+  annotations:
+    networking.gke.io/managed-certificates: armeria-cert
+    kubernetes.io/ingress.class: "gce"
+spec:
+  defaultBackend:
+    service:
+      name: armeria
+      port:
+        number: 8081
