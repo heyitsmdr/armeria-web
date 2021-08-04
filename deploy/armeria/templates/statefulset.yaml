@@ -32,6 +32,8 @@ spec:
           volumeMounts:
             - name: armeria-config-volume
               mountPath: /opt/armeria/config
+            - name: armeria-data-pvc
+              mountPath: /opt/armeria/data
         - name: filebrowser
           image: filebrowser/filebrowser
           volumeMounts:
@@ -40,6 +42,12 @@ spec:
           ports:
             - name: data-http
               containerPort: 80
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              memory: 64Mi
       volumes:
         - name: armeria-config-volume
           configMap:

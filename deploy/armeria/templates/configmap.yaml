@@ -7,5 +7,5 @@ data:
   config.yml: |
     httpPort: 8081
     production: true
-    dataPath: "./data"
+    dataPath: "/opt/armeria/data"
     publicPath: "/opt/armeria/client"
