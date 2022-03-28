@@ -1,14 +1,12 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex';
 import { Room } from './models';
+import { app } from './main.js';
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export const store = createStore({
   state: {
     isProduction: process.env.NODE_ENV === "production",
-    deployAppName: process.env.VUE_APP_HEROKU_APP_NAME,
-    deployVersion: process.env.VUE_APP_HEROKU_RELEASE_VERSION,
+    deployAppName: 'dev',
+    deployVersion: 'v0',
     isConnected: false,
     gameText: [],
     allowGlobalHotkeys: true,
@@ -252,7 +250,7 @@ export default new Vuex.Store({
         commit('ADD_GAME_TEXT', `<div class="inline-loopback">${echoCmd}</div>`);
       }
 
-      Vue.prototype.$socket.sendObj({
+      app.config.globalProperties.$socket.sendObj({
         type: "command",
         payload: payload.command
       });
@@ -260,7 +258,7 @@ export default new Vuex.Store({
 
     sendKeepAlive: ({ state }) => {
       state.sentKeepAlive = Date.now();
-      Vue.prototype.$socket.sendObj({
+      app.config.globalProperties.$socket.sendObj({
         type: "ping",
       });
     },
@@ -351,7 +349,7 @@ export default new Vuex.Store({
     },
 
     disconnect: () => {
-      Vue.prototype.$socket.close();
+      app.config.globalProperties.$socket.close();
     },
 
     pong: ({ commit }) => {
@@ -392,7 +390,7 @@ export default new Vuex.Store({
 
     playSFX: (_, payload) => {
       const sfx = JSON.parse(payload.data);
-      Vue.prototype.$soundEvent(sfx.id, sfx.volume);
+      app.config.globalProperties.$soundEvent(sfx.id, sfx.volume);
     },
 
     setSettings: ({ commit }, payload) => {

@@ -27,7 +27,7 @@ function preload(soundFile, volume) {
 }
 
 export default {
-    install: function(Vue) {
+    install: function(app) {
         // Preload.
         const preloadMap = {
             INVENTORY_DRAG_START: ['sfx/mouse-click.wav', 1],
@@ -37,12 +37,13 @@ export default {
             CAT_MEOW: ['sfx/cat_meow.wav', 1],
             TELEPORT: ['sfx/teleport.wav', 0.1],
         };
+
         Object.keys(preloadMap).forEach(k => {
             sfxCache[k] = preload(preloadMap[k][0], preloadMap[k][1]);
         });
 
-        Vue.prototype.$soundEvent = function(event) {
+        app.config.globalProperties.$soundEvent = (event) => {
             sfxCache[event].play();
-        };
+        }
     }
 }

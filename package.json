@@ -9,35 +9,31 @@
     "ui": "vue-cli-service"
   },
   "dependencies": {
-    "@animxyz/core": "^0.1.1",
-    "@animxyz/vue": "^0.1.1",
+    "@animxyz/core": "^0.6.6",
+    "@animxyz/vue": "^0.6.6",
+    "@vue/compat": "^3.2.31",
     "discord.js": "^12.5.0",
-    "howler": "^2.2.0",
-    "pixi-ease": "^3.0.6",
-    "pixi.js": "^5.3.3",
-    "vue": "^2.6.12",
+    "howler": "^2.2.3",
+    "pixi-ease": "^3.0.7",
+    "pixi.js": "^6.2.2",
+    "vue": "^3.2.31",
     "vue-class-component": "^7.2.3",
-    "vue-color": "^2.7.1",
-    "vue-native-websocket": "^2.0.14",
+    "vue-color": "^2.8.1",
+    "vue-native-websocket-vue3": "^3.1.4",
     "vue-property-decorator": "^8.4.2",
-    "vue-select": "^3.10.8",
-    "vuex": "^3.5.1"
+    "vue-select": "^3.18.3",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.33.0",
-    "@typescript-eslint/parser": "^2.33.0",
-    "@vue/cli-plugin-babel": "^4.5.8",
-    "@vue/cli-plugin-eslint": "^4.5.8",
-    "@vue/cli-plugin-typescript": "~4.5.0",
-    "@vue/cli-service": "^4.5.8",
-    "@vue/eslint-config-typescript": "^5.0.2",
+    "@vue/cli-plugin-babel": "~5.0.4",
+    "@vue/cli-plugin-eslint": "~5.0.4",
+    "@vue/cli-service": "~5.0.4",
+    "@vue/compiler-sfc": "^2.6.14",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.11.0",
-    "eslint-plugin-vue": "^7.1.0",
-    "sass": "^1.27.0",
-    "sass-loader": "^10.0.3",
-    "typescript": "~3.9.3",
-    "vue-template-compiler": "^2.6.12"
+    "eslint": "^8.10.0",
+    "eslint-plugin-vue": "^8.5.0",
+    "sass": "^1.49.9",
+    "sass-loader": "^12.6.0"
   },
   "eslintConfig": {
     "root": true,
@@ -46,12 +42,10 @@
     },
     "extends": [
       "plugin:vue/essential",
-      "eslint:recommended",
-      "@vue/typescript"
+      "eslint:recommended"
     ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "@typescript-eslint/parser"
+    "rules": {
+      "vue/multi-word-component-names": "off"
     }
   },
   "postcss": {

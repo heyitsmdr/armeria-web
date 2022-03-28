@@ -21,338 +21,340 @@
     </div>
 </template>
 
-<script>
-    import {mapState} from 'vuex';
+<script setup>
+    import { ref, computed, watch, nextTick, onMounted } from 'vue';
+    import { useStore } from 'vuex';
 
-    export default {
-        name: 'InputBox',
-        data: () => {
-            return {
-                textToSend: '',
-                password: '',
-                isFocused: false,
-                lastCommandHistoryIndex: -1,
-                commandHelpVisible: false,
-                helpHTML: '',
-            }
-        },
-        computed: {
-            expandedCommandDictionary: function() {
-                const dict = [];
-                this.commandDictionary.forEach(d => dict.push(d));
-                this.commandDictionary.forEach(cmd => {
-                    if (cmd.altNames) {
-                        cmd.altNames.forEach(alt => {
-                            let newCmd = Object.assign({}, cmd);
-                            newCmd.name = alt;
-                            newCmd.altNames = [];
-                            dict.push(newCmd);
-                        });
+    const store = useStore();
 
-                    }
+    // Defaults.
+    const inputBox = ref(null);      // Vue auto maps this to the underlying HTML reference.
+    const commandHelper = ref(null); // Auto-mapped.
+    const textToSend = ref('');
+    const password = ref('');
+    const isFocused = ref(false);
+    const lastCommandHistoryIndex = ref(-1);
+    const commandHelpVisible = ref(false);
+    const helpHTML = ref('');
+
+    // State from store.
+    const forceInputFocus = computed(() => store.state.forceInputFocus);
+    const commandHistory = computed(() => store.state.commandHistory);
+    const commandDictionary = computed(() => store.state.commandDictionary);
+
+    // Computed.
+    const expandedCommandDictionary = computed(() => {
+        const dict = [];
+        commandDictionary.value.forEach(d => dict.push(d));
+        commandDictionary.value.forEach(cmd => {
+            if (cmd.altNames) {
+                cmd.altNames.forEach(alt => {
+                    let newCmd = Object.assign({}, cmd);
+                    newCmd.name = alt;
+                    newCmd.altNames = [];
+                    dict.push(newCmd);
                 });
-                return dict;
-            },
-            ...mapState(['objectEditorOpen', 'forceInputFocus', 'commandHistory', 'commandDictionary']),
-        },
-        mounted() {
-            this.$refs['inputBox'].focus();
-        },
-        watch: {
-            forceInputFocus: function (data) {
-                if (data.forced) {
-                    this.$refs['inputBox'].focus();
-                    if (data.text) {
-                        this.textToSend = data.text;
-                    }
-                    this.$store.dispatch('setForceInputFocus', {forced: false});
-                }
+
             }
-        },
-        methods: {
-            checkDebugCommands(cmd) {
-                if (cmd === '//openeditor') {
-                    this.$store.dispatch('setObjectEditorOpen', true);
-                    return true;
-                } else if (cmd === '//closeeditor') {
-                    this.$store.dispatch('setObjectEditorOpen', false);
-                    return true;
-                } else if (cmd === '//clearttcache') {
-                    this.$store.dispatch('clearItemTooltipCache', false);
-                    this.$store.dispatch('showText', { data: `\n[DEBUG] Item tooltip cache has been cleared on your client.\n` });
-                    return true;
-                }
+        });
+        return dict;
+    });
 
-                return false;
-            },
+    // Watches.
+    watch(forceInputFocus, (newValue) => {
+        if (newValue.forced) {
+            inputBox.value.focus();
+            if (newValue.text) {
+                textToSend.value = newValue.text;
+            }
+            store.dispatch('setForceInputFocus', { forced: false });
+        }
+    });
 
-            selectAll: function() {
-                this.$refs['inputBox'].select();
-            },
+    // Mounted.
+    onMounted(() => {
+        inputBox.value.focus();
+    });
 
-            getLastCommand() {
-                let retrieveIndex = 0;
+    // Methods.
+    function checkDebugCommands(cmd) {
+        if (cmd === '//openeditor') {
+            store.dispatch('setObjectEditorOpen', true);
+            return true;
+        } else if (cmd === '//closeeditor') {
+            store.dispatch('setObjectEditorOpen', false);
+            return true;
+        } else if (cmd === '//clearttcache') {
+            store.dispatch('clearItemTooltipCache', false);
+            store.dispatch('showText', { data: `\n[DEBUG] Item tooltip cache has been cleared on your client.\n` });
+            return true;
+        }
 
-                if (this.lastCommandHistoryIndex === -1) {
-                    retrieveIndex = this.commandHistory.length - 1;
-                    this.lastCommandHistoryIndex = retrieveIndex;
-                } else if (this.lastCommandHistoryIndex > 0) {
-                    retrieveIndex = this.lastCommandHistoryIndex - 1;
-                    this.lastCommandHistoryIndex = retrieveIndex
-                }
+        return false;
+    }
 
-                return this.commandHistory[retrieveIndex];
-            },
+    function selectAll() {
+        inputBox.value.select();
+    }
 
-            getNextCommand() {
-                let retrieveIndex = this.lastCommandHistoryIndex;
+    function getLastCommand() {
+        let retrieveIndex = 0;
 
-                if (retrieveIndex === -1) {
-                    retrieveIndex = this.commandHistory.length - 1;
-                    this.lastCommandHistoryIndex = retrieveIndex;
-                } else if (this.lastCommandHistoryIndex < (this.commandHistory.length - 1)) {
-                    retrieveIndex = this.lastCommandHistoryIndex + 1;
-                    this.lastCommandHistoryIndex = retrieveIndex
-                }
+        if (lastCommandHistoryIndex.value === -1) {
+            retrieveIndex = commandHistory.value.length - 1;
+            lastCommandHistoryIndex.value = retrieveIndex;
+        } else if (lastCommandHistoryIndex.value > 0) {
+            retrieveIndex = lastCommandHistoryIndex.value - 1;
+            lastCommandHistoryIndex.value = retrieveIndex
+        }
 
-                return this.commandHistory[retrieveIndex];
-            },
+        return commandHistory.value[retrieveIndex];
+    }
 
-            getCommandSegments(str) {
-                let args = [];
-                let recording = '';
-                let inQuotes = false;
+    function getNextCommand() {
+        let retrieveIndex = lastCommandHistoryIndex.value;
 
-                for(let i = 0; i < str.length; i++) {
-                    const char = str[i];
+        if (retrieveIndex === -1) {
+            retrieveIndex = commandHistory.value.length - 1;
+            lastCommandHistoryIndex.value = retrieveIndex;
+        } else if (lastCommandHistoryIndex.value < (commandHistory.value.length - 1)) {
+            retrieveIndex = lastCommandHistoryIndex.value + 1;
+            lastCommandHistoryIndex.value = retrieveIndex
+        }
 
-                    if (char === ' ' && !inQuotes) {
-                        if (recording.length > 0) {
-                            args.push(recording);
-                            recording = '';
-                        }
-                    } else if (char === '"') {
-                        if (inQuotes) {
-                            inQuotes = false;
-                            args.push(recording);
-                            recording = '';
-                        } else {
-                            inQuotes = true;
-                        }
-                    } else {
-                        recording += char;
-                    }
-                }
+        return commandHistory.value[retrieveIndex];
+    }
 
-                // If there is anything in the buffer, push it as an element.
+    function getCommandSegments(str) {
+        let args = [];
+        let recording = '';
+        let inQuotes = false;
+
+        for(let i = 0; i < str.length; i++) {
+            const char = str[i];
+
+            if (char === ' ' && !inQuotes) {
                 if (recording.length > 0) {
                     args.push(recording);
+                    recording = '';
                 }
-
-                // If string ends in a space or open quotes, add an empty element to the array.
-                if (!inQuotes && str.substr(str.length - 1, 1) === ' ') {
-                    args.push('');
+            } else if (char === '"') {
+                if (inQuotes) {
+                    inQuotes = false;
+                    args.push(recording);
+                    recording = '';
+                } else {
+                    inQuotes = true;
                 }
+            } else {
+                recording += char;
+            }
+        }
 
-                if (inQuotes && str.substr(str.length - 1, 1) === '"') {
-                    args.push('');
+        // If there is anything in the buffer, push it as an element.
+        if (recording.length > 0) {
+            args.push(recording);
+        }
+
+        // If string ends in a space or open quotes, add an empty element to the array.
+        if (!inQuotes && str.substr(str.length - 1, 1) === ' ') {
+            args.push('');
+        }
+
+        if (inQuotes && str.substr(str.length - 1, 1) === '"') {
+            args.push('');
+        }
+
+        return args;
+    }
+
+    async function renderHelp() {
+        const rawCommand = textToSend.value.substr(1);
+        const commandSegments = getCommandSegments(rawCommand);
+        const baseCommand = commandSegments[0].toLowerCase();
+
+        helpHTML.value = '';
+        for(let i = 0; i < expandedCommandDictionary.value.length; i++) {
+            const cmd = expandedCommandDictionary.value[i];
+            if (baseCommand.length > cmd.name.length) {
+                continue;
+            } else if (cmd.name.substr(0, baseCommand.length) !== baseCommand) {
+                continue;
+            }
+
+            if (commandSegments.length > 1 && cmd.args && cmd.args.length > 0) {
+                // Arguments on a root-level command.
+                if (baseCommand !== cmd.name) {
+                    continue;
                 }
+                helpHTML.value += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
+                let argHelp = '';
+                for(let i = 0; i < cmd.args.length; i++) {
+                    const arg = cmd.args[i];
+                    const bracketOpen = arg.Optional ? '&lt;' : '[';
+                    const bracketClose = arg.Optional ? '&gt;' : ']';
 
-                return args;
-            },
+                    if ((i + 1) <= (commandSegments.length - 1)) {
+                        helpHTML.value += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
+                        argHelp = arg.Help;
+                    } else {
+                        helpHTML.value += `${bracketOpen}${arg.Name}${bracketClose} `;
+                    }
+                }
+                if (argHelp.length > 0) {
+                    helpHTML.value += ` - ${argHelp}`;
+                }
+                helpHTML.value += `</div>`;
+            } else if (commandSegments.length === 2 && cmd.subCommands && cmd.subCommands.length > 0) {
+                // Sub-commands.
+                helpHTML.value += `<div><span style="color:#ffe500"><b>/${cmd.name}</b> &lt;sub-command&gt;</span></div>`;
+                helpHTML.value += `<br><div><b>Sub-commands:</b></div>`;
+                for(let i = 0; i < cmd.subCommands.length; i++) {
+                    const subcmd = cmd.subCommands[i];
 
-            renderHelp() {
-                const rawCommand = this.textToSend.substr(1);
-                const commandSegments = this.getCommandSegments(rawCommand);
-                const baseCommand = commandSegments[0].toLowerCase();
-
-                this.helpHTML = '';
-                for(let i = 0; i < this.expandedCommandDictionary.length; i++) {
-                    const cmd = this.expandedCommandDictionary[i];
-                    if (baseCommand.length > cmd.name.length) {
+                    if (commandSegments[1].length > subcmd.name.length) {
                         continue;
-                    } else if (cmd.name.substr(0, baseCommand.length) !== baseCommand) {
+                    } else if (subcmd.name.substr(0, commandSegments[1].length) !== commandSegments[1]) {
                         continue;
                     }
 
-                    if (commandSegments.length > 1 && cmd.args && cmd.args.length > 0) {
-                        // Arguments on a root-level command.
-                        if (baseCommand !== cmd.name) {
-                            continue;
-                        }
-                        this.helpHTML += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
-                        let argHelp = '';
-                        for(let i = 0; i < cmd.args.length; i++) {
-                            const arg = cmd.args[i];
+                    helpHTML.value += `<div>&nbsp;&nbsp;<b><span style="color:#ffe500">${commandSegments[1]}</span>${subcmd.name.substr(commandSegments[1].length)}</b> - ${subcmd.help}</div>`;
+                }
+            } else if (commandSegments.length > 2 && cmd.subCommands && cmd.subCommands.length > 0) {
+                // Arguments on a sub-command.
+                helpHTML.value += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
+                let subcmd = null
+                for(let i = 0; i < cmd.subCommands.length; i++) {
+                    if (commandSegments[1] === cmd.subCommands[i].name) {
+                        subcmd = cmd.subCommands[i];
+                        break;
+                    }
+                }
+                let argHelp = '';
+                if (subcmd) {
+                    helpHTML.value += `<b><span style="color:#ffe500">${subcmd.name}</span></b> `;
+                    if (subcmd.args && subcmd.args.length > 0) {
+                        for(let i = 0; i < subcmd.args.length; i++) {
+                            const arg = subcmd.args[i];
                             const bracketOpen = arg.Optional ? '&lt;' : '[';
                             const bracketClose = arg.Optional ? '&gt;' : ']';
 
-                            if ((i + 1) <= (commandSegments.length - 1)) {
-                                this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
+                            if ((i + 1) <= (commandSegments.length - 2)) {
+                                helpHTML.value += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
                                 argHelp = arg.Help;
                             } else {
-                                this.helpHTML += `${bracketOpen}${arg.Name}${bracketClose} `;
+                                helpHTML.value += `${bracketOpen}${arg.Name}${bracketClose} `;
                             }
                         }
-                        if (argHelp.length > 0) {
-                            this.helpHTML += ` - ${argHelp}`;
-                        }
-                        this.helpHTML += `</div>`;
-                    } else if (commandSegments.length === 2 && cmd.subCommands && cmd.subCommands.length > 0) {
-                        // Sub-commands.
-                        this.helpHTML += `<div><span style="color:#ffe500"><b>/${cmd.name}</b> &lt;sub-command&gt;</span></div>`;
-                        this.helpHTML += `<br><div><b>Sub-commands:</b></div>`;
-                        for(let i = 0; i < cmd.subCommands.length; i++) {
-                            const subcmd = cmd.subCommands[i];
-
-                            if (commandSegments[1].length > subcmd.name.length) {
-                                continue;
-                            } else if (subcmd.name.substr(0, commandSegments[1].length) !== commandSegments[1]) {
-                                continue;
-                            }
-
-                            this.helpHTML += `<div>&nbsp;&nbsp;<b><span style="color:#ffe500">${commandSegments[1]}</span>${subcmd.name.substr(commandSegments[1].length)}</b> - ${subcmd.help}</div>`;
-                        }
-                    } else if (commandSegments.length > 2 && cmd.subCommands && cmd.subCommands.length > 0) {
-                        // Arguments on a sub-command.
-                        this.helpHTML += `<div><b><span style="color:#ffe500">/${cmd.name}</span></b> `;
-                        let subcmd = null
-                        for(let i = 0; i < cmd.subCommands.length; i++) {
-                            if (commandSegments[1] === cmd.subCommands[i].name) {
-                                subcmd = cmd.subCommands[i];
-                                break;
-                            }
-                        }
-                        let argHelp = '';
-                        if (subcmd) {
-                            this.helpHTML += `<b><span style="color:#ffe500">${subcmd.name}</span></b> `;
-                            if (subcmd.args && subcmd.args.length > 0) {
-                                for(let i = 0; i < subcmd.args.length; i++) {
-                                    const arg = subcmd.args[i];
-                                    const bracketOpen = arg.Optional ? '&lt;' : '[';
-                                    const bracketClose = arg.Optional ? '&gt;' : ']';
-
-                                    if ((i + 1) <= (commandSegments.length - 2)) {
-                                        this.helpHTML += `<span style="color:#ffe500">${bracketOpen}${arg.Name}${bracketClose}</span> `;
-                                        argHelp = arg.Help;
-                                    } else {
-                                        this.helpHTML += `${bracketOpen}${arg.Name}${bracketClose} `;
-                                    }
-                                }
-                            }
-                        }
-                        if (argHelp.length > 0) {
-                            this.helpHTML += ` - ${argHelp}`;
-                        }
-                        this.helpHTML += `</div>`;
-                    } else {
-                        this.helpHTML += `<div>` +
-                            `<b><span style="color:#ffe500">/${baseCommand}</span>${cmd.name.substr(baseCommand.length)}</b>` +
-                            ` - ${cmd.help}` +
-                            ` <span style="color:#f00;font-weight:600">${(cmd.permissions && cmd.permissions.RequirePermission) ? '['+cmd.permissions.RequirePermission+']' : ''}</span>` +
-                            `</div>`;
                     }
                 }
-
-                // Show or hide depending on results being found.
-                if (this.helpHTML.length === 0) {
-                    this.commandHelpVisible = false;
-                } else {
-                    this.commandHelpVisible = true;
-                    this.$nextTick(() => {
-                        const commandHelperHeight = this.$refs['commandHelper'].clientHeight;
-                        this.$refs['commandHelper'].style.top = `-${commandHelperHeight + 2}px`;
-                    });
+                if (argHelp.length > 0) {
+                    helpHTML.value += ` - ${argHelp}`;
                 }
-            },
-
-            handleSendText() {
-                let slashCommand = this.textToSend;
-
-                if (slashCommand.length === 0) {
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: '/look',
-                        hidden: true,
-                    });
-                } else if (slashCommand.substr(0, 1) !== '/') {
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: `/say ${slashCommand}`,
-                        hidden: true,
-                    });
-                } else if (slashCommand.substr(0, 6).toLowerCase() === '/login') {
-                    let characterName = slashCommand.split(' ')[1];
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: `/login ${characterName} ${this.password}`
-                    });
-                } else if (this.checkDebugCommands(slashCommand)) {
-                    // do nothing
-                } else {
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: slashCommand
-                    });
-                }
-
-
-                this.textToSend = '';
-                this.lastCommandHistoryIndex = -1;
-            },
-
-            handleRemoveFocus(event) {
-                this.commandHelpVisible = false;
-                this.$nextTick(() => {
-                    event.target.blur();
-                });
-            },
-
-            handleFocus() {
-                this.isFocused = true;
-                this.$store.dispatch('setAllowGlobalHotkeys', false);
-            },
-
-            handleBlur() {
-                this.$store.dispatch('setAllowGlobalHotkeys', true);
-                this.commandHelpVisible = false;
-                this.$nextTick(() => {
-                    this.isFocused = false;
-                });
-            },
-
-            handleKeyDown(e) {
-                if (e.key === 'ArrowUp') {
-                    this.textToSend = this.getLastCommand();
-                    setTimeout(this.selectAll, 10);
-                } else if (e.key === 'ArrowDown') {
-                    this.textToSend = this.getNextCommand();
-                    setTimeout(this.selectAll, 10);
-                } else if (this.textToSend.substr(0, 6).toLowerCase() === '/login' && this.textToSend.split(" ").length === 3) {
-                    if (e.key === 'Backspace') {
-                        this.password = this.password.slice(0, this.password.length - 1);
-                        this.textToSend = this.textToSend.slice(0, this.textToSend.length - 1);
-                        this.textToSend += "*";
-                    } else if (e.key !== 'Enter' && e.key !== 'Escape') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.password += e.key;
-                        this.textToSend += "*";
-                    }
-                } else {
-                    this.password = "";
-                }
-            },
-
-            handleKeyUp() {
-                // Render help for slash commands.
-                if (this.textToSend.substr(0, 1) === '/' && this.textToSend.length > 1) {
-                    this.renderHelp();
-                } else {
-                    this.commandHelpVisible = false;
-                }
-            },
-
-            handleHotkeyOverlayClick() {
-                this.$refs['inputBox'].focus();
+                helpHTML.value += `</div>`;
+            } else {
+                helpHTML.value += `<div>` +
+                    `<b><span style="color:#ffe500">/${baseCommand}</span>${cmd.name.substr(baseCommand.length)}</b>` +
+                    ` - ${cmd.help}` +
+                    ` <span style="color:#f00;font-weight:600">${(cmd.permissions && cmd.permissions.RequirePermission) ? '['+cmd.permissions.RequirePermission+']' : ''}</span>` +
+                    `</div>`;
             }
         }
+
+        // Show or hide depending on results being found.
+        if (helpHTML.value.length === 0) {
+            commandHelpVisible.value = false;
+        } else {
+            commandHelpVisible.value = true;
+            await nextTick();
+            const commandHelperHeight = commandHelper.value.clientHeight;
+            commandHelper.value.style.top = `-${commandHelperHeight + 2}px`;
+        }
+    }
+
+    function handleSendText() {
+        let slashCommand = textToSend.value;
+
+        if (slashCommand.length === 0) {
+            store.dispatch('sendSlashCommand', {
+                command: '/look',
+                hidden: true,
+            });
+        } else if (slashCommand.substr(0, 1) !== '/') {
+            store.dispatch('sendSlashCommand', {
+                command: `/say ${slashCommand}`,
+                hidden: true,
+            });
+        } else if (slashCommand.substr(0, 6).toLowerCase() === '/login') {
+            let characterName = slashCommand.split(' ')[1];
+            store.dispatch('sendSlashCommand', {
+                command: `/login ${characterName} ${password.value}`
+            });
+        } else if (checkDebugCommands(slashCommand)) {
+            // do nothing
+        } else {
+            store.dispatch('sendSlashCommand', {
+                command: slashCommand
+            });
+        }
+
+
+        textToSend.value = '';
+        lastCommandHistoryIndex.value = -1;
+    }
+
+    async function handleRemoveFocus(event) {
+        commandHelpVisible.value = false;
+        await nextTick();
+        event.target.blur();
+    }
+
+    function handleFocus() {
+        isFocused.value = true;
+        store.dispatch('setAllowGlobalHotkeys', false);
+    }
+
+    async function handleBlur() {
+        await store.dispatch('setAllowGlobalHotkeys', true);
+        commandHelpVisible.value = false;
+        await nextTick();
+        isFocused.value = false;
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === 'ArrowUp') {
+            textToSend.value = getLastCommand();
+            setTimeout(selectAll, 10);
+        } else if (e.key === 'ArrowDown') {
+            textToSend.value = getNextCommand();
+            setTimeout(selectAll, 10);
+        } else if (textToSend.value.substr(0, 6).toLowerCase() === '/login' && textToSend.value.split(" ").length === 3) {
+            if (e.key === 'Backspace') {
+                password.value = password.value.slice(0, password.value.length - 1);
+                textToSend.value = textToSend.value.slice(0, textToSend.value.length - 1);
+                textToSend.value += "*";
+            } else if (e.key !== 'Enter' && e.key !== 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                password.value += e.key;
+                textToSend.value += "*";
+            }
+        } else {
+            password.value = "";
+        }
+    }
+
+    function handleKeyUp() {
+        // Render help for slash commands.
+        if (textToSend.value.substr(0, 1) === '/' && textToSend.value.length > 1) {
+            renderHelp();
+        } else {
+            commandHelpVisible.value = false;
+        }
+    }
+
+    function handleHotkeyOverlayClick() {
+        inputBox.value.focus();
     }
 </script>
 
