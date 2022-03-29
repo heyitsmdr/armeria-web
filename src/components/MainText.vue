@@ -8,7 +8,7 @@
         </div>
         <div
                 class="item-drag-overlay"
-                ref="item-overlay"
+                ref="itemOverlay"
                 @dragenter="handleItemOverlayDragEnter"
                 @dragleave="handleItemOverlayDragLeave"
                 @drop="handleItemOverlayDrop"
@@ -20,162 +20,165 @@
     </div>
 </template>
 
-<script>
-import {mapGetters, mapState} from 'vuex'
-    import ObjectEditor from "./ObjectEditor";
+<script setup>
+    import { ref, computed, watch, onUpdated, onMounted, nextTick } from 'vue';
+    import { useStore } from 'vuex';
+    import ObjectEditor from './ObjectEditor.vue';
 
-    export default {
-        name: 'MainText',
-        components: {ObjectEditor},
-        data: function () {
-            return {
-                lineNumber: 0,
-                lastItemTooltipUUID: '',
-            }
-        },
-        props: {
-            windowHeight: Number,
-        },
-        computed: {
-            ...mapState(['gameText', 'itemBeingDragged', 'settings']),
-            ...mapGetters(['hasPermission']),
-            containerHeight() {
-                const height = this.windowHeight - 37 - 30 - 2 - 35;
-                return `${height}px`;
-            }
-        },
-        watch: {
-            gameText: function(lines) {
-                let maxLines = this.settings['lines'];
-                if (!maxLines) {
+    const store = useStore();
+
+    // Props.
+    const props = defineProps({
+        windowHeight: Number
+    });
+
+    // Defaults.
+    const mainTextContainer = ref(null); // Auto-mapped to HTML reference.
+    const itemOverlay = ref(null);       // Auto-mapped to HTML reference.
+    const lastItemTooltipUUID = ref('');
+
+    // State/Getters from store.
+    const gameText = computed(() => store.state.gameText);
+    const itemBeingDragged = computed(() => store.state.itemBeingDragged);
+    const settings = computed(() => store.state.settings);
+    const hasPermission = computed(() => store.getters.hasPermission);
+
+    // Computed.
+    const containerHeight = computed(() => {
+        const height = props.windowHeight - 37 - 30 - 2 - 35;
+        return `${height}px`;
+    });
+
+    // Watches.
+    watch(gameText, (lines) => {
+        let maxLines = settings.value['lines'];
+        if (!maxLines) {
+            return;
+        }
+
+        maxLines = parseInt(maxLines);
+
+        if (maxLines > lines.length) {
+            // TODO: Delete the oldest line here.
+        }
+    });
+
+    // Updated.
+    onUpdated(async () => {
+        await nextTick();
+        mainTextContainer.value.scrollTop = 9999999;
+    });
+
+    // Mounted.
+    onMounted(() => {
+        document.addEventListener('click', e => {
+            if (e.target.className === 'convo-select') {
+                const optionDisabled = e.target.getAttribute('data-disabled');
+                const groupId = e.target.getAttribute('data-group');
+                const convoOptionId = e.target.getAttribute('data-convo-option-id');
+                const mobUUID = e.target.getAttribute('data-mob-uuid');
+
+                if (optionDisabled && optionDisabled === 'true') {
                     return;
                 }
 
-                maxLines = parseInt(maxLines);
-
-                if (maxLines > lines.length) {
-                    // Delete the oldest line here.
-                }
-            }
-        },
-        updated: function () {
-            this.$nextTick(function () {
-                const div = this.$refs['mainTextContainer'];
-                div.scrollTop = 9999999;
-            });
-        },
-        mounted: function () {
-            document.addEventListener('click', e => {
-                if (e.target.className === 'convo-select') {
-                    const optionDisabled = e.target.getAttribute('data-disabled');
-                    const groupId = e.target.getAttribute('data-group');
-                    const convoOptionId = e.target.getAttribute('data-convo-option-id');
-                    const mobUUID = e.target.getAttribute('data-mob-uuid');
-
-                    if (optionDisabled && optionDisabled === 'true') {
-                        return;
-                    }
-
-                    const groupSpans = document.querySelectorAll(`.convo-select[data-group="${groupId}"]`);
-                    groupSpans.forEach(span => {
-                        span.style.color = '#444';
-                        span.style.borderLeftColor = '#444';
-                        span.style.borderBottomColor = '#292929';
-                        span.setAttribute('data-disabled', 'true');
-                    });
-
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: `/select "${mobUUID}" "${convoOptionId}"`,
-                        hidden: true,
-                    });
-                } else if (e.target.className === 'inline-command') {
-                    const commandEncoded = e.target.getAttribute('data-command');
-                    const buff = new Buffer(commandEncoded, 'base64');
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: buff.toString('ascii'),
-                        hidden: true,
-                    });
-                }
-            });
-
-            document.addEventListener('mousemove', e => {
-                if (e.target.className === 'hover-item-tooltip') {
-                    const uuid = e.target.getAttribute('data-uuid');
-                    if (this.lastItemTooltipUUID !== uuid) {
-                        this.lastItemTooltipUUID = uuid;
-                        this.$store.dispatch('showItemTooltip', uuid);
-                    }
-                    this.$store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
-                } else if (this.lastItemTooltipUUID.length > 0) {
-                    this.lastItemTooltipUUID = '';
-                    this.$store.dispatch('hideItemTooltip');
-                }
-            }, false);
-
-            document.addEventListener('contextmenu', e => {
-                let menuSpan;
-                if (e.target.className === 'hover-item-tooltip') {
-                  if (e.path[1].className === 'dynamic-context-menu') {
-                      menuSpan = e.path[1];
-                  }
-                } else if (e.target.className === 'dynamic-context-menu') {
-                    menuSpan = e.target;
-                }
-
-                if (!menuSpan) {
-                    return;
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                const contentEncoded = menuSpan.getAttribute('data-content');
-                const buff = new Buffer(contentEncoded, 'base64');
-                let menuItems = buff.toString('ascii').replaceAll('@', '%s').split(';');
-                menuItems = menuItems.filter(c => {
-                    const sections = c.split('|');
-                    if (sections.length >= 4 && sections[3] === 'admin') {
-                        return this.hasPermission('CAN_BUILD');
-                    }
-
-                    return true;
+                const groupSpans = document.querySelectorAll(`.convo-select[data-group="${groupId}"]`);
+                groupSpans.forEach(span => {
+                    span.style.color = '#444';
+                    span.style.borderLeftColor = '#444';
+                    span.style.borderBottomColor = '#292929';
+                    span.setAttribute('data-disabled', 'true');
                 });
 
-                this.$store.dispatch(
-                    'showContextMenu',
-                    {
-                        object: {
-                            name: menuSpan.getAttribute('data-name'),
-                            color: `#${menuSpan.getAttribute('data-color')}`,
-                            subjectBrackets: (menuSpan.getAttribute('data-type') === 'item'),
-                        },
-                        at: {
-                            x: e.pageX,
-                            y: e.pageY,
-                        },
-                        items: menuItems,
-                    }
-                );
-            }, false);
-        },
-        methods: {
-            handleItemOverlayDragEnter: function () {
-                this.$refs['item-overlay'].classList.add('item-over');
-            },
-
-            handleItemOverlayDragLeave: function () {
-                this.$refs['item-overlay'].classList.remove('item-over');
-            },
-
-            handleItemOverlayDrop: function (e) {
-                this.$refs['item-overlay'].classList.remove('item-over');
-                let iuuid = e.dataTransfer.getData("item_uuid");
-                this.$store.dispatch('sendSlashCommand', {
-                    command: `/drop "${iuuid}"`,
+                store.dispatch('sendSlashCommand', {
+                    command: `/select "${mobUUID}" "${convoOptionId}"`,
+                    hidden: true,
+                });
+            } else if (e.target.className === 'inline-command') {
+                const commandEncoded = e.target.getAttribute('data-command');
+                store.dispatch('sendSlashCommand', {
+                    command: atob(commandEncoded),
                     hidden: true,
                 });
             }
-        },
+        });
+
+        document.addEventListener('mousemove', e => {
+            if (e.target.className === 'hover-item-tooltip') {
+                const uuid = e.target.getAttribute('data-uuid');
+                if (lastItemTooltipUUID.value !== uuid) {
+                    lastItemTooltipUUID.value = uuid;
+                    store.dispatch('showItemTooltip', uuid);
+                }
+                store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
+            } else if (lastItemTooltipUUID.value.length > 0) {
+                lastItemTooltipUUID.value = '';
+                store.dispatch('hideItemTooltip');
+            }
+        }, false);
+
+        document.addEventListener('contextmenu', e => {
+            let menuSpan;
+            if (e.target.className === 'hover-item-tooltip') {
+                if (e.path[1].className === 'dynamic-context-menu') {
+                    menuSpan = e.path[1];
+                }
+            } else if (e.target.className === 'dynamic-context-menu') {
+                menuSpan = e.target;
+            }
+
+            if (!menuSpan) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const contentEncoded = menuSpan.getAttribute('data-content');
+            let menuItems = atob(contentEncoded).replaceAll('@', '%s').split(';');
+            menuItems = menuItems.filter(c => {
+                const sections = c.split('|');
+                if (sections.length >= 4 && sections[3] === 'admin') {
+                    return hasPermission('CAN_BUILD');
+                }
+
+                return true;
+            });
+
+            store.dispatch(
+                'showContextMenu',
+                {
+                    object: {
+                        name: menuSpan.getAttribute('data-name'),
+                        color: `#${menuSpan.getAttribute('data-color')}`,
+                        subjectBrackets: (menuSpan.getAttribute('data-type') === 'item'),
+                    },
+                    at: {
+                        x: e.pageX,
+                        y: e.pageY,
+                    },
+                    items: menuItems,
+                }
+            );
+        }, false);
+    });
+
+    // Methods.
+    function handleItemOverlayDragEnter() {
+        itemOverlay.value.classList.add('item-over');
+    }
+
+    function handleItemOverlayDragLeave() {
+        itemOverlay.value.classList.remove('item-over');
+    }
+
+    function handleItemOverlayDrop(e) {
+        itemOverlay.value.classList.remove('item-over');
+        let iuuid = e.dataTransfer.getData("item_uuid");
+        store.dispatch('sendSlashCommand', {
+            command: `/drop "${iuuid}"`,
+            hidden: true,
+        });
     }
 </script>
 
