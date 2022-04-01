@@ -163,20 +163,29 @@
         }, false);
     });
 
-    // Methods.
+    /**
+     * Handles showing the item overlay when an item is dragged over the main text area.
+     */
     function handleItemOverlayDragEnter() {
         itemOverlay.value.classList.add('item-over');
     }
 
+    /**
+     * Handles hiding the item overlay when an item is no longer being dragged over the main text area.
+     */
     function handleItemOverlayDragLeave() {
         itemOverlay.value.classList.remove('item-over');
     }
 
+    /**
+     * Handles the drop event for an item being dropped on top of the main text area.
+     * @param {DragEvent} e
+     */
     function handleItemOverlayDrop(e) {
         itemOverlay.value.classList.remove('item-over');
-        let iuuid = e.dataTransfer.getData("item_uuid");
+        const uuid = e.dataTransfer.getData("item_uuid");
         store.dispatch('sendSlashCommand', {
-            command: `/drop "${iuuid}"`,
+            command: `/drop "${uuid}"`,
             hidden: true,
         });
     }
