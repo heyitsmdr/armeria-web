@@ -18,49 +18,43 @@
     </div>
 </template>
 
-<script>
-    import {mapState} from 'vuex';
+<script setup>
+    import { ref, computed, onBeforeMount } from 'vue';
+    import { useStore } from 'vuex';
     import Item from '@/components/Item';
 
-    export default {
-        name: 'Inventory',
-        components: {
-            Item
-        },
-        data: function () {
-            return {
-                formatter: null,
-            }
-        },
-        beforeMount: function () {
-            this.formatter = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            });
-        },
-        computed: {
-            ...mapState(['inventory', 'money']),
-            formattedMoney: function() {
-                return this.formatter.format(parseFloat(this.money));
-            },
-            items: function () {
-                let itemDef = {};
-                this.inventory.forEach(item => {
-                    itemDef[item.slot] = item
-                });
+    const formatter = ref(null);
 
-                let items = [];
-                for (let i = 0; i < 35; i++) {
-                    if (itemDef[i]) {
-                        items.push(itemDef[i]);
-                    } else {
-                        items.push({slot: i});
-                    }
-                }
-                return items;
+    const store = useStore();
+    const inventory = computed(() => store.state.inventory);
+    const money = computed(() => store.state.money);
+
+    const formattedMoney = computed(() => {
+        return formatter.value.format(parseFloat(money.value));
+    });
+    const items = computed(() => {
+        let itemDef = {};
+        inventory.value.forEach(item => {
+            itemDef[item.slot] = item
+        });
+
+        let items = [];
+        for (let i = 0; i < 35; i++) {
+            if (itemDef[i]) {
+                items.push(itemDef[i]);
+            } else {
+                items.push({slot: i});
             }
-        },
-    }
+        }
+        return items;
+    });
+
+    onBeforeMount(() => {
+        formatter.value = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+    });
 </script>
 
 <style scoped lang="scss">

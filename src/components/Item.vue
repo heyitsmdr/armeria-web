@@ -51,14 +51,26 @@
         item.value.classList.add('equipped');
     });
 
+    /**
+     * Handles when an item is being dragged over this item.
+     * @param {DragEvent} e
+     */
     function handleItemDragEnter(e) {
         e.target.classList.add('candrop');
     }
 
+    /**
+     * Handles when an item is no longer beign dragged over this item.
+     * @param {DragEvent} e
+     */
     function handleItemDragLeave(e) {
         e.target.classList.remove('candrop');
     }
 
+    /**
+     * Handles when the player starts dragging this item.
+     * @param {DragEvent} e
+     */
     function handleItemDragStart(e) {
         e.target.classList.add('dragging');
         e.dataTransfer.setData('item_uuid', props.uuid);
@@ -69,12 +81,20 @@
         sfx.play(INVENTORY_DRAG_START);
     }
 
+    /**
+     * Handles when the player stops dragging this item.
+     * @param {DragEvent} e
+     */
     function handleItemDragEnd(e) {
         e.target.classList.remove('dragging');
         store.dispatch('setItemBeingDragged', false);
         sfx.play(INVENTORY_DRAG_STOP);
     }
 
+    /**
+     * Handles when an item is dropped here. It is swapped.
+     * @param {DragEvent} e
+     */
     function handleItemDrop(e) {
         e.target.classList.remove('candrop');
 
@@ -87,6 +107,10 @@
         }
     }
 
+    /**
+     * Handles when the mouse moves over the item (to show the tooltip).
+     * @param {MouseEvent} e
+     */
     function handleMouseMove(e) {
         if (!props.uuid) {
             return;
@@ -101,10 +125,17 @@
         }
     }
 
+    /**
+     * Handles when the mouse leaves the item.
+     */
     function handleMouseLeave() {
         hideTooltip();
     }
 
+    /**
+     * Handles the mouse up event on the item.
+     * @param {MouseEvent} e
+     */
     function handleMouseUp(e) {
         if (!props.uuid) {
             return;
@@ -118,6 +149,10 @@
         }
     }
 
+    /**
+     * Handles the right-click menu on the item.
+     * @param {MouseEvent} e
+     */
     function handleContextMenu(e) {
         if (!props.uuid) {
             return;
@@ -151,16 +186,21 @@
                 items: items,
             }
         );
-
-
     }
 
+    /**
+     * Hides the tooltip, if it is visible.
+     */
     function hideTooltip() {
         if (itemTooltipVisible.value) {
             store.dispatch('hideItemTooltip');
         }
     }
 
+    /**
+     * Returns a URL representing the picture for the item.
+     * @returns {string}
+     */
     function getBackgroundUrl() {
         if (!props.pictureKey) {
             return '';

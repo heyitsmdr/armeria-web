@@ -25,8 +25,6 @@
     import { ref, computed, watch, nextTick, onMounted } from 'vue';
     import { useStore } from 'vuex';
 
-    const store = useStore();
-
     // Defaults.
     const inputBox = ref(null);      // Vue auto maps this to the underlying HTML reference.
     const commandHelper = ref(null); // Auto-mapped.
@@ -38,6 +36,7 @@
     const helpHTML = ref('');
 
     // State from store.
+    const store = useStore();
     const forceInputFocus = computed(() => store.state.forceInputFocus);
     const commandHistory = computed(() => store.state.commandHistory);
     const commandDictionary = computed(() => store.state.commandDictionary);
@@ -76,7 +75,11 @@
         inputBox.value.focus();
     });
 
-    // Methods.
+    /**
+     * Checks if the player is using a debug command.
+     * @param {String} cmd
+     * @returns {Boolean}
+     */
     function checkDebugCommands(cmd) {
         if (cmd === '//openeditor') {
             store.dispatch('setObjectEditorOpen', true);
@@ -93,10 +96,17 @@
         return false;
     }
 
+    /**
+     * Selects all the text in the input box.
+     */
     function selectAll() {
         inputBox.value.select();
     }
 
+    /**
+     * Returns the last command used, when traversing the history.
+     * @returns {String}
+     */
     function getLastCommand() {
         let retrieveIndex = 0;
 
@@ -111,6 +121,10 @@
         return commandHistory.value[retrieveIndex];
     }
 
+    /**
+     * Returns the next command used, when traversing the history.
+     * @returns {*}
+     */
     function getNextCommand() {
         let retrieveIndex = lastCommandHistoryIndex.value;
 
@@ -125,6 +139,11 @@
         return commandHistory.value[retrieveIndex];
     }
 
+    /**
+     * Returns the command broken down into segments.
+     * @param {String} str
+     * @returns {Array}
+     */
     function getCommandSegments(str) {
         let args = [];
         let recording = '';
@@ -168,8 +187,12 @@
         return args;
     }
 
+    /**
+     * Renders the help pop-up, used while typing commands.
+     * @returns {Promise<void>}
+     */
     async function renderHelp() {
-        const rawCommand = textToSend.value.substr(1);
+        const rawCommand = textToSend.value.substring(1);
         const commandSegments = getCommandSegments(rawCommand);
         const baseCommand = commandSegments[0].toLowerCase();
 
@@ -178,7 +201,7 @@
             const cmd = expandedCommandDictionary.value[i];
             if (baseCommand.length > cmd.name.length) {
                 continue;
-            } else if (cmd.name.substr(0, baseCommand.length) !== baseCommand) {
+            } else if (cmd.name.substring(0, baseCommand.length) !== baseCommand) {
                 continue;
             }
 
@@ -214,7 +237,7 @@
 
                     if (commandSegments[1].length > subcmd.name.length) {
                         continue;
-                    } else if (subcmd.name.substr(0, commandSegments[1].length) !== commandSegments[1]) {
+                    } else if (subcmd.name.substring(0, commandSegments[1].length) !== commandSegments[1]) {
                         continue;
                     }
 
@@ -254,7 +277,7 @@
                 helpHTML.value += `</div>`;
             } else {
                 helpHTML.value += `<div>` +
-                    `<b><span style="color:#ffe500">/${baseCommand}</span>${cmd.name.substr(baseCommand.length)}</b>` +
+                    `<b><span style="color:#ffe500">/${baseCommand}</span>${cmd.name.substring(baseCommand.length)}</b>` +
                     ` - ${cmd.help}` +
                     ` <span style="color:#f00;font-weight:600">${(cmd.permissions && cmd.permissions.RequirePermission) ? '['+cmd.permissions.RequirePermission+']' : ''}</span>` +
                     `</div>`;
@@ -272,6 +295,9 @@
         }
     }
 
+    /**
+     * Handles sending the text/command to the server.
+     */
     function handleSendText() {
         let slashCommand = textToSend.value;
 
@@ -280,12 +306,12 @@
                 command: '/look',
                 hidden: true,
             });
-        } else if (slashCommand.substr(0, 1) !== '/') {
+        } else if (slashCommand.substring(0, 1) !== '/') {
             store.dispatch('sendSlashCommand', {
                 command: `/say ${slashCommand}`,
                 hidden: true,
             });
-        } else if (slashCommand.substr(0, 6).toLowerCase() === '/login') {
+        } else if (slashCommand.substring(0, 6).toLowerCase() === '/login') {
             let characterName = slashCommand.split(' ')[1];
             store.dispatch('sendSlashCommand', {
                 command: `/login ${characterName} ${password.value}`
@@ -303,17 +329,28 @@
         lastCommandHistoryIndex.value = -1;
     }
 
+    /**
+     * Forces the input box to lose focus (i.e. the player pressed ESC).
+     * @param {KeyboardEvent} event
+     * @returns {Promise<void>}
+     */
     async function handleRemoveFocus(event) {
         commandHelpVisible.value = false;
         await nextTick();
         event.target.blur();
     }
 
+    /**
+     * Handles when the input box gains focus.
+     */
     function handleFocus() {
         isFocused.value = true;
         store.dispatch('setAllowGlobalHotkeys', false);
     }
 
+    /**
+     * Handles when the input box loses focus.
+     */
     async function handleBlur() {
         await store.dispatch('setAllowGlobalHotkeys', true);
         commandHelpVisible.value = false;
@@ -321,6 +358,10 @@
         isFocused.value = false;
     }
 
+    /**
+     * Handles when a key is pressed down.
+     * @param {KeyboardEvent} e
+     */
     function handleKeyDown(e) {
         if (e.key === 'ArrowUp') {
             textToSend.value = getLastCommand();
@@ -344,6 +385,9 @@
         }
     }
 
+    /**
+     * Handles when a key is depressed.
+     */
     function handleKeyUp() {
         // Render help for slash commands.
         if (textToSend.value.substr(0, 1) === '/' && textToSend.value.length > 1) {
@@ -353,6 +397,9 @@
         }
     }
 
+    /**
+     * Handles when the hotkey overlay is clicked on.
+     */
     function handleHotkeyOverlayClick() {
         inputBox.value.focus();
     }
