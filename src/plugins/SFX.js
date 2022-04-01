@@ -42,8 +42,14 @@ export default {
             sfxCache[k] = preload(preloadMap[k][0], preloadMap[k][1]);
         });
 
-        app.config.globalProperties.$soundEvent = (event) => {
+        const play = (event) => {
             sfxCache[event].play();
-        }
+        };
+
+        // Make this plugin injectable by "providing" it.
+        app.provide('sfx', { play });
+
+        // Make it accessible via global options as well (for Vuex).
+        app.config.globalProperties.$sfx = { play };
     }
 }

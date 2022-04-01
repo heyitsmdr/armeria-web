@@ -24,6 +24,3 @@ app.use(VueAnimXYZ);
 app.use(store);
 
 app.mount('#app');
-
-window['Armeria'] = app;
-

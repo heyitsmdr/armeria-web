@@ -3,11 +3,11 @@
         ref="menu"
         class="menu"
         :style="{
-            top: `${this.contextMenuPosition.y + 5}px`,
-            opacity: (this.contextMenuVisible) ? 1 : 0,
+            top: `${contextMenuPosition.y + 5}px`,
+            opacity: (contextMenuVisible) ? 1 : 0,
         }"
         :class="{
-            visible: this.contextMenuVisible,
+            visible: contextMenuVisible,
         }"
     >
         <div
@@ -23,127 +23,121 @@
     </div>
 </template>
 
-<script>
-import {mapGetters, mapState} from 'vuex';
-    import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "@/plugins/SFX";
-    export default {
-        name: 'ContextMenu',
-        mounted: function() {
-            window.addEventListener('click', this.handleWindowClick);
-        },
-        data: function() {
-            return {
-                hideTimeout: null,
+<script setup>
+    import { ref, computed, watch, inject, nextTick, onMounted } from 'vue';
+    import { useStore } from "vuex";
+
+    import { INVENTORY_DRAG_START, INVENTORY_DRAG_STOP } from "@/plugins/SFX";
+
+    const store = useStore();
+    const sfx = inject('sfx');
+
+    const hideTimeout = ref(null);
+    const menu = ref(null); // Auto-mapped to HTML reference.
+    const contextMenuVisible = computed(() => store.state.contextMenu.visible);
+    const contextMenuItems = computed(() => store.state.contextMenu.items);
+    const contextMenuObjectName = computed(() => store.state.contextMenu.objectName);
+    const contextMenuObjectColor = computed(() => store.state.contextMenu.objectColor);
+    const contextMenuObjectBrackets = computed(() => store.state.contextMenu.objectBrackets);
+    const contextMenuPosition = computed(() => store.state.contextMenu.position);
+    const hasPermission = computed(() => store.getters.hasPermission);
+
+    const filteredMenuItems = computed(() => {
+        return contextMenuItems.value.filter(item => {
+            const sections = item.split('|');
+            if (sections.length >= 4) {
+                return hasPermission.value(sections[3]);
             }
-        },
-        watch: {
-            contextMenuItems: function() {
-                this.$soundEvent(INVENTORY_DRAG_START);
 
-                this.$nextTick(() => {
-                    const menu = this.$refs["menu"];
-                    const width = menu.clientWidth;
-                    const windowWidth = window.innerWidth;
+            return true;
+        });
+    });
 
-                    if ((this.contextMenuPosition.x + width + 20) > windowWidth) {
-                        menu.style.left = `${this.contextMenuPosition.x + 5 - width}px`;
-                        return
-                    }
+    watch(contextMenuItems, async () => {
+        sfx.play(INVENTORY_DRAG_START);
 
-                    menu.style.left = `${this.contextMenuPosition.x + 5}px`;
-                });
-            },
+        await nextTick();
 
-            contextMenuVisible: function(visible) {
-                if (!visible) {
-                    // The timeout (200s) should match the transition duration of the .menu class.
-                    this.hideTimeout = setTimeout(() => {
-                        const menu = this.$refs["menu"];
-                        menu.style.left = null;
-                        this.hideTimeout = null;
-                    }, 200);
-                } else if (this.hideTimeout !== null) {
-                    clearTimeout(this.hideTimeout);
-                    this.hideTimeout = null;
-                }
-            }
-        },
-        computed: {
-            ...mapState([
-                'contextMenuVisible',
-                'contextMenuItems',
-                'contextMenuObjectName',
-                'contextMenuObjectColor',
-                'contextMenuObjectBrackets',
-                'contextMenuPosition',
-            ]),
-            ...mapGetters(['hasPermission']),
-            filteredMenuItems: function() {
-                return this.contextMenuItems.filter(item => {
-                    const sections = item.split('|');
-                    if (sections.length >= 4) {
-                        return this.hasPermission(sections[3]);
-                    }
+        const width = menu.value.clientWidth;
+        const windowWidth = window.innerWidth;
 
-                    return true;
-                });
-            },
-        },
-        methods: {
-            itemNameHTML: function(item) {
-                const itemSections = item.split('|');
-                let displayText = itemSections[0];
-                let displayStyle = itemSections.length >= 3 ? itemSections[2] : '';
+        if ((contextMenuPosition.value.x + width + 20) > windowWidth) {
+            menu.value.style.left = `${contextMenuPosition.value.x + 5 - width}px`;
+            return
+        }
 
-                if (this.contextMenuObjectBrackets) {
-                    displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">[${this.contextMenuObjectName}]</span>`);
-                } else {
-                    displayText = displayText.replace('%s', `<span style="color:${this.contextMenuObjectColor};font-weight:600">${this.contextMenuObjectName}</span>`);
-                }
+        menu.value.style.left = `${contextMenuPosition.value.x + 5}px`;
+    });
 
-                if (displayStyle.length > 0) {
-                    return `<span style="${displayStyle}">${displayText}</span>`;
-                }
+    watch(contextMenuVisible, (visible) => {
+        if (!visible) {
+            // The timeout (200s) should match the transition duration of the .menu class.
+            hideTimeout.value = setTimeout(() => {
+                menu.value.style.left = null;
+                hideTimeout.value = null;
+            }, 200);
+        } else if (hideTimeout.value !== null) {
+            clearTimeout(hideTimeout.value);
+            hideTimeout.value = null;
+        }
+    });
 
-                return displayText;
-            },
+    function itemNameHTML(item) {
+        const itemSections = item.split('|');
+        let displayText = itemSections[0];
+        let displayStyle = itemSections.length >= 3 ? itemSections[2] : '';
 
-            itemClasses: function(item) {
-                const itemSections = item.split('|');
-                return itemSections.length >= 4 ? itemSections[3] : '';
-            },
+        if (contextMenuObjectBrackets.value) {
+            displayText = displayText.replace('%s', `<span style="color:${contextMenuObjectColor.value};font-weight:600">[${contextMenuObjectName.value}]</span>`);
+        } else {
+            displayText = displayText.replace('%s', `<span style="color:${contextMenuObjectColor.value};font-weight:600">${contextMenuObjectName.value}</span>`);
+        }
 
-            handleItemClick: function(item) {
-                const cmd = item.split('|')[1];
+        if (displayStyle.length > 0) {
+            return `<span style="${displayStyle}">${displayText}</span>`;
+        }
 
-                if (cmd.substr(0, 5) === 'wiki:') {
-                    let wikiUrl = cmd.substr(5);
-                    wikiUrl = wikiUrl.replace('%s', this.contextMenuObjectName.toLowerCase().replaceAll(' ', '-'));
-                    window.open(`https://wiki.armeria.io${wikiUrl}`);
-                    return;
-                }
+        return displayText;
+    }
 
-                this.$store.dispatch('sendSlashCommand', {
-                    command: cmd,
-                    hidden: true,
-                });
+    function itemClasses(item) {
+        const itemSections = item.split('|');
+        return itemSections.length >= 4 ? itemSections[3] : '';
+    }
 
-                this.$store.dispatch('hideContextMenu');
+    function handleItemClick(item) {
+        const cmd = item.split('|')[1];
 
-                this.$soundEvent(INVENTORY_DRAG_STOP);
-            },
+        if (cmd.substring(0, 5) === 'wiki:') {
+            let wikiUrl = cmd.substring(5);
+            wikiUrl = wikiUrl.replace('%s', contextMenuObjectName.value.toLowerCase().replaceAll(' ', '-'));
+            window.open(`https://wiki.armeria.io${wikiUrl}`);
+            return;
+        }
 
-            handleItemMouseEnter: function() {
-                this.$soundEvent(INVENTORY_DRAG_START);
-            },
+        store.dispatch('sendSlashCommand', {
+            command: cmd,
+            hidden: true,
+        });
 
-            handleWindowClick: function() {
-                if (this.contextMenuVisible) {
-                    this.$store.dispatch('hideContextMenu');
-                }
-            },
+        store.dispatch('contextMenu/hide');
+
+        sfx.play(INVENTORY_DRAG_STOP);
+    }
+
+    function handleItemMouseEnter() {
+        sfx.play(INVENTORY_DRAG_START);
+    }
+
+    function handleWindowClick() {
+        if (contextMenuVisible.value) {
+            store.dispatch('contextMenu/hide');
         }
     }
+
+    onMounted(() => {
+        window.addEventListener('click', handleWindowClick);
+    });
 </script>
 
 <style scoped lang="scss">

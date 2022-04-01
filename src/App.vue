@@ -37,183 +37,148 @@
     </div>
 </template>
 
-<script>
-import { mapState } from 'vuex';
-import MainText from '@/components/MainText';
-import InputBox from '@/components/InputBox';
-import Minimap from '@/components/Minimap';
-import RoomTargets from '@/components/RoomTargets';
-import Inventory from '@/components/Inventory';
-import Vitals from '@/components/Vitals';
-import Skills from '@/components/Skills';
-import StatusBar from '@/components/StatusBar';
-import ItemTooltip from '@/components/ItemTooltip';
-import ContextMenu from '@/components/ContextMenu';
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import InputBox from "@/components/InputBox";
+import MainText from "@/components/MainText";
+import Minimap from "@/components/Minimap";
+import RoomTargets from "@/components/RoomTargets";
+import Inventory from "@/components/Inventory";
+import Vitals from "@/components/Vitals";
+import Skills from "@/components/Skills";
+import StatusBar from "@/components/StatusBar";
+import ItemTooltip from "@/components/ItemTooltip";
+import ContextMenu from "@/components/ContextMenu";
 
-export default {
-    name: 'App',
-    components: {
-        InputBox,
-        MainText,
-        Minimap,
-        RoomTargets,
-        Inventory,
-        Vitals,
-        Skills,
-        StatusBar,
-        ItemTooltip,
-        ContextMenu
-    },
-    data: () => {
-        return {
-            windowHeight: 0,
-            windowWidth: 0,
-            leftSidebar: 'flex',
-            rightSidebar: 'flex',
+const windowHeight = ref(0);
+const windowWidth = ref(0);
+const leftSidebar = ref('flex');
+const rightSidebar = ref('flex');
+
+const store = useStore();
+const allowGlobalHotkeys = computed(() => store.state.allowGlobalHotkeys);
+const isConnected = computed(() => store.state.isConnected);
+const playerInfo = computed(() => store.state.playerInfo);
+const contextMenuVisible = computed(() => store.state.contextMenu.visible);
+const hasPermission = computed(() => store.getters.hasPermission);
+
+watch(isConnected, (connected) => {
+    let token = store.state.autoLoginToken;
+    if (connected) {
+        store.dispatch('showText', { data: `Welcome to Armeria!\n\n` });
+
+        if (token.length > 0) {
+            const char = token.split(':')[0];
+            store.dispatch('showText', { data: `You are automatically being logged in as '${char}'.\n` });
+            store.dispatch('sendSlashCommand', {
+                command: `/logintoken ${token}`,
+                hidden: true,
+            });
+        } else {
+            store.dispatch('showText', { data: 'If you have an existing character, you can <b>/login</b>. Otherwise, <b>/create</b> a new one.\n' });
         }
-    },
-    computed: mapState([
-        'allowGlobalHotkeys',
-        'objectEditorOpen',
-        'isConnected',
-        'playerInfo',
-        'contextMenuVisible'
-    ]),
-    watch: {
-        isConnected: function(connected) {
-            let token = this.$store.state.autoLoginToken;
-            if (connected) {
-                this.$store.dispatch('showText', { data: `Welcome to Armeria!\n\n` });
 
-                if (token.length > 0) {
-                    const char = token.split(':')[0];
-                    this.$store.dispatch('showText', { data: `You are automatically being logged in as '${char}'.\n` });
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: `/logintoken ${token}`,
-                        hidden: true,
-                    });
-                } else {
-                    this.$store.dispatch('showText', { data: 'If you have an existing character, you can <b>/login</b>. Otherwise, <b>/create</b> a new one.\n' });
-                }
+        // This "keep alive" is needed for Heroku. Otherwise, if the socket
+        // connection is idle for 55 seconds, the Heroku load balancer will
+        // terminate the connection and throw an H15 error.
+        window.socketKeepAlive = setInterval(sendKeepAlive, 20000);
+        sendKeepAlive();
+    } else {
+        window.document.title = '**DISCONNECTED** Armeria.io';
+        clearInterval(window.socketKeepAlive);
+        window.socketKeepAlive = null;
+    }
+});
 
-                // This "keep alive" is needed for Heroku. Otherwise, if the socket
-                // connection is idle for 55 seconds, the Heroku load balancer will
-                // terminate the connection and throw an H15 error.
-                window.socketKeepAlive = setInterval(this.sendKeepAlive, 20000);
-                this.sendKeepAlive();
-            } else {
-                window.document.title = '**DISCONNECTED** Armeria.io';
-                clearInterval(window.socketKeepAlive);
-                window.socketKeepAlive = null;
-            }
-        },
+watch(playerInfo, (info) => {
+    window.document.title = `${info.name} - Armeria.io`;
+});
 
-        playerInfo: function(info) {
-            window.document.title = `${info.name} - Armeria.io`;
-        }
-    },
-    methods: {
-        sendKeepAlive() {
-            this.$store.dispatch('sendKeepAlive');
-        },
+onMounted(() => {
+    onWindowResize();
+    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('keyup', onKeyUp);
+});
 
-        onWindowResize() {
-            this.windowHeight = window.innerHeight;
-            this.windowWidth = window.innerWidth;
-            if (this.windowWidth < 784) {
-                this.leftSidebar = 'none';
-            } else {
-                this.leftSidebar = 'flex';
-            }
+function sendKeepAlive() {
+    store.dispatch('sendKeepAlive');
+}
 
-            if (this.windowWidth < 1035) {
-                this.showRightSidebar = false;
-                this.rightSidebar = 'none';
-            } else {
-                this.showRightSidebar = true;
-                this.rightSidebar = 'flex';
-            }
-            //document.querySelector('.container-center').style.maxWidth = `${this.windowWidth-500}px`;
+function onWindowResize() {
+    windowHeight.value = window.innerHeight;
+    windowWidth.value = window.innerWidth;
+    if (windowWidth.value < 784) {
+        leftSidebar.value = 'none';
+    } else {
+        leftSidebar.value = 'flex';
+    }
 
-            // If the context menu is open, let's hide it since the window is being resized.
-            if (this.contextMenuVisible) {
-                this.$store.dispatch('hideContextMenu');
-            }
-        },
+    if (windowWidth.value < 1035) {
+        // showRightSidebar.value = false;
+        rightSidebar.value = 'none';
+    } else {
+        // showRightSidebar.value = true;
+        rightSidebar.value = 'flex';
+    }
+    //document.querySelector('.container-center').style.maxWidth = `${windowWidth.value-500}px`;
 
-        onKeyUp(event) {
-            if (!this.allowGlobalHotkeys) {
-                return;
-            }
+    // If the context menu is open, let's hide it since the window is being resized.
+    if (contextMenuVisible.value) {
+        store.dispatch('contextMenu/hide');
+    }
+}
 
-            let moveCommand = '';
+function onKeyUp(event) {
+    if (!allowGlobalHotkeys.value) {
+        return;
+    }
 
-            switch(event.key.toLowerCase()) {
-                case 'w':
-                    moveCommand = "/move north";
-                    break;
-                case 'a':
-                    moveCommand = "/move west";
-                    break;
-                case 's':
-                    moveCommand = "/move south";
-                    break;
-                case 'd':
-                    moveCommand = "/move east";
-                    break;
-                case 'q':
-                    moveCommand = "/move down";
-                    break;
-                case 'e':
-                    moveCommand = "/move up";
-                    break;
-                case 'escape':
-                    this.$store.dispatch('setObjectTarget', '');
-                    break;
-                case 'enter':
-                    this.$store.dispatch('setForceInputFocus', { forced: true });
-                    break;
-                case '/':
-                    this.$store.dispatch('setForceInputFocus', { forced: true, text: '/' });
-                    break;
-            }
+    let moveCommand = '';
 
-            if (moveCommand.length > 0) {
-                if (this.$store.state.permissions.indexOf('CAN_BUILD')) {
-                    if (event.shiftKey) {
-                        moveCommand = moveCommand.replace('/move', '/room create');
-                    } else if (event.ctrlKey) {
-                        moveCommand = moveCommand.replace('/move', '/room destroy');
-                    }
-                }
+    switch(event.key.toLowerCase()) {
+        case 'w':
+            moveCommand = "/move north";
+            break;
+        case 'a':
+            moveCommand = "/move west";
+            break;
+        case 's':
+            moveCommand = "/move south";
+            break;
+        case 'd':
+            moveCommand = "/move east";
+            break;
+        case 'q':
+            moveCommand = "/move down";
+            break;
+        case 'e':
+            moveCommand = "/move up";
+            break;
+        case 'escape':
+            store.dispatch('setObjectTarget', '');
+            break;
+        case 'enter':
+            store.dispatch('setForceInputFocus', { forced: true });
+            break;
+        case '/':
+            store.dispatch('setForceInputFocus', { forced: true, text: '/' });
+            break;
+    }
 
-                this.$store.dispatch('sendSlashCommand', {
-                    command: moveCommand,
-                    hidden: true,
-                });
+    if (moveCommand.length > 0) {
+        if (hasPermission.value('CAN_BUILD')) {
+            if (event.shiftKey) {
+                moveCommand = moveCommand.replace('/move', '/room create');
+            } else if (event.ctrlKey) {
+                moveCommand = moveCommand.replace('/move', '/room destroy');
             }
         }
-    },
 
-    mounted() {
-        this.onWindowResize();
-
-        window.addEventListener(
-            'resize',
-            this.onWindowResize
-        );
-
-        window.addEventListener(
-            'keyup',
-            this.onKeyUp
-        );
-    },
-
-    unmounted() {
-        window.removeEventListener(
-            'resize',
-            this.onWindowResize
-        );
+        store.dispatch('sendSlashCommand', {
+            command: moveCommand,
+            hidden: true,
+        });
     }
 }
 </script>

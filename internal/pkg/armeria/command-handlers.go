@@ -2082,7 +2082,7 @@ func handleLedgerListCommand(ctx *CommandContext) {
 
 	for _, l := range Armeria.ledgerManager.Ledgers() {
 		rows = append(rows, TableRow(
-			TableCell{content: fmt.Sprintf("[cmd=/ledger show %[1]s]%[1]s[/cmd]", l.Name())},
+			TableCell{content: TextStyle(l.Name(), WithLinkCmd("/ledger show "+l.Name()))},
 			TableCell{content: fmt.Sprintf("%d items", len(l.Entries()))},
 		))
 	}

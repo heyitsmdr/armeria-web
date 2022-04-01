@@ -21,143 +21,156 @@
     </div>
 </template>
 
-<script>
-    import {mapState, mapGetters} from 'vuex';
-    import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "../plugins/SFX";
+<script setup>
+    import { ref, computed, onMounted, inject } from 'vue';
+    import { useStore } from 'vuex';
+    import {INVENTORY_DRAG_START, INVENTORY_DRAG_STOP} from "@/plugins/SFX";
 
-    export default {
-        name: 'Item',
-        props: ['uuid', 'name', 'slotNum', 'equipSlot', 'pictureKey', 'color', 'equipped'],
-        computed: {
-            ...mapState(['isProduction', 'itemTooltipUUID', 'itemTooltipVisible', 'itemTooltipMouseCoords']),
-            ...mapGetters(['hasPermission']),
-        },
-        mounted: function () {
-            this.$refs['item'].classList.add('equipped');
-        },
-        methods: {
-            handleItemDragEnter: function (e) {
-                e.target.classList.add('candrop');
-            },
+    const props = defineProps({
+        uuid: String,
+        name: String,
+        slotNum: Number,
+        equipSlot: String,
+        pictureKey: String,
+        color: String,
+        equipped: Boolean
+    });
 
-            handleItemDragLeave: function (e) {
-                e.target.classList.remove('candrop');
-            },
+    const item = ref(null); // Auto-mapped to HTML reference.
 
-            handleItemDragStart: function (e) {
-                e.target.classList.add('dragging');
-                e.dataTransfer.setData('item_uuid', this.uuid);
-                e.dataTransfer.setData('item_slot', this.slotNum);
-                this.hideTooltip();
-                this.$store.dispatch('setItemBeingDragged', true);
-                this.$store.dispatch('hideContextMenu');
-                this.$soundEvent(INVENTORY_DRAG_START);
-            },
+    const store = useStore();
+    const isProduction = computed(() => store.state.isProduction);
+    const itemTooltipUUID = computed(() => store.state.itemTooltipUUID);
+    const itemTooltipVisible = computed(() => store.state.itemTooltipVisible);
+    const itemTooltipMouseCoords = computed(() => store.state.itemTooltipMouseCoords);
+    const hasPermission = computed(() => store.getters.hasPermission);
 
-            handleItemDragEnd: function (e) {
-                e.target.classList.remove('dragging');
-                this.$store.dispatch('setItemBeingDragged', false);
-                this.$soundEvent(INVENTORY_DRAG_STOP);
-            },
+    const sfx = inject('sfx');
 
-            handleItemDrop: function (e) {
-                e.target.classList.remove('candrop');
+    onMounted(() => {
+        item.value.classList.add('equipped');
+    });
 
-                let slot = e.dataTransfer.getData("item_slot");
-                if (slot) {
-                    this.$store.dispatch('sendSlashCommand', {
-                        command: `/swap ${slot} ${this.slotNum}`,
-                        hidden: true,
-                    });
-                }
-            },
+    function handleItemDragEnter(e) {
+        e.target.classList.add('candrop');
+    }
 
-            handleMouseMove: function (e) {
-                if (!this.uuid) {
-                    return;
-                }
+    function handleItemDragLeave(e) {
+        e.target.classList.remove('candrop');
+    }
 
-                if (this.itemTooltipMouseCoords.x !== e.clientX || this.itemTooltipMouseCoords.y !== e.clientY) {
-                    this.$store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
-                }
+    function handleItemDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('item_uuid', props.uuid);
+        e.dataTransfer.setData('item_slot', props.slotNum);
+        hideTooltip();
+        store.dispatch('setItemBeingDragged', true);
+        store.dispatch('contextMenu/hide');
+        sfx.play(INVENTORY_DRAG_START);
+    }
 
-                if (this.itemTooltipUUID !== this.uuid) {
-                    this.$store.dispatch('showItemTooltip', this.uuid);
-                }
-            },
+    function handleItemDragEnd(e) {
+        e.target.classList.remove('dragging');
+        store.dispatch('setItemBeingDragged', false);
+        sfx.play(INVENTORY_DRAG_STOP);
+    }
 
-            handleMouseLeave: function () {
-                this.hideTooltip();
-            },
+    function handleItemDrop(e) {
+        e.target.classList.remove('candrop');
 
-            handleMouseUp: function (e) {
-                if (!this.uuid) {
-                    return;
-                }
-
-                if (e.shiftKey && this.hasPermission('CAN_BUILD')) {
-                    this.$socket.sendObj({
-                        type: 'command',
-                        payload: `/item iedit ${this.uuid}`
-                    });
-                }
-            },
-
-            handleContextMenu: function (e) {
-                if (!this.uuid) {
-                    return;
-                }
-
-                const items = [`Look %s|/look inv:${this.uuid}`];
-
-                if (this.equipSlot.length > 0) {
-                    items.push(`Equip %s|/equip ${this.uuid}`);
-                }
-
-                items.push(
-                    `Wiki %s|wiki:/items/%s`,
-                    `Drop %s|/drop ${this.uuid}`,
-                    `Edit %s|/item iedit ${this.uuid}||CAN_BUILD`,
-                    `Edit-Parent %s|/item edit ${this.name}||CAN_BUILD`,
-                    `Destroy %s|/destroy ${this.uuid}||CAN_BUILD`,
-                );
-
-                this.$store.dispatch(
-                    'showContextMenu',
-                    {
-                        object: {
-                            name: this.name,
-                            color: `#${this.color}`,
-                        },
-                        at: {
-                            x: e.pageX,
-                            y: e.pageY,
-                        },
-                        items: items,
-                    }
-                );
-
-
-            },
-
-            hideTooltip: function () {
-                if (this.itemTooltipVisible) {
-                    this.$store.dispatch('hideItemTooltip');
-                }
-            },
-
-            getBackgroundUrl() {
-                if (!this.pictureKey) {
-                    return '';
-                }
-
-                if (!this.isProduction) {
-                    return `url(http://${window.location.hostname}:8081/oi/${this.pictureKey})`;
-                }
-
-                return `url(/oi/${this.pictureKey})`;
-            },
+        let slot = e.dataTransfer.getData("item_slot");
+        if (slot) {
+            store.dispatch('sendSlashCommand', {
+                command: `/swap ${slot} ${props.slotNum}`,
+                hidden: true,
+            });
         }
+    }
+
+    function handleMouseMove(e) {
+        if (!props.uuid) {
+            return;
+        }
+
+        if (itemTooltipMouseCoords.value.x !== e.clientX || itemTooltipMouseCoords.value.y !== e.clientY) {
+            store.dispatch('moveItemTooltip', { x: e.clientX, y: e.clientY });
+        }
+
+        if (itemTooltipUUID.value !== props.uuid) {
+            store.dispatch('showItemTooltip', props.uuid);
+        }
+    }
+
+    function handleMouseLeave() {
+        hideTooltip();
+    }
+
+    function handleMouseUp(e) {
+        if (!props.uuid) {
+            return;
+        }
+
+        if (e.shiftKey && hasPermission.value('CAN_BUILD')) {
+            store.dispatch('sendSlashCommand', {
+                command: `/item iedit ${props.uuid}`,
+                hidden: true,
+            });
+        }
+    }
+
+    function handleContextMenu(e) {
+        if (!props.uuid) {
+            return;
+        }
+
+        const items = [`Look %s|/look inv:${props.uuid}`];
+
+        if (props.equipSlot.length > 0) {
+            items.push(`Equip %s|/equip ${props.uuid}`);
+        }
+
+        items.push(
+            `Wiki %s|wiki:/items/%s`,
+            `Drop %s|/drop ${props.uuid}`,
+            `Edit %s|/item iedit ${props.uuid}||CAN_BUILD`,
+            `Edit-Parent %s|/item edit ${props.name}||CAN_BUILD`,
+            `Destroy %s|/destroy ${props.uuid}||CAN_BUILD`,
+        );
+
+        store.dispatch(
+            'contextMenu/show',
+            {
+                object: {
+                    name: props.name,
+                    color: `#${props.color}`,
+                },
+                at: {
+                    x: e.pageX,
+                    y: e.pageY,
+                },
+                items: items,
+            }
+        );
+
+
+    }
+
+    function hideTooltip() {
+        if (itemTooltipVisible.value) {
+            store.dispatch('hideItemTooltip');
+        }
+    }
+
+    function getBackgroundUrl() {
+        if (!props.pictureKey) {
+            return '';
+        }
+
+        if (!isProduction.value) {
+            return `url(http://${window.location.hostname}:8081/oi/${props.pictureKey})`;
+        }
+
+        return `url(/oi/${props.pictureKey})`;
     }
 </script>
 

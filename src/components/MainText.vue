@@ -3,7 +3,7 @@
         <ObjectEditor :style="{ height: containerHeight }"></ObjectEditor>
         <div class="scrollable-container" ref="mainTextContainer">
             <div class="lines">
-                <div class="line" v-for="line in gameText" v-html="line.html" :key="line.id"></div>
+                <div class="line" v-for="line in gameText" :data-line="line.id" v-html="line.html" :key="line.id"></div>
             </div>
         </div>
         <div
@@ -25,8 +25,6 @@
     import { useStore } from 'vuex';
     import ObjectEditor from './ObjectEditor.vue';
 
-    const store = useStore();
-
     // Props.
     const props = defineProps({
         windowHeight: Number
@@ -38,6 +36,7 @@
     const lastItemTooltipUUID = ref('');
 
     // State/Getters from store.
+    const store = useStore();
     const gameText = computed(() => store.state.gameText);
     const itemBeingDragged = computed(() => store.state.itemBeingDragged);
     const settings = computed(() => store.state.settings);
@@ -50,7 +49,8 @@
     });
 
     // Watches.
-    watch(gameText, (lines) => {
+    // NOTE: A deep watch is used here since this is an array.
+    watch(gameText, async (lines) => {
         let maxLines = settings.value['lines'];
         if (!maxLines) {
             return;
@@ -61,7 +61,7 @@
         if (maxLines > lines.length) {
             // TODO: Delete the oldest line here.
         }
-    });
+    }, { deep: true });
 
     // Updated.
     onUpdated(async () => {
@@ -139,14 +139,14 @@
             menuItems = menuItems.filter(c => {
                 const sections = c.split('|');
                 if (sections.length >= 4 && sections[3] === 'admin') {
-                    return hasPermission('CAN_BUILD');
+                    return hasPermission.value('CAN_BUILD');
                 }
 
                 return true;
             });
 
             store.dispatch(
-                'showContextMenu',
+                'contextMenu/show',
                 {
                     object: {
                         name: menuSpan.getAttribute('data-name'),

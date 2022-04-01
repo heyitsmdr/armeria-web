@@ -1,44 +1,44 @@
 import { createStore } from 'vuex';
 import { Room } from './models';
-import { app } from './main.js';
+import { app } from '@/main';
+import contextMenu from './modules/context-menu';
 
 export const store = createStore({
-  state: {
-    isProduction: process.env.NODE_ENV === "production",
-    deployAppName: 'dev',
-    deployVersion: 'v0',
-    isConnected: false,
-    gameText: [],
-    allowGlobalHotkeys: true,
-    forceInputFocus: { forced: false, text: '' },
-    minimapData: { name: '', rooms: [] },
-    characterLocation: { x: 0, y: 0, z: 0 },
-    roomObjects: [],
-    roomTitle: 'Unknown',
-    objectTargetUUID: '',
-    objectEditorOpen: false,
-    objectEditorData: {},
-    autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
-    inventory: [],
-    itemBeingDragged: false,
-    permissions: [],
-    playerInfo: { uuid: '', name: '' },
-    commandHistory: [],
-    itemTooltipUUID: '',
-    itemTooltipVisible: false,
-    itemTooltipCache: [],
-    itemTooltipMouseCoords: { x: 0, y: 0 },
-    money: '0',
-    commandDictionary: [],
-    sentKeepAlive: 0,
-    pingTime: 0,
-    settings: {},
-    contextMenuVisible: false,
-    contextMenuItems: [],
-    contextMenuObjectName: '',
-    contextMenuObjectColor: '#fff',
-    contextMenuObjectBrackets: true,
-    contextMenuPosition: { x: 0, y: 0 },
+  state() {
+    return {
+      isProduction: process.env.NODE_ENV === "production",
+      deployAppName: 'dev',
+      deployVersion: 'v0',
+      isConnected: false,
+      gameText: [],
+      allowGlobalHotkeys: true,
+      forceInputFocus: { forced: false, text: '' },
+      minimapData: { name: '', rooms: [] },
+      characterLocation: { x: 0, y: 0, z: 0 },
+      roomObjects: [],
+      roomTitle: 'Unknown',
+      objectTargetUUID: '',
+      objectEditorOpen: false,
+      objectEditorData: {},
+      autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
+      inventory: [],
+      itemBeingDragged: false,
+      permissions: [],
+      playerInfo: { uuid: '', name: '' },
+      commandHistory: [],
+      itemTooltipUUID: '',
+      itemTooltipVisible: false,
+      itemTooltipCache: [],
+      itemTooltipMouseCoords: { x: 0, y: 0 },
+      money: '0',
+      commandDictionary: [],
+      sentKeepAlive: 0,
+      pingTime: 0,
+      settings: {}
+    }
+  },
+  modules: {
+    contextMenu
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
@@ -92,7 +92,6 @@ export const store = createStore({
             .replace(/\n/g, "<br>")
             .replace(/\[b\]/g, "<span style='font-weight:600'>")
             .replace(/\[\/b\]/g, "</span>")
-            .replace(/\[cmd=([^\]]*)\]/g, "<a href='#' class='inline-command' onclick='window.Armeria.$store.dispatch(\"sendSlashCommand\", {command:\"$1\"})'>")
             .replace(/\[\/cmd\]/g, "</a>")
       });
     },
@@ -213,24 +212,6 @@ export const store = createStore({
 
     SET_SETTINGS: (state, settings) => {
       state.settings = settings;
-    },
-
-    SET_CONTEXT_MENU_VISIBLE: (state, visible) => {
-      state.contextMenuVisible = visible;
-    },
-
-    SET_CONTEXT_MENU_ITEMS: (state, items) => {
-        state.contextMenuItems = items;
-    },
-
-    SET_CONTEXT_MENU_OBJECT: (state, obj) => {
-      state.contextMenuObjectName = obj.name;
-      state.contextMenuObjectColor = obj.color;
-      state.contextMenuObjectBrackets = (typeof obj.subjectBrackets !== 'undefined') ? obj.subjectBrackets : true;
-    },
-
-    SET_CONTEXT_MENU_POSITION: (state, pos) => {
-      state.contextMenuPosition = { x: pos.x, y: pos.y };
     }
   },
   actions: {
@@ -308,17 +289,6 @@ export const store = createStore({
       commit('CLEAR_ITEM_TOOLTIP_CACHE');
     },
 
-    showContextMenu: ({ commit }, payload) => {
-      commit('SET_CONTEXT_MENU_ITEMS', payload.items);
-      commit('SET_CONTEXT_MENU_OBJECT', payload.object);
-      commit('SET_CONTEXT_MENU_POSITION', payload.at);
-      commit('SET_CONTEXT_MENU_VISIBLE', true);
-    },
-
-    hideContextMenu: ({ commit }) => {
-      commit('SET_CONTEXT_MENU_VISIBLE', false);
-    },
-
     //
     // Server-triggered actions below
     //
@@ -390,7 +360,7 @@ export const store = createStore({
 
     playSFX: (_, payload) => {
       const sfx = JSON.parse(payload.data);
-      app.config.globalProperties.$soundEvent(sfx.id, sfx.volume);
+      app.config.globalProperties.$sfx.play(sfx.id);
     },
 
     setSettings: ({ commit }, payload) => {

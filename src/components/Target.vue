@@ -198,7 +198,7 @@ export default {
             }
 
             this.$store.dispatch(
-                'showContextMenu',
+                'contextMenu/show',
                 {
                     object: {
                         name: this.name,
