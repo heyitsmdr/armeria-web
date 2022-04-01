@@ -21,6 +21,8 @@ referenced.
   - Watches
   - Vue lifecycle hooks (e.g. `onMounted`)
   - Methods
+- **d.** When defining props, always specify individual prop data types (e.g. `String`, `Number`,
+  etc.).
 
 ### 2. Vuex Store Usage
 
