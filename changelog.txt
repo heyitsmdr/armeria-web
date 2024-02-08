@@ -1,0 +1,8 @@
+#####################
+# ARMERIA CHANGELOG #
+#####################
+
+[Unreleased]
+
+- Migrated from Vue 2 to Vue 3
+- Migrated from Vue CLI to Vite
