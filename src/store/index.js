@@ -1,48 +1,48 @@
-import { createStore } from 'vuex';
-import { Room } from './models';
-import { app } from '@/main';
-import contextMenu from './modules/context-menu';
+import { createStore } from "vuex";
+import { Room } from "./models";
+import { app } from "@/main";
+import contextMenu from "./modules/context-menu";
 
 export const store = createStore({
   state() {
     return {
-      isProduction: process.env.NODE_ENV === "production",
-      deployAppName: 'dev',
-      deployVersion: 'v0',
+      isProduction: import.meta.env.MODE === "production",
+      deployAppName: "dev",
+      deployVersion: "v0",
       isConnected: false,
       gameText: [],
       allowGlobalHotkeys: true,
-      forceInputFocus: { forced: false, text: '' },
-      minimapData: { name: '', rooms: [] },
+      forceInputFocus: { forced: false, text: "" },
+      minimapData: { name: "", rooms: [] },
       characterLocation: { x: 0, y: 0, z: 0 },
       roomObjects: [],
-      roomTitle: 'Unknown',
-      objectTargetUUID: '',
+      roomTitle: "Unknown",
+      objectTargetUUID: "",
       objectEditorOpen: false,
       objectEditorData: {},
-      autoLoginToken: window.localStorage.getItem('auto_login_token') || '',
+      autoLoginToken: window.localStorage.getItem("auto_login_token") || "",
       inventory: [],
       itemBeingDragged: false,
       permissions: [],
-      playerInfo: { uuid: '', name: '' },
+      playerInfo: { uuid: "", name: "" },
       commandHistory: [],
-      itemTooltipUUID: '',
+      itemTooltipUUID: "",
       itemTooltipVisible: false,
       itemTooltipCache: [],
       itemTooltipMouseCoords: { x: 0, y: 0 },
-      money: '0',
+      money: "0",
       commandDictionary: [],
       sentKeepAlive: 0,
       pingTime: 0,
-      settings: {}
-    }
+      settings: {},
+    };
   },
   modules: {
-    contextMenu
+    contextMenu,
   },
   getters: {
     itemTooltipCache: (state) => (uuid) => {
-      for(let i = 0; i < state.itemTooltipCache.length; i++) {
+      for (let i = 0; i < state.itemTooltipCache.length; i++) {
         const cacheItem = state.itemTooltipCache[i];
         if (cacheItem.uuid === uuid) {
           return cacheItem;
@@ -56,8 +56,11 @@ export const store = createStore({
     },
 
     normalizedDeployVersion: (state) => {
-      if (state.deployVersion.length > 0 && state.deployVersion.substr(0, 1) === 'v') {
-        return `v${(parseInt(state.deployVersion.substr(1)) + 1)}`;
+      if (
+        state.deployVersion.length > 0 &&
+        state.deployVersion.substr(0, 1) === "v"
+      ) {
+        return `v${parseInt(state.deployVersion.substr(1)) + 1}`;
       }
 
       return state.deployVersion;
@@ -75,9 +78,15 @@ export const store = createStore({
     SOCKET_ONCLOSE: (state) => {
       if (state.isConnected) {
         state.isConnected = false;
-        state.gameText.push({ id: state.gameText.length, html: '<br>Connection to the game server has been closed.' });
+        state.gameText.push({
+          id: state.gameText.length,
+          html: "<br>Connection to the game server has been closed.",
+        });
       } else {
-        state.gameText.push({ id: state.gameText.length, html: 'A connection to the game server could not be established.' });
+        state.gameText.push({
+          id: state.gameText.length,
+          html: "A connection to the game server could not be established.",
+        });
       }
     },
 
@@ -89,10 +98,10 @@ export const store = createStore({
       state.gameText.push({
         id: state.gameText.length,
         html: text
-            .replace(/\n/g, "<br>")
-            .replace(/\[b\]/g, "<span style='font-weight:600'>")
-            .replace(/\[\/b\]/g, "</span>")
-            .replace(/\[\/cmd\]/g, "</a>")
+          .replace(/\n/g, "<br>")
+          .replace(/\[b\]/g, "<span style='font-weight:600'>")
+          .replace(/\[\/b\]/g, "</span>")
+          .replace(/\[\/cmd\]/g, "</a>"),
       });
     },
 
@@ -105,7 +114,7 @@ export const store = createStore({
         name: minimapData.name,
         rooms: [],
       };
-      minimapData.rooms.forEach(r => {
+      minimapData.rooms.forEach((r) => {
         state.minimapData.rooms.push(new Room(r));
       });
     },
@@ -140,11 +149,17 @@ export const store = createStore({
 
     SET_AUTOLOGIN_TOKEN: (state, token) => {
       state.autoLoginToken = token;
-      window.localStorage.setItem('auto_login_token', token);
+      window.localStorage.setItem("auto_login_token", token);
       if (token.length > 0) {
-        state.gameText.push({ id: state.gameText.length, html: '<br>You will now be automatically logged in to this character.' });
+        state.gameText.push({
+          id: state.gameText.length,
+          html: "<br>You will now be automatically logged in to this character.",
+        });
       } else {
-        state.gameText.push({ id: state.gameText.length, html: '<br>You will no longer be automatically logged in to this character.' });
+        state.gameText.push({
+          id: state.gameText.length,
+          html: "<br>You will no longer be automatically logged in to this character.",
+        });
       }
     },
 
@@ -157,7 +172,7 @@ export const store = createStore({
     },
 
     SET_PERMISSIONS: (state, permissions) => {
-      state.permissions = permissions.split(' ')
+      state.permissions = permissions.split(" ");
     },
 
     SET_PLAYER_INFO: (state, playerInfo) => {
@@ -175,11 +190,11 @@ export const store = createStore({
 
     HIDE_ITEM_TOOLTIP: (state) => {
       state.itemTooltipVisible = false;
-      state.itemTooltipUUID = '';
+      state.itemTooltipUUID = "";
     },
 
     SET_ITEM_TOOLTIP_HTML: (state, data) => {
-      for(let i = 0; i < state.itemTooltipCache.length; i++) {
+      for (let i = 0; i < state.itemTooltipCache.length; i++) {
         let cacheItem = state.itemTooltipCache[i];
         if (cacheItem.uuid === data.uuid) {
           cacheItem = data;
@@ -212,28 +227,31 @@ export const store = createStore({
 
     SET_SETTINGS: (state, settings) => {
       state.settings = settings;
-    }
+    },
   },
   actions: {
-    sendSlashCommand: ({ state , commit }, payload) => {
+    sendSlashCommand: ({ state, commit }, payload) => {
       if (!state.isConnected) {
         return;
       }
 
-      commit('APPEND_COMMAND_HISTORY', payload.command);
+      commit("APPEND_COMMAND_HISTORY", payload.command);
 
       let echoCmd = payload.command;
-      if (payload.command.indexOf('logintoken') === 1) {
+      if (payload.command.indexOf("logintoken") === 1) {
         // Hide the actual token from the command echo'd to the main text area.
-        echoCmd = `${payload.command.split(':')[0]}:&lt;redacted&gt;`
+        echoCmd = `${payload.command.split(":")[0]}:&lt;redacted&gt;`;
       }
-      if (typeof payload.hidden !== 'boolean' || !payload.hidden) {
-        commit('ADD_GAME_TEXT', `<div class="inline-loopback">${echoCmd}</div>`);
+      if (typeof payload.hidden !== "boolean" || !payload.hidden) {
+        commit(
+          "ADD_GAME_TEXT",
+          `<div class="inline-loopback">${echoCmd}</div>`
+        );
       }
 
       app.config.globalProperties.$socket.sendObj({
         type: "command",
-        payload: payload.command
+        payload: payload.command,
       });
     },
 
@@ -245,48 +263,48 @@ export const store = createStore({
     },
 
     setAllowGlobalHotkeys: ({ commit }, payload) => {
-      commit('SET_ALLOW_GLOBAL_HOTKEYS', payload);
+      commit("SET_ALLOW_GLOBAL_HOTKEYS", payload);
     },
 
     setObjectTarget: ({ commit }, payload) => {
-      commit('SET_OBJECT_TARGET', payload);
+      commit("SET_OBJECT_TARGET", payload);
     },
 
     debugAlterState: ({ commit }, payload) => {
-      commit('DEBUG_ALTER_STATE', payload.key, payload.value);
+      commit("DEBUG_ALTER_STATE", payload.key, payload.value);
     },
 
     setObjectEditorOpen: ({ commit }, payload) => {
       if (payload) {
-        commit('SET_OBJECT_EDITOR_OPEN', true);
+        commit("SET_OBJECT_EDITOR_OPEN", true);
       } else {
-        commit('SET_OBJECT_EDITOR_OPEN', false);
-        commit('SET_OBJECT_EDITOR_DATA', {});
+        commit("SET_OBJECT_EDITOR_OPEN", false);
+        commit("SET_OBJECT_EDITOR_DATA", {});
       }
     },
 
     setForceInputFocus: ({ commit }, payload) => {
-      commit('SET_FORCE_INPUT_FOCUS', payload);
+      commit("SET_FORCE_INPUT_FOCUS", payload);
     },
 
     setItemBeingDragged: ({ commit }, payload) => {
-      commit('SET_ITEM_BEING_DRAGGED', payload);
+      commit("SET_ITEM_BEING_DRAGGED", payload);
     },
 
     showItemTooltip: ({ commit }, payload) => {
-      commit('SET_ITEM_TOOLTIP_UUID', payload);
+      commit("SET_ITEM_TOOLTIP_UUID", payload);
     },
 
     hideItemTooltip: ({ commit }) => {
-      commit('HIDE_ITEM_TOOLTIP');
+      commit("HIDE_ITEM_TOOLTIP");
     },
 
     moveItemTooltip: ({ commit }, payload) => {
-      commit('SET_ITEM_TOOLTIP_MOUSE_COORDS', payload);
+      commit("SET_ITEM_TOOLTIP_MOUSE_COORDS", payload);
     },
 
     clearItemTooltipCache: ({ commit }) => {
-      commit('CLEAR_ITEM_TOOLTIP_CACHE');
+      commit("CLEAR_ITEM_TOOLTIP_CACHE");
     },
 
     //
@@ -294,28 +312,28 @@ export const store = createStore({
     //
 
     showText: ({ commit }, payload) => {
-      commit('ADD_GAME_TEXT', payload.data);
+      commit("ADD_GAME_TEXT", payload.data);
     },
 
     setMapData: ({ commit }, payload) => {
-      commit('SET_MINIMAP_DATA', JSON.parse(payload.data));
+      commit("SET_MINIMAP_DATA", JSON.parse(payload.data));
     },
 
     setCharacterLocation: ({ commit }, payload) => {
-      commit('SET_CHARACTER_LOCATION', JSON.parse(payload.data));
+      commit("SET_CHARACTER_LOCATION", JSON.parse(payload.data));
     },
 
     setRoomObjects: ({ commit }, payload) => {
-      commit('SET_ROOM_OBJECTS', JSON.parse(payload.data));
+      commit("SET_ROOM_OBJECTS", JSON.parse(payload.data));
     },
 
     setRoomTitle: ({ commit }, payload) => {
-      commit('SET_ROOM_TITLE', payload.data);
+      commit("SET_ROOM_TITLE", payload.data);
     },
 
     setObjectEditorData: ({ commit }, payload) => {
-      commit('SET_OBJECT_EDITOR_DATA', JSON.parse(payload.data));
-      commit('SET_OBJECT_EDITOR_OPEN', true);
+      commit("SET_OBJECT_EDITOR_DATA", JSON.parse(payload.data));
+      commit("SET_OBJECT_EDITOR_OPEN", true);
     },
 
     disconnect: () => {
@@ -323,39 +341,39 @@ export const store = createStore({
     },
 
     pong: ({ commit }) => {
-      commit('KEEP_ALIVE_RESPONSE');
+      commit("KEEP_ALIVE_RESPONSE");
     },
 
     toggleAutoLogin: ({ state, commit }, payload) => {
-      if (state.autoLoginToken !== '') {
-        commit('SET_AUTOLOGIN_TOKEN', '');
+      if (state.autoLoginToken !== "") {
+        commit("SET_AUTOLOGIN_TOKEN", "");
       } else {
-        commit('SET_AUTOLOGIN_TOKEN', payload.data);
+        commit("SET_AUTOLOGIN_TOKEN", payload.data);
       }
     },
 
     setInventory: ({ commit }, payload) => {
-      commit('SET_INVENTORY', JSON.parse(payload.data) || []);
+      commit("SET_INVENTORY", JSON.parse(payload.data) || []);
     },
 
     setPermissions: ({ commit }, payload) => {
-      commit('SET_PERMISSIONS', payload.data);
+      commit("SET_PERMISSIONS", payload.data);
     },
 
     setPlayerInfo: ({ commit }, payload) => {
-      commit('SET_PLAYER_INFO', JSON.parse(payload.data));
+      commit("SET_PLAYER_INFO", JSON.parse(payload.data));
     },
 
     setItemTooltipHTML: ({ commit }, payload) => {
-      commit('SET_ITEM_TOOLTIP_HTML', JSON.parse(payload.data));
+      commit("SET_ITEM_TOOLTIP_HTML", JSON.parse(payload.data));
     },
 
     setCommandDictionary: ({ commit }, payload) => {
-      commit('SET_COMMAND_DICTIONARY', JSON.parse(payload.data));
+      commit("SET_COMMAND_DICTIONARY", JSON.parse(payload.data));
     },
 
     setMoney: ({ commit }, payload) => {
-      commit('SET_MONEY', payload.data);
+      commit("SET_MONEY", payload.data);
     },
 
     playSFX: (_, payload) => {
@@ -364,7 +382,7 @@ export const store = createStore({
     },
 
     setSettings: ({ commit }, payload) => {
-      commit('SET_SETTINGS', JSON.parse(payload.data));
+      commit("SET_SETTINGS", JSON.parse(payload.data));
     },
-  }
-})
+  },
+});
